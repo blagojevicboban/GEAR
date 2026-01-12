@@ -1,0 +1,51 @@
+
+export enum VETSector {
+  MECHATRONICS = 'Mechatronics',
+  ELECTRICAL = 'Electrical Engineering',
+  MECHANICAL = 'Mechanical Engineering',
+  ICT = 'ICT',
+  CONSTRUCTION = 'Construction',
+  CHEMISTRY='Chemistry'
+}
+
+export enum EquipmentLevel {
+  BASIC = 'Basic',
+  INTERMEDIATE = 'Intermediate',
+  ADVANCED = 'Advanced'
+}
+
+export interface Hotspot {
+  id: string;
+  position: { x: number; y: number; z: number };
+  title: string;
+  description: string;
+  mediaUrl?: string;
+  type: 'info' | 'video' | 'pdf';
+}
+
+export interface VETModel {
+  id: string;
+  name: string;
+  description: string;
+  sector: VETSector;
+  equipmentType: string;
+  level: EquipmentLevel;
+  modelUrl: string;
+  thumbnailUrl: string;
+  optimized: boolean;
+  fileSize: number; // in bytes
+  uploadedBy: string;
+  createdAt: string;
+  hotspots: Hotspot[];
+}
+
+export interface User {
+  id: string;
+  username: string;
+  email: string;
+  institution?: string;
+  bio?: string;
+  profilePicUrl?: string;
+}
+
+export type AppView = 'home' | 'gallery' | 'upload' | 'edit' | 'viewer' | 'login' | 'register' | 'profile';

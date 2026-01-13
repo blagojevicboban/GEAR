@@ -1,11 +1,11 @@
 
-export enum VETSector {
+export enum EDUSector {
   MECHATRONICS = 'Mechatronics',
   ELECTRICAL = 'Electrical Engineering',
   MECHANICAL = 'Mechanical Engineering',
   ICT = 'ICT',
   CONSTRUCTION = 'Construction',
-  CHEMISTRY='Chemistry'
+  CHEMISTRY = 'Chemistry'
 }
 
 export enum EquipmentLevel {
@@ -27,7 +27,7 @@ export interface VETModel {
   id: string;
   name: string;
   description: string;
-  sector: VETSector;
+  sector: EDUSector;
   equipmentType: string;
   level: EquipmentLevel;
   modelUrl: string;
@@ -46,6 +46,7 @@ export interface User {
   institution?: string;
   bio?: string;
   profilePicUrl?: string;
+  createdAt?: string; // Added to match DB
 }
 
 export type AppView = 'home' | 'gallery' | 'upload' | 'edit' | 'viewer' | 'login' | 'register' | 'profile';

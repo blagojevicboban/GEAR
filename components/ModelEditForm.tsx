@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { VETSector, EquipmentLevel, VETModel, Hotspot } from '../types';
+import { EDUSector, EquipmentLevel, VETModel, Hotspot } from '../types';
 import { generateOptimizationSuggestions } from '../services/geminiService';
 
 interface ModelEditFormProps {
@@ -50,6 +50,9 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
       setFormData({ ...formData, sector: value });
     }
   };
+  // ... (trimmed for brevity effectively since I can only check imports and usage in range)
+  // Actually I need to be careful with the range. I'll target the import and the specific usages.
+
 
   const handleAddHotspot = () => {
     const newHs: Hotspot = {
@@ -82,7 +85,7 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
 
     let updatedModel = { ...model };
     const finalSector = showCustomSector ? formData.customSector : formData.sector;
-    
+
     // If a new 3D file was provided
     if (formData.modelFile) {
       await new Promise(resolve => setTimeout(resolve, 1500));
@@ -152,15 +155,15 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
                 <div className="flex-1 space-y-4">
                   <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">Thumbnail Image</label>
                   <div className="relative group">
-                    <input 
-                      type="file" 
-                      accept="image/*" 
+                    <input
+                      type="file"
+                      accept="image/*"
                       onChange={handleThumbnailChange}
-                      className="hidden" 
+                      className="hidden"
                       id="thumbnail-upload-edit"
                     />
-                    <label 
-                      htmlFor="thumbnail-upload-edit" 
+                    <label
+                      htmlFor="thumbnail-upload-edit"
                       className="flex items-center gap-3 px-6 py-4 bg-slate-950 border border-slate-700 rounded-xl cursor-pointer hover:border-indigo-500 transition-all group-hover:bg-slate-900"
                     >
                       <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
@@ -185,22 +188,22 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">Asset Name</label>
-                  <input 
+                  <input
                     required
-                    type="text" 
+                    type="text"
                     className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-white transition-all"
                     value={formData.name}
-                    onChange={e => setFormData({...formData, name: e.target.value})}
+                    onChange={e => setFormData({ ...formData, name: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">Equipment Type</label>
-                  <input 
+                  <input
                     required
-                    type="text" 
+                    type="text"
                     className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-white transition-all"
                     value={formData.equipmentType}
-                    onChange={e => setFormData({...formData, equipmentType: e.target.value})}
+                    onChange={e => setFormData({ ...formData, equipmentType: e.target.value })}
                   />
                 </div>
               </div>
@@ -208,31 +211,31 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">VET Sector</label>
-                  <select 
+                  <select
                     className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-white transition-all"
                     value={showCustomSector ? 'CUSTOM' : formData.sector}
                     onChange={handleSectorChange}
                   >
-                    {Object.values(VETSector).map(s => <option key={s} value={s}>{s}</option>)}
+                    {Object.values(EDUSector).map(s => <option key={s} value={s}>{s}</option>)}
                     <option value="CUSTOM">+ Other / Custom Sector...</option>
                   </select>
                   {showCustomSector && (
-                    <input 
+                    <input
                       required
                       type="text"
                       placeholder="New sector name..."
                       className="w-full mt-2 bg-indigo-500/5 border border-indigo-500/30 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-white animate-in slide-in-from-top-1 transition-all"
                       value={formData.customSector}
-                      onChange={e => setFormData({...formData, customSector: e.target.value})}
+                      onChange={e => setFormData({ ...formData, customSector: e.target.value })}
                     />
                   )}
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">Complexity Level</label>
-                  <select 
+                  <select
                     className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-white transition-all"
                     value={formData.level}
-                    onChange={e => setFormData({...formData, level: e.target.value as EquipmentLevel})}
+                    onChange={e => setFormData({ ...formData, level: e.target.value as EquipmentLevel })}
                   >
                     {Object.values(EquipmentLevel).map(l => <option key={l} value={l}>{l}</option>)}
                   </select>
@@ -242,12 +245,12 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Uploaded By</label>
-                  <input 
+                  <input
                     required
-                    type="text" 
+                    type="text"
                     className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-white transition-all"
                     value={formData.uploadedBy}
-                    onChange={e => setFormData({...formData, uploadedBy: e.target.value})}
+                    onChange={e => setFormData({ ...formData, uploadedBy: e.target.value })}
                   />
                 </div>
                 <div className="hidden md:block"></div>
@@ -255,12 +258,12 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
 
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">Educational Description</label>
-                <textarea 
+                <textarea
                   required
                   rows={3}
                   className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none resize-none text-white transition-all"
                   value={formData.description}
-                  onChange={e => setFormData({...formData, description: e.target.value})}
+                  onChange={e => setFormData({ ...formData, description: e.target.value })}
                 />
               </div>
             </div>
@@ -272,7 +275,7 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
                   <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
                   Interactive Hotspots
                 </h3>
-                <button 
+                <button
                   type="button"
                   onClick={handleAddHotspot}
                   className="text-xs font-bold bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white px-3 py-1.5 rounded-lg border border-indigo-500/30 transition-all"
@@ -289,20 +292,20 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
                 <div className="grid grid-cols-1 gap-4">
                   {hotspots.map((hs) => (
                     <div key={hs.id} className="bg-slate-950 p-6 rounded-2xl border border-slate-800 relative group">
-                      <button 
+                      <button
                         type="button"
                         onClick={() => handleRemoveHotspot(hs.id)}
                         className="absolute top-4 right-4 text-slate-600 hover:text-rose-500 transition-colors"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                       </button>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="md:col-span-2 space-y-4">
                           <div className="space-y-1">
                             <label className="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Hotspot Title</label>
-                            <input 
-                              type="text" 
+                            <input
+                              type="text"
                               className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 focus:border-indigo-500 outline-none text-white text-sm"
                               value={hs.title}
                               onChange={e => handleHotspotChange(hs.id, 'title', e.target.value)}
@@ -310,7 +313,7 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
                           </div>
                           <div className="space-y-1">
                             <label className="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Pedagogical Description</label>
-                            <textarea 
+                            <textarea
                               rows={2}
                               className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 focus:border-indigo-500 outline-none text-white text-sm resize-none"
                               value={hs.description}
@@ -321,19 +324,19 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
                         <div className="space-y-4">
                           <label className="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Local Coordinates (X, Y, Z)</label>
                           <div className="grid grid-cols-3 gap-2">
-                            <input 
+                            <input
                               type="number" step="0.01"
                               className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-2 focus:border-indigo-500 outline-none text-white text-center text-xs"
                               value={hs.position.x}
                               onChange={e => handleHotspotChange(hs.id, 'pos_x', e.target.value)}
                             />
-                            <input 
+                            <input
                               type="number" step="0.01"
                               className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-2 focus:border-indigo-500 outline-none text-white text-center text-xs"
                               value={hs.position.y}
                               onChange={e => handleHotspotChange(hs.id, 'pos_y', e.target.value)}
                             />
-                            <input 
+                            <input
                               type="number" step="0.01"
                               className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-2 focus:border-indigo-500 outline-none text-white text-center text-xs"
                               value={hs.position.z}
@@ -342,7 +345,7 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
                           </div>
                           <div className="space-y-1">
                             <label className="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Type</label>
-                            <select 
+                            <select
                               className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-2 focus:border-indigo-500 outline-none text-white text-xs"
                               value={hs.type}
                               onChange={e => handleHotspotChange(hs.id, 'type', e.target.value)}
@@ -367,12 +370,12 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
                 Digital Twin Replacement
               </h3>
               <div className="border-2 border-dashed border-slate-700 rounded-2xl p-6 text-center hover:border-indigo-500/50 transition-colors cursor-pointer bg-slate-950/50">
-                <input 
-                  type="file" 
-                  accept=".glb,.gltf" 
-                  className="hidden" 
+                <input
+                  type="file"
+                  accept=".glb,.gltf"
+                  className="hidden"
                   id="model-file-edit-v2"
-                  onChange={e => setFormData({...formData, modelFile: e.target.files?.[0] || null})}
+                  onChange={e => setFormData({ ...formData, modelFile: e.target.files?.[0] || null })}
                 />
                 <label htmlFor="model-file-edit-v2" className="cursor-pointer">
                   <p className="text-sm text-slate-300 font-semibold">{formData.modelFile ? formData.modelFile.name : 'Click to select new 3D source'}</p>
@@ -383,14 +386,14 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
 
             {/* Actions */}
             <div className="flex gap-4 pt-6">
-               <button 
+              <button
                 type="button"
                 onClick={onCancel}
                 className="flex-1 py-4 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-2xl transition-all"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 type="submit"
                 className="flex-[2] py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-[0.98]"
               >

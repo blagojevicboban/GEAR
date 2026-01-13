@@ -1,0 +1,30 @@
+# In Virtualmin, go to:
+# Virtualmin -> Services -> Configure Website -> Edit Directives
+# Add/Update these lines inside the <VirtualHost> block:
+
+DocumentRoot /home/gear/app/dist
+
+<Directory /home/gear/app/dist>
+    Options -Indexes +FollowSymLinks
+    AllowOverride All
+    Require all granted
+    
+    # React Router handling
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule . /index.html [L]
+</Directory>
+
+# Proxy API requests to Node.js
+ProxyPass /api http://localhost:3001/api
+ProxyPassReverse /api http://localhost:3001/api
+
+# Proxy Webhook requests
+ProxyPass /webhook http://localhost:9000
+ProxyPassReverse /webhook http://localhost:9000
+
+# Note: If you want Node to serve the static files too (simpler),
+# You can just proxy root / to http://localhost:3001/
+# But putting DocumentRoot to 'dist' is often faster if Apache handles it.
+# The configuration above assumes Apache serves static files and Node serves /api.

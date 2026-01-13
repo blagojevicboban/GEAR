@@ -14,11 +14,18 @@ import ProfileForm from './components/ProfileForm';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>('home');
-  const [models, setModels] = useState<VETModel[]>(INITIAL_MODELS);
+  const [models, setModels] = useState<VETModel[]>([]);
   const [selectedModel, setSelectedModel] = useState<VETModel | null>(null);
   const [modelToEdit, setModelToEdit] = useState<VETModel | null>(null);
   const [isWorkshopMode, setIsWorkshopMode] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    fetch('/api/models')
+      .then(res => res.json())
+      .then(data => setModels(data))
+      .catch(err => console.error("Failed to fetch models", err));
+  }, []);
 
   // Deep linking: check for modelId in URL on load
   useEffect(() => {
@@ -44,15 +51,38 @@ const App: React.FC = () => {
     setCurrentView('edit');
   };
 
-  const handleUpload = (newModel: VETModel) => {
-    setModels(prev => [newModel, ...prev]);
-    setCurrentView('gallery');
+  const handleUpload = async (newModel: VETModel) => {
+    try {
+      const res = await fetch('/api/models', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newModel)
+      });
+      if (res.ok) {
+        const savedModel = await res.json();
+        setModels(prev => [savedModel, ...prev]);
+        setCurrentView('gallery');
+      }
+    } catch (err) {
+      console.error("Failed to upload model", err);
+    }
   };
 
-  const handleUpdate = (updatedModel: VETModel) => {
-    setModels(prev => prev.map(m => m.id === updatedModel.id ? updatedModel : m));
-    setCurrentView('gallery');
-    setModelToEdit(null);
+  const handleUpdate = async (updatedModel: VETModel) => {
+    try {
+      const res = await fetch(`/api/models/${updatedModel.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedModel)
+      });
+      if (res.ok) {
+        setModels(prev => prev.map(m => m.id === updatedModel.id ? updatedModel : m));
+        setCurrentView('gallery');
+        setModelToEdit(null);
+      }
+    } catch (err) {
+      console.error("Failed to update model", err);
+    }
   };
 
   const handleProfileUpdate = (updatedUser: User) => {
@@ -91,9 +121,9 @@ const App: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen bg-slate-950 font-sans text-slate-200">
       {currentView !== 'viewer' && (
-        <Navbar 
-          currentView={currentView} 
-          setView={protectedSetView} 
+        <Navbar
+          currentView={currentView}
+          setView={protectedSetView}
           currentUser={currentUser}
           onLogout={handleLogout}
         />
@@ -101,17 +131,17 @@ const App: React.FC = () => {
 
       <main className="flex-1">
         {currentView === 'home' && (
-          <Dashboard 
-            modelsCount={models.length} 
-            onGetStarted={() => setCurrentView('gallery')} 
+          <Dashboard
+            modelsCount={models.length}
+            onGetStarted={() => setCurrentView('gallery')}
             latestModels={models.slice(0, 3)}
             onViewModel={(m) => handleViewModel(m)}
           />
         )}
 
         {currentView === 'gallery' && (
-          <ModelGallery 
-            models={models} 
+          <ModelGallery
+            models={models}
             currentUser={currentUser}
             onViewModel={(m) => handleViewModel(m)}
             onEnterWorkshop={(m) => handleViewModel(m, true)}
@@ -120,23 +150,23 @@ const App: React.FC = () => {
         )}
 
         {currentView === 'upload' && (
-          <ModelUploadForm 
-            onUploadSuccess={handleUpload} 
+          <ModelUploadForm
+            onUploadSuccess={handleUpload}
             userName={currentUser?.username || 'Guest'}
           />
         )}
 
         {currentView === 'edit' && modelToEdit && (
-          <ModelEditForm 
+          <ModelEditForm
             model={modelToEdit}
-            onUpdateSuccess={handleUpdate} 
+            onUpdateSuccess={handleUpdate}
             userName={currentUser?.username || 'Guest'}
             onCancel={() => { setCurrentView('gallery'); setModelToEdit(null); }}
           />
         )}
 
         {currentView === 'profile' && currentUser && (
-          <ProfileForm 
+          <ProfileForm
             user={currentUser}
             onUpdateSuccess={handleProfileUpdate}
             onCancel={() => setCurrentView('home')}
@@ -144,24 +174,24 @@ const App: React.FC = () => {
         )}
 
         {currentView === 'viewer' && selectedModel && (
-          <VRViewer 
-            model={selectedModel} 
+          <VRViewer
+            model={selectedModel}
             workshopMode={isWorkshopMode}
-            onExit={handleExitViewer} 
+            onExit={handleExitViewer}
           />
         )}
 
         {currentView === 'login' && (
-          <LoginForm 
-            onLogin={handleLogin} 
-            onSwitchToRegister={() => setCurrentView('register')} 
+          <LoginForm
+            onLogin={handleLogin}
+            onSwitchToRegister={() => setCurrentView('register')}
           />
         )}
 
         {currentView === 'register' && (
-          <RegisterForm 
-            onRegister={handleLogin} 
-            onSwitchToLogin={() => setCurrentView('login')} 
+          <RegisterForm
+            onRegister={handleLogin}
+            onSwitchToLogin={() => setCurrentView('login')}
           />
         )}
       </main>

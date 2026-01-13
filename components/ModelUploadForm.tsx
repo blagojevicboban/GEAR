@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { VETSector, EquipmentLevel, VETModel } from '../types';
+import { EDUSector, EquipmentLevel, VETModel } from '../types';
 import { generateOptimizationSuggestions } from '../services/geminiService';
 
 interface ModelUploadFormProps {
@@ -15,7 +15,7 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    sector: VETSector.MECHATRONICS as string,
+    sector: EDUSector.MECHATRONICS as string,
     customSector: '',
     equipmentType: '',
     level: EquipmentLevel.BASIC,
@@ -58,12 +58,12 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
 
     // Mock optimization process
     await new Promise(resolve => setTimeout(resolve, 2000));
-    
+
     // Get AI suggestions for further optimization
     const finalSector = showCustomSector ? formData.customSector : formData.sector;
     const tips = await generateOptimizationSuggestions(formData.modelFile.size, finalSector);
     setOptSuggestions(tips);
-    
+
     setUploadStep(3); // Metadata phase
     await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -114,7 +114,7 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
                 Applying Draco compression and PBR texture standardization.
               </p>
             </div>
-            
+
             {optSuggestions && (
               <div className="mt-8 p-6 bg-indigo-500/5 border border-indigo-500/20 rounded-2xl text-left animate-in fade-in slide-in-from-bottom-4">
                 <h4 className="text-indigo-400 text-xs font-bold uppercase mb-3 tracking-widest">AI Performance Tuning:</h4>
@@ -129,12 +129,12 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
               <div className="space-y-4">
                 <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">1. 3D Model Source (.glb / .gltf)</label>
                 <div className="border-2 border-dashed border-slate-700 rounded-2xl p-6 text-center hover:border-indigo-500/50 transition-all cursor-pointer bg-slate-950/50 group h-40 flex flex-col items-center justify-center">
-                  <input 
-                    type="file" 
-                    accept=".glb,.gltf" 
-                    className="hidden" 
+                  <input
+                    type="file"
+                    accept=".glb,.gltf"
+                    className="hidden"
                     id="model-upload"
-                    onChange={e => setFormData({...formData, modelFile: e.target.files?.[0] || null})}
+                    onChange={e => setFormData({ ...formData, modelFile: e.target.files?.[0] || null })}
                   />
                   <label htmlFor="model-upload" className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
                     <svg className={`w-8 h-8 mb-2 transition-colors ${formData.modelFile ? 'text-green-500' : 'text-slate-600 group-hover:text-indigo-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
@@ -146,10 +146,10 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
               <div className="space-y-4">
                 <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">2. Gallery Thumbnail</label>
                 <div className="border-2 border-dashed border-slate-700 rounded-2xl p-2 text-center hover:border-indigo-500/50 transition-all cursor-pointer bg-slate-950/50 group h-40 flex items-center justify-center relative overflow-hidden">
-                   <input 
-                    type="file" 
-                    accept="image/*" 
-                    className="hidden" 
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
                     id="thumb-upload"
                     onChange={handleThumbnailChange}
                   />
@@ -170,27 +170,27 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
                 <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
                 Technical Metadata
               </h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Asset Name</label>
-                  <input 
+                  <input
                     required
-                    type="text" 
+                    type="text"
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-white transition-all"
                     value={formData.name}
-                    onChange={e => setFormData({...formData, name: e.target.value})}
+                    onChange={e => setFormData({ ...formData, name: e.target.value })}
                     placeholder="e.g., CNC Milling Hub"
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Equipment Type</label>
-                  <input 
+                  <input
                     required
-                    type="text" 
+                    type="text"
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-white transition-all"
                     value={formData.equipmentType}
-                    onChange={e => setFormData({...formData, equipmentType: e.target.value})}
+                    onChange={e => setFormData({ ...formData, equipmentType: e.target.value })}
                     placeholder="e.g., Lathe Machine"
                   />
                 </div>
@@ -199,31 +199,31 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">VET Sector</label>
-                  <select 
+                  <select
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-white transition-all"
                     value={showCustomSector ? 'CUSTOM' : formData.sector}
                     onChange={handleSectorChange}
                   >
-                    {Object.values(VETSector).map(s => <option key={s} value={s}>{s}</option>)}
+                    {Object.values(EDUSector).map(s => <option key={s} value={s}>{s}</option>)}
                     <option value="CUSTOM">+ Other / Custom Sector...</option>
                   </select>
                   {showCustomSector && (
-                    <input 
+                    <input
                       required
                       type="text"
                       placeholder="Enter custom sector name..."
                       className="w-full mt-2 bg-indigo-500/5 border border-indigo-500/30 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-white animate-in slide-in-from-top-2 transition-all"
                       value={formData.customSector}
-                      onChange={e => setFormData({...formData, customSector: e.target.value})}
+                      onChange={e => setFormData({ ...formData, customSector: e.target.value })}
                     />
                   )}
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Complexity Level</label>
-                  <select 
+                  <select
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-white transition-all"
                     value={formData.level}
-                    onChange={e => setFormData({...formData, level: e.target.value as EquipmentLevel})}
+                    onChange={e => setFormData({ ...formData, level: e.target.value as EquipmentLevel })}
                   >
                     {Object.values(EquipmentLevel).map(l => <option key={l} value={l}>{l}</option>)}
                   </select>
@@ -233,12 +233,12 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Uploaded By</label>
-                  <input 
+                  <input
                     required
-                    type="text" 
+                    type="text"
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-white transition-all"
                     value={formData.uploadedBy}
-                    onChange={e => setFormData({...formData, uploadedBy: e.target.value})}
+                    onChange={e => setFormData({ ...formData, uploadedBy: e.target.value })}
                     placeholder="Your name or institution"
                   />
                 </div>
@@ -247,18 +247,18 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
 
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Educational Description</label>
-                <textarea 
+                <textarea
                   required
                   rows={4}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none resize-none text-white transition-all"
                   value={formData.description}
-                  onChange={e => setFormData({...formData, description: e.target.value})}
+                  onChange={e => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Describe the learning objectives and mechanical specs..."
                 />
               </div>
             </div>
 
-            <button 
+            <button
               type="submit"
               disabled={!formData.modelFile}
               className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold rounded-2xl text-lg shadow-2xl shadow-indigo-600/30 transition-all active:scale-[0.98] flex items-center justify-center gap-3"

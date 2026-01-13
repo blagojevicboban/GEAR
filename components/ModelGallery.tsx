@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { VETModel, VETSector, User } from '../types';
+import { VETModel, EDUSector, User } from '../types';
 
 interface ModelGalleryProps {
   models: VETModel[];
@@ -11,13 +10,13 @@ interface ModelGalleryProps {
 }
 
 const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, onViewModel, onEnterWorkshop, onEditModel }) => {
-  const [filter, setFilter] = useState<VETSector | 'All'>('All');
+  const [filter, setFilter] = useState<EDUSector | 'All'>('All');
   const [search, setSearch] = useState('');
 
   const filteredModels = models.filter(m => {
     const matchesFilter = filter === 'All' || m.sector === filter;
-    const matchesSearch = m.name.toLowerCase().includes(search.toLowerCase()) || 
-                          m.equipmentType.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = m.name.toLowerCase().includes(search.toLowerCase()) ||
+      m.equipmentType.toLowerCase().includes(search.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
@@ -28,22 +27,22 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, onView
           <h1 className="text-4xl font-bold mb-2">VET Equipment Repository</h1>
           <p className="text-slate-400">Standardized, optimized, and interactive 3D twins.</p>
         </div>
-        
+
         <div className="flex flex-wrap gap-3">
-          <input 
-            type="text" 
-            placeholder="Search equipment..." 
+          <input
+            type="text"
+            placeholder="Search equipment..."
             className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500 w-full md:w-64"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <select 
+          <select
             className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500"
             value={filter}
             onChange={(e) => setFilter(e.target.value as any)}
           >
             <option value="All">All Sectors</option>
-            {Object.values(VETSector).map(s => <option key={s} value={s}>{s}</option>)}
+            {Object.values(EDUSector).map(s => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
       </div>
@@ -53,10 +52,10 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, onView
           <div key={model.id} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col hover:border-slate-700 transition-colors group">
             <div className="relative h-40 overflow-hidden">
               <img src={model.thumbnailUrl} alt={model.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-              
+
               {/* Edit Button - Visible if logged in for demo purposes */}
               {currentUser && (
-                <button 
+                <button
                   onClick={(e) => { e.stopPropagation(); onEditModel(model); }}
                   className="absolute top-2 right-2 bg-indigo-600 p-2 rounded-lg text-white shadow-lg z-10 opacity-0 group-hover:opacity-100 transition-all hover:bg-indigo-500"
                   title="Edit Model Metadata & Hotspots"
@@ -68,7 +67,7 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, onView
               )}
 
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                <button 
+                <button
                   onClick={() => onViewModel(model)}
                   className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold"
                 >
@@ -83,21 +82,21 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, onView
               </div>
               <h3 className="font-bold text-lg mb-1">{model.name}</h3>
               <p className="text-slate-500 text-xs mb-3 flex-1 line-clamp-2">{model.description}</p>
-              
+
               <div className="mb-4">
                 <p className="text-[10px] text-slate-500 italic">By {model.uploadedBy}</p>
               </div>
 
               <div className="flex flex-col gap-2 mt-auto">
-                <button 
+                <button
                   onClick={() => onViewModel(model)}
                   className="w-full py-2 bg-indigo-600/10 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-600/30 rounded-lg text-sm font-bold transition-all"
                 >
                   Explore in XR
                 </button>
-                <button 
-                   onClick={() => onEnterWorkshop(model)}
-                   className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2"
+                <button
+                  onClick={() => onEnterWorkshop(model)}
+                  className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                   Join Workshop

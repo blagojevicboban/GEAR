@@ -11,27 +11,41 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onSwitchToRegister }) =>
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Simulate API delay
-    setTimeout(() => {
-      onLogin({
-        id: 'user-' + Math.random(),
-        username: formData.email.split('@')[0],
-        email: formData.email,
-        institution: 'VET Technical School'
+
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: formData.email,
+          password: formData.password
+        })
       });
+
+      if (!res.ok) {
+        alert('Invalid credentials');
+        setLoading(false);
+        return;
+      }
+
+      const user = await res.json();
+      onLogin(user);
+    } catch (err) {
+      console.error("Login failed", err);
+      alert('Login failed. Check console.');
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
     <div className="max-w-md mx-auto mt-20 px-6 py-12">
       <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-cyan-500"></div>
-        
+
         <div className="text-center mb-10">
           <div className="w-16 h-16 bg-indigo-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-indigo-500/30">
             <svg className="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -45,28 +59,28 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onSwitchToRegister }) =>
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Email Address</label>
-            <input 
+            <input
               required
-              type="email" 
+              type="email"
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-white"
               value={formData.email}
-              onChange={e => setFormData({...formData, email: e.target.value})}
+              onChange={e => setFormData({ ...formData, email: e.target.value })}
               placeholder="name@institution.edu"
             />
           </div>
           <div className="space-y-2">
             <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Password</label>
-            <input 
+            <input
               required
-              type="password" 
+              type="password"
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-white"
               value={formData.password}
-              onChange={e => setFormData({...formData, password: e.target.value})}
+              onChange={e => setFormData({ ...formData, password: e.target.value })}
               placeholder="••••••••"
             />
           </div>
 
-          <button 
+          <button
             type="submit"
             disabled={loading}
             className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white font-bold rounded-xl shadow-xl shadow-indigo-600/20 transition-all flex items-center justify-center gap-2"
@@ -82,7 +96,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onSwitchToRegister }) =>
         <div className="mt-8 text-center border-t border-slate-800 pt-6">
           <p className="text-slate-500 text-sm">
             Don't have an account?{' '}
-            <button 
+            <button
               onClick={onSwitchToRegister}
               className="text-indigo-400 font-bold hover:text-indigo-300 transition-colors"
             >

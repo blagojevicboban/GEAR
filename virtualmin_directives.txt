@@ -1,20 +1,46 @@
-# In Virtualmin, go to:
-# Virtualmin -> Services -> Configure Website -> Edit Directives
-# Add/Update these lines inside the <VirtualHost> block:
+SuexecUserGroup #1026 #1026
+ServerName gear.tsp.edu.rs
+ServerAlias www.gear.tsp.edu.rs
+ServerAlias mail.gear.tsp.edu.rs
+ServerAlias webmail.gear.tsp.edu.rs
+ServerAlias admin.gear.tsp.edu.rs
 
-DocumentRoot /home/gear/app/dist
+# CHANGED: Point to the React build output
+DocumentRoot /home/gear/public_html/dist
 
-<Directory /home/gear/app/dist>
+ErrorLog /var/log/virtualmin/gear.tsp.edu.rs_error_log
+CustomLog /var/log/virtualmin/gear.tsp.edu.rs_access_log combined
+ScriptAlias /cgi-bin/ /home/gear/cgi-bin/
+ScriptAlias /awstats /home/gear/cgi-bin/awstats.pl
+DirectoryIndex index.html index.php index.htm
+
+# CHANGED: Directory options for React App
+<Directory /home/gear/public_html/dist>
     Options -Indexes +FollowSymLinks
     AllowOverride All
     Require all granted
     
-    # React Router handling
+    # React Router Rewrites
     RewriteEngine On
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule . /index.html [L]
 </Directory>
+
+<Directory /home/gear/cgi-bin>
+    Require all granted
+    AllowOverride All Options=ExecCGI,Includes,IncludesNOEXEC,Indexes,MultiViews,SymLinksIfOwnerMatch
+</Directory>
+
+ProxyPass /.well-known !
+RewriteEngine on
+RewriteCond %{HTTP_HOST} =webmail.gear.tsp.edu.rs
+RewriteRule ^/(?!.well-known)(.*)$ https://gear.tsp.edu.rs:20000/ [R]
+RewriteCond %{HTTP_HOST} =admin.gear.tsp.edu.rs
+RewriteRule ^/(?!.well-known)(.*)$ https://gear.tsp.edu.rs:10000/ [R]
+
+RemoveHandler .php
+RedirectMatch ^/awstats$ /awstats/
 
 # Proxy API requests to Node.js
 ProxyPass /api http://localhost:3001/api
@@ -24,7 +50,14 @@ ProxyPassReverse /api http://localhost:3001/api
 ProxyPass /webhook http://localhost:9000
 ProxyPassReverse /webhook http://localhost:9000
 
-# Note: If you want Node to serve the static files too (simpler),
-# You can just proxy root / to http://localhost:3001/
-# But putting DocumentRoot to 'dist' is often faster if Apache handles it.
-# The configuration above assumes Apache serves static files and Node serves /api.
+<FilesMatch \.php$>
+    SetHandler None
+    AddType text/plain .php
+</FilesMatch>
+
+<Files awstats.pl>
+    AuthName "gear.tsp.edu.rs statistics"
+    AuthType Basic
+    AuthUserFile /home/gear/.awstats-htpasswd
+    require valid-user
+</Files>

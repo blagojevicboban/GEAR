@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Navigate to project root (Virtualmin user home)
-cd /home/gear/app
+# Navigate to project root
+cd /home/gear/public_html
 
 echo "Starting deployment at $(date)"
 

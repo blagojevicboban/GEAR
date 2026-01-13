@@ -197,6 +197,27 @@ async function seed() {
 
         console.log('Creating tables...');
         await connection.query(`
+      CREATE TABLE IF NOT EXISTS sectors (
+        id VARCHAR(50) PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        description TEXT
+      )
+    `);
+
+        await connection.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id VARCHAR(50) PRIMARY KEY,
+        username VARCHAR(100) NOT NULL UNIQUE,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        password VARCHAR(255),
+        institution VARCHAR(255),
+        bio TEXT,
+        profilePicUrl VARCHAR(500),
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+        await connection.query(`
       CREATE TABLE IF NOT EXISTS models (
         id VARCHAR(50) PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
@@ -209,7 +230,8 @@ async function seed() {
         optimized BOOLEAN,
         fileSize BIGINT,
         uploadedBy VARCHAR(100),
-        createdAt DATE
+        createdAt DATE,
+        FOREIGN KEY (sector) REFERENCES sectors(id) ON DELETE SET NULL
       )
     `);
 
@@ -229,6 +251,27 @@ async function seed() {
         console.log('Clearing existing data...');
         await connection.query('DELETE FROM hotspots');
         await connection.query('DELETE FROM models');
+        await connection.query('DELETE FROM users');
+        await connection.query('DELETE FROM sectors');
+
+        console.log('Inserting sectors...');
+        const sectors = [
+            { id: 'MECHATRONICS', name: 'Mechatronics' },
+            { id: 'ELECTRICAL', name: 'Electrical Engineering' },
+            { id: 'MECHANICAL', name: 'Mechanical Engineering' },
+            { id: 'ICT', name: 'ICT' },
+            { id: 'CONSTRUCTION', name: 'Construction' },
+            { id: 'CHEMISTRY', name: 'Chemistry' }
+        ];
+        for (const s of sectors) {
+            await connection.query('INSERT INTO sectors (id, name) VALUES (?, ?)', [s.id, s.name]);
+        }
+
+        console.log('Inserting default user...');
+        await connection.query(
+            'INSERT INTO users (id, username, email, institution) VALUES (?, ?, ?, ?)',
+            ['user-001', 'boban.blagojevic', 'boban@example.com', 'Technical School Pirot']
+        );
 
         console.log('Inserting models and hotspots...');
         for (const model of INITIAL_MODELS) {

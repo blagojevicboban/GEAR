@@ -1,4 +1,4 @@
-const db = require('./db');
+import pool from './db.js';
 
 const INITIAL_MODELS = [
     {
@@ -193,7 +193,7 @@ const INITIAL_MODELS = [
 
 async function seed() {
     try {
-        const connection = await db.getConnection();
+        const connection = await pool.getConnection();
 
         console.log('Creating tables...');
         await connection.query(`

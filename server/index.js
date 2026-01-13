@@ -1,8 +1,12 @@
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const db = require('./db');
-const path = require('path');
+import express from 'express';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import pool from './db.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -15,10 +19,10 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok' });
 });
 
-// Example: Get all items (adjust table name as needed)
+// Get all models
 app.get('/api/items', async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT * FROM items'); // Replace 'items' with actual table
+        const [rows] = await pool.query('SELECT * FROM models');
         res.json(rows);
     } catch (err) {
         console.error(err);

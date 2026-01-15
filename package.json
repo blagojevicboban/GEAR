@@ -13,13 +13,16 @@
   },
   "dependencies": {
     "@google/genai": "^1.35.0",
-    "react-dom": "^19.2.3",
-    "react": "^19.2.3",
-    "express": "^4.18.2",
-    "mysql2": "^3.9.1",
-    "dotenv": "^16.4.1",
+    "@types/three": "^0.182.0",
+    "body-parser": "^1.20.2",
     "cors": "^2.8.5",
-    "body-parser": "^1.20.2"
+    "dotenv": "^16.4.1",
+    "express": "^4.18.2",
+    "multer": "^2.0.2",
+    "mysql2": "^3.9.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "three": "^0.182.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

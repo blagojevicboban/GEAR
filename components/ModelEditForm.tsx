@@ -40,6 +40,32 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
     }
   };
 
+  React.useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      if (e.clipboardData && e.clipboardData.files.length > 0) {
+        const file = e.clipboardData.files[0];
+        if (file.type.startsWith('image/')) {
+          e.preventDefault();
+          // We need to use functional update to ensure we have latest formData state? 
+          // Actually, since this is an event listener added once, we might have stale closure issues if we don't list dependencies.
+          // But adding dependencies re-binds the listener.
+
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            setThumbnailPreview(reader.result as string);
+            setFormData(prev => ({ ...prev, thumbnailFile: file }));
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+    };
+
+    document.addEventListener('paste', handlePaste);
+    return () => {
+      document.removeEventListener('paste', handlePaste);
+    };
+  }, []);
+
   const handleSectorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     if (value === 'CUSTOM') {
@@ -87,17 +113,67 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
     const finalSector = showCustomSector ? formData.customSector : formData.sector;
 
     // If a new 3D file was provided
+    // If a new 3D file was provided
     if (formData.modelFile) {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      const tips = await generateOptimizationSuggestions(formData.modelFile.size, finalSector);
-      setOptSuggestions(tips);
-      updatedModel.modelUrl = URL.createObjectURL(formData.modelFile);
-      updatedModel.fileSize = formData.modelFile.size;
+      // Upload File
+      try {
+        const fileData = new FormData();
+        fileData.append('file', formData.modelFile);
+
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: fileData
+        });
+
+        if (!uploadRes.ok) throw new Error('File upload failed');
+        const uploadJson = await uploadRes.json();
+        const uploadedUrl = uploadJson.url;
+
+        const tips = await generateOptimizationSuggestions(formData.modelFile.size, finalSector);
+        setOptSuggestions(tips);
+
+        // Detect if pdb to append fragment
+        const isPdb = formData.modelFile.name.toLowerCase().endsWith('.pdb');
+        updatedModel.modelUrl = uploadedUrl + (isPdb ? '#pdb' : '');
+        updatedModel.fileSize = formData.modelFile.size;
+
+      } catch (err) {
+        console.error("File upload failed in edit", err);
+        alert("Failed to upload new model file. Metadata will still be updated.");
+        // We continue to update metadata even if file upload fails, or we could return here.
+        // For now, let's stop to avoid broken state if the user expected a file change.
+        setIsUpdating(false);
+        return;
+      }
+    } else {
+      // Mock delay if no file upload
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
 
     // If a new thumbnail was provided
     if (formData.thumbnailFile) {
-      updatedModel.thumbnailUrl = thumbnailPreview;
+      // Upload Thumbnail
+      try {
+        const thumbData = new FormData();
+        thumbData.append('file', formData.thumbnailFile);
+
+        const thumbRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: thumbData
+        });
+
+        if (!thumbRes.ok) throw new Error('Thumbnail upload failed');
+        const thumbJson = await thumbRes.json();
+        updatedModel.thumbnailUrl = thumbJson.url;
+      } catch (err) {
+        console.error("Thumbnail upload failed", err);
+        // We can choose to alert and stop, or just continue with old thumbnail
+        alert("Failed to upload thumbnail image. It will remain unchanged.");
+        // If critical, return; otherwise continue
+      }
+    } else if (updatedModel.thumbnailUrl.startsWith('data:')) {
+      // Should not happen if we only set thumbnailFile on change/paste, unless initial state was data url?
+      // But just in case
     }
 
     // Map form changes and hotspots
@@ -372,14 +448,14 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
               <div className="border-2 border-dashed border-slate-700 rounded-2xl p-6 text-center hover:border-indigo-500/50 transition-colors cursor-pointer bg-slate-950/50">
                 <input
                   type="file"
-                  accept=".glb,.gltf"
+                  accept=".glb,.gltf,.pdb"
                   className="hidden"
                   id="model-file-edit-v2"
                   onChange={e => setFormData({ ...formData, modelFile: e.target.files?.[0] || null })}
                 />
                 <label htmlFor="model-file-edit-v2" className="cursor-pointer">
                   <p className="text-sm text-slate-300 font-semibold">{formData.modelFile ? formData.modelFile.name : 'Click to select new 3D source'}</p>
-                  <p className="text-xs text-slate-500 mt-1 italic">Optional replacement of .glb or .gltf binary.</p>
+                  <p className="text-xs text-slate-500 mt-1 italic">Optional replacement of .glb, .gltf, or .pdb binary.</p>
                 </label>
               </div>
             </div>

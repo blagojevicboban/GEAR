@@ -57,36 +57,61 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
     setUploadStep(2); // Optimization phase
 
     // Mock optimization process
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    // Get AI suggestions for further optimization
-    const finalSector = showCustomSector ? formData.customSector : formData.sector;
-    const tips = await generateOptimizationSuggestions(formData.modelFile.size, finalSector);
-    setOptSuggestions(tips);
-
-    setUploadStep(3); // Metadata phase
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const newModel: VETModel = {
-      id: Math.random().toString(36).substr(2, 9),
-      name: formData.name,
-      description: formData.description,
-      sector: finalSector as any,
-      equipmentType: formData.equipmentType,
-      level: formData.level,
-      modelUrl: URL.createObjectURL(formData.modelFile),
-      thumbnailUrl: thumbnailPreview || `https://picsum.photos/seed/${formData.name}/600/400`,
-      optimized: true,
-      fileSize: formData.modelFile.size,
-      uploadedBy: formData.uploadedBy,
-      createdAt: new Date().toISOString().split('T')[0],
-      hotspots: []
-    };
+    try {
+      // Upload File
+      const fileData = new FormData();
+      fileData.append('file', formData.modelFile);
 
-    setTimeout(() => {
-      onUploadSuccess(newModel);
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        body: fileData
+      });
+
+      if (!uploadRes.ok) throw new Error('File upload failed');
+      const uploadJson = await uploadRes.json();
+      const uploadedUrl = uploadJson.url;
+
+      // Get AI suggestions for further optimization
+      const finalSector = showCustomSector ? formData.customSector : formData.sector;
+      const tips = await generateOptimizationSuggestions(formData.modelFile.size, finalSector);
+      setOptSuggestions(tips);
+
+      setUploadStep(3); // Metadata phase
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Detect if pdb to append fragment
+      const isPdb = formData.modelFile.name.toLowerCase().endsWith('.pdb');
+      const finalModelUrl = uploadedUrl + (isPdb ? '#pdb' : '');
+
+      const newModel: VETModel = {
+        id: Math.random().toString(36).substr(2, 9),
+        name: formData.name,
+        description: formData.description,
+        sector: finalSector as any,
+        equipmentType: formData.equipmentType,
+        level: formData.level,
+        modelUrl: finalModelUrl,
+        thumbnailUrl: thumbnailPreview || `https://picsum.photos/seed/${formData.name}/600/400`,
+        optimized: true,
+        fileSize: formData.modelFile.size,
+        uploadedBy: formData.uploadedBy,
+        createdAt: new Date().toISOString().split('T')[0],
+        hotspots: []
+      };
+
+      // Post metadata
+      setTimeout(() => {
+        onUploadSuccess(newModel);
+        setIsUploading(false);
+      }, 500);
+
+    } catch (err) {
+      console.error("Upload failed", err);
       setIsUploading(false);
-    }, 1500);
+      alert('Upload failed: ' + (err instanceof Error ? err.message : 'Unknown error'));
+    }
   };
 
   return (
@@ -131,14 +156,14 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
                 <div className="border-2 border-dashed border-slate-700 rounded-2xl p-6 text-center hover:border-indigo-500/50 transition-all cursor-pointer bg-slate-950/50 group h-40 flex flex-col items-center justify-center">
                   <input
                     type="file"
-                    accept=".glb,.gltf"
+                    accept=".glb,.gltf,.pdb"
                     className="hidden"
                     id="model-upload"
                     onChange={e => setFormData({ ...formData, modelFile: e.target.files?.[0] || null })}
                   />
                   <label htmlFor="model-upload" className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
                     <svg className={`w-8 h-8 mb-2 transition-colors ${formData.modelFile ? 'text-green-500' : 'text-slate-600 group-hover:text-indigo-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
-                    <p className="text-sm text-slate-300 font-semibold truncate max-w-[200px]">{formData.modelFile ? formData.modelFile.name : 'Select 3D Mesh'}</p>
+                    <p className="text-sm text-slate-300 font-semibold truncate max-w-[200px]">{formData.modelFile ? formData.modelFile.name : 'Select 3D Mesh (.glb/gltf/pdb)'}</p>
                   </label>
                 </div>
               </div>

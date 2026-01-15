@@ -8,6 +8,7 @@ import ModelGallery from './components/ModelGallery';
 import ModelUploadForm from './components/ModelUploadForm';
 import ModelEditForm from './components/ModelEditForm';
 import VRViewer from './components/VRViewer';
+import PDBViewer from './components/PDBViewer';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import ProfileForm from './components/ProfileForm';
@@ -146,6 +147,15 @@ const App: React.FC = () => {
             onViewModel={(m) => handleViewModel(m)}
             onEnterWorkshop={(m) => handleViewModel(m, true)}
             onEditModel={handleEditRequest}
+            onDeleteModel={async (id) => {
+              if (!confirm('Are you sure you want to delete this model?')) return;
+              try {
+                await fetch(`/api/models/${id}`, { method: 'DELETE' });
+                setModels(prev => prev.filter(m => m.id !== id));
+              } catch (err) {
+                console.error("Failed to delete", err);
+              }
+            }}
           />
         )}
 
@@ -174,11 +184,18 @@ const App: React.FC = () => {
         )}
 
         {currentView === 'viewer' && selectedModel && (
-          <VRViewer
-            model={selectedModel}
-            workshopMode={isWorkshopMode}
-            onExit={handleExitViewer}
-          />
+          (selectedModel.modelUrl.toLowerCase().endsWith('.pdb') || selectedModel.modelUrl.includes('#pdb')) ? (
+            <PDBViewer
+              pdbUrl={selectedModel.modelUrl.replace('#pdb', '')}
+              onExit={handleExitViewer}
+            />
+          ) : (
+            <VRViewer
+              model={selectedModel}
+              workshopMode={isWorkshopMode}
+              onExit={handleExitViewer}
+            />
+          )
         )}
 
         {currentView === 'login' && (

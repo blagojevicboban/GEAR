@@ -132,6 +132,11 @@ const App: React.FC = () => {
     }
   };
 
+  const getFeaturedModels = () => {
+    const featured = models.filter(m => m.isFeatured);
+    return featured.length > 0 ? featured : models.slice(0, 3);
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-950 font-sans text-slate-200">
       {currentView !== 'viewer' && (
@@ -148,7 +153,7 @@ const App: React.FC = () => {
           <Dashboard
             modelsCount={models.length}
             onGetStarted={() => setCurrentView('gallery')}
-            latestModels={models.slice(0, 3)}
+            featuredModels={getFeaturedModels()}
             onViewModel={(m) => handleViewModel(m)}
           />
         )}

@@ -5,27 +5,27 @@ import { VETModel } from '../types';
 interface DashboardProps {
   modelsCount: number;
   onGetStarted: () => void;
-  latestModels: VETModel[];
+  featuredModels: VETModel[];
   onViewModel: (m: VETModel) => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ modelsCount, onGetStarted, latestModels, onViewModel }) => {
+const Dashboard: React.FC<DashboardProps> = ({ modelsCount, onGetStarted, featuredModels, onViewModel }) => {
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
         <div>
           <h1 className="text-5xl lg:text-7xl font-extrabold mb-6 leading-tight">
-            The Future of <br/>
+            The Future of <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">
               VET Training
             </span>
           </h1>
           <p className="text-xl text-slate-400 mb-8 max-w-xl">
-            THE GEAR is the ultimate WebXR open-source repository for vocational schools. 
+            THE GEAR is the ultimate WebXR open-source repository for vocational schools.
             Upload, optimize, and simulate industrial equipment in 1:1 scale directly in your Meta Quest browser.
           </p>
           <div className="flex gap-4">
-            <button 
+            <button
               onClick={onGetStarted}
               className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-bold text-lg transition-all shadow-xl shadow-indigo-500/20 active:scale-95"
             >
@@ -37,11 +37,11 @@ const Dashboard: React.FC<DashboardProps> = ({ modelsCount, onGetStarted, latest
             </div>
           </div>
         </div>
-        
+
         <div className="relative aspect-video rounded-3xl overflow-hidden bg-slate-800 border border-slate-700 shadow-2xl group">
-          <img 
-            src="https://picsum.photos/seed/xr-hero/1200/800" 
-            alt="VET VR Training" 
+          <img
+            src="https://picsum.photos/seed/xr-hero/1200/800"
+            alt="VET VR Training"
             className="object-cover w-full h-full opacity-60 group-hover:scale-110 transition-transform duration-700"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent"></div>
@@ -61,9 +61,9 @@ const Dashboard: React.FC<DashboardProps> = ({ modelsCount, onGetStarted, latest
           <button onClick={onGetStarted} className="text-indigo-400 hover:text-indigo-300 font-semibold text-sm">View all →</button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {latestModels.map(model => (
-            <div 
-              key={model.id} 
+          {featuredModels.map(model => (
+            <div
+              key={model.id}
               className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden hover:border-indigo-500/50 transition-all cursor-pointer group"
               onClick={() => onViewModel(model)}
             >
@@ -80,8 +80,8 @@ const Dashboard: React.FC<DashboardProps> = ({ modelsCount, onGetStarted, latest
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-slate-500 italic">By {model.uploadedBy}</span>
                   <div className="flex gap-1">
-                     <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                     <span className="text-xs text-blue-400 font-bold uppercase tracking-tighter">VR Ready</span>
+                    <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                    <span className="text-xs text-blue-400 font-bold uppercase tracking-tighter">VR Ready</span>
                   </div>
                 </div>
               </div>

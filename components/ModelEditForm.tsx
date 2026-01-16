@@ -21,6 +21,7 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
     equipmentType: model.equipmentType,
     level: model.level,
     uploadedBy: model.uploadedBy,
+    isFeatured: model.isFeatured || false,
     modelFile: null as File | null,
     thumbnailFile: null as File | null
   });
@@ -185,6 +186,7 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
       equipmentType: formData.equipmentType,
       level: formData.level,
       uploadedBy: formData.uploadedBy,
+      isFeatured: formData.isFeatured,
       hotspots: hotspots
     };
 
@@ -282,6 +284,20 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
                     onChange={e => setFormData({ ...formData, equipmentType: e.target.value })}
                   />
                 </div>
+              </div>
+
+              <div className="flex items-center gap-3 bg-slate-900 border border-slate-700 rounded-xl p-4">
+                <input
+                  type="checkbox"
+                  id="isFeatured"
+                  className="w-5 h-5 rounded border-slate-600 text-indigo-600 focus:ring-indigo-500 bg-slate-800"
+                  checked={formData.isFeatured}
+                  onChange={e => setFormData({ ...formData, isFeatured: e.target.checked })}
+                />
+                <label htmlFor="isFeatured" className="text-sm font-bold text-slate-200 cursor-pointer select-none">
+                  Feature this Model on Dashboard
+                </label>
+                <span className="text-xs text-slate-500 ml-auto">Visible on homepage</span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

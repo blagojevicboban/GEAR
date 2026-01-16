@@ -18,10 +18,15 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Ensure uploads directory exists
-const uploadDir = path.join(__dirname, 'uploads');
+// Try to save to dist/uploads so it is served by the existing static middleware for 'dist'
+// This is a fallback strategy if /uploads route is not active due to missing restart.
+const uploadDir = path.join(__dirname, '../dist/uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
+
+// Keep this route just in case, but dist/uploads should be served by '/' static route
+app.use('/uploads', express.static(uploadDir));
 
 // Configure Multer
 const storage = multer.diskStorage({

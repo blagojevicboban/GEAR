@@ -64,12 +64,18 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         const loader = new PDBLoader();
         const offset = new THREE.Vector3();
 
-        console.log('Starting PDB Load:', pdbUrl);
+        // Construct absolute URL ensuring no double slashes (except protocol)
+        const baseUrl = window.location.origin;
+        // Remove leading slash from pdbUrl if present to avoid //uploads
+        const cleanPdbUrl = pdbUrl.startsWith('/') ? pdbUrl.substring(1) : pdbUrl;
+        const absolutePdbUrl = `${baseUrl}/${cleanPdbUrl}`;
+
+        console.log('Starting PDB Load:', absolutePdbUrl);
         setLoading(true);
         setError(null);
 
         loader.load(
-            pdbUrl,
+            absolutePdbUrl,
             (pdb) => {
                 console.log('PDB Loaded successfully', pdb);
 

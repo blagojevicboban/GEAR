@@ -13,6 +13,8 @@ interface PDBViewerProps {
 const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffeine.pdb', onExit }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [atomCount, setAtomCount] = useState(0);
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -32,8 +34,12 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         light.position.set(1, 1, 1);
         scene.add(light);
 
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1.5); // increased intensity
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
         scene.add(ambientLight);
+
+        // Molecule Group
+        const rootGroup = new THREE.Group();
+        scene.add(rootGroup);
 
         // Renderer
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -59,35 +65,31 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         const offset = new THREE.Vector3();
 
         console.log('Starting PDB Load:', pdbUrl);
+        setLoading(true);
+        setError(null);
 
         loader.load(
             pdbUrl,
             (pdb) => {
                 console.log('PDB Loaded successfully', pdb);
 
-                // Check for empty PDB content
+                // Check for empty PDB content (e.g. 404 HTML response parsed as PDB)
                 if (pdb.geometryAtoms.getAttribute('position').count === 0) {
-                    console.warn("No atoms found in PDB file. Possible 404 or corrupted file.");
-                    setError("Error: Empty PDB file or File Not Found on server.");
+                    const msg = "Empty PDB file or File Not Found (404).";
+                    console.warn(msg);
+                    setError(msg);
                     setLoading(false);
                     return;
                 }
 
                 setAtomCount(pdb.geometryAtoms.getAttribute('position').count);
 
-                // Clear previous objects from the rootGroup
-                while (rootGroup.children.length > 0) {
-                    rootGroup.remove(rootGroup.children[0]);
-                }
+                // Clear previous objects
+                rootGroup.clear();
 
                 const geometryAtoms = pdb.geometryAtoms;
                 const geometryBonds = pdb.geometryBonds;
                 const json = pdb.json;
-
-                console.log('Atom count:', json.atoms.length);
-                if (json.atoms.length === 0) {
-                    console.warn('No atoms found in PDB file');
-                }
 
                 const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
                 const sphereGeometry = new THREE.IcosahedronGeometry(1, 3);
@@ -122,7 +124,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                     object.position.copy(position);
                     object.position.multiplyScalar(75);
                     object.scale.multiplyScalar(25);
-                    scene.add(object);
+                    rootGroup.add(object);
 
                     const atom = json.atoms[i];
 
@@ -138,7 +140,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
 
                     const label = new CSS2DObject(text);
                     label.position.copy(object.position);
-                    scene.add(label);
+                    rootGroup.add(label);
                 }
 
                 // Bonds
@@ -163,7 +165,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                     object.position.lerp(end, 0.5);
                     object.scale.set(5, 5, start.distanceTo(end));
                     object.lookAt(end);
-                    scene.add(object);
+                    rootGroup.add(object);
                 }
 
                 setLoading(false);
@@ -171,18 +173,10 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             (xhr) => {
                 // progress
             },
-            (error) => {
-                console.error('PDB Loader Error:', error);
+            (err) => {
+                console.error('PDB Loader Error:', err);
                 setLoading(false);
-                // Display error on screen
-                const errDiv = document.createElement('div');
-                errDiv.style.position = 'absolute';
-                errDiv.style.top = '50%';
-                errDiv.style.width = '100%';
-                errDiv.style.textAlign = 'center';
-                errDiv.style.color = 'red';
-                errDiv.innerText = 'Error loading PDB: ' + (error instanceof Error ? error.message : 'Unknown error');
-                container.appendChild(errDiv);
+                setError('Error loading PDB: ' + (err instanceof Error ? err.message : 'Unknown error'));
             }
         );
 
@@ -209,8 +203,8 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
 
         return () => {
             window.removeEventListener('resize', onWindowResize);
-            container.removeChild(renderer.domElement);
-            container.removeChild(labelRenderer.domElement);
+            if (container.contains(renderer.domElement)) container.removeChild(renderer.domElement);
+            if (container.contains(labelRenderer.domElement)) container.removeChild(labelRenderer.domElement);
             // Clean up resources if needed
         };
     }, [pdbUrl]);
@@ -229,13 +223,25 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             </div>
 
             {loading && (
-                <div className="absolute inset-0 z-20 flex items-center justify-center text-white">
-                    Loading PDB...
+                <div className="absolute inset-0 z-20 flex items-center justify-center text-white bg-black/50">
+                    <div className="text-xl font-bold animate-pulse">Loading Molecule...</div>
                 </div>
             )}
 
-            <div className="absolute bottom-4 left-4 z-10 text-slate-400 text-sm pointer-events-none">
-                <p>Model: {pdbUrl}</p>
+            {error && (
+                <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
+                    <div className="bg-red-900/80 text-white px-8 py-6 rounded-xl border border-red-500 shadow-2xl max-w-md text-center">
+                        <svg className="w-12 h-12 mx-auto mb-4 text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                        <h3 className="text-xl font-bold mb-2">Failed to Load Molecule</h3>
+                        <p className="opacity-90">{error}</p>
+                        <p className="text-xs text-red-300 mt-4">Try re-uploading the file via the Edit menu.</p>
+                    </div>
+                </div>
+            )}
+
+            <div className="absolute bottom-4 left-4 z-10 text-slate-400 text-sm pointer-events-none bg-slate-900/50 p-2 rounded">
+                <p>Model: {pdbUrl.split('/').pop()}</p>
+                <p>Atoms: {atomCount}</p>
                 <p>Controls: Rotate (Left Click), Zoom (Scroll), Pan (Right Click)</p>
             </div>
         </div>

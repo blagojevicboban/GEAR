@@ -19,7 +19,10 @@ const App: React.FC = () => {
   const [selectedModel, setSelectedModel] = useState<VETModel | null>(null);
   const [modelToEdit, setModelToEdit] = useState<VETModel | null>(null);
   const [isWorkshopMode, setIsWorkshopMode] = useState(false);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(() => {
+    const saved = localStorage.getItem('gear_user');
+    return saved ? JSON.parse(saved) : null;
+  });
 
   useEffect(() => {
     fetch('/api/models')
@@ -27,6 +30,15 @@ const App: React.FC = () => {
       .then(data => setModels(data))
       .catch(err => console.error("Failed to fetch models", err));
   }, []);
+
+  // Sync user state changes to localStorage (cover login and profile update)
+  useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem('gear_user', JSON.stringify(currentUser));
+    } else {
+      localStorage.removeItem('gear_user');
+    }
+  }, [currentUser]);
 
   // Deep linking: check for modelId in URL on load
   useEffect(() => {
@@ -109,6 +121,7 @@ const App: React.FC = () => {
   const handleLogout = () => {
     setCurrentUser(null);
     setCurrentView('home');
+    localStorage.removeItem('gear_user');
   };
 
   const protectedSetView = (view: AppView) => {

@@ -64,6 +64,22 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             pdbUrl,
             (pdb) => {
                 console.log('PDB Loaded successfully', pdb);
+
+                // Check for empty PDB content
+                if (pdb.geometryAtoms.getAttribute('position').count === 0) {
+                    console.warn("No atoms found in PDB file. Possible 404 or corrupted file.");
+                    setError("Error: Empty PDB file or File Not Found on server.");
+                    setLoading(false);
+                    return;
+                }
+
+                setAtomCount(pdb.geometryAtoms.getAttribute('position').count);
+
+                // Clear previous objects from the rootGroup
+                while (rootGroup.children.length > 0) {
+                    rootGroup.remove(rootGroup.children[0]);
+                }
+
                 const geometryAtoms = pdb.geometryAtoms;
                 const geometryBonds = pdb.geometryBonds;
                 const json = pdb.json;

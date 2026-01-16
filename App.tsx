@@ -9,6 +9,7 @@ import ModelUploadForm from './components/ModelUploadForm';
 import ModelEditForm from './components/ModelEditForm';
 import VRViewer from './components/VRViewer';
 import PDBViewer from './components/PDBViewer';
+import FileDownloadViewer from './components/FileDownloadViewer';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import ProfileForm from './components/ProfileForm';
@@ -206,6 +207,12 @@ const App: React.FC = () => {
             <PDBViewer
               pdbUrl={selectedModel.modelUrl.replace('#pdb', '')}
               onExit={handleExitViewer}
+            />
+          ) : (selectedModel.modelUrl.toLowerCase().endsWith('.stp') || selectedModel.modelUrl.toLowerCase().endsWith('.step') || selectedModel.modelUrl.includes('#step')) ? (
+            <FileDownloadViewer
+              fileUrl={selectedModel.modelUrl.replace('#step', '')}
+              onExit={handleExitViewer}
+              fileName={selectedModel.name + (selectedModel.modelUrl.toLowerCase().endsWith('.step') ? '.step' : '.stp')}
             />
           ) : (
             <VRViewer

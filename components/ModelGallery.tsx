@@ -10,6 +10,8 @@ interface ModelGalleryProps {
   onDeleteModel: (id: string) => void;
 }
 
+import { fixAssetUrl } from '../utils/urlUtils';
+
 const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, onViewModel, onEnterWorkshop, onEditModel, onDeleteModel }) => {
   const [filter, setFilter] = useState<EDUSector | 'All'>('All');
   const [search, setSearch] = useState('');
@@ -52,7 +54,7 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, onView
         {filteredModels.map(model => (
           <div key={model.id} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col hover:border-slate-700 transition-colors group">
             <div className="relative h-40 overflow-hidden">
-              <img src={model.thumbnailUrl} alt={model.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+              <img src={fixAssetUrl(model.thumbnailUrl)} alt={model.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
 
               {/* Edit Button - Visible if logged in for demo purposes */}
               {currentUser && (

@@ -10,6 +10,8 @@ interface ModelEditFormProps {
   onCancel: () => void;
 }
 
+import { fixAssetUrl } from '../utils/urlUtils';
+
 const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, userName, onCancel }) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [showCustomSector, setShowCustomSector] = useState(false);
@@ -232,7 +234,7 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
               </h3>
               <div className="flex flex-col md:flex-row gap-8 items-start">
                 <div className="w-full md:w-1/3 aspect-video rounded-2xl overflow-hidden border border-slate-700 bg-slate-950 shadow-inner">
-                  <img src={thumbnailPreview} alt="Preview" className="w-full h-full object-cover" />
+                  <img src={fixAssetUrl(thumbnailPreview)} alt="Preview" className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1 space-y-4">
                   <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">Thumbnail Image</label>

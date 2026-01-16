@@ -9,6 +9,8 @@ interface DashboardProps {
   onViewModel: (m: VETModel) => void;
 }
 
+import { fixAssetUrl } from '../utils/urlUtils';
+
 const Dashboard: React.FC<DashboardProps> = ({ modelsCount, onGetStarted, featuredModels, onViewModel }) => {
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
@@ -68,7 +70,7 @@ const Dashboard: React.FC<DashboardProps> = ({ modelsCount, onGetStarted, featur
               onClick={() => onViewModel(model)}
             >
               <div className="relative h-48 overflow-hidden">
-                <img src={model.thumbnailUrl} alt={model.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                <img src={fixAssetUrl(model.thumbnailUrl)} alt={model.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                 <div className="absolute top-4 right-4 bg-slate-900/80 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold border border-slate-700">
                   {model.level}
                 </div>

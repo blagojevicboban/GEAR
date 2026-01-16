@@ -10,7 +10,11 @@ interface PDBViewerProps {
     onExit: () => void;
 }
 
+import { fixAssetUrl } from '../utils/urlUtils';
+
 const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffeine.pdb', onExit }) => {
+    // Apply proxy fix immediately
+    const fixedPdbUrl = fixAssetUrl(pdbUrl);
     const containerRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -67,7 +71,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         // Construct absolute URL ensuring no double slashes (except protocol)
         const baseUrl = window.location.origin;
         // Remove leading slash from pdbUrl if present to avoid //uploads
-        const cleanPdbUrl = pdbUrl.startsWith('/') ? pdbUrl.substring(1) : pdbUrl;
+        const cleanPdbUrl = fixedPdbUrl.startsWith('/') ? fixedPdbUrl.substring(1) : fixedPdbUrl;
         const absolutePdbUrl = `${baseUrl}/${cleanPdbUrl}`;
 
         console.log('Starting PDB Load:', absolutePdbUrl);
@@ -213,7 +217,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             if (container.contains(labelRenderer.domElement)) container.removeChild(labelRenderer.domElement);
             // Clean up resources if needed
         };
-    }, [pdbUrl]);
+    }, [fixedPdbUrl]);
 
     return (
         <div className="relative w-full h-full min-h-screen bg-slate-900">

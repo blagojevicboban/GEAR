@@ -32,7 +32,7 @@ if (typeof window !== 'undefined' && (window as any).AFRAME) {
 
   if (!AFRAME.components['hotspot-trigger']) {
     AFRAME.registerComponent('hotspot-trigger', {
-      init: function() {
+      init: function () {
         this.el.addEventListener('click', (evt: any) => {
           this.el.emit('hotspot-activated', { id: this.el.getAttribute('data-id') }, true);
         });
@@ -68,12 +68,12 @@ if (typeof window !== 'undefined' && (window as any).AFRAME) {
       schema: { speed: { default: 1 } },
       init: function () {
         this.ifMouseDown = false;
-        this.onMouseDown = (e: any) => { 
-          if (this.el.sceneEl.is('vr-mode')) return; 
+        this.onMouseDown = (e: any) => {
+          if (this.el.sceneEl.is('vr-mode')) return;
           const isTouch = !!(e.touches || e.changedTouches);
-          if (!isTouch && !e.ctrlKey) return; 
-          this.ifMouseDown = true; 
-          this.x_cord = e.clientX || e.touches?.[0].clientX; 
+          if (!isTouch && !e.ctrlKey) return;
+          this.ifMouseDown = true;
+          this.x_cord = e.clientX || e.touches?.[0].clientX;
         };
         this.onMouseUp = () => { this.ifMouseDown = false; };
         this.onMouseMove = (e: any) => {
@@ -91,7 +91,7 @@ if (typeof window !== 'undefined' && (window as any).AFRAME) {
         window.addEventListener('mousemove', this.onMouseMove);
         window.addEventListener('touchmove', this.onMouseMove);
       },
-      remove: function() {
+      remove: function () {
         window.removeEventListener('mousedown', this.onMouseDown);
         window.removeEventListener('touchstart', this.onMouseDown);
         window.removeEventListener('mouseup', this.onMouseUp);
@@ -148,17 +148,23 @@ async function decodeAudioData(
   return buffer;
 }
 
+import { fixAssetUrl } from '../utils/urlUtils';
+
 const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode }) => {
+  // Fix model URL for proxy
+  const fixedModel = { ...model, modelUrl: fixAssetUrl(model.modelUrl) };
+  // From here on use fixedModel instead of model for URL
+
   const [activeHotspot, setActiveHotspot] = useState<Hotspot | null>(null);
   const [trainingTasks, setTrainingTasks] = useState<any[]>([]);
   const [isLoadingTasks, setIsLoadingTasks] = useState(false);
   const [isVoiceActive, setIsVoiceActive] = useState(false);
   const [isAssistantSpeaking, setIsAssistantSpeaking] = useState(false);
-  
+
   const sceneRef = useRef<any>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const mentorPosRef = useRef({ x: 1.5, y: 1.6, z: -1 });
-  
+
   const sessionRef = useRef<any>(null);
   const inputAudioContextRef = useRef<AudioContext | null>(null);
   const outputAudioContextRef = useRef<AudioContext | null>(null);
@@ -201,7 +207,7 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode }) => {
     const listener = outputAudioContextRef.current.listener;
     const position = camera.getWorldPosition(new (window as any).THREE.Vector3());
     const quaternion = camera.getWorldQuaternion(new (window as any).THREE.Quaternion());
-    
+
     const forward = new (window as any).THREE.Vector3(0, 0, -1).applyQuaternion(quaternion);
     const up = new (window as any).THREE.Vector3(0, 1, 0).applyQuaternion(quaternion);
 
@@ -270,8 +276,8 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode }) => {
               const inputData = e.inputBuffer.getChannelData(0);
               const int16 = new Int16Array(inputData.length);
               for (let i = 0; i < inputData.length; i++) int16[i] = inputData[i] * 32768;
-              sessionPromise.then(s => s.sendRealtimeInput({ 
-                media: { data: encode(new Uint8Array(int16.buffer)), mimeType: 'audio/pcm;rate=16000' } 
+              sessionPromise.then(s => s.sendRealtimeInput({
+                media: { data: encode(new Uint8Array(int16.buffer)), mimeType: 'audio/pcm;rate=16000' }
               }));
             };
             source.connect(scriptProcessor);
@@ -336,12 +342,12 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode }) => {
     if (scene) {
       scene.addEventListener('hotspot-activated', handleHotspotEvent);
     }
-    
-    return () => { 
+
+    return () => {
       if (scene) {
         scene.removeEventListener('hotspot-activated', handleHotspotEvent);
       }
-      stopVoiceSession(); 
+      stopVoiceSession();
     };
   }, [model.name, model.description, handleHotspotEvent, stopVoiceSession]);
 
@@ -368,7 +374,7 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode }) => {
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-xl font-bold truncate pr-4">{model.name}</h2>
             <div className="flex gap-2">
-              <button 
+              <button
                 onClick={handleToggleVoice}
                 className={`p-2 rounded-lg transition-all relative ${isVoiceActive ? 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]' : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'}`}
               >
@@ -380,7 +386,7 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode }) => {
               </button>
             </div>
           </div>
-          
+
           <div className="flex flex-col gap-2 mb-4">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{model.sector}</span>
@@ -389,19 +395,19 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode }) => {
           </div>
 
           <p className="text-xs text-slate-400 mb-6">{model.description}</p>
-          
+
           <div className="space-y-3 max-h-[30vh] overflow-y-auto pr-2 custom-scrollbar pointer-events-auto">
-             <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Training Tasks</h4>
-             {isLoadingTasks ? (
-               <div className="text-xs animate-pulse">Generating tasks...</div>
-             ) : (
-               trainingTasks.map((t, i) => (
-                 <div key={`task-${i}`} className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                    <p className="text-xs font-bold text-white mb-1">{t.taskName || 'Instruction'}</p>
-                    <p className="text-[10px] text-slate-500">{t.description || 'No description provided.'}</p>
-                 </div>
-               ))
-             )}
+            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Training Tasks</h4>
+            {isLoadingTasks ? (
+              <div className="text-xs animate-pulse">Generating tasks...</div>
+            ) : (
+              trainingTasks.map((t, i) => (
+                <div key={`task-${i}`} className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                  <p className="text-xs font-bold text-white mb-1">{t.taskName || 'Instruction'}</p>
+                  <p className="text-[10px] text-slate-500">{t.description || 'No description provided.'}</p>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
@@ -411,8 +417,8 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode }) => {
         <div className="absolute inset-0 z-20 flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="relative w-full max-w-4xl bg-slate-900 border border-indigo-500/30 rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh]">
             {/* Close Button */}
-            <button 
-              onClick={handleCloseHotspot} 
+            <button
+              onClick={handleCloseHotspot}
               className="absolute top-4 right-4 z-30 p-2 bg-black/50 hover:bg-rose-600 text-white rounded-full transition-all backdrop-blur-md"
               title="Close and return to XR"
             >
@@ -427,7 +433,7 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode }) => {
                 {isVideo(activeHotspot.mediaUrl) ? (
                   <div className="w-full h-full aspect-video">
                     {activeHotspot.mediaUrl.includes('youtube') || activeHotspot.mediaUrl.includes('vimeo') ? (
-                      <iframe 
+                      <iframe
                         src={activeHotspot.mediaUrl}
                         className="w-full h-full"
                         frameBorder="0"
@@ -435,19 +441,19 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode }) => {
                         allowFullScreen
                       ></iframe>
                     ) : (
-                      <video 
-                        src={activeHotspot.mediaUrl} 
-                        controls 
-                        autoPlay 
+                      <video
+                        src={activeHotspot.mediaUrl}
+                        controls
+                        autoPlay
                         className="w-full h-full object-contain"
                       ></video>
                     )}
                   </div>
                 ) : (
-                  <img 
-                    src={activeHotspot.mediaUrl} 
-                    alt={activeHotspot.title} 
-                    className="w-full h-full object-contain" 
+                  <img
+                    src={activeHotspot.mediaUrl}
+                    alt={activeHotspot.title}
+                    className="w-full h-full object-contain"
                   />
                 )}
               </div>
@@ -463,9 +469,9 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode }) => {
                 <div className="h-1 w-12 bg-indigo-600 mb-6"></div>
                 <p className="text-slate-400 text-sm leading-relaxed mb-8">{activeHotspot.description}</p>
               </div>
-              
-              <button 
-                onClick={handleCloseHotspot} 
+
+              <button
+                onClick={handleCloseHotspot}
                 className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/30 active:scale-95 flex items-center justify-center gap-2"
               >
                 <span>Return to Workshop</span>
@@ -477,23 +483,23 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode }) => {
       )}
 
       {/* A-Frame Scene */}
-      <a-scene 
-        ref={sceneRef} 
-        embedded 
-        class="absolute inset-0 z-0" 
+      <a-scene
+        ref={sceneRef}
+        embedded
+        class="absolute inset-0 z-0"
         renderer="colorManagement: true; antialias: true;"
         cursor="rayOrigin: mouse"
         raycaster="objects: .collidable"
       >
-        <a-assets><a-asset-item id="model-asset" src={model.modelUrl}></a-asset-item></a-assets>
+        <a-assets><a-asset-item id="model-asset" src={fixedModel.modelUrl}></a-asset-item></a-assets>
         <a-sky color="#050a14"></a-sky>
         <a-grid-helper size="20" divisions="20" color="#1e293b"></a-grid-helper>
 
         {isVoiceActive && (
           <a-entity position={`${mentorPosRef.current.x} ${mentorPosRef.current.y} ${mentorPosRef.current.z}`}>
-            <a-sphere 
-              radius="0.15" 
-              color="#6366f1" 
+            <a-sphere
+              radius="0.15"
+              color="#6366f1"
               material={`emissive: #6366f1; emissiveIntensity: ${isAssistantSpeaking ? 5 : 1}; transparent: true; opacity: 0.8`}
               animation={isAssistantSpeaking ? "property: scale; to: 1.2 1.2 1.2; dir: alternate; loop: true; dur: 200" : ""}
             ></a-sphere>
@@ -504,20 +510,20 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode }) => {
 
         {workshopMode && participants.map(p => (
           <a-entity key={p.id} position={`${p.pos.x} ${p.pos.y} ${p.pos.z}`}>
-             <a-sphere radius="0.1" color={p.color} material="opacity: 0.9"></a-sphere>
-             <a-text value={p.name} align="center" position="0 0.2 0" scale="0.3 0.3 0.3"></a-text>
+            <a-sphere radius="0.1" color={p.color} material="opacity: 0.9"></a-sphere>
+            <a-text value={p.name} align="center" position="0 0.2 0" scale="0.3 0.3 0.3"></a-text>
           </a-entity>
         ))}
 
         <a-entity drag-rotate="speed: 1">
           <a-gltf-model src="#model-asset" position="0 0.5 0"></a-gltf-model>
           {model.hotspots.map(hs => (
-            <a-entity 
-              key={`hotspot-ent-${hs.id}`} 
-              data-id={hs.id} 
-              class="collidable" 
-              geometry="primitive: sphere; radius: 0.08" 
-              material="color: #6366f1; emissive: #6366f1; emissiveIntensity: 2" 
+            <a-entity
+              key={`hotspot-ent-${hs.id}`}
+              data-id={hs.id}
+              class="collidable"
+              geometry="primitive: sphere; radius: 0.08"
+              material="color: #6366f1; emissive: #6366f1; emissiveIntensity: 2"
               position={`${hs.position.x} ${hs.position.y} ${hs.position.z}`}
               hotspot-trigger=""
             >
@@ -528,7 +534,7 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode }) => {
 
         <a-entity light="type: ambient; intensity: 0.6"></a-entity>
         <a-entity light="type: directional; intensity: 0.8" position="-1 1 2"></a-entity>
-        
+
         <a-entity id="rig" position="0 1.6 3" mouse-wheel-zoom="min: 0.5; max: 12; step: 0.3">
           <a-camera look-controls wasd-controls></a-camera>
         </a-entity>

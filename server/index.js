@@ -41,8 +41,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Serve uploads
+// Serve uploads (Dual-route for Nginx proxy compatibility)
 app.use('/uploads', express.static(uploadDir));
+app.use('/api/uploads', express.static(uploadDir));
 
 // API Routes
 app.get('/api/health', (req, res) => {

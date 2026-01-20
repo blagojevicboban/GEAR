@@ -448,7 +448,12 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
     }, [fixedPdbUrl, visualStyle]); // Re-run when style changes
 
     return (
-        <div className={`relative w-full h-full min-h-screen ${arSessionActive ? 'bg-transparent' : 'bg-slate-900'}`}>
+        <div className="relative w-full h-full min-h-screen bg-transparent">
+            {/* Background Layer - Hidden in AR */}
+            {!arSessionActive && (
+                <div className="absolute inset-0 bg-slate-900 -z-20" />
+            )}
+
             <div ref={containerRef} className="absolute inset-0 z-0" />
 
             <div className="absolute top-4 left-4 z-10">

@@ -52,19 +52,27 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         scene.add(rootGroup);
 
         // Renderer
-        const renderer = new WebGPURenderer({ antialias: true, alpha: true });
+        const renderer = new WebGPURenderer({ antialias: true, alpha: true, forceWebGL: false });
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.xr.enabled = true; // Enable WebXR
+        // Ensure transparent clear color by default for canvas
+        renderer.setClearColor(0x000000, 0);
         container.appendChild(renderer.domElement);
 
         // Handle AR Pass-through (Transparent Background)
         const currentBackground = scene.background;
+
         renderer.xr.addEventListener('sessionstart', () => {
             scene.background = null; // Clear background for AR
+            renderer.setClearColor(0x000000, 0); // Force clear alpha
+            document.body.style.backgroundColor = 'transparent'; // Ensure DOM body doesn't block
         });
+
         renderer.xr.addEventListener('sessionend', () => {
             scene.background = currentBackground; // Restore background
+            renderer.setClearColor(0x000000, 0); // Keep canvas transparent (scene background handles color)
+            document.body.style.backgroundColor = ''; // Restore DOM
         });
 
         // AR Button

@@ -234,7 +234,9 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                 color.g = colors.getY(i);
                 color.b = colors.getZ(i);
 
-                const material = new THREE.MeshStandardMaterial({ color: color, roughness: 0.5, metalness: 0.5 });
+                // Use MeshBasicMaterial to ensure visibility on all devices (ignores lighting)
+                const material = new THREE.MeshBasicMaterial({ color: color });
+
                 const object = new THREE.Mesh(sphereGeometry, material);
                 object.position.copy(position);
                 object.position.multiplyScalar(scaleFactor);
@@ -248,8 +250,8 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                     object.scale.setScalar(0.4 * scaleFactor); // Standard size
                 }
 
-                object.castShadow = true;
-                object.receiveShadow = true;
+                object.castShadow = false;
+                object.receiveShadow = false;
                 rootGroup.add(object);
 
                 // Labels (Only for Ball-Stick or Spacefill maybe? Let's keep for all)
@@ -287,7 +289,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                     start.multiplyScalar(scaleFactor);
                     end.multiplyScalar(scaleFactor);
 
-                    const object = new THREE.Mesh(boxGeometry, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5, metalness: 0.5 }));
+                    const object = new THREE.Mesh(boxGeometry, new THREE.MeshBasicMaterial({ color: 0xffffff }));
                     object.position.copy(start);
                     object.lookAt(end);
 
@@ -303,21 +305,21 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                     // Center bond
                     object.position.lerp(end, 0.5);
 
-                    object.castShadow = true;
-                    object.receiveShadow = true;
+                    object.castShadow = false;
+                    object.receiveShadow = false;
                     rootGroup.add(object);
                 }
             }
 
             // Shadow Catcher Plane
-            const shadowPlane = new THREE.Mesh(
-                new THREE.PlaneGeometry(5, 5),
-                new THREE.ShadowMaterial({ opacity: 0.3 })
-            );
-            shadowPlane.rotation.x = -Math.PI / 2;
-            shadowPlane.position.y = -0.6 * scaleFactor; // Slightly lower
-            shadowPlane.receiveShadow = true;
-            rootGroup.add(shadowPlane);
+            // const shadowPlane = new THREE.Mesh(
+            //     new THREE.PlaneGeometry(5, 5),
+            //     new THREE.ShadowMaterial({ opacity: 0.3 })
+            // );
+            // shadowPlane.rotation.x = -Math.PI / 2;
+            // shadowPlane.position.y = -0.6 * scaleFactor; // Slightly lower
+            // shadowPlane.receiveShadow = true;
+            // rootGroup.add(shadowPlane);
         };
 
         // Load PDB

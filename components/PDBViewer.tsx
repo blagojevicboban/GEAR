@@ -58,8 +58,21 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         renderer.xr.enabled = true; // Enable WebXR
         container.appendChild(renderer.domElement);
 
+        // Handle AR Pass-through (Transparent Background)
+        const currentBackground = scene.background;
+        renderer.xr.addEventListener('sessionstart', () => {
+            scene.background = null; // Clear background for AR
+        });
+        renderer.xr.addEventListener('sessionend', () => {
+            scene.background = currentBackground; // Restore background
+        });
+
         // AR Button
-        const arButton = ARButton.createButton(renderer, { requiredFeatures: ['hit-test'] });
+        const arButton = ARButton.createButton(renderer, {
+            requiredFeatures: ['hit-test'],
+            optionalFeatures: ['dom-overlay'],
+            domOverlay: { root: document.body }
+        });
         document.body.appendChild(arButton);
 
         // Label Renderer

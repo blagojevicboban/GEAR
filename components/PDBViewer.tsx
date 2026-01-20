@@ -76,20 +76,15 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         renderer.xr.addEventListener('sessionstart', () => {
             scene.background = null; // Transparent in AR
             setArSessionActive(true);
-            document.body.style.backgroundColor = 'transparent'; // Force body transparent
-            document.documentElement.style.backgroundColor = 'transparent'; // Force html transparent
         });
         renderer.xr.addEventListener('sessionend', () => {
             scene.background = currentBackground; // Restore background
             setArSessionActive(false);
-            document.body.style.backgroundColor = '';
-            document.documentElement.style.backgroundColor = '';
         });
 
         const arButton = ARButton.createButton(renderer, {
             requiredFeatures: ['hit-test'],
-            optionalFeatures: ['dom-overlay', 'hand-tracking'],
-            domOverlay: { root: document.body }
+            optionalFeatures: ['hand-tracking'],
         });
         document.body.appendChild(arButton);
 

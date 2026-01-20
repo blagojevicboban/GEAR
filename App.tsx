@@ -16,7 +16,7 @@ import ProfileForm from './components/ProfileForm';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>('home');
-  const [models, setModels] = useState<VETModel[]>([]);
+  const [models, setModels] = useState<VETModel[]>(INITIAL_MODELS); // Initialize with constants
   const [selectedModel, setSelectedModel] = useState<VETModel | null>(null);
   const [modelToEdit, setModelToEdit] = useState<VETModel | null>(null);
   const [isWorkshopMode, setIsWorkshopMode] = useState(false);
@@ -28,7 +28,13 @@ const App: React.FC = () => {
   useEffect(() => {
     fetch('/api/models')
       .then(res => res.json())
-      .then(data => setModels(data))
+      .then(data => {
+        // Merge API models with INITIAL_MODELS (dev/test models)
+        // Avoid duplicates if IDs collide (API takes precedence)
+        const apiIds = new Set(data.map((m: VETModel) => m.id));
+        const filteredInitial = INITIAL_MODELS.filter(m => !apiIds.has(m.id));
+        setModels([...filteredInitial, ...data]);
+      })
       .catch(err => console.error("Failed to fetch models", err));
   }, []);
 

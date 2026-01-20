@@ -46,15 +46,14 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         scene.background = new THREE.Color(0x050505);
 
         // Light
-        const light = new THREE.DirectionalLight(0xffffff, 2.5);
-        light.position.set(1, 2, 1); // Move light up for better shadows
-        light.castShadow = true;
-        light.shadow.mapSize.width = 1024;
-        light.shadow.mapSize.height = 1024;
-        light.shadow.bias = -0.001; // Reduce artifacts
+        const light = new THREE.DirectionalLight(0xffffff, 2.0); // Reduced instensity slightly, relying more on ambient
+        light.position.set(1, 2, 1);
+        // light.castShadow = true; // DISABLE SHADOWS FOR MOBILE STABILITY
+        // light.shadow.mapSize.width = 1024;
+        // light.shadow.mapSize.height = 1024;
         scene.add(light);
 
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 3.0); // Boost Ambient Light strongly
         scene.add(ambientLight);
 
         // Molecule Group
@@ -67,8 +66,8 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true; // Enable Shadows
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        // renderer.shadowMap.enabled = true; // DISABLE SHADOW MAP
+        // renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.xr.enabled = true; // Enable WebXR
         container.appendChild(renderer.domElement);
 
@@ -77,10 +76,14 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         renderer.xr.addEventListener('sessionstart', () => {
             scene.background = null; // Transparent in AR
             setArSessionActive(true);
+            document.body.style.backgroundColor = 'transparent'; // Force body transparent
+            document.documentElement.style.backgroundColor = 'transparent'; // Force html transparent
         });
         renderer.xr.addEventListener('sessionend', () => {
             scene.background = currentBackground; // Restore background
             setArSessionActive(false);
+            document.body.style.backgroundColor = '';
+            document.documentElement.style.backgroundColor = '';
         });
 
         const arButton = ARButton.createButton(renderer, {

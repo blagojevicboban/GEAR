@@ -6,6 +6,7 @@ import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls
 import { PDBLoader } from 'three/examples/jsm/loaders/PDBLoader.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { ARButton } from 'three/examples/jsm/webxr/ARButton.js';
+import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js';
 
 interface PDBViewerProps {
     pdbUrl?: string; // Optional URL, defaults to caffeine
@@ -58,9 +59,96 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         renderer.xr.enabled = true; // Enable WebXR
         container.appendChild(renderer.domElement);
 
-        // AR Button
-        const arButton = ARButton.createButton(renderer, { requiredFeatures: ['hit-test'] });
+        // Handle AR Passthrough
+        const currentBackground = scene.background;
+        renderer.xr.addEventListener('sessionstart', () => {
+            scene.background = null; // Transparent in AR
+        });
+        renderer.xr.addEventListener('sessionend', () => {
+            scene.background = currentBackground; // Restore background
+        });
+
+        const arButton = ARButton.createButton(renderer, { requiredFeatures: ['hit-test'], optionalFeatures: ['dom-overlay'], domOverlay: { root: document.body } });
         document.body.appendChild(arButton);
+
+        // --- XR Controllers & Interaction ---
+        const controller1 = renderer.xr.getController(0);
+        const controller2 = renderer.xr.getController(1);
+        scene.add(controller1);
+        scene.add(controller2);
+
+        const controllerModelFactory = new XRControllerModelFactory();
+
+        const controllerGrip1 = renderer.xr.getControllerGrip(0);
+        controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1));
+        scene.add(controllerGrip1);
+
+        const controllerGrip2 = renderer.xr.getControllerGrip(1);
+        controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
+        scene.add(controllerGrip2);
+
+        // Raycaster for interaction
+        const raycaster = new THREE.Raycaster();
+        const tempMatrix = new THREE.Matrix4();
+
+        function onSelectStart(event: any) {
+            const controller = event.target;
+            const intersections = getIntersections(controller);
+
+            if (intersections.length > 0) {
+                const intersection = intersections[0];
+                const object = intersection.object;
+
+                // Find the root group (parent of the atom mesh, usually rootGroup)
+                // We want to move the whole molecule
+                (controller as any).userData.selected = rootGroup;
+
+                // Attach rootGroup to controller to move it
+                // rootGroup.parent is currently 'scene'
+                // We attach it to 'controller'
+                // THREE.SceneUtils.attach(rootGroup, scene, controller); // Deprecated
+                controller.attach(rootGroup);
+
+                (controller as any).userData.isSelecting = true;
+            }
+        }
+
+        function onSelectEnd(event: any) {
+            const controller = event.target;
+            if ((controller as any).userData.selected !== undefined) {
+                const object = (controller as any).userData.selected;
+
+                // Detach back to scene
+                scene.attach(object);
+
+                (controller as any).userData.selected = undefined;
+                (controller as any).userData.isSelecting = false;
+            }
+        }
+
+        controller1.addEventListener('selectstart', onSelectStart);
+        controller1.addEventListener('selectend', onSelectEnd);
+        controller2.addEventListener('selectstart', onSelectStart);
+        controller2.addEventListener('selectend', onSelectEnd);
+
+        // Visual Ray
+        const geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
+        const line = new THREE.Line(geometry);
+        line.name = 'line';
+        line.scale.z = 5;
+
+        controller1.add(line.clone());
+        controller2.add(line.clone());
+
+        function getIntersections(controller: any) {
+            tempMatrix.identity().extractRotation(controller.matrixWorld);
+            raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+            raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
+
+            // Intersect with rootGroup children (atoms/bonds)
+            return raycaster.intersectObjects(rootGroup.children, true);
+        }
+
 
         // Label Renderer
         const labelRenderer = new CSS2DRenderer();
@@ -271,7 +359,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             <div className="absolute bottom-4 left-4 z-10 text-slate-400 text-sm pointer-events-none bg-slate-900/50 p-2 rounded">
                 <p>Model: {pdbUrl.split('/').pop()}</p>
                 <p>Atoms: {atomCount}</p>
-                <p>Controls: Rotate (Left Click), Zoom (Scroll), Pan (Right Click)</p>
+                <p>Controls: Desktop (Mouse) | AR (Point & Trigger to Grab)</p>
                 <p>Renderer: WebGL + WebXR (AR)</p>
             </div>
         </div>

@@ -1,8 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-// @ts-ignore
-import { WebGPURenderer, MeshStandardNodeMaterial } from 'three/webgpu';
+// import { WebGPURenderer, MeshStandardNodeMaterial } from 'three/webgpu'; // Remove WebGPU import
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
 import { PDBLoader } from 'three/examples/jsm/loaders/PDBLoader.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
@@ -30,8 +29,8 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
 
         // Camera - Meters Scale
         const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 50);
-        camera.position.z = 2; // 2 meters away
-        camera.position.y = 1.5; // Eye height
+        camera.position.z = 1.0; // 1 meter away for desktop (closer since object is small)
+        camera.position.y = 0;   // Eye height centered
 
         // Scene
         const scene = new THREE.Scene();
@@ -47,13 +46,13 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
 
         // Molecule Group
         const rootGroup = new THREE.Group();
-        // Position for MR: 1.5m high, 1.0m in front
-        rootGroup.position.set(0, 1.5, -1.0);
+        // Position for MR: 0.5m in front of origin (eye level)
+        rootGroup.position.set(0, 0, -0.5);
         scene.add(rootGroup);
 
         // Renderer
         // Renderer
-        const renderer = new WebGPURenderer({ antialias: true, alpha: true });
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.xr.enabled = true; // Enable WebXR
@@ -61,7 +60,6 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
 
         // AR Button
         const arButton = ARButton.createButton(renderer, { requiredFeatures: ['hit-test'] });
-        document.body.appendChild(arButton);
         document.body.appendChild(arButton);
 
         // Label Renderer
@@ -75,9 +73,9 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         // Controls
         const controls = new TrackballControls(camera, renderer.domElement);
         // Adjust controls for meter scale
-        controls.minDistance = 0.5;
-        controls.maxDistance = 10.0;
-        controls.target.set(0, 1.5, -1.0); // Look at molecule center
+        controls.minDistance = 0.2;
+        controls.maxDistance = 5.0;
+        controls.target.set(0, 0, -0.5); // Look at molecule center
         controls.update();
 
         // Load PDB
@@ -153,8 +151,8 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                     color.g = colors.getY(i);
                     color.b = colors.getZ(i);
 
-                    // Use MeshStandardNodeMaterial
-                    const material = new MeshStandardNodeMaterial({ color: color });
+                    // Use MeshStandardMaterial
+                    const material = new THREE.MeshStandardMaterial({ color: color });
                     material.roughness = 0.5;
                     material.metalness = 0.5;
 
@@ -196,7 +194,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                     start.multiplyScalar(scaleFactor);
                     end.multiplyScalar(scaleFactor);
 
-                    const object = new THREE.Mesh(boxGeometry, new MeshStandardNodeMaterial({ color: 0xffffff, roughness: 0.5, metalness: 0.5 }));
+                    const object = new THREE.Mesh(boxGeometry, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5, metalness: 0.5 }));
                     object.position.copy(start);
                     object.position.lerp(end, 0.5);
                     object.scale.set(0.1 * scaleFactor, 0.1 * scaleFactor, start.distanceTo(end)); // Thinner bonds
@@ -274,7 +272,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                 <p>Model: {pdbUrl.split('/').pop()}</p>
                 <p>Atoms: {atomCount}</p>
                 <p>Controls: Rotate (Left Click), Zoom (Scroll), Pan (Right Click)</p>
-                <p>Renderer: WebGPU + WebXR (AR)</p>
+                <p>Renderer: WebGL + WebXR (AR)</p>
             </div>
         </div>
     );

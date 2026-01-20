@@ -12,8 +12,24 @@
 *   **AI Mentor**: Voice-activated AI assistant (Gemini 2.0 Flash) for context-aware guidance.
 *   **Multi-User Workshops**: Experimental shared virtual spaces for collaborative learning.
 *   **Dashboard**: "Featured" models highlight and category-based filtering (sectors).
+*   **Mixed Reality Mode (New)**: Fully immersive AR experience with Passthrough, Hand Tracking, and Spatial UI controls.
 
-## 🛠 Tech Stack
+## �️ Mixed Reality Features (v1.2 Update)
+
+The PDB Viewer now supports advanced WebXR capabilities on compatible devices (e.g., Meta Quest 2/3/Pro):
+
+*   **AR Passthrough**: See the real world behind the molecule.
+*   **Hand Tracking**: Put down your controllers to use your bare hands.
+    *   **Pinch** to **Grab & Move** the molecule.
+    *   **Pinch** to Click buttons on the 3D Menu.
+*   **Controller Support**:
+    *   **Grab (Trigger/Grip)**: Move and rotate the molecule.
+    *   **Thumbstick Up/Down**: Scale the molecule (Zoom In/Out).
+*   **Spatial UI**: A floating 3D menu anchored in the real world.
+*   **Visualization Styles**: Switch instantly between **Ball & Stick**, **Spacefill**, and **Backbone** views.
+*   **Realism**: Dynamic shadows ground the virtual molecule in your physical space.
+
+## �🛠 Tech Stack
 
 ### Frontend
 *   **React 18** (Vite)

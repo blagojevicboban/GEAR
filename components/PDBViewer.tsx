@@ -28,6 +28,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
     const [error, setError] = useState<string | null>(null);
     const [atomCount, setAtomCount] = useState(0);
     const [visualStyle, setVisualStyle] = useState<'ball-stick' | 'spacefill' | 'backbone'>('ball-stick');
+    const [arSessionActive, setArSessionActive] = useState(false);
     const pdbDataRef = useRef<any>(null); // Store parsed PDB data for style switching
 
     useEffect(() => {
@@ -75,9 +76,11 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         const currentBackground = scene.background;
         renderer.xr.addEventListener('sessionstart', () => {
             scene.background = null; // Transparent in AR
+            setArSessionActive(true);
         });
         renderer.xr.addEventListener('sessionend', () => {
             scene.background = currentBackground; // Restore background
+            setArSessionActive(false);
         });
 
         const arButton = ARButton.createButton(renderer, {
@@ -93,26 +96,31 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         scene.add(controller1);
         scene.add(controller2);
 
-        const controllerModelFactory = new XRControllerModelFactory();
-        const handModelFactory = new XRHandModelFactory();
+        // Safety try-catch for factory init (rare limit cases)
+        try {
+            const controllerModelFactory = new XRControllerModelFactory();
+            const handModelFactory = new XRHandModelFactory();
 
-        // Controller Grips
-        const controllerGrip1 = renderer.xr.getControllerGrip(0);
-        controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1));
-        scene.add(controllerGrip1);
+            // Controller Grips
+            const controllerGrip1 = renderer.xr.getControllerGrip(0);
+            controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1));
+            scene.add(controllerGrip1);
 
-        const controllerGrip2 = renderer.xr.getControllerGrip(1);
-        controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
-        scene.add(controllerGrip2);
+            const controllerGrip2 = renderer.xr.getControllerGrip(1);
+            controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
+            scene.add(controllerGrip2);
 
-        // Hand Models
-        const hand1 = renderer.xr.getHand(0);
-        hand1.add(handModelFactory.createHandModel(hand1));
-        scene.add(hand1);
+            // Hand Models
+            const hand1 = renderer.xr.getHand(0);
+            hand1.add(handModelFactory.createHandModel(hand1));
+            scene.add(hand1);
 
-        const hand2 = renderer.xr.getHand(1);
-        hand2.add(handModelFactory.createHandModel(hand2));
-        scene.add(hand2);
+            const hand2 = renderer.xr.getHand(1);
+            hand2.add(handModelFactory.createHandModel(hand2));
+            scene.add(hand2);
+        } catch (e) {
+            console.warn("Failed to initialize XR Models:", e);
+        }
 
         // Raycaster for interaction
         const raycaster = new THREE.Raycaster();
@@ -437,7 +445,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
     }, [fixedPdbUrl, visualStyle]); // Re-run when style changes
 
     return (
-        <div className="relative w-full h-full min-h-screen bg-slate-900">
+        <div className={`relative w-full h-full min-h-screen ${arSessionActive ? 'bg-transparent' : 'bg-slate-900'}`}>
             <div ref={containerRef} className="absolute inset-0 z-0" />
 
             <div className="absolute top-4 left-4 z-10">

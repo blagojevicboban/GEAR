@@ -7,6 +7,11 @@ import { PDBLoader } from 'three/examples/jsm/loaders/PDBLoader.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { ARButton } from 'three/examples/jsm/webxr/ARButton.js';
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js';
+import { XRHandModelFactory } from 'three/examples/jsm/webxr/XRHandModelFactory.js';
+// @ts-ignore
+import { InteractiveGroup } from 'three/examples/jsm/interactive/InteractiveGroup.js';
+// @ts-ignore
+import { HTMLMesh } from 'three/examples/jsm/interactive/HTMLMesh.js';
 
 interface PDBViewerProps {
     pdbUrl?: string; // Optional URL, defaults to caffeine
@@ -22,6 +27,8 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [atomCount, setAtomCount] = useState(0);
+    const [visualStyle, setVisualStyle] = useState<'ball-stick' | 'spacefill' | 'backbone'>('ball-stick');
+    const pdbDataRef = useRef<any>(null); // Store parsed PDB data for style switching
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -39,7 +46,11 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
 
         // Light
         const light = new THREE.DirectionalLight(0xffffff, 2.5);
-        light.position.set(1, 1, 1);
+        light.position.set(1, 2, 1); // Move light up for better shadows
+        light.castShadow = true;
+        light.shadow.mapSize.width = 1024;
+        light.shadow.mapSize.height = 1024;
+        light.shadow.bias = -0.001; // Reduce artifacts
         scene.add(light);
 
         const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
@@ -52,10 +63,11 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         scene.add(rootGroup);
 
         // Renderer
-        // Renderer
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true; // Enable Shadows
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.xr.enabled = true; // Enable WebXR
         container.appendChild(renderer.domElement);
 
@@ -68,7 +80,11 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             scene.background = currentBackground; // Restore background
         });
 
-        const arButton = ARButton.createButton(renderer, { requiredFeatures: ['hit-test'], optionalFeatures: ['dom-overlay'], domOverlay: { root: document.body } });
+        const arButton = ARButton.createButton(renderer, {
+            requiredFeatures: ['hit-test'],
+            optionalFeatures: ['dom-overlay', 'hand-tracking'],
+            domOverlay: { root: document.body }
+        });
         document.body.appendChild(arButton);
 
         // --- XR Controllers & Interaction ---
@@ -78,7 +94,9 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         scene.add(controller2);
 
         const controllerModelFactory = new XRControllerModelFactory();
+        const handModelFactory = new XRHandModelFactory();
 
+        // Controller Grips
         const controllerGrip1 = renderer.xr.getControllerGrip(0);
         controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1));
         scene.add(controllerGrip1);
@@ -86,6 +104,15 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         const controllerGrip2 = renderer.xr.getControllerGrip(1);
         controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
         scene.add(controllerGrip2);
+
+        // Hand Models
+        const hand1 = renderer.xr.getHand(0);
+        hand1.add(handModelFactory.createHandModel(hand1));
+        scene.add(hand1);
+
+        const hand2 = renderer.xr.getHand(1);
+        hand2.add(handModelFactory.createHandModel(hand2));
+        scene.add(hand2);
 
         // Raycaster for interaction
         const raycaster = new THREE.Raycaster();
@@ -99,16 +126,9 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                 const intersection = intersections[0];
                 const object = intersection.object;
 
-                // Find the root group (parent of the atom mesh, usually rootGroup)
-                // We want to move the whole molecule
-                (controller as any).userData.selected = rootGroup;
-
-                // Attach rootGroup to controller to move it
-                // rootGroup.parent is currently 'scene'
-                // We attach it to 'controller'
-                // THREE.SceneUtils.attach(rootGroup, scene, controller); // Deprecated
+                // For grabbing, we grab the whole molecule
                 controller.attach(rootGroup);
-
+                (controller as any).userData.selected = rootGroup;
                 (controller as any).userData.isSelecting = true;
             }
         }
@@ -117,10 +137,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             const controller = event.target;
             if ((controller as any).userData.selected !== undefined) {
                 const object = (controller as any).userData.selected;
-
-                // Detach back to scene
                 scene.attach(object);
-
                 (controller as any).userData.selected = undefined;
                 (controller as any).userData.isSelecting = false;
             }
@@ -166,90 +183,66 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         controls.target.set(0, 0, -0.5); // Look at molecule center
         controls.update();
 
-        // Load PDB
-        const loader = new PDBLoader();
-        const offset = new THREE.Vector3();
+        // Build Molecule Function
+        const buildMolecule = (pdb: any, style: string) => {
+            rootGroup.clear();
 
-        // Construct absolute URL ensuring no double slashes (except protocol)
-        const baseUrl = window.location.origin;
-        // Remove leading slash from pdbUrl if present to avoid //uploads
-        const cleanPdbUrl = fixedPdbUrl.startsWith('/') ? fixedPdbUrl.substring(1) : fixedPdbUrl;
-        const absolutePdbUrl = `${baseUrl}/${cleanPdbUrl}`;
+            const geometryAtoms = pdb.geometryAtoms;
+            const geometryBonds = pdb.geometryBonds;
+            const json = pdb.json;
 
-        console.log('Starting PDB Load:', absolutePdbUrl);
-        setLoading(true);
-        setError(null);
+            const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+            const sphereGeometry = new THREE.IcosahedronGeometry(1, 3);
 
-        loader.load(
-            absolutePdbUrl,
-            (pdb) => {
-                console.log('PDB Loaded successfully', pdb);
+            // Recalculate offset if needed, but assuming geometryAtoms is already centered from initial load if we don't reload.
+            // Actually, PDBLoader modifies geometry in place, so we don't need to re-center.
 
-                if (pdb.geometryAtoms.getAttribute('position').count === 0) {
-                    const msg = "Empty PDB file or File Not Found (404).";
-                    console.warn(msg);
-                    setError(msg);
-                    setLoading(false);
-                    return;
+            // --- SCALING ---
+            const offset = new THREE.Vector3();
+            geometryAtoms.computeBoundingBox();
+            // We only center once ideally, but here we work with what we have.
+            // Let's re-measure to be safe for scale.
+            const size = new THREE.Vector3();
+            geometryAtoms.boundingBox.getSize(size);
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const targetSize = 0.5; // 50cm
+            const scaleFactor = targetSize / maxDim;
+
+            const positions = geometryAtoms.getAttribute('position');
+            const colors = geometryAtoms.getAttribute('color');
+            const position = new THREE.Vector3();
+            const color = new THREE.Color();
+
+            // Atoms
+            for (let i = 0; i < positions.count; i++) {
+                position.x = positions.getX(i);
+                position.y = positions.getY(i);
+                position.z = positions.getZ(i);
+
+                color.r = colors.getX(i);
+                color.g = colors.getY(i);
+                color.b = colors.getZ(i);
+
+                const material = new THREE.MeshStandardMaterial({ color: color, roughness: 0.5, metalness: 0.5 });
+                const object = new THREE.Mesh(sphereGeometry, material);
+                object.position.copy(position);
+                object.position.multiplyScalar(scaleFactor);
+
+                // Style Logic
+                if (style === 'spacefill') {
+                    object.scale.setScalar(1.2 * scaleFactor); // Large touching spheres
+                } else if (style === 'backbone') {
+                    object.scale.setScalar(0.15 * scaleFactor); // Tiny spheres
+                } else { // ball-stick
+                    object.scale.setScalar(0.4 * scaleFactor); // Standard size
                 }
 
-                setAtomCount(pdb.geometryAtoms.getAttribute('position').count);
+                object.castShadow = true;
+                object.receiveShadow = true;
+                rootGroup.add(object);
 
-                rootGroup.clear();
-
-                const geometryAtoms = pdb.geometryAtoms;
-                const geometryBonds = pdb.geometryBonds;
-                const json = pdb.json;
-
-                const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-                const sphereGeometry = new THREE.IcosahedronGeometry(1, 3);
-
-                geometryAtoms.computeBoundingBox();
-                if (geometryAtoms.boundingBox) {
-                    geometryAtoms.boundingBox.getCenter(offset).negate();
-                }
-
-                geometryAtoms.translate(offset.x, offset.y, offset.z);
-                geometryBonds.translate(offset.x, offset.y, offset.z);
-
-                // --- SCALING TO METERS ---
-                // Calculate max dimension to fit within 0.5m box
-                geometryAtoms.computeBoundingBox();
-                const size = new THREE.Vector3();
-                geometryAtoms.boundingBox.getSize(size);
-                const maxDim = Math.max(size.x, size.y, size.z);
-                const targetSize = 0.5; // 50cm
-                const scaleFactor = targetSize / maxDim;
-
-                console.log(`Scaling PDB: MaxDim=${maxDim}, ScaleFactor=${scaleFactor}`);
-
-                let positions = geometryAtoms.getAttribute('position');
-                const colors = geometryAtoms.getAttribute('color');
-
-                const position = new THREE.Vector3();
-                const color = new THREE.Color();
-
-                // Atoms
-                for (let i = 0; i < positions.count; i++) {
-                    position.x = positions.getX(i);
-                    position.y = positions.getY(i);
-                    position.z = positions.getZ(i);
-
-                    color.r = colors.getX(i);
-                    color.g = colors.getY(i);
-                    color.b = colors.getZ(i);
-
-                    // Use MeshStandardMaterial
-                    const material = new THREE.MeshStandardMaterial({ color: color });
-                    material.roughness = 0.5;
-                    material.metalness = 0.5;
-
-                    const object = new THREE.Mesh(sphereGeometry, material);
-                    object.position.copy(position);
-                    object.position.multiplyScalar(scaleFactor); // Apply scale
-                    object.scale.setScalar(0.4 * scaleFactor); // Atom size relative to scale
-                    rootGroup.add(object);
-
+                // Labels (Only for Ball-Stick or Spacefill maybe? Let's keep for all)
+                if (style !== 'backbone') {
                     const atom = json.atoms[i];
                     const text = document.createElement('div');
                     text.className = 'label';
@@ -257,48 +250,109 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                     text.textContent = atom[4];
                     text.style.fontFamily = 'sans-serif';
                     text.style.textShadow = '-1px 1px 1px rgb(0,0,0)';
-                    text.style.marginLeft = '10px'; // Adjust for smaller scale
-                    text.style.fontSize = '12px'; // Smaller font
-
+                    text.style.marginLeft = '10px';
+                    text.style.fontSize = '12px';
                     const label = new CSS2DObject(text);
                     label.position.copy(object.position);
                     rootGroup.add(label);
                 }
+            }
 
-                // Bonds
-                positions = geometryBonds.getAttribute('position');
+            // Bonds (Hide in Spacefill)
+            if (style !== 'spacefill') {
+                const bondPositions = geometryBonds.getAttribute('position');
                 const start = new THREE.Vector3();
                 const end = new THREE.Vector3();
 
-                for (let i = 0; i < positions.count; i += 2) {
-                    start.x = positions.getX(i);
-                    start.y = positions.getY(i);
-                    start.z = positions.getZ(i);
+                for (let i = 0; i < bondPositions.count; i += 2) {
+                    start.x = bondPositions.getX(i);
+                    start.y = bondPositions.getY(i);
+                    start.z = bondPositions.getZ(i);
 
-                    end.x = positions.getX(i + 1);
-                    end.y = positions.getY(i + 1);
-                    end.z = positions.getZ(i + 1);
+                    end.x = bondPositions.getX(i + 1);
+                    end.y = bondPositions.getY(i + 1);
+                    end.z = bondPositions.getZ(i + 1);
 
                     start.multiplyScalar(scaleFactor);
                     end.multiplyScalar(scaleFactor);
 
                     const object = new THREE.Mesh(boxGeometry, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5, metalness: 0.5 }));
                     object.position.copy(start);
-                    object.position.lerp(end, 0.5);
-                    object.scale.set(0.1 * scaleFactor, 0.1 * scaleFactor, start.distanceTo(end)); // Thinner bonds
                     object.lookAt(end);
+
+                    // Style Logic for Bonds
+                    const distance = start.distanceTo(end);
+                    if (style === 'backbone') {
+                        object.scale.set(0.05 * scaleFactor, 0.05 * scaleFactor, distance); // Very thin
+                    } else {
+                        // Ball-Stick
+                        object.scale.set(0.1 * scaleFactor, 0.1 * scaleFactor, distance);
+                    }
+
+                    // Center bond
+                    object.position.lerp(end, 0.5);
+
+                    object.castShadow = true;
+                    object.receiveShadow = true;
                     rootGroup.add(object);
                 }
-
-                setLoading(false);
-            },
-            (xhr) => { },
-            (err) => {
-                console.error('PDB Loader Error:', err);
-                setLoading(false);
-                setError('Error loading PDB: ' + (err instanceof Error ? err.message : 'Unknown error'));
             }
-        );
+
+            // Shadow Catcher Plane
+            const shadowPlane = new THREE.Mesh(
+                new THREE.PlaneGeometry(5, 5),
+                new THREE.ShadowMaterial({ opacity: 0.3 })
+            );
+            shadowPlane.rotation.x = -Math.PI / 2;
+            shadowPlane.position.y = -0.6 * scaleFactor; // Slightly lower
+            shadowPlane.receiveShadow = true;
+            rootGroup.add(shadowPlane);
+        };
+
+        // Load PDB
+        if (!pdbDataRef.current) {
+            const loader = new PDBLoader();
+            const baseUrl = window.location.origin;
+            const cleanPdbUrl = fixedPdbUrl.startsWith('/') ? fixedPdbUrl.substring(1) : fixedPdbUrl;
+            const absolutePdbUrl = `${baseUrl}/${cleanPdbUrl}`;
+
+            console.log('Starting PDB Load:', absolutePdbUrl);
+            setLoading(true);
+            setError(null);
+
+            loader.load(
+                absolutePdbUrl,
+                (pdb) => {
+                    console.log('PDB Loaded successfully');
+
+                    // Center Geometry Initially
+                    const geometryAtoms = pdb.geometryAtoms;
+                    const geometryBonds = pdb.geometryBonds;
+                    geometryAtoms.computeBoundingBox();
+                    const offset = new THREE.Vector3();
+                    if (geometryAtoms.boundingBox) {
+                        geometryAtoms.boundingBox.getCenter(offset).negate();
+                    }
+                    geometryAtoms.translate(offset.x, offset.y, offset.z);
+                    geometryBonds.translate(offset.x, offset.y, offset.z);
+
+                    pdbDataRef.current = pdb; // Cache data
+                    setAtomCount(geometryAtoms.getAttribute('position').count);
+
+                    buildMolecule(pdb, visualStyle); // Initial Build
+                    setLoading(false);
+                },
+                (xhr) => { },
+                (err) => {
+                    console.error('PDB Loader Error:', err);
+                    setLoading(false);
+                    setError('Error loading PDB: ' + (err instanceof Error ? err.message : 'Unknown error'));
+                }
+            );
+        } else {
+            // Rebuild if style changed but data exists
+            buildMolecule(pdbDataRef.current, visualStyle);
+        }
 
         const onWindowResize = () => {
             camera.aspect = window.innerWidth / window.innerHeight;
@@ -310,8 +364,63 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
 
         window.addEventListener('resize', onWindowResize);
 
-        const animate = () => {
+        // Spatial UI (3D Menu)
+        const menuElement = document.getElementById('ar-menu');
+        if (menuElement) {
+            // @ts-ignore
+            const interactionGroup = new InteractiveGroup(renderer, camera);
+            scene.add(interactionGroup);
+
+            const mesh = new HTMLMesh(menuElement);
+            mesh.position.set(0.4, 0, -0.5); // To the right
+            mesh.rotation.y = -Math.PI / 6;
+            mesh.scale.setScalar(2);
+            interactionGroup.add(mesh);
+
+            // Button Listeners
+            const btnReset = document.getElementById('btn-reset');
+            if (btnReset) {
+                btnReset.onclick = () => {
+                    rootGroup.position.set(0, 0, -0.5);
+                    rootGroup.rotation.set(0, 0, 0);
+                    rootGroup.scale.setScalar(1);
+                };
+            }
+
+            const btnStyleBS = document.getElementById('btn-style-bs');
+            if (btnStyleBS) btnStyleBS.onclick = () => setVisualStyle('ball-stick');
+
+            const btnStyleSF = document.getElementById('btn-style-sf');
+            if (btnStyleSF) btnStyleSF.onclick = () => setVisualStyle('spacefill');
+
+            const btnStyleBB = document.getElementById('btn-style-bb');
+            if (btnStyleBB) btnStyleBB.onclick = () => setVisualStyle('backbone');
+        }
+
+        const animate = (time: number, frame?: any) => {
             controls.update();
+
+            // AR Scaling Logic
+            if (frame) {
+                const session = renderer.xr.getSession();
+                if (session) {
+                    for (const source of session.inputSources) {
+                        if (source.gamepad) {
+                            const checkAxis = (axisIndex: number) => {
+                                const value = source.gamepad.axes[axisIndex];
+                                if (Math.abs(value) > 0.1) {
+                                    const scaleSpeed = 0.02;
+                                    const newScale = rootGroup.scale.x - (value * scaleSpeed);
+                                    const clampedScale = Math.max(0.1, Math.min(newScale, 5.0));
+                                    rootGroup.scale.setScalar(clampedScale);
+                                }
+                            };
+                            if (source.gamepad.axes.length > 3) checkAxis(3);
+                        }
+                    }
+                }
+            }
+
             renderer.render(scene, camera);
             labelRenderer.render(scene, camera);
         };
@@ -325,7 +434,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             if (document.body.contains(arButton)) document.body.removeChild(arButton); // Remove AR Button
             renderer.dispose();
         };
-    }, [fixedPdbUrl]);
+    }, [fixedPdbUrl, visualStyle]); // Re-run when style changes
 
     return (
         <div className="relative w-full h-full min-h-screen bg-slate-900">
@@ -338,6 +447,26 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                 >
                     Back
                 </button>
+            </div>
+
+            {/* Spatial UI Container (Hidden in 2D, used for texture) */}
+            <div id="ar-menu" className="absolute top-0 left-0 -z-50 opacity-0 pointer-events-none">
+                <div className="w-64 p-4 bg-slate-800/90 text-white rounded-xl border border-blue-500/50 flex flex-col gap-2">
+                    <h3 className="text-lg font-bold text-center border-b border-white/10 pb-2 mb-2">Controls</h3>
+                    <button id="btn-reset" className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-center font-medium transition active:scale-95">
+                        Reset View
+                    </button>
+
+                    <div className="grid grid-cols-3 gap-1 mt-2">
+                        <button id="btn-style-bs" className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded transition">B&S</button>
+                        <button id="btn-style-sf" className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded transition">Space</button>
+                        <button id="btn-style-bb" className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded transition">Bone</button>
+                    </div>
+
+                    <div className="text-xs text-slate-400 text-center mt-1">
+                        Grab/Pinch to Move<br />Stick to Zoom
+                    </div>
+                </div>
             </div>
 
             {loading && (
@@ -359,8 +488,9 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             <div className="absolute bottom-4 left-4 z-10 text-slate-400 text-sm pointer-events-none bg-slate-900/50 p-2 rounded">
                 <p>Model: {pdbUrl.split('/').pop()}</p>
                 <p>Atoms: {atomCount}</p>
-                <p>Controls: Desktop (Mouse) | AR (Point & Trigger to Grab)</p>
-                <p>Renderer: WebGL + WebXR (AR)</p>
+                <p>Style: {visualStyle === 'ball-stick' ? 'Ball & Stick' : visualStyle === 'spacefill' ? 'Spacefill' : 'Backbone'}</p>
+                <p>Controls: Desktop (Mouse) | AR (Grab/Pinch & Move, Stick Up/Down to Scale)</p>
+                <p>Renderer: WebGL + WebXR (AR) + Hand Tracking</p>
             </div>
         </div>
     );

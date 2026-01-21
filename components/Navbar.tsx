@@ -44,17 +44,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
           </button>
         )}
 
-        {currentUser && currentUser.role === 'admin' && (
-          <button
-            onClick={() => setView('users')}
-            className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${currentView === 'users'
-              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
-              : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700'
-              }`}
-          >
-            Users
-          </button>
-        )}
+
 
 
 
@@ -93,6 +83,14 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
                 >
                   Edit Profile
                 </button>
+                {currentUser.role === 'admin' && (
+                  <button
+                    onClick={() => { setView('users'); setShowDropdown(false); }}
+                    className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-indigo-600/10 hover:text-indigo-400 transition-colors"
+                  >
+                    Users
+                  </button>
+                )}
                 <button
                   onClick={() => { onLogout(); setShowDropdown(false); }}
                   className="w-full text-left px-4 py-2 text-sm text-rose-400 hover:bg-rose-500/10 transition-colors"

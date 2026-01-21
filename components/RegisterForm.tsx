@@ -12,7 +12,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
     username: '',
     email: '',
     password: '',
-    institution: ''
+    institution: '',
+    role: 'student'
   });
   const [loading, setLoading] = useState(false);
 
@@ -86,6 +87,18 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
               placeholder="Polytechnic High School"
             />
           </div>
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Account Type</label>
+            <select
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:border-indigo-500 outline-none transition-all text-white appearance-none"
+              value={formData.role}
+              onChange={e => setFormData({ ...formData, role: e.target.value as 'student' | 'teacher' })}
+            >
+              <option value="student">Student</option>
+              <option value="teacher">Teacher</option>
+            </select>
+          </div>
+
           <div className="space-y-1">
             <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Password</label>
             <input

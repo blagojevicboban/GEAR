@@ -74,14 +74,17 @@ app.get('/api/models', async (req, res) => {
 
 // Register new user
 app.post('/api/register', async (req, res) => {
-    const { username, email, institution, password } = req.body;
+    const { username, email, institution, password, role } = req.body;
     try {
         const id = 'user-' + Date.now();
+        // Prevent users from registering as admin directly
+        const userRole = (role === 'admin') ? 'student' : (role || 'student');
+
         await pool.query(
-            'INSERT INTO users (id, username, email, institution, password) VALUES (?, ?, ?, ?, ?)',
-            [id, username, email, institution, password]
+            'INSERT INTO users (id, username, email, institution, password, role) VALUES (?, ?, ?, ?, ?, ?)',
+            [id, username, email, institution, password, userRole]
         );
-        res.json({ id, username, email, institution });
+        res.json({ id, username, email, institution, role: userRole });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Registration failed' });

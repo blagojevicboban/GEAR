@@ -213,6 +213,7 @@ async function seed() {
         institution VARCHAR(255),
         bio TEXT,
         profilePicUrl VARCHAR(500),
+        role ENUM('admin', 'teacher', 'student') DEFAULT 'student',
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -269,8 +270,8 @@ async function seed() {
 
         console.log('Inserting default user...');
         await connection.query(
-            'INSERT INTO users (id, username, email, institution) VALUES (?, ?, ?, ?)',
-            ['user-001', 'boban.blagojevic', 'boban@example.com', 'Technical School Pirot']
+            'INSERT INTO users (id, username, email, institution, role) VALUES (?, ?, ?, ?, ?)',
+            ['user-001', 'boban.blagojevic', 'boban@example.com', 'Technical School Pirot', 'admin']
         );
 
         console.log('Inserting models and hotspots...');

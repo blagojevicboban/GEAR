@@ -47,6 +47,7 @@ export interface User {
   institution?: string;
   bio?: string;
   profilePicUrl?: string;
+  role: 'admin' | 'teacher' | 'student';
   createdAt?: string; // Added to match DB
 }
 

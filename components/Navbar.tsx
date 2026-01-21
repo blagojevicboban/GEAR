@@ -32,15 +32,17 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
           Repository
         </button>
 
-        <button
-          onClick={() => setView('upload')}
-          className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${currentView === 'upload'
-            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
-            : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700'
-            }`}
-        >
-          + Upload
-        </button>
+        {currentUser && (currentUser.role === 'admin' || currentUser.role === 'teacher') && (
+          <button
+            onClick={() => setView('upload')}
+            className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${currentView === 'upload'
+              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
+              : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700'
+              }`}
+          >
+            + Upload
+          </button>
+        )}
 
         {currentUser ? (
           <div className="relative">
@@ -64,7 +66,10 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
             {showDropdown && (
               <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl py-2 overflow-hidden animate-in fade-in slide-in-from-top-2">
                 <div className="px-4 py-2 border-b border-slate-800 mb-1">
-                  <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Institution</p>
+                  <div className="flex justify-between items-center">
+                    <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Institution</p>
+                    <span className="text-[10px] bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded uppercase font-bold">{currentUser.role}</span>
+                  </div>
                   <p className="text-sm text-slate-300 truncate">{currentUser.institution || 'Independent'}</p>
                 </div>
                 <button

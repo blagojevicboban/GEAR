@@ -229,8 +229,8 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                 color.g = colors.getY(i);
                 color.b = colors.getZ(i);
 
-                // Use MeshBasicMaterial to ensure visibility on all devices (ignores lighting)
-                const material = new THREE.MeshBasicMaterial({ color: color });
+                // Use MeshStandardMaterial
+                const material = new THREE.MeshStandardMaterial({ color: color, roughness: 0.5, metalness: 0.5 });
 
                 const object = new THREE.Mesh(sphereGeometry, material);
                 object.position.copy(position);
@@ -245,8 +245,8 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                     object.scale.setScalar(0.4 * scaleFactor); // Standard size
                 }
 
-                object.castShadow = false;
-                object.receiveShadow = false;
+                object.castShadow = true;
+                object.receiveShadow = true;
                 rootGroup.add(object);
 
                 // Labels (Only for Ball-Stick or Spacefill maybe? Let's keep for all)
@@ -284,7 +284,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                     start.multiplyScalar(scaleFactor);
                     end.multiplyScalar(scaleFactor);
 
-                    const object = new THREE.Mesh(boxGeometry, new THREE.MeshBasicMaterial({ color: 0xffffff }));
+                    const object = new THREE.Mesh(boxGeometry, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5, metalness: 0.5 }));
                     object.position.copy(start);
                     object.lookAt(end);
 
@@ -300,8 +300,8 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                     // Center bond
                     object.position.lerp(end, 0.5);
 
-                    object.castShadow = false;
-                    object.receiveShadow = false;
+                    object.castShadow = true;
+                    object.receiveShadow = true;
                     rootGroup.add(object);
                 }
             }

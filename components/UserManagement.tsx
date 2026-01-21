@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, VETModel } from '../types';
+import { fixAssetUrl } from '../utils/urlUtils';
 
 interface UserManagementProps {
     currentUser: User;
@@ -312,7 +313,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                                         {getUserModels(viewingUser.username).map(model => (
                                             <div key={model.id} className="group bg-slate-800 border border-slate-700 rounded-xl overflow-hidden hover:border-indigo-500/50 transition-all">
                                                 <div className="aspect-video bg-slate-900 relative">
-                                                    <img src={model.thumbnailUrl} alt={model.name} className="w-full h-full object-cover" />
+                                                    <img src={fixAssetUrl(model.thumbnailUrl)} alt={model.name} className="w-full h-full object-cover" />
                                                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 to-transparent"></div>
                                                     <div className="absolute bottom-3 left-3 right-3 text-white">
                                                         <h5 className="font-bold truncate">{model.name}</h5>

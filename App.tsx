@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AppView, VETModel, User } from './types';
 import { INITIAL_MODELS } from './constants';
 import Navbar from './components/Navbar';
@@ -136,11 +136,43 @@ const App: React.FC = () => {
     setCurrentView('home');
   };
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     setCurrentUser(null);
     setCurrentView('home');
     localStorage.removeItem('gear_user');
-  };
+  }, []);
+
+  // Session Timeout: 15 minutes of inactivity
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const INACTIVITY_LIMIT = 15 * 60 * 1000; // 15 minutes
+    let timeoutId: NodeJS.Timeout;
+
+    const doLogout = () => {
+      handleLogout();
+      alert("Session expired due to inactivity.");
+    };
+
+    const resetTimer = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(doLogout, INACTIVITY_LIMIT);
+    };
+
+    // Events to monitor for activity
+    const events = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click'];
+
+    // Set initial timer
+    resetTimer();
+
+    // Attach listeners
+    events.forEach(event => document.addEventListener(event, resetTimer));
+
+    return () => {
+      clearTimeout(timeoutId);
+      events.forEach(event => document.removeEventListener(event, resetTimer));
+    };
+  }, [currentUser, handleLogout]);
 
   const protectedSetView = (view: AppView) => {
     if ((view === 'upload' || view === 'edit' || view === 'profile' || view === 'users') && !currentUser) {

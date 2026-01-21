@@ -7,12 +7,13 @@ interface ModelEditFormProps {
   model: VETModel;
   onUpdateSuccess: (model: VETModel) => void;
   userName: string;
+  userRole: 'admin' | 'student' | 'teacher';
   onCancel: () => void;
 }
 
 import { fixAssetUrl } from '../utils/urlUtils';
 
-const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, userName, onCancel }) => {
+const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, userName, userRole, onCancel }) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [showCustomSector, setShowCustomSector] = useState(false);
   const [formData, setFormData] = useState({
@@ -30,6 +31,20 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
   const [hotspots, setHotspots] = useState<Hotspot[]>(model.hotspots || []);
   const [thumbnailPreview, setThumbnailPreview] = useState<string>(model.thumbnailUrl);
   const [optSuggestions, setOptSuggestions] = useState<string | null>(null);
+  const [availableUsers, setAvailableUsers] = useState<string[]>([]);
+
+  React.useEffect(() => {
+    if (userRole === 'admin') {
+      fetch('/api/users', { headers: { 'X-User-Name': userName } })
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            setAvailableUsers(data.map((u: any) => u.username));
+          }
+        })
+        .catch(err => console.error("Failed to fetch users for dropdown", err));
+    }
+  }, [userRole, userName]);
 
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -343,13 +358,33 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Uploaded By</label>
-                  <input
-                    required
-                    type="text"
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-white transition-all"
-                    value={formData.uploadedBy}
-                    onChange={e => setFormData({ ...formData, uploadedBy: e.target.value })}
-                  />
+                  {userRole === 'admin' ? (
+                    <div>
+                      <input
+                        required
+                        type="text"
+                        list="user-options"
+                        className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-white transition-all"
+                        value={formData.uploadedBy}
+                        onChange={e => setFormData({ ...formData, uploadedBy: e.target.value })}
+                        placeholder="Search or select user..."
+                      />
+                      <datalist id="user-options">
+                        {availableUsers.map(u => (
+                          <option key={u} value={u} />
+                        ))}
+                      </datalist>
+                    </div>
+                  ) : (
+                    <input
+                      required
+                      readOnly
+                      type="text"
+                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-slate-400 cursor-not-allowed"
+                      value={formData.uploadedBy}
+                      title="Only Admins can change the owner."
+                    />
+                  )}
                 </div>
                 <div className="hidden md:block"></div>
               </div>

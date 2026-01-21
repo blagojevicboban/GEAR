@@ -51,4 +51,4 @@ export interface User {
   createdAt?: string; // Added to match DB
 }
 
-export type AppView = 'home' | 'gallery' | 'upload' | 'edit' | 'viewer' | 'login' | 'register' | 'profile';
+export type AppView = 'home' | 'gallery' | 'upload' | 'edit' | 'viewer' | 'login' | 'register' | 'profile' | 'users';

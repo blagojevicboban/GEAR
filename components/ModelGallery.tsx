@@ -14,13 +14,18 @@ import { fixAssetUrl } from '../utils/urlUtils';
 
 const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, onViewModel, onEnterWorkshop, onEditModel, onDeleteModel }) => {
   const [filter, setFilter] = useState<EDUSector | 'All'>('All');
+  const [userFilter, setUserFilter] = useState<string>('All');
   const [search, setSearch] = useState('');
 
+  // Extract unique uploaders for the filter dropdown
+  const uniqueUploaders = Array.from(new Set(models.map(m => m.uploadedBy))).sort();
+
   const filteredModels = models.filter(m => {
-    const matchesFilter = filter === 'All' || m.sector === filter;
+    const matchesSector = filter === 'All' || m.sector === filter;
+    const matchesUser = userFilter === 'All' || m.uploadedBy === userFilter;
     const matchesSearch = m.name.toLowerCase().includes(search.toLowerCase()) ||
       m.equipmentType.toLowerCase().includes(search.toLowerCase());
-    return matchesFilter && matchesSearch;
+    return matchesSector && matchesUser && matchesSearch;
   });
 
   return (
@@ -47,6 +52,14 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, onView
             <option value="All">All Sectors</option>
             {Object.values(EDUSector).map(s => <option key={s} value={s}>{s}</option>)}
           </select>
+          <select
+            className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500"
+            value={userFilter}
+            onChange={(e) => setUserFilter(e.target.value)}
+          >
+            <option value="All">All Users</option>
+            {uniqueUploaders.map(user => <option key={user} value={user}>{user}</option>)}
+          </select>
         </div>
       </div>
 
@@ -56,8 +69,8 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, onView
             <div className="relative h-40 overflow-hidden">
               <img src={fixAssetUrl(model.thumbnailUrl)} alt={model.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
 
-              {/* Edit Button - Visible if logged in for demo purposes */}
-              {currentUser && (
+              {/* Edit Button - Visible to Admin or Owner */}
+              {currentUser && (currentUser.role === 'admin' || currentUser.username === model.uploadedBy) && (
                 <button
                   onClick={(e) => { e.stopPropagation(); onEditModel(model); }}
                   className="absolute top-2 right-2 bg-indigo-600 p-2 rounded-lg text-white shadow-lg z-10 opacity-0 group-hover:opacity-100 transition-all hover:bg-indigo-500"
@@ -69,8 +82,8 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, onView
                 </button>
               )}
 
-              {/* Delete Button - Visible if logged in */}
-              {currentUser && (
+              {/* Delete Button - Visible to Admin or Owner */}
+              {currentUser && (currentUser.role === 'admin' || currentUser.username === model.uploadedBy) && (
                 <button
                   onClick={(e) => { e.stopPropagation(); onDeleteModel(model.id); }}
                   className="absolute top-12 right-2 bg-rose-600 p-2 rounded-lg text-white shadow-lg z-10 opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-500"

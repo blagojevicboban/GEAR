@@ -14,6 +14,8 @@ import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import ProfileForm from './components/ProfileForm';
 
+import UserManagement from './components/UserManagement';
+
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>('home');
   const [models, setModels] = useState<VETModel[]>(INITIAL_MODELS); // Initialize with constants
@@ -75,7 +77,10 @@ const App: React.FC = () => {
     try {
       const res = await fetch('/api/models', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Name': currentUser?.username || ''
+        },
         body: JSON.stringify(newModel)
       });
       if (res.ok) {
@@ -92,13 +97,19 @@ const App: React.FC = () => {
     try {
       const res = await fetch(`/api/models/${updatedModel.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Name': currentUser?.username || ''
+        },
         body: JSON.stringify(updatedModel)
       });
       if (res.ok) {
         setModels(prev => prev.map(m => m.id === updatedModel.id ? updatedModel : m));
         setCurrentView('gallery');
         setModelToEdit(null);
+      } else {
+        const err = await res.json();
+        alert(`Update failed: ${err.error}`);
       }
     } catch (err) {
       console.error("Failed to update model", err);
@@ -132,7 +143,7 @@ const App: React.FC = () => {
   };
 
   const protectedSetView = (view: AppView) => {
-    if ((view === 'upload' || view === 'edit' || view === 'profile') && !currentUser) {
+    if ((view === 'upload' || view === 'edit' || view === 'profile' || view === 'users') && !currentUser) {
       setCurrentView('login');
     } else {
       setCurrentView(view);
@@ -175,8 +186,18 @@ const App: React.FC = () => {
             onDeleteModel={async (id) => {
               if (!confirm('Are you sure you want to delete this model?')) return;
               try {
-                await fetch(`/api/models/${id}`, { method: 'DELETE' });
-                setModels(prev => prev.filter(m => m.id !== id));
+                const res = await fetch(`/api/models/${id}`, {
+                  method: 'DELETE',
+                  headers: {
+                    'X-User-Name': currentUser?.username || ''
+                  }
+                });
+                if (res.ok) {
+                  setModels(prev => prev.filter(m => m.id !== id));
+                } else {
+                  const err = await res.json();
+                  alert(`Delete failed: ${err.error}`);
+                }
               } catch (err) {
                 console.error("Failed to delete", err);
               }
@@ -196,6 +217,7 @@ const App: React.FC = () => {
             model={modelToEdit}
             onUpdateSuccess={handleUpdate}
             userName={currentUser?.username || 'Guest'}
+            userRole={currentUser?.role || 'student'}
             onCancel={() => { setCurrentView('gallery'); setModelToEdit(null); }}
           />
         )}
@@ -206,6 +228,10 @@ const App: React.FC = () => {
             onUpdateSuccess={handleProfileUpdate}
             onCancel={() => setCurrentView('home')}
           />
+        )}
+
+        {currentView === 'users' && currentUser && (
+          <UserManagement currentUser={currentUser} models={models} />
         )}
 
         {currentView === 'viewer' && selectedModel && (

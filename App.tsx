@@ -15,6 +15,7 @@ import RegisterForm from './components/RegisterForm';
 import ProfileForm from './components/ProfileForm';
 
 import UserManagement from './components/UserManagement';
+import UserProfileModal from './components/UserProfileModal';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>('home');
@@ -26,6 +27,7 @@ const App: React.FC = () => {
     const saved = localStorage.getItem('gear_user');
     return saved ? JSON.parse(saved) : null;
   });
+  const [viewingProfileUser, setViewingProfileUser] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/models')
@@ -205,6 +207,7 @@ const App: React.FC = () => {
             onGetStarted={() => setCurrentView('gallery')}
             featuredModels={getFeaturedModels()}
             onViewModel={(m) => handleViewModel(m)}
+            onViewUser={setViewingProfileUser}
           />
         )}
 
@@ -213,6 +216,7 @@ const App: React.FC = () => {
             models={models}
             currentUser={currentUser}
             onViewModel={(m) => handleViewModel(m)}
+            onViewUser={setViewingProfileUser}
             onEnterWorkshop={(m) => handleViewModel(m, true)}
             onEditModel={handleEditRequest}
             onDeleteModel={async (id) => {
@@ -264,6 +268,14 @@ const App: React.FC = () => {
 
         {currentView === 'users' && currentUser && (
           <UserManagement currentUser={currentUser} models={models} />
+        )}
+
+        {viewingProfileUser && (
+          <UserProfileModal
+            username={viewingProfileUser}
+            models={models}
+            onClose={() => setViewingProfileUser(null)}
+          />
         )}
 
         {currentView === 'viewer' && selectedModel && (

@@ -7,11 +7,14 @@ interface DashboardProps {
   onGetStarted: () => void;
   featuredModels: VETModel[];
   onViewModel: (m: VETModel) => void;
+  onViewUser: (username: string) => void;
 }
+
+
 
 import { fixAssetUrl } from '../utils/urlUtils';
 
-const Dashboard: React.FC<DashboardProps> = ({ modelsCount, onGetStarted, featuredModels, onViewModel }) => {
+const Dashboard: React.FC<DashboardProps> = ({ modelsCount, onGetStarted, featuredModels, onViewModel, onViewUser }) => {
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
@@ -80,7 +83,7 @@ const Dashboard: React.FC<DashboardProps> = ({ modelsCount, onGetStarted, featur
                 <h3 className="text-xl font-bold text-white mt-1 mb-2">{model.name}</h3>
                 <p className="text-slate-400 text-sm line-clamp-2 mb-4">{model.description}</p>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500 italic">By {model.uploadedBy}</span>
+                  <span className="text-xs text-slate-500 italic">By <button onClick={(e) => { e.stopPropagation(); onViewUser(model.uploadedBy); }} className="hover:text-indigo-400 hover:underline">{model.uploadedBy}</button></span>
                   <div className="flex gap-1">
                     <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
                     <span className="text-xs text-blue-400 font-bold uppercase tracking-tighter">VR Ready</span>

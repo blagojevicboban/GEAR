@@ -8,11 +8,12 @@ interface ModelGalleryProps {
   onEnterWorkshop: (m: VETModel) => void;
   onEditModel: (m: VETModel) => void;
   onDeleteModel: (id: string) => void;
+  onViewUser: (username: string) => void;
 }
 
 import { fixAssetUrl } from '../utils/urlUtils';
 
-const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, onViewModel, onEnterWorkshop, onEditModel, onDeleteModel }) => {
+const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, onViewModel, onEnterWorkshop, onEditModel, onDeleteModel, onViewUser }) => {
   const [filter, setFilter] = useState<EDUSector | 'All'>('All');
   const [userFilter, setUserFilter] = useState<string>('All');
   const [search, setSearch] = useState('');
@@ -113,7 +114,7 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, onView
               <p className="text-slate-500 text-xs mb-3 flex-1 line-clamp-2">{model.description}</p>
 
               <div className="mb-4">
-                <p className="text-[10px] text-slate-500 italic">By {model.uploadedBy}</p>
+                <p className="text-[10px] text-slate-500 italic">By <button onClick={(e) => { e.stopPropagation(); onViewUser(model.uploadedBy); }} className="hover:text-indigo-400 hover:underline">{model.uploadedBy}</button></p>
               </div>
 
               <div className="flex flex-col gap-2 mt-auto">

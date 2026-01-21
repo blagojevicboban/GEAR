@@ -134,6 +134,24 @@ app.post('/api/users', async (req, res) => {
     }
 });
 
+// Get public user profile
+app.get('/api/users/public/:username', async (req, res) => {
+    const { username } = req.params;
+    try {
+        const [users] = await pool.query(
+            'SELECT username, role, institution, bio, profilePicUrl, email FROM users WHERE username = ?',
+            [username]
+        );
+        if (users.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.json(users[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch user profile' });
+    }
+});
+
 // Get all users (Admin only)
 app.get('/api/users', async (req, res) => {
     const requestor = req.headers['x-user-name'];

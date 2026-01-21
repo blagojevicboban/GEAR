@@ -9,13 +9,14 @@ interface ModelGalleryProps {
   onEditModel: (m: VETModel) => void;
   onDeleteModel: (id: string) => void;
   onViewUser: (username: string) => void;
+  initialUserFilter?: string;
 }
 
 import { fixAssetUrl } from '../utils/urlUtils';
 
-const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, onViewModel, onEnterWorkshop, onEditModel, onDeleteModel, onViewUser }) => {
+const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, onViewModel, onEnterWorkshop, onEditModel, onDeleteModel, onViewUser, initialUserFilter }) => {
   const [filter, setFilter] = useState<EDUSector | 'All'>('All');
-  const [userFilter, setUserFilter] = useState<string>('All');
+  const [userFilter, setUserFilter] = useState<string>(initialUserFilter || 'All');
   const [search, setSearch] = useState('');
 
   // Extract unique uploaders for the filter dropdown

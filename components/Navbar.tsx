@@ -78,6 +78,12 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
                 </div>
 
                 <button
+                  onClick={() => { setView('my-projects'); setShowDropdown(false); }}
+                  className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-indigo-600/10 hover:text-indigo-400 transition-colors"
+                >
+                  My Projects
+                </button>
+                <button
                   onClick={() => { setView('profile'); setShowDropdown(false); }}
                   className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-indigo-600/10 hover:text-indigo-400 transition-colors"
                 >

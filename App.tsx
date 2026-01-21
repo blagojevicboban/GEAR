@@ -177,7 +177,7 @@ const App: React.FC = () => {
   }, [currentUser, handleLogout]);
 
   const protectedSetView = (view: AppView) => {
-    if ((view === 'upload' || view === 'edit' || view === 'profile' || view === 'users') && !currentUser) {
+    if ((view === 'upload' || view === 'edit' || view === 'profile' || view === 'users' || view === 'my-projects') && !currentUser) {
       setCurrentView('login');
     } else {
       setCurrentView(view);
@@ -213,8 +213,41 @@ const App: React.FC = () => {
 
         {currentView === 'gallery' && (
           <ModelGallery
+            key="gallery"
             models={models}
             currentUser={currentUser}
+            onViewModel={(m) => handleViewModel(m)}
+            onViewUser={setViewingProfileUser}
+            onEnterWorkshop={(m) => handleViewModel(m, true)}
+            onEditModel={handleEditRequest}
+            onDeleteModel={async (id) => {
+              if (!confirm('Are you sure you want to delete this model?')) return;
+              try {
+                const res = await fetch(`/api/models/${id}`, {
+                  method: 'DELETE',
+                  headers: {
+                    'X-User-Name': currentUser?.username || ''
+                  }
+                });
+                if (res.ok) {
+                  setModels(prev => prev.filter(m => m.id !== id));
+                } else {
+                  const err = await res.json();
+                  alert(`Delete failed: ${err.error}`);
+                }
+              } catch (err) {
+                console.error("Failed to delete", err);
+              }
+            }}
+          />
+        )}
+
+        {currentView === 'my-projects' && currentUser && (
+          <ModelGallery
+            key="my-projects"
+            models={models}
+            currentUser={currentUser}
+            initialUserFilter={currentUser.username}
             onViewModel={(m) => handleViewModel(m)}
             onViewUser={setViewingProfileUser}
             onEnterWorkshop={(m) => handleViewModel(m, true)}

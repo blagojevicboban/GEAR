@@ -13,6 +13,7 @@
 *   **Multi-User Workshops**: Experimental shared virtual spaces for collaborative learning.
 *   **Dashboard**: "Featured" models highlight and category-based filtering (sectors).
 *   **Mixed Reality Mode (New)**: Fully immersive AR experience with Passthrough, Hand Tracking, and Spatial UI controls.
+*   **User Management System**: Role-based access control (Admin, Teacher, Student) with secure registration and profile management.
 
 ## �️ Mixed Reality Features (v1.2 Update)
 
@@ -123,6 +124,18 @@ npm run start
     pm2 start deployment/webhook.js --name gear-webhook
     pm2 save
     ```
+
+### 🔄 Automated Deployment (CI/CD)
+The project includes a built-in Webhook listener (`deployment/webhook.js`) running on port `9000`. 
+When a `push` event is received from GitHub/GitLab:
+1.  The webhook triggers `deployment/deploy.sh`.
+2.  It pulls the latest code (`git pull`).
+3.  Installs dependencies and rebuilds the frontend.
+4.  **Restarts the Backend** (`pm2 restart gear-backend`) to apply changes.
+
+**To enable this:**
+1.  Configure a Webhook in your GitHub Repo Settings pointing to `http://your-server-ip:9000`.
+2.  Ensure `gear-webhook` is running via PM2.
 
 ### 🔧 Nginx Configuration (Critical)
 The application assumes it is running behind a proxy. Ensure your Nginx config proxies `/api` requests to the Node.js backend (default port 3001).

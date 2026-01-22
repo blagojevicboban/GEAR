@@ -6,15 +6,19 @@ interface DashboardProps {
   modelsCount: number;
   onGetStarted: () => void;
   featuredModels: VETModel[];
+  activeWorkshops: any[];
   onViewModel: (m: VETModel) => void;
   onViewUser: (username: string) => void;
+  onJoinWorkshop: (ws: any) => void;
 }
 
 
 
 import { fixAssetUrl } from '../utils/urlUtils';
 
-const Dashboard: React.FC<DashboardProps> = ({ modelsCount, onGetStarted, featuredModels, onViewModel, onViewUser }) => {
+const Dashboard: React.FC<DashboardProps> = ({
+  modelsCount, onGetStarted, featuredModels, activeWorkshops, onViewModel, onViewUser, onJoinWorkshop
+}) => {
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
@@ -43,7 +47,10 @@ const Dashboard: React.FC<DashboardProps> = ({ modelsCount, onGetStarted, featur
           </div>
         </div>
 
-        <div className="relative aspect-video rounded-3xl overflow-hidden bg-slate-800 border border-slate-700 shadow-2xl group">
+        <div
+          className="relative aspect-video rounded-3xl overflow-hidden bg-slate-800 border border-slate-700 shadow-2xl group cursor-pointer"
+          onClick={() => activeWorkshops.length > 0 && onJoinWorkshop(activeWorkshops[0])}
+        >
           <img
             src="https://picsum.photos/seed/xr-hero/1200/800"
             alt="VET VR Training"
@@ -51,11 +58,15 @@ const Dashboard: React.FC<DashboardProps> = ({ modelsCount, onGetStarted, featur
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent"></div>
           <div className="absolute bottom-6 left-6 right-6">
-            <div className="inline-block px-3 py-1 bg-green-500/20 border border-green-500/50 text-green-400 text-xs font-bold rounded-full mb-3">
-              LIVE WORKSHOP
+            <div className={`inline-block px-3 py-1 ${activeWorkshops.length > 0 ? 'bg-rose-500 animate-pulse' : 'bg-green-500/20'} border border-rose-500/50 text-white text-xs font-bold rounded-full mb-3 uppercase`}>
+              {activeWorkshops.length > 0 ? `${activeWorkshops.length} ACTIVE WORKSHOPS` : 'LIVE WORKSHOP SUPPORT'}
             </div>
-            <h3 className="text-2xl font-bold text-white mb-2">Multi-user Collaborative Lab</h3>
-            <p className="text-slate-400 text-sm">Join teachers and students from across the globe in virtual workshops.</p>
+            <h3 className="text-2xl font-bold text-white mb-2">
+              {activeWorkshops.length > 0 ? `Join ${activeWorkshops[0].creatorName}'s Lab` : 'Multi-user Collaborative Lab'}
+            </h3>
+            <p className="text-slate-400 text-sm">
+              {activeWorkshops.length > 0 ? `Currently viewing ${activeWorkshops[0].modelName}. Click to join.` : 'Join teachers and students from across the globe in virtual workshops.'}
+            </p>
           </div>
         </div>
       </div>

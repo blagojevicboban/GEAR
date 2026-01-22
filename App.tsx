@@ -9,6 +9,7 @@ import ModelUploadForm from './components/ModelUploadForm';
 import ModelEditForm from './components/ModelEditForm';
 import VRViewer from './components/VRViewer';
 import PDBViewer from './components/PDBViewer';
+import CADViewer from './components/CADViewer';
 import FileDownloadViewer from './components/FileDownloadViewer';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
@@ -23,6 +24,8 @@ const App: React.FC = () => {
   const [selectedModel, setSelectedModel] = useState<VETModel | null>(null);
   const [modelToEdit, setModelToEdit] = useState<VETModel | null>(null);
   const [isWorkshopMode, setIsWorkshopMode] = useState(false);
+  const [activeWorkshopId, setActiveWorkshopId] = useState<string | undefined>();
+  const [activeWorkshops, setActiveWorkshops] = useState<any[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     const saved = localStorage.getItem('gear_user');
     return saved ? JSON.parse(saved) : null;
@@ -40,6 +43,12 @@ const App: React.FC = () => {
         setModels([...filteredInitial, ...data]);
       })
       .catch(err => console.error("Failed to fetch models", err));
+
+    // Fetch active workshops
+    fetch('/api/workshops/active')
+      .then(res => res.json())
+      .then(data => setActiveWorkshops(data))
+      .catch(err => console.error("Failed to fetch workshops", err));
   }, []);
 
   // Sync user state changes to localStorage (cover login and profile update)
@@ -64,10 +73,36 @@ const App: React.FC = () => {
     }
   }, [models]);
 
-  const handleViewModel = (model: VETModel, workshop: boolean = false) => {
+  const handleViewModel = async (model: VETModel, workshop: boolean = false) => {
     setSelectedModel(model);
     setIsWorkshopMode(workshop);
     setCurrentView('viewer');
+
+    if (workshop && currentUser) {
+      try {
+        const response = await fetch('/api/workshops', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ modelId: model.id, createdBy: currentUser.username })
+        });
+        const data = await response.json();
+        setActiveWorkshopId(data.id);
+      } catch (err) {
+        console.error("Failed to create workshop", err);
+      }
+    } else {
+      setActiveWorkshopId(undefined);
+    }
+  };
+
+  const handleJoinWorkshop = (workshop: any) => {
+    const model = models.find(m => m.id === workshop.modelId);
+    if (model) {
+      setSelectedModel(model);
+      setIsWorkshopMode(true);
+      setActiveWorkshopId(workshop.id);
+      setCurrentView('viewer');
+    }
   };
 
   const handleEditRequest = (model: VETModel) => {
@@ -206,8 +241,10 @@ const App: React.FC = () => {
             modelsCount={models.length}
             onGetStarted={() => setCurrentView('gallery')}
             featuredModels={getFeaturedModels()}
+            activeWorkshops={activeWorkshops}
             onViewModel={(m) => handleViewModel(m)}
             onViewUser={setViewingProfileUser}
+            onJoinWorkshop={handleJoinWorkshop}
           />
         )}
 
@@ -318,15 +355,25 @@ const App: React.FC = () => {
               onExit={handleExitViewer}
             />
           ) : (selectedModel.modelUrl.toLowerCase().endsWith('.stp') || selectedModel.modelUrl.toLowerCase().endsWith('.step') || selectedModel.modelUrl.includes('#step')) ? (
-            <FileDownloadViewer
+            <CADViewer
               fileUrl={selectedModel.modelUrl.replace('#step', '')}
               onExit={handleExitViewer}
-              fileName={selectedModel.name + (selectedModel.modelUrl.toLowerCase().endsWith('.step') ? '.step' : '.stp')}
+              fileName={selectedModel.name}
+            />
+          ) : (selectedModel.modelUrl.toLowerCase().endsWith?.('.stl') || selectedModel.modelUrl.includes('#stl')) ? (
+            <VRViewer
+              model={selectedModel}
+              workshopMode={isWorkshopMode}
+              workshopId={activeWorkshopId}
+              user={currentUser}
+              onExit={handleExitViewer}
             />
           ) : (
             <VRViewer
               model={selectedModel}
               workshopMode={isWorkshopMode}
+              workshopId={activeWorkshopId}
+              user={currentUser}
               onExit={handleExitViewer}
             />
           )

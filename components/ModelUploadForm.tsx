@@ -86,6 +86,7 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
       let fragment = '';
       if (fileName.endsWith('.pdb')) fragment = '#pdb';
       else if (fileName.endsWith('.stp') || fileName.endsWith('.step')) fragment = '#step';
+      else if (fileName.endsWith('.stl')) fragment = '#stl';
 
       const finalModelUrl = uploadedUrl + fragment;
 
@@ -160,14 +161,14 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
                 <div className="border-2 border-dashed border-slate-700 rounded-2xl p-6 text-center hover:border-indigo-500/50 transition-all cursor-pointer bg-slate-950/50 group h-40 flex flex-col items-center justify-center">
                   <input
                     type="file"
-                    accept=".glb,.gltf,.pdb,.stp,.step"
+                    accept=".glb,.gltf,.pdb,.stp,.step,.stl"
                     className="hidden"
                     id="model-upload"
                     onChange={e => setFormData({ ...formData, modelFile: e.target.files?.[0] || null })}
                   />
                   <label htmlFor="model-upload" className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
                     <svg className={`w-8 h-8 mb-2 transition-colors ${formData.modelFile ? 'text-green-500' : 'text-slate-600 group-hover:text-indigo-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
-                    <p className="text-sm text-slate-300 font-semibold truncate max-w-[200px]">{formData.modelFile ? formData.modelFile.name : 'Select 3D Mesh (.glb/gltf/pdb/stp)'}</p>
+                    <p className="text-sm text-slate-300 font-semibold truncate max-w-[200px]">{formData.modelFile ? formData.modelFile.name : 'Select 3D Mesh (.glb/gltf/pdb/stp/stl)'}</p>
                   </label>
                 </div>
               </div>

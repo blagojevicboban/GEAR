@@ -15,7 +15,12 @@ export default defineConfig(({ mode }) => {
         }
       }
     },
-    plugins: [react()],
+    plugins: [
+      react()
+    ],
+    build: {
+      target: 'esnext'
+    },
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
@@ -23,6 +28,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
+        'opencascade.js': path.resolve(__dirname, 'src/lib/opencascade-custom.js')
       }
     }
   };

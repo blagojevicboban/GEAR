@@ -3,6 +3,9 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { VETModel, Hotspot } from '../types';
 import { analyzeModelDescription } from '../services/geminiService';
 import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
+// @ts-ignore
+import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
+import { io, Socket } from 'socket.io-client';
 
 // A-Frame types
 declare global {
@@ -101,12 +104,29 @@ if (typeof window !== 'undefined' && (window as any).AFRAME) {
       }
     });
   }
+
+  if (!AFRAME.components['stl-model']) {
+    AFRAME.registerComponent('stl-model', {
+      schema: { src: { type: 'string' } },
+      init: function () {
+        const loader = new STLLoader();
+        const el = this.el;
+        loader.load(this.data.src, (geometry) => {
+          const material = new (window as any).THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.5, roughness: 0.5 });
+          const mesh = new (window as any).THREE.Mesh(geometry, material);
+          el.setObject3D('mesh', mesh);
+        });
+      }
+    });
+  }
 }
 
 interface VRViewerProps {
   model: VETModel;
   onExit: () => void;
   workshopMode?: boolean;
+  workshopId?: string;
+  user?: any;
 }
 
 // --- Audio Utils ---
@@ -150,7 +170,7 @@ async function decodeAudioData(
 
 import { fixAssetUrl } from '../utils/urlUtils';
 
-const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode }) => {
+const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, workshopId, user }) => {
   // Fix model URL for proxy
   const fixedModel = { ...model, modelUrl: fixAssetUrl(model.modelUrl) };
   // From here on use fixedModel instead of model for URL
@@ -160,6 +180,9 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode }) => {
   const [isLoadingTasks, setIsLoadingTasks] = useState(false);
   const [isVoiceActive, setIsVoiceActive] = useState(false);
   const [isAssistantSpeaking, setIsAssistantSpeaking] = useState(false);
+  const [remoteParticipants, setRemoteParticipants] = useState<any[]>([]);
+
+  const socketRef = useRef<Socket | null>(null);
 
   const sceneRef = useRef<any>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -348,14 +371,72 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode }) => {
         scene.removeEventListener('hotspot-activated', handleHotspotEvent);
       }
       stopVoiceSession();
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
     };
   }, [model.name, model.description, handleHotspotEvent, stopVoiceSession]);
 
-  const participants = [
-    { id: '1', name: 'Ana K.', pos: { x: -2.5, y: 1.6, z: -2 }, color: '#f43f5e' },
-    { id: '2', name: 'Marko V.', pos: { x: 2.5, y: 1.6, z: -2 }, color: '#10b981' },
-    { id: '3', name: 'Ivan S.', pos: { x: 0, y: 1.6, z: 2.5 }, color: '#f59e0b' },
-  ];
+  // Workshop Socket Setup
+  useEffect(() => {
+    if (workshopMode && workshopId && user) {
+      const socket = io(window.location.origin.replace('5173', '3001')); // Handle Vite proxy
+      socketRef.current = socket;
+
+      socket.on('connect', () => {
+        socket.emit('join-workshop', { workshopId, user });
+      });
+
+      socket.on('current-participants', (participants) => {
+        setRemoteParticipants(participants.filter((p: any) => p.socketId !== socket.id));
+      });
+
+      socket.on('user-joined', ({ socketId, user }) => {
+        setRemoteParticipants(prev => [...prev, { socketId, ...user, pos: { x: 0, y: 1.6, z: 0 } }]);
+      });
+
+      socket.on('participant-moved', ({ socketId, pos, rot }) => {
+        setRemoteParticipants(prev => prev.map(p =>
+          p.socketId === socketId ? { ...p, pos, rot } : p
+        ));
+      });
+
+      socket.on('user-left', (socketId) => {
+        setRemoteParticipants(prev => prev.filter(p => p.socketId !== socketId));
+      });
+
+      socket.on('workshop-event', ({ type, data }) => {
+        if (type === 'hotspot-activated') {
+          const hs = model.hotspots.find(h => h.id === data.id);
+          if (hs) setActiveHotspot(hs);
+        }
+      });
+
+      return () => {
+        socket.disconnect();
+      };
+    }
+  }, [workshopMode, workshopId, user, model.hotspots]);
+
+  // Update position to server
+  useEffect(() => {
+    if (!workshopMode || !workshopId || !socketRef.current) return;
+
+    const interval = setInterval(() => {
+      const camera = sceneRef.current?.camera;
+      if (camera) {
+        const pos = camera.getWorldPosition(new (window as any).THREE.Vector3());
+        const rot = camera.getWorldQuaternion(new (window as any).THREE.Quaternion());
+        socketRef.current?.emit('update-transform', {
+          workshopId,
+          pos: { x: pos.x, y: pos.y, z: pos.z },
+          rot: { x: rot.x, y: rot.y, z: rot.z }
+        });
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [workshopMode, workshopId]);
 
   const isVideo = (url?: string) => {
     if (!url) return false;
@@ -508,15 +589,19 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode }) => {
           </a-entity>
         )}
 
-        {workshopMode && participants.map(p => (
-          <a-entity key={p.id} position={`${p.pos.x} ${p.pos.y} ${p.pos.z}`}>
-            <a-sphere radius="0.1" color={p.color} material="opacity: 0.9"></a-sphere>
-            <a-text value={p.name} align="center" position="0 0.2 0" scale="0.3 0.3 0.3"></a-text>
+        {workshopMode && remoteParticipants.map(p => (
+          <a-entity key={p.socketId} position={`${p.pos.x} ${p.pos.y} ${p.pos.z}`}>
+            <a-sphere radius="0.1" color={p.role === 'teacher' ? '#f43f5e' : '#10b981'} material="opacity: 0.9"></a-sphere>
+            <a-text value={p.username} align="center" position="0 0.2 0" scale="0.3 0.3 0.3"></a-text>
           </a-entity>
         ))}
 
         <a-entity drag-rotate="speed: 1">
-          <a-gltf-model src="#model-asset" position="0 0.5 0"></a-gltf-model>
+          {fixedModel.modelUrl.toLowerCase().includes('stl') ? (
+            <a-entity stl-model={`src: ${fixedModel.modelUrl.replace('#stl', '')}`} position="0 0.5 0"></a-entity>
+          ) : (
+            <a-gltf-model src="#model-asset" position="0 0.5 0"></a-gltf-model>
+          )}
           {model.hotspots.map(hs => (
             <a-entity
               key={`hotspot-ent-${hs.id}`}

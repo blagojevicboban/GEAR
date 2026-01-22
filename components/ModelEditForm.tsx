@@ -155,6 +155,7 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
         let fragment = '';
         if (fileName.endsWith('.pdb')) fragment = '#pdb';
         else if (fileName.endsWith('.stp') || fileName.endsWith('.step')) fragment = '#step';
+        else if (fileName.endsWith('.stl')) fragment = '#stl';
 
         updatedModel.modelUrl = uploadedUrl + fragment;
         updatedModel.fileSize = formData.modelFile.size;
@@ -507,14 +508,14 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
               <div className="border-2 border-dashed border-slate-700 rounded-2xl p-6 text-center hover:border-indigo-500/50 transition-colors cursor-pointer bg-slate-950/50">
                 <input
                   type="file"
-                  accept=".glb,.gltf,.pdb,.stp,.step"
+                  accept=".glb,.gltf,.pdb,.stp,.step,.stl"
                   className="hidden"
                   id="model-file-edit-v2"
                   onChange={e => setFormData({ ...formData, modelFile: e.target.files?.[0] || null })}
                 />
                 <label htmlFor="model-file-edit-v2" className="cursor-pointer">
                   <p className="text-sm text-slate-300 font-semibold">{formData.modelFile ? formData.modelFile.name : 'Click to select new 3D source'}</p>
-                  <p className="text-xs text-slate-500 mt-1 italic">Optional replacement of .glb, .gltf, .pdb, .stp or .step binary.</p>
+                  <p className="text-xs text-slate-500 mt-1 italic">Optional replacement of .glb, .gltf, .pdb, .stp, .step or .stl binary.</p>
                 </label>
               </div>
             </div>

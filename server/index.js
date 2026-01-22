@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import pool from './db.js';
+import { Server } from 'socket.io';
+import { createServer } from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -9,6 +11,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
 const PORT = process.env.PORT || 3001;
 
 import fs from 'fs';
@@ -387,6 +396,96 @@ app.delete('/api/models/:id', async (req, res) => {
     }
 });
 
+// --- Workshop / Session Socket Logic ---
+const workshopParticipants = new Map(); // workshopId -> Map(socketId -> userData)
+
+io.on('connection', (socket) => {
+    console.log('User connected:', socket.id);
+
+    socket.on('join-workshop', ({ workshopId, user }) => {
+        socket.join(workshopId);
+
+        if (!workshopParticipants.has(workshopId)) {
+            workshopParticipants.set(workshopId, new Map());
+        }
+
+        const participants = workshopParticipants.get(workshopId);
+        participants.set(socket.id, {
+            ...user,
+            pos: { x: 0, y: 1.6, z: 0 },
+            rot: { x: 0, y: 0, z: 0 }
+        });
+
+        // Notify others
+        socket.to(workshopId).emit('user-joined', { socketId: socket.id, user });
+
+        // Send existing participants to the new user
+        socket.emit('current-participants', Array.from(participants.entries()).map(([id, data]) => ({
+            socketId: id,
+            ...data
+        })));
+
+        console.log(`User ${user.username} joined workshop ${workshopId}`);
+    });
+
+    socket.on('update-transform', ({ workshopId, pos, rot }) => {
+        const participants = workshopParticipants.get(workshopId);
+        if (participants && participants.has(socket.id)) {
+            const data = participants.get(socket.id);
+            data.pos = pos;
+            data.rot = rot;
+            socket.to(workshopId).emit('participant-moved', { socketId: socket.id, pos, rot });
+        }
+    });
+
+    socket.on('sync-event', ({ workshopId, type, data }) => {
+        // Broadcast interactions like hotspot activation
+        socket.to(workshopId).emit('workshop-event', { type, data, sender: socket.id });
+    });
+
+    socket.on('disconnect', () => {
+        workshopParticipants.forEach((participants, workshopId) => {
+            if (participants.has(socket.id)) {
+                participants.delete(socket.id);
+                socket.to(workshopId).emit('user-left', socket.id);
+                console.log(`User ${socket.id} left workshop ${workshopId}`);
+            }
+        });
+    });
+});
+
+// Workshop API Routes
+app.post('/api/workshops', async (req, res) => {
+    const { modelId, createdBy } = req.body;
+    const id = 'ws-' + Date.now();
+    try {
+        await pool.query(
+            'INSERT INTO workshops (id, modelId, createdBy) VALUES (?, ?, ?)',
+            [id, modelId, createdBy]
+        );
+        res.json({ id, modelId, createdBy });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to create workshop' });
+    }
+});
+
+app.get('/api/workshops/active', async (req, res) => {
+    try {
+        const [workshops] = await pool.query(`
+            SELECT w.*, m.name as modelName, u.username as creatorName 
+            FROM workshops w
+            JOIN models m ON w.modelId = m.id
+            JOIN users u ON w.createdBy = u.username
+            WHERE w.status = 'active'
+        `);
+        res.json(workshops);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch workshops' });
+    }
+});
+
 // Serve static files from the React build
 app.use(express.static(path.join(__dirname, '../dist')));
 
@@ -395,6 +494,6 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
 });

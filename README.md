@@ -4,16 +4,16 @@
 
 ## 🚀 Key Features
 
-*   **3D Asset Repository**: Upload and manage `.glb`, `.gltf`, `.obj` models.
+*   **3D Asset Repository**: Upload and manage `.glb`, `.gltf`, `.obj`, and `.stl` models.
 *   **WebXR Viewer**: Interactive VR/AR visualization using A-Frame and Three.js.
 *   **Molecular Viewer**: Dedicated PDB viewer for chemistry and biology molecules.
-*   **CAD Support**: Download and preview support for `.stp` / `.step` industrial files.
+*   **CAD Support**: Dedicated kernel-based viewer for `.stp` / `.step` industrial files (powered by OpenCascade.js).
 *   **Interactive Hotspots**: Add educational Points of Interest (POI) with text, video, and audio.
 *   **AI Mentor**: Voice-activated AI assistant (Gemini 2.0 Flash) for context-aware guidance.
-*   **Multi-User Workshops**: Experimental shared virtual spaces for collaborative learning.
-*   **Dashboard**: "Featured" models highlight and category-based filtering (sectors).
-*   **Mixed Reality Mode (New)**: Fully immersive AR experience with Passthrough, Hand Tracking, and Spatial UI controls.
-*   **User Management System**: Role-based access control (Admin, Teacher, Student) with secure registration and profile management.
+*   **Multi-User Workshops**: Shared virtual spaces with real-time position synchronization and collaborative interactions.
+*   **Dashboard**: Featured models, category-based filtering (sectors), and **My Projects** personalized view.
+*   **Mixed Reality Mode**: Immersive AR experience with Passthrough, Hand Tracking, and Spatial UI controls.
+*   **User Management System**: Three-tier Role-Based Access Control (Admin, Teacher, Student) with profile customization.
 
 ## �️ Mixed Reality Features (v1.2 Update)
 
@@ -38,10 +38,13 @@ The PDB Viewer now supports advanced WebXR capabilities on compatible devices (e
 *   **TailwindCSS** (Styling)
 *   **A-Frame** (WebXR Framework)
 *   **Three.js** (3D Rendering)
+*   **OpenCascade.js** (CAD Kernel)
+*   **Socket.io-client** (Real-time)
 
 ### Backend
 *   **Node.js / Express**
 *   **MariaDB / MySQL** (Database)
+*   **Socket.io** (WebSocket Server)
 *   **Multer** (File Uploads)
 *   **Google Gemini API** (AI Features)
 
@@ -66,13 +69,12 @@ npm install
 ### 3. Database Setup
 1.  Create a MySQL/MariaDB database named `gear`.
 2.  Import the initial schema and data.
-    *   **Option A (Full Dump):** Restoration from `scripts/gear_full_dump.sql` (Recommended).
-    *   **Option B (Manual):** Run `server/database_init.sql` (if available) and then apply migrations in `scripts/`.
-
-```bash
-# Example import
-mysql -u your_user -p gear < scripts/gear_full_dump.sql
-```
+    *   **Option A (Full Dump):** Restoration from `scripts/gear_full_dump.sql` (Recommended for fresh install).
+    *   **Option B (Migrations):** For existing users, apply the following scripts in order:
+        ```bash
+        mysql -u gear -p gear < scripts/migration_add_featured.sql
+        mysql -u gear -p gear < scripts/migration_add_workshops.sql
+        ```
 
 3.  Configure environment variables.
     Create a `.env` file in the root directory:
@@ -152,8 +154,14 @@ location /api/ {
     proxy_cache_bypass $http_upgrade;
 }
 
-# The backend handles serving uploads via /api/uploads
-# No specific location block needed for /uploads if using the /api/ alias strategy.
+# Socket.io support
+location /socket.io/ {
+    proxy_pass http://localhost:3001;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "Upgrade";
+    proxy_set_header Host $host;
+}
 ```
 
 ---
@@ -167,6 +175,10 @@ location /api/ {
 ### Database Connection Error
 *   Check `.env` file credentials.
 *   Ensure MariaDB service is running (`systemctl status mariadb`).
+
+### Socket.io / Workshop Connection Issues
+*   **Symptoms**: Cannot join workshops or see other users.
+*   **Fix**: Ensure Nginx is proxying `/socket.io/` with the correct `Upgrade` and `Connection` headers as shown in the Nginx Configuration section.
 
 ### 500 Error on Upload
 *   **Cause**: Missing database columns.

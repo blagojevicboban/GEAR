@@ -18,8 +18,7 @@ npm install
 npm run build
 
 # Restart the backend service (assuming we use PM2 for node apps)
-# Restart the backend service
 pm2 restart gear-backend
-# pm2 restart gear-webhook (optional, if you change webhook logic)
+pm2 restart gear-webhook #(optional, if you change webhook logic)
 
 echo "Deployment finished at $(date)"

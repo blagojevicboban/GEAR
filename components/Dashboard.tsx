@@ -83,7 +83,16 @@ const Dashboard: React.FC<DashboardProps> = ({ modelsCount, onGetStarted, featur
                 <h3 className="text-xl font-bold text-white mt-1 mb-2">{model.name}</h3>
                 <p className="text-slate-400 text-sm line-clamp-2 mb-4">{model.description}</p>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500 italic">By <button onClick={(e) => { e.stopPropagation(); onViewUser(model.uploadedBy); }} className="hover:text-indigo-400 hover:underline">{model.uploadedBy}</button></span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center text-[8px] font-bold text-white uppercase overflow-hidden shrink-0">
+                      {model.uploaderProfilePic ? (
+                        <img src={fixAssetUrl(model.uploaderProfilePic)} alt={model.uploadedBy} className="w-full h-full object-cover" />
+                      ) : (
+                        model.uploadedBy.charAt(0)
+                      )}
+                    </div>
+                    <span className="text-xs text-slate-500 italic">By <button onClick={(e) => { e.stopPropagation(); onViewUser(model.uploadedBy); }} className="hover:text-indigo-400 hover:underline">{model.uploadedBy}</button></span>
+                  </div>
                   <div className="flex gap-1">
                     <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
                     <span className="text-xs text-blue-400 font-bold uppercase tracking-tighter">VR Ready</span>

@@ -358,14 +358,6 @@ app.put('/api/models/:id', async (req, res) => {
         res.status(500).json({ error: 'Failed to update model' });
     }
 });
-// Serve static files from the React build
-app.use(express.static(path.join(__dirname, '../dist')));
-
-// Handle React routing, return all requests to React app
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../dist/index.html'));
-});
-
 // Delete model
 app.delete('/api/models/:id', async (req, res) => {
     try {
@@ -393,6 +385,14 @@ app.delete('/api/models/:id', async (req, res) => {
         console.error(err);
         res.status(500).json({ error: 'Failed to delete model' });
     }
+});
+
+// Serve static files from the React build
+app.use(express.static(path.join(__dirname, '../dist')));
+
+// Handle React routing, return all requests to React app
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
 app.listen(PORT, '0.0.0.0', () => {

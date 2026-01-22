@@ -4,6 +4,7 @@ import { VETModel, EDUSector, User } from '../types';
 interface ModelGalleryProps {
   models: VETModel[];
   currentUser: User | null;
+  sectors: string[]; // Dynamic sectors
   onViewModel: (m: VETModel) => void;
   onEnterWorkshop: (m: VETModel) => void;
   onEditModel: (m: VETModel) => void;
@@ -14,8 +15,8 @@ interface ModelGalleryProps {
 
 import { fixAssetUrl } from '../utils/urlUtils';
 
-const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, onViewModel, onEnterWorkshop, onEditModel, onDeleteModel, onViewUser, initialUserFilter }) => {
-  const [filter, setFilter] = useState<EDUSector | 'All'>('All');
+const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sectors, onViewModel, onEnterWorkshop, onEditModel, onDeleteModel, onViewUser, initialUserFilter }) => {
+  const [filter, setFilter] = useState<string>('All'); // Changed from EDUSector | 'All' to string
   const [userFilter, setUserFilter] = useState<string>(initialUserFilter || 'All');
   const [search, setSearch] = useState('');
 
@@ -49,10 +50,14 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, onView
           <select
             className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500"
             value={filter}
-            onChange={(e) => setFilter(e.target.value as any)}
+            onChange={(e) => setFilter(e.target.value)}
           >
             <option value="All">All Sectors</option>
-            {Object.values(EDUSector).map(s => <option key={s} value={s}>{s}</option>)}
+            {sectors && sectors.length > 0 ? (
+              sectors.map(s => <option key={s} value={s}>{s}</option>)
+            ) : (
+              Object.values(EDUSector).map(s => <option key={s} value={s}>{s}</option>)
+            )}
           </select>
           <select
             className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500"
@@ -109,7 +114,12 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, onView
             <div className="p-5 flex-1 flex flex-col">
               <div className="flex justify-between items-start mb-2">
                 <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-800 text-slate-400 rounded uppercase tracking-widest">{model.sector}</span>
-                <span className="text-[10px] font-bold text-slate-500 uppercase">{(model.fileSize / 1024 / 1024).toFixed(1)}MB</span>
+                <span
+                  className="text-[10px] font-bold text-slate-500 uppercase cursor-help hover:text-indigo-400 transition-colors"
+                  title={`File: ${model.modelUrl.split('/').pop()}`}
+                >
+                  {model.modelUrl.split('.').pop()?.toUpperCase() || 'CAD'} • {(model.fileSize / 1024 / 1024).toFixed(1)}MB
+                </span>
               </div>
               <h3 className="font-bold text-lg mb-1">{model.name}</h3>
               <p className="text-slate-500 text-xs mb-3 flex-1 line-clamp-2">{model.description}</p>

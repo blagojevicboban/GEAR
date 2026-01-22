@@ -50,6 +50,15 @@ ProxyPassReverse /api http://localhost:3001/api
 ProxyPass /webhook http://localhost:9000
 ProxyPassReverse /webhook http://localhost:9000
 
+# Proxy Socket.io (WebSocket + Polling)
+RewriteEngine On
+RewriteCond %{REQUEST_URI}  ^/socket.io            [NC]
+RewriteCond %{QUERY_STRING} transport=websocket    [NC]
+RewriteRule /(.*)           ws://localhost:3001/socket.io/$1 [P,L]
+
+ProxyPass        /socket.io http://localhost:3001/socket.io
+ProxyPassReverse /socket.io http://localhost:3001/socket.io
+
 <FilesMatch \.php$>
     SetHandler None
     AddType text/plain .php

@@ -263,15 +263,102 @@ app.post('/api/upload', (req, res, next) => {
         }
         next();
     });
-}, (req, res) => {
+}, async (req, res) => {
     if (!req.file) {
         console.error('No file property in request after multer');
         return res.status(400).json({ error: 'No file uploaded' });
     }
     console.log('File successfully saved:', req.file.filename);
+
+    const filePath = req.file.path;
+    const fileExt = path.extname(req.file.originalname).toLowerCase();
+
+    // Auto-extract ZIP files for CAD assemblies
+    if (fileExt === '.zip') {
+        try {
+            const AdmZip = (await import('adm-zip')).default;
+            const zip = new AdmZip(filePath);
+            const extractDir = path.join(uploadDir, path.basename(req.file.filename, '.zip') + '_extracted');
+
+            // Extract all
+            zip.extractAllTo(extractDir, true);
+            console.log(`Extracted ZIP to: ${extractDir}`);
+
+            // Find the main assembly or meaningful CAD file
+            // Strategy: Look for .STEP, .STP, .SLDASM, .IGS in the root or just pick the largest one?
+            // Usually the main assembly is in the root or has a specific extension.
+
+            // Let's recursively find potential candidates
+            const getFiles = (dir) => {
+                let results = [];
+                const list = fs.readdirSync(dir);
+                list.forEach((file) => {
+                    const fullPath = path.join(dir, file);
+                    const stat = fs.statSync(fullPath);
+                    if (stat && stat.isDirectory()) {
+                        results = results.concat(getFiles(fullPath));
+                    } else {
+                        results.push(fullPath);
+                    }
+                });
+                return results;
+            };
+
+            const allFiles = getFiles(extractDir);
+
+            // Priority list for "Main" file
+            const extensions = ['.step', '.stp', '.sldasm', '.catproduct', '.iam', '.asm'];
+
+            const candidates = allFiles.filter(f => extensions.includes(path.extname(f).toLowerCase()));
+            let mainFile;
+
+            // Prefer root files
+            const rootFiles = candidates.filter(f => path.dirname(f) === extractDir);
+            if (rootFiles.length > 0) {
+                mainFile = rootFiles.sort((a, b) => fs.statSync(b).size - fs.statSync(a).size)[0];
+            } else if (candidates.length > 0) {
+                mainFile = candidates.sort((a, b) => fs.statSync(b).size - fs.statSync(a).size)[0];
+            }
+
+            // If no assembly, look for parts
+            if (!mainFile) {
+                const parts = allFiles.filter(f => ['.sldprt', '.ipt', '.prt', '.catpart'].includes(path.extname(f).toLowerCase()));
+                if (parts.length > 0) mainFile = parts[0];
+            }
+
+            if (mainFile) {
+                // We found a candidate. Return THIS as the model URL.
+                // However, we need to serve this directory properly.
+                // The URL should be relative.
+                const relativePath = path.relative(uploadDir, mainFile);
+                const newFileUrl = `/api/uploads/${relativePath}`;
+
+                console.log(`Found main assembly file: ${mainFile} -> ${newFileUrl}`);
+                return res.json({ url: newFileUrl, originalName: req.file.originalname, isAssembly: true });
+            }
+        } catch (zipErr) {
+            console.error("ZIP extraction failed:", zipErr);
+            // Fallback to just returning the zip file itself if extraction fails
+        }
+
+        // Strategy:
+        // 1. Unzip the file to a folder named after the file (without .zip)
+        // 2. Look for the main assembly file (.STEP, .ASM, .IGS) inside.
+        // 3. Return the URL to that main file?
+        // OR simply return the ZIP URL and let the frontend handle it (complex for frontend).
+        // OR return the ZIP URL and let backend serve unzipped assets on demand.
+
+        // Let's keep it simple: Just upload the ZIP. The Frontend will need to deduce it's a zip 
+        // and maybe we reject it if we don't implement unzipping yet.
+
+        // Actually, the USER asked if it is POSSIBLE.
+        // I will impl simply saving it first.
+        // The frontend ModelUploadForm accepts .zip now?
+    }
+
     // Use /api/uploads so it goes through the Vite proxy (if dev) or Nginx proxy locations
     const fileUrl = `/api/uploads/${req.file.filename}`;
-    res.json({ url: fileUrl });
+    res.json({ url: fileUrl, originalName: req.file.originalname });
 });
 
 // Helper to get user role
@@ -300,14 +387,33 @@ app.post('/api/models', async (req, res) => {
             model.uploadedBy = model.uploadedBy || requestor;
         }
 
+        // Check if sector exists, if not create it (prevent FK error)
+        if (model.sector) {
+            const [sectors] = await pool.query('SELECT id FROM sectors WHERE id = ?', [model.sector]);
+            if (sectors.length === 0) {
+                console.log(`Auto-creating new sector: ${model.sector}`);
+                await pool.query('INSERT INTO sectors (id, name, description) VALUES (?, ?, ?)',
+                    [model.sector, model.sector, 'Custom User Sector']
+                );
+            }
+        }
+
         await pool.query(
             'INSERT INTO models (id, name, description, sector, equipmentType, level, modelUrl, thumbnailUrl, optimized, fileSize, uploadedBy, createdAt, isFeatured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [model.id, model.name, model.description, model.sector, model.equipmentType, model.level, model.modelUrl, model.thumbnailUrl, model.optimized, model.fileSize, model.uploadedBy, model.createdAt, model.isFeatured || false]
         );
         res.json(model);
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Failed to add model' });
+        console.error("Model Upload Error:", err);
+
+        // Log to file for debugging
+        const fs = await import('fs');
+        const path = await import('path');
+        const logPath = path.join(process.cwd(), 'server_error.log');
+        const logEntry = `[${new Date().toISOString()}] POST /api/models Error: ${err.message}\nStack: ${err.stack}\nPayload: ${JSON.stringify(model)}\n-----------------------------------\n`;
+        fs.appendFile(logPath, logEntry, (e) => { if (e) console.error("Failed to write to error log", e) });
+
+        res.status(500).json({ error: 'Failed to add model: ' + err.message });
     }
 });
 // Update model
@@ -384,6 +490,50 @@ app.delete('/api/models/:id', async (req, res) => {
 
             if (existing[0].uploadedBy !== requestor) {
                 return res.status(403).json({ error: 'Forbidden: You can only delete your own models' });
+            }
+        }
+
+        // Get file URL before deletion
+        const [rows] = await pool.query('SELECT modelUrl FROM models WHERE id = ?', [id]);
+        if (rows.length > 0) {
+            const fileUrl = rows[0].modelUrl;
+            // fileUrl format: /api/uploads/filename or /api/uploads/folder/filename
+            // Removing '/api/uploads/' prefix to get relative path
+            if (fileUrl && fileUrl.startsWith('/api/uploads/')) {
+                const relativePath = fileUrl.replace('/api/uploads/', '');
+                const fullPath = path.join(uploadDir, relativePath);
+
+                // Check if it's inside an extracted folder (ZIP uploads)
+                // If it looks like "folder_extracted/file.step", we should delete the WHOLE folder, not just the file.
+                // Our ZIP logic names folders as "filename_extracted".
+                // If relativePath contains '/', it's likely in a subfolder.
+                const pathParts = relativePath.split('/');
+                let pathToDelete = fullPath;
+
+                if (pathParts.length > 1) {
+                    // It is inside a folder, so delete the parent folder of the file (which is the extraction root)
+                    // Be careful not to delete uploadDir itself.
+                    // The extracted folder is usually immediate child of uploadDir
+                    const extractedFolderName = pathParts[0];
+                    pathToDelete = path.join(uploadDir, extractedFolderName);
+                }
+
+                if (fs.existsSync(pathToDelete)) {
+                    // If it is a directory (extracted zip), remove recursive
+                    // If it is a file, unlink
+                    try {
+                        const stats = fs.statSync(pathToDelete);
+                        if (stats.isDirectory()) {
+                            fs.rmSync(pathToDelete, { recursive: true, force: true });
+                            console.log(`Deleted model directory: ${pathToDelete}`);
+                        } else {
+                            fs.unlinkSync(pathToDelete);
+                            console.log(`Deleted model file: ${pathToDelete}`);
+                        }
+                    } catch (delErr) {
+                        console.error(`Failed to delete file/folder: ${pathToDelete}`, delErr);
+                    }
+                }
             }
         }
 
@@ -483,6 +633,18 @@ app.get('/api/workshops/active', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to fetch workshops' });
+    }
+});
+
+// Get all sectors
+app.get('/api/sectors', async (req, res) => {
+    try {
+        const [sectors] = await pool.query('SELECT name FROM sectors ORDER BY name ASC');
+        // Return simple array of strings: ['Chemistry', 'Construction', ...]
+        res.json(sectors.map(s => s.name));
+    } catch (err) {
+        console.error("Failed to fetch sectors:", err);
+        res.status(500).json({ error: 'Failed to fetch sectors' });
     }
 });
 

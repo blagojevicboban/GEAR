@@ -85,15 +85,69 @@ const CADViewer: React.FC<CADViewerProps> = ({ fileUrl, onExit, fileName }) => {
                 // Load into OCCT virtual filesystem
                 oc.FS.writeFile('/model.step', uint8Array);
 
-                // Read STEP
-                const reader = new oc.STEPControl_Reader_1();
-                const status = reader.ReadFile('/model.step');
-                if (status !== oc.IFSelect_ReturnStatus.IFSelect_RetDone) {
-                    throw new Error("Failed to read STEP file");
+                // Read STEP - Attempt 1 (Standard)
+                let reader = new oc.STEPControl_Reader_1();
+                let status = reader.ReadFile('/model.step');
+
+                // Helper to check status success (handles integer or object case)
+                const isSuccess = (s: any) => {
+                    if (s === oc.IFSelect_ReturnStatus.IFSelect_RetDone) return true;
+                    // Handle potential object wrapper (e.g. Emscripten enum object)
+                    if (typeof s === 'object' && s !== null && s.value === oc.IFSelect_ReturnStatus.IFSelect_RetDone.value) return true;
+                    return false;
+                };
+
+                // Debug log status
+                console.log("Initial Reader Status:", status);
+
+                if (!isSuccess(status)) {
+                    console.warn(`Initial STEP read failed or returned warning. Status:`, status);
+
+                    try {
+                        const decoder = new TextDecoder('iso-8859-1');
+                        const fileText = decoder.decode(uint8Array);
+
+                        // Check for AP214 or other critical markers
+                        if (fileText.includes('AUTOMOTIVE_DESIGN') || fileText.includes('AP214')) {
+                            console.log("AP214 detected. Patching header to AP203...");
+
+                            let patchedText = fileText
+                                .replace(/['"]?AUTOMOTIVE_DESIGN['"]?/gi, "'CONFIG_CONTROL_DESIGN'")
+                                .replace(/['"]?STEP AP214['"]?/gi, "'STEP AP203'");
+
+                            const patchedData = new TextEncoder().encode(patchedText);
+                            oc.FS.writeFile('/model_patched.step', patchedData);
+
+                            // Retry with patched file
+                            reader = new oc.STEPControl_Reader_1();
+                            status = reader.ReadFile('/model_patched.step');
+                            console.log("Patched Reader Status:", status);
+
+                            if (isSuccess(status)) {
+                                console.log("Success: Patched file loaded.");
+                            }
+                        }
+                    } catch (err) {
+                        console.error("Patching failed:", err);
+                    }
                 }
 
-                reader.TransferRoots();
+                // Attempt to transfer roots even if status wasn't perfect (sometimes RetWarn works)
+                try {
+                    reader.TransferRoots();
+                } catch (transferErr) {
+                    console.error("TransferRoots failed:", transferErr);
+                    // Only throw if we truly have nothing
+                    if (!isSuccess(status)) {
+                        const statusCode = (typeof status === 'object' && status !== null) ? JSON.stringify(status) : status;
+                        throw new Error(`Failed to process STEP file (Status: ${statusCode}). The file might be corrupted or use an unsupported schema.`);
+                    }
+                }
+
                 const shape = reader.OneShape();
+                if (shape.IsNull()) {
+                    throw new Error("STEP file contains no valid geometry (Shape is Null). It might be an empty assembly structure.");
+                }
 
                 // Tessellate
                 new oc.BRepMesh_IncrementalMesh_2(shape, 0.1, false, 0.5, false);

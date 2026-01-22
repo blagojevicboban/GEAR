@@ -6,16 +6,17 @@ import { generateOptimizationSuggestions } from '../services/geminiService';
 interface ModelUploadFormProps {
   onUploadSuccess: (model: VETModel) => void;
   user: User | null;
+  sectors: string[]; // Dynamic sectors
 }
 
-const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user }) => {
+const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user, sectors }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStep, setUploadStep] = useState(1);
   const [showCustomSector, setShowCustomSector] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    sector: EDUSector.MECHATRONICS as string,
+    sector: sectors.length > 0 ? sectors[0] : (EDUSector.MECHATRONICS as string),
     customSector: '',
     equipmentType: '',
     level: EquipmentLevel.BASIC,
@@ -25,6 +26,9 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
   });
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [optSuggestions, setOptSuggestions] = useState<string | null>(null);
+
+  // Sync initial sector when sectors load (if default 'Mechatronics' isn't in DB or something)
+  // For now just defaulting to first one or Mechatronics is fine.
 
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -139,10 +143,10 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
                 <div className="absolute inset-0 border-4 border-t-indigo-600 rounded-full animate-spin"></div>
               </div>
               <h3 className="text-xl font-bold text-white mb-2">
-                {uploadStep === 2 ? 'Analyzing & Optimizing...' : 'Finalizing Digital Twin...'}
+                {uploadStep === 2 ? 'Analyzing Asset...' : 'Finalizing Digital Twin...'}
               </h3>
               <p className="text-slate-400 text-sm max-w-sm mx-auto">
-                Applying Draco compression and PBR texture standardization.
+                Validating file integrity and generating metadata.
               </p>
             </div>
 
@@ -162,14 +166,14 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
                 <div className="border-2 border-dashed border-slate-700 rounded-2xl p-6 text-center hover:border-indigo-500/50 transition-all cursor-pointer bg-slate-950/50 group h-40 flex flex-col items-center justify-center">
                   <input
                     type="file"
-                    accept=".glb,.gltf,.pdb,.stp,.step,.stl"
+                    accept=".glb,.gltf,.pdb,.stp,.step,.stl,.zip"
                     className="hidden"
                     id="model-upload"
                     onChange={e => setFormData({ ...formData, modelFile: e.target.files?.[0] || null })}
                   />
                   <label htmlFor="model-upload" className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
                     <svg className={`w-8 h-8 mb-2 transition-colors ${formData.modelFile ? 'text-green-500' : 'text-slate-600 group-hover:text-indigo-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
-                    <p className="text-sm text-slate-300 font-semibold truncate max-w-[200px]">{formData.modelFile ? formData.modelFile.name : 'Select 3D Mesh (.glb/gltf/pdb/stp/stl)'}</p>
+                    <p className="text-sm text-slate-300 font-semibold truncate max-w-[200px]">{formData.modelFile ? formData.modelFile.name : 'Select 3D Mesh (Auto-Unzip supported)'}</p>
                   </label>
                 </div>
               </div>
@@ -235,7 +239,12 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
                     value={showCustomSector ? 'CUSTOM' : formData.sector}
                     onChange={handleSectorChange}
                   >
-                    {Object.values(EDUSector).map(s => <option key={s} value={s}>{s}</option>)}
+                    {sectors && sectors.length > 0 ? (
+                      sectors.map(s => <option key={s} value={s}>{s}</option>)
+                    ) : (
+                      // Fallback if sectors failed to load
+                      Object.values(EDUSector).map(s => <option key={s} value={s}>{s}</option>)
+                    )}
                     <option value="CUSTOM">+ Other / Custom Sector...</option>
                   </select>
                   {showCustomSector && (
@@ -295,7 +304,7 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
               className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-30 disabled:cursor-not-allowed text-white font-bold rounded-2xl text-lg shadow-2xl shadow-indigo-600/30 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-              Confirm and Optimize
+              Confirm and Upload
             </button>
           </form>
         )}

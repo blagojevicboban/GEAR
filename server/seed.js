@@ -283,8 +283,8 @@ async function seed() {
 
         console.log('Inserting default user...');
         await connection.query(
-            'INSERT INTO users (id, username, email, institution, role) VALUES (?, ?, ?, ?, ?)',
-            ['user-001', 'boban.blagojevic', 'boban@example.com', 'Technical School Pirot', 'admin']
+            'INSERT INTO users (id, username, email, password, institution, role) VALUES (?, ?, ?, ?, ?, ?)',
+            ['user-001', 'boban.blagojevic', 'boban@example.com', 'admin123', 'Technical School Pirot', 'admin']
         );
 
         console.log('Inserting models and hotspots...');

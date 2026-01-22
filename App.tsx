@@ -26,6 +26,7 @@ const App: React.FC = () => {
   const [isWorkshopMode, setIsWorkshopMode] = useState(false);
   const [activeWorkshopId, setActiveWorkshopId] = useState<string | undefined>();
   const [activeWorkshops, setActiveWorkshops] = useState<any[]>([]);
+  const [sectors, setSectors] = useState<string[]>([]); // Dynamic sectors
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     const saved = localStorage.getItem('gear_user');
     return saved ? JSON.parse(saved) : null;
@@ -49,6 +50,16 @@ const App: React.FC = () => {
       .then(res => res.json())
       .then(data => setActiveWorkshops(data))
       .catch(err => console.error("Failed to fetch workshops", err));
+
+    // Fetch sectors
+    fetch('/api/sectors')
+      .then(res => res.json())
+      .then(data => {
+        // Enforce uniqueness
+        const unique = Array.from(new Set(data)) as string[];
+        setSectors(unique);
+      })
+      .catch(err => console.error("Failed to fetch sectors", err));
   }, []);
 
   // Sync user state changes to localStorage (cover login and profile update)
@@ -123,6 +134,15 @@ const App: React.FC = () => {
       if (res.ok) {
         const savedModel = await res.json();
         setModels(prev => [savedModel, ...prev]);
+
+        // Optimistically add new custom sector if it exists
+        if (savedModel.sector) {
+          setSectors(prev => {
+            if (prev.includes(savedModel.sector)) return prev;
+            return [...prev, savedModel.sector].sort();
+          });
+        }
+
         setCurrentView('gallery');
       }
     } catch (err) {
@@ -142,6 +162,15 @@ const App: React.FC = () => {
       });
       if (res.ok) {
         setModels(prev => prev.map(m => m.id === updatedModel.id ? updatedModel : m));
+
+        // Optimistically add new custom sector if it exists
+        if (updatedModel.sector) {
+          setSectors(prev => {
+            if (prev.includes(updatedModel.sector)) return prev;
+            return [...prev, updatedModel.sector].sort();
+          });
+        }
+
         setCurrentView('gallery');
         setModelToEdit(null);
       } else {
@@ -253,6 +282,7 @@ const App: React.FC = () => {
             key="gallery"
             models={models}
             currentUser={currentUser}
+            sectors={sectors}
             onViewModel={(m) => handleViewModel(m)}
             onViewUser={setViewingProfileUser}
             onEnterWorkshop={(m) => handleViewModel(m, true)}
@@ -284,6 +314,7 @@ const App: React.FC = () => {
             key="my-projects"
             models={models}
             currentUser={currentUser}
+            sectors={sectors}
             initialUserFilter={currentUser.username}
             onViewModel={(m) => handleViewModel(m)}
             onViewUser={setViewingProfileUser}
@@ -315,6 +346,7 @@ const App: React.FC = () => {
           <ModelUploadForm
             onUploadSuccess={handleUpload}
             user={currentUser}
+            sectors={sectors}
           />
         )}
 
@@ -324,6 +356,7 @@ const App: React.FC = () => {
             onUpdateSuccess={handleUpdate}
             userName={currentUser?.username || 'Guest'}
             userRole={currentUser?.role || 'student'}
+            sectors={sectors}
             onCancel={() => { setCurrentView('gallery'); setModelToEdit(null); }}
           />
         )}

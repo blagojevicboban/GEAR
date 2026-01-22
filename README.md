@@ -2,12 +2,18 @@
 
 **THE GEAR** is an open-source WebXR platform designed for Vocational Education and Training (VET). It allows schools and students to upload, manage, and interact with 3D digital twins of industrial equipment directly in the browser, with support for VR headsets (Meta Quest), mobile devices, and desktops.
 
+[![THE GEAR Dashboard](assets/dashboard-preview.png)](https://gear.tsp.edu.rs)
+
+### 🌐 [Live Demo: gear.tsp.edu.rs](https://gear.tsp.edu.rs)
+
 ## 🚀 Key Features
 
 *   **3D Asset Repository**: Upload and manage `.glb`, `.gltf`, `.obj`, and `.stl` models.
 *   **WebXR Viewer**: Interactive VR/AR visualization using A-Frame and Three.js.
 *   **Molecular Viewer**: Dedicated PDB viewer for chemistry and biology molecules.
 *   **CAD Support**: Dedicated kernel-based viewer for `.stp` / `.step` industrial files (powered by OpenCascade.js).
+*   **Smart Uploads**: Support for **.ZIP** archives with automatic extraction and detection of main CAD assembly files (`.step`, `.sldasm`, etc.).
+*   **Dynamic Sectors**: Flexible categorization system that adapts as users upload content from different fields.
 *   **Interactive Hotspots**: Add educational Points of Interest (POI) with text, video, and audio.
 *   **AI Mentor**: Voice-activated AI assistant (Gemini 2.0 Flash) for context-aware guidance.
 *   **Multi-User Workshops**: Shared virtual spaces with real-time position synchronization and collaborative interactions.
@@ -15,7 +21,7 @@
 *   **Mixed Reality Mode**: Immersive AR experience with Passthrough, Hand Tracking, and Spatial UI controls.
 *   **User Management System**: Three-tier Role-Based Access Control (Admin, Teacher, Student) with profile customization.
 
-## �️ Mixed Reality Features (v1.2 Update)
+## 🥽 Mixed Reality Features (v1.2 Update)
 
 The PDB Viewer now supports advanced WebXR capabilities on compatible devices (e.g., Meta Quest 2/3/Pro):
 
@@ -30,10 +36,26 @@ The PDB Viewer now supports advanced WebXR capabilities on compatible devices (e
 *   **Visualization Styles**: Switch instantly between **Ball & Stick**, **Spacefill**, and **Backbone** views.
 *   **Realism**: Dynamic shadows ground the virtual molecule in your physical space.
 
-## �🛠 Tech Stack
+## 👥 Roles & Permissions
+
+The platform implements a strict Role-Based Access Control (RBAC) system:
+
+| Feature | Student | Teacher | Admin |
+| :--- | :---: | :---: | :---: |
+| **View Models** | ✅ | ✅ | ✅ |
+| **Enter VR/AR** | ✅ | ✅ | ✅ |
+| **Upload Models** | ✅ | ✅ | ✅ |
+| **Edit Own Models** | ✅ | ✅ | ✅ |
+| **Delete Own Models** | ✅ | ✅ | ✅ |
+| **Edit/Delete ANY Model** | ❌ | ❌ | ✅ |
+| **Feature Models** | ❌ | ❌ | ✅ |
+| **Manage Users** | ❌ | ❌ | ✅ |
+| **Create Workshops** | ✅ | ✅ | ✅ |
+
+## 🛠 Tech Stack
 
 ### Frontend
-*   **React 18** (Vite)
+*   **React 19** (Vite)
 *   **TypeScript**
 *   **TailwindCSS** (Styling)
 *   **A-Frame** (WebXR Framework)
@@ -46,13 +68,14 @@ The PDB Viewer now supports advanced WebXR capabilities on compatible devices (e
 *   **MariaDB / MySQL** (Database)
 *   **Socket.io** (WebSocket Server)
 *   **Multer** (File Uploads)
+*   **Adm-Zip** (Archive Processing)
 *   **Google Gemini API** (AI Features)
 
 ---
 
-## 💻 Local Initalization
+## 💻 Local Initialization
 
-### 1. Prerequisities
+### 1. Prerequisites
 *   Node.js (v18+)
 *   MariaDB or MySQL Server
 
@@ -68,31 +91,53 @@ npm install
 
 ### 3. Database Setup
 1.  Create a MySQL/MariaDB database named `gear`.
-2.  Import the initial schema and data.
-    *   **Option A (Full Dump):** Restoration from `scripts/gear_full_dump.sql` (Recommended for fresh install).
-    *   **Option B (Migrations):** For existing users, apply the following scripts in order:
+2.  **Option A: Developer Quick Start (Recommended)**
+    Reset and seed the database with standard tables and sample data:
+    ```bash
+    npm run seed
+    ```
+    *Note: This command clears existing data in the `gear` database.*
+
+3.  **Option B: Manual / Production Setup**
+    *   **Initialize Schema**:
+        ```bash
+        mysql -u gear -p gear < scripts/gear_full_dump.sql
+        ```
+    *   **Apply Migrations** (Critical for updates):
         ```bash
         mysql -u gear -p gear < scripts/migration_add_featured.sql
         mysql -u gear -p gear < scripts/migration_add_workshops.sql
         ```
 
-3.  Configure environment variables.
-    Create a `.env` file in the root directory:
-    ```env
-    DB_HOST=localhost
-    DB_USER=gear
-    DB_PASSWORD=your_password
-    DB_NAME=gear
-    API_KEY=your_google_gemini_api_key
-    ```
+### 4. Environment Configuration
+Create a `.env` file in the root directory:
+```env
+DB_HOST=localhost
+DB_USER=gear
+DB_PASSWORD=your_password
+DB_NAME=gear
+API_KEY=your_google_gemini_api_key
+```
 
-### 4. Running Locally
+### 5. Running Locally
 ```bash
-# Start the development server (Frontend + Backend)
+# Start Development Server (Frontend + Backend concurrently)
+npm run dev
+```
+*   **Vite Frontend (Proxy)**: `http://localhost:3000`
+*   **Backend API**: `http://localhost:3001`
+
+### Default Admin Credentials
+If you used `npm run seed`, a default admin account is available:
+*   **Email**: `boban@example.com`
+*   **Password**: `admin123`
+
+To run in production mode (serving built files):
+```bash
+npm run build
 npm run start
 ```
-*   Frontend: `http://localhost:3001` (Proxied via Backend if using production build) or `http://localhost:5173` (Vite Dev).
-*   **Recommended for Dev:** `npm run dev` (Vite) + `node server/index.js` (Backend) in separate terminals.
+*   **App**: `http://localhost:3001`
 
 ---
 
@@ -105,7 +150,12 @@ npm run start
 *   Nginx (Web Server / Proxy)
 *   MariaDB/MySQL
 
-### Deployment Steps
+
+### Deployment Scripts
+*   `deployment/deploy.sh`: Basic script used by the webhook for local build and restart.
+*   `scripts/deploy_full.sh`: Full automated deployment utility (Database Sync + Uploads + SSH Trigger).
+
+### Manual Deployment Steps
 1.  **Pull Code**:
     ```bash
     cd /path/to/app
@@ -118,6 +168,7 @@ npm run start
     Ensure valid database structure.
     ```bash
     mariadb -u gear -p gear < scripts/migration_add_featured.sql
+    mariadb -u gear -p gear < scripts/migration_add_workshops.sql
     ```
 
 3.  **Start Services**:
@@ -164,6 +215,43 @@ location /socket.io/ {
 }
 ```
 
+### Option B: Apache / Virtualmin Configuration
+If you are using Apache (common with Virtualmin), use `ProxyPass` and `RewriteRule` for WebSocket support.
+
+```apache
+<VirtualHost *:80>
+    ServerName gear.tsp.edu.rs
+    DocumentRoot /home/gear/public_html/dist
+
+    <Directory /home/gear/public_html/dist>
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+        RewriteEngine On
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteRule . /index.html [L]
+    </Directory>
+
+    # Proxy API
+    ProxyPass /api http://localhost:3001/api
+    ProxyPassReverse /api http://localhost:3001/api
+
+    # Proxy Webhook (CI/CD)
+    ProxyPass /webhook http://localhost:9000
+    ProxyPassReverse /webhook http://localhost:9000
+
+    # Proxy Socket.io (WebSocket + Polling)
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI}  ^/socket.io            [NC]
+    RewriteCond %{QUERY_STRING} transport=websocket    [NC]
+    RewriteRule /(.*)           ws://localhost:3001/socket.io/$1 [P,L]
+
+    ProxyPass        /socket.io http://localhost:3001/socket.io
+    ProxyPassReverse /socket.io http://localhost:3001/socket.io
+</VirtualHost>
+```
+
 ---
 
 ## 🐛 Troubleshooting
@@ -183,6 +271,9 @@ location /socket.io/ {
 ### 500 Error on Upload
 *   **Cause**: Missing database columns.
 *   **Fix**: Run `scripts/migration_add_featured.sql` to add `isFeatured` column.
+
+### Server Errors (500)
+*   The backend logs detailed errors to `server_error.log` in the project root. Check this file for stack traces if API requests fail.
 
 ---
 

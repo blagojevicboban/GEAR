@@ -8,12 +8,13 @@ interface ModelEditFormProps {
   onUpdateSuccess: (model: VETModel) => void;
   userName: string;
   userRole: 'admin' | 'student' | 'teacher';
+  sectors: string[]; // Dynamic sectors
   onCancel: () => void;
 }
 
 import { fixAssetUrl } from '../utils/urlUtils';
 
-const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, userName, userRole, onCancel }) => {
+const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, userName, userRole, sectors, onCancel }) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [showCustomSector, setShowCustomSector] = useState(false);
   const [formData, setFormData] = useState({
@@ -32,6 +33,7 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
   const [thumbnailPreview, setThumbnailPreview] = useState<string>(model.thumbnailUrl);
   const [optSuggestions, setOptSuggestions] = useState<string | null>(null);
   const [availableUsers, setAvailableUsers] = useState<string[]>([]);
+
 
   React.useEffect(() => {
     if (userRole === 'admin') {
@@ -237,7 +239,7 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
                 <div className="absolute inset-0 border-4 border-t-indigo-600 rounded-full animate-spin"></div>
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Saving Changes...</h3>
-              <p className="text-slate-500 text-sm">Re-syncing Digital Twin to cloud repository.</p>
+              <p className="text-slate-500 text-sm">Updating asset metadata.</p>
             </div>
           </div>
         ) : (
@@ -332,7 +334,11 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
                     value={showCustomSector ? 'CUSTOM' : formData.sector}
                     onChange={handleSectorChange}
                   >
-                    {Object.values(EDUSector).map(s => <option key={s} value={s}>{s}</option>)}
+                    {sectors && sectors.length > 0 ? (
+                      sectors.map(s => <option key={s} value={s}>{s}</option>)
+                    ) : (
+                      Object.values(EDUSector).map(s => <option key={s} value={s}>{s}</option>)
+                    )}
                     <option value="CUSTOM">+ Other / Custom Sector...</option>
                   </select>
                   {showCustomSector && (

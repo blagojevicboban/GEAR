@@ -57,15 +57,43 @@ const server = http.createServer((req, res) => {
 
 function triggerDeploy(res) {
     console.log('Webhook received, starting deployment...');
-    exec(`bash ${DEPLOY_SCRIPT}`, (err, stdout, stderr) => {
-        if (err) {
-            console.error('Deployment failed:', stderr);
-            res.writeHead(500);
-            return res.end('Deployment failed');
-        }
-        console.log('Deployment success:', stdout);
-        res.writeHead(200);
-        res.end('Deployment Triggered');
+
+    // Use spawn instead of exec to stream output
+    // This ensures we see logs even if the process is killed during execution (e.g. by pm2 restart)
+    import('child_process').then(({ spawn }) => {
+        const child = spawn('bash', [DEPLOY_SCRIPT]);
+
+        child.stdout.on('data', (data) => {
+            console.log(data.toString().trim());
+        });
+
+        child.stderr.on('data', (data) => {
+            console.error(data.toString().trim());
+        });
+
+        child.on('close', (code) => {
+            if (code === 0) {
+                console.log('Deployment script execution finished successfully.');
+                if (!res.writableEnded) {
+                    res.writeHead(200);
+                    res.end('Deployment Triggered & Script Finished');
+                }
+            } else {
+                console.error(`Deployment process exited with code ${code}`);
+                if (!res.writableEnded) {
+                    res.writeHead(500);
+                    res.end('Deployment Failed');
+                }
+            }
+        });
+
+        child.on('error', (err) => {
+            console.error('Failed to start deployment script:', err);
+            if (!res.writableEnded) {
+                res.writeHead(500);
+                res.end('Deployment Script Error');
+            }
+        });
     });
 }
 

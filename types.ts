@@ -38,6 +38,7 @@ export interface VETModel {
   createdAt: string;
   hotspots: Hotspot[];
   isFeatured?: boolean;
+  uploaderProfilePic?: string; // from join
 }
 
 export interface User {

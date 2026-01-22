@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { AppView, User } from '../types';
+import { fixAssetUrl } from '../utils/urlUtils';
 
 interface NavbarProps {
   currentView: AppView;
@@ -56,7 +57,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
             >
               <div className="w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white uppercase overflow-hidden">
                 {currentUser.profilePicUrl ? (
-                  <img src={currentUser.profilePicUrl} alt={currentUser.username} className="w-full h-full object-cover" />
+                  <img src={fixAssetUrl(currentUser.profilePicUrl)} alt={currentUser.username} className="w-full h-full object-cover" />
                 ) : (
                   currentUser.username.charAt(0)
                 )}

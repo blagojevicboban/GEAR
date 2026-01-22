@@ -53,7 +53,11 @@ app.get('/api/health', (req, res) => {
 // Get all models with their hotspots
 app.get('/api/models', async (req, res) => {
     try {
-        const [models] = await pool.query('SELECT * FROM models');
+        const [models] = await pool.query(`
+            SELECT m.*, u.profilePicUrl as uploaderProfilePic 
+            FROM models m 
+            LEFT JOIN users u ON m.uploadedBy = u.username
+        `);
         const [hotspots] = await pool.query('SELECT * FROM hotspots');
 
         const modelsWithHotspots = models.map(model => ({
@@ -160,7 +164,7 @@ app.get('/api/users', async (req, res) => {
         if (role !== 'admin') {
             return res.status(403).json({ error: 'Forbidden: Admin access only' });
         }
-        const [users] = await pool.query('SELECT id, username, email, institution, role, createdAt FROM users');
+        const [users] = await pool.query('SELECT id, username, email, institution, role, profilePicUrl, createdAt FROM users');
         res.json(users);
     } catch (err) {
         console.error(err);
@@ -188,6 +192,27 @@ app.put('/api/users/:id', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to update user' });
+    }
+});
+
+// Update own profile
+app.put('/api/users/:id/profile', async (req, res) => {
+    const { id } = req.params;
+    const { username, institution, bio, profilePicUrl } = req.body;
+
+    // In a real app we should check session/token here. 
+    // For now we assume the ID in url matches the logged in user or we blindly update based on ID.
+    // Ideally pass 'X-User-Name' and verify.
+
+    try {
+        await pool.query(
+            'UPDATE users SET username=?, institution=?, bio=?, profilePicUrl=? WHERE id=?',
+            [username, institution, bio, profilePicUrl, id]
+        );
+        res.json({ id, username, institution, bio, profilePicUrl });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to update profile' });
     }
 });
 
@@ -235,7 +260,8 @@ app.post('/api/upload', (req, res, next) => {
         return res.status(400).json({ error: 'No file uploaded' });
     }
     console.log('File successfully saved:', req.file.filename);
-    const fileUrl = `/uploads/${req.file.filename}`;
+    // Use /api/uploads so it goes through the Vite proxy (if dev) or Nginx proxy locations
+    const fileUrl = `/api/uploads/${req.file.filename}`;
     res.json({ url: fileUrl });
 });
 

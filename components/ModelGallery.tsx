@@ -114,7 +114,14 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, onView
               <h3 className="font-bold text-lg mb-1">{model.name}</h3>
               <p className="text-slate-500 text-xs mb-3 flex-1 line-clamp-2">{model.description}</p>
 
-              <div className="mb-4">
+              <div className="mb-4 flex items-center gap-2">
+                <div className="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center text-[8px] font-bold text-white uppercase overflow-hidden shrink-0">
+                  {model.uploaderProfilePic ? (
+                    <img src={fixAssetUrl(model.uploaderProfilePic)} alt={model.uploadedBy} className="w-full h-full object-cover" />
+                  ) : (
+                    model.uploadedBy.charAt(0)
+                  )}
+                </div>
                 <p className="text-[10px] text-slate-500 italic">By <button onClick={(e) => { e.stopPropagation(); onViewUser(model.uploadedBy); }} className="hover:text-indigo-400 hover:underline">{model.uploadedBy}</button></p>
               </div>
 

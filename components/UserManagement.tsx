@@ -200,7 +200,18 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                         <tbody>
                             {users.map(user => (
                                 <tr key={user.id} className="border-b border-slate-800 hover:bg-slate-800/50">
-                                    <td className="px-6 py-4 font-medium text-white">{user.username}</td>
+                                    <td className="px-6 py-4 font-medium text-white">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold text-white uppercase overflow-hidden shrink-0">
+                                                {user.profilePicUrl ? (
+                                                    <img src={fixAssetUrl(user.profilePicUrl)} alt={user.username} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    user.username.charAt(0)
+                                                )}
+                                            </div>
+                                            <span>{user.username}</span>
+                                        </div>
+                                    </td>
                                     <td className="px-6 py-4">{user.email}</td>
                                     <td className="px-6 py-4">
                                         {editingUser?.id === user.id ? (
@@ -267,7 +278,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                             <div className="flex flex-col md:flex-row gap-8 items-start mb-10">
                                 <div className="w-32 h-32 rounded-full bg-indigo-600 flex items-center justify-center text-4xl font-bold text-white shadow-lg shrink-0 overflow-hidden">
                                     {viewingUser.profilePicUrl ? (
-                                        <img src={viewingUser.profilePicUrl} alt={viewingUser.username} className="w-full h-full object-cover" />
+                                        <img src={fixAssetUrl(viewingUser.profilePicUrl)} alt={viewingUser.username} className="w-full h-full object-cover" />
                                     ) : (
                                         viewingUser.username.charAt(0).toUpperCase()
                                     )}

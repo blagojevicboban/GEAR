@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import * as THREE from 'three';
+import type * as THREE_TYPES from 'three';
+const THREE = (window as any).THREE as typeof THREE_TYPES;
+
 // @ts-ignore
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { OrbitControls } from '../src/lib/three-examples/controls/OrbitControls.js';
 // @ts-ignore
 import initOpenCascade from 'opencascade.js';
 
@@ -68,6 +70,15 @@ const CADViewer: React.FC<CADViewerProps> = ({ fileUrl, onExit, fileName }) => {
 
                 // Fetch STEP file
                 const response = await fetch(fileUrl);
+                if (!response.ok) {
+                    throw new Error(`Failed to download model: Server responded with ${response.status} ${response.statusText}`);
+                }
+
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('text/html')) {
+                    throw new Error("Invalid model URL: Server returned HTML instead of a CAD file. This model entry might be corrupted.");
+                }
+
                 const buffer = await response.arrayBuffer();
                 const uint8Array = new Uint8Array(buffer);
 
@@ -127,9 +138,27 @@ const CADViewer: React.FC<CADViewerProps> = ({ fileUrl, onExit, fileName }) => {
 
                 // Center model
                 geometry.computeBoundingBox();
+                const box = geometry.boundingBox!;
                 const center = new THREE.Vector3();
-                geometry.boundingBox?.getCenter(center);
+                box.getCenter(center);
                 mesh.position.sub(center);
+
+                // Auto-Focus Camera: Calculate optimal distance
+                const size = new THREE.Vector3();
+                box.getSize(size);
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const fov = camera.fov * (Math.PI / 180);
+                let cameraDist = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+                cameraDist *= 1.5; // Add some padding
+
+                // Position camera isometrically
+                const direction = new THREE.Vector3(1, 1, 1).normalize();
+                const position = direction.multiplyScalar(cameraDist);
+
+                camera.position.copy(position);
+                camera.lookAt(0, 0, 0);
+                controls.target.set(0, 0, 0);
+                controls.update();
 
                 meshRef.current = mesh;
                 scene.add(mesh);
@@ -180,7 +209,7 @@ const CADViewer: React.FC<CADViewerProps> = ({ fileUrl, onExit, fileName }) => {
         const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
         const raycaster = new THREE.Raycaster();
-        raycaster.setFromCamera({ x, y }, cameraRef.current);
+        raycaster.setFromCamera(new THREE.Vector2(x, y), cameraRef.current);
 
         const intersects = raycaster.intersectObject(meshRef.current);
 

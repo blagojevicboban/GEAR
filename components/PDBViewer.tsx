@@ -1,17 +1,25 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import * as THREE from 'three';
+import type * as THREE_TYPES from 'three';
+const THREE = (window as any).THREE as typeof THREE_TYPES;
+
 // import { WebGPURenderer, MeshStandardNodeMaterial } from 'three/webgpu'; // Remove WebGPU import
-import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
-import { PDBLoader } from 'three/examples/jsm/loaders/PDBLoader.js';
-import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
-import { ARButton } from 'three/examples/jsm/webxr/ARButton.js';
-import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js';
-import { XRHandModelFactory } from 'three/examples/jsm/webxr/XRHandModelFactory.js';
 // @ts-ignore
-import { InteractiveGroup } from 'three/examples/jsm/interactive/InteractiveGroup.js';
+import { TrackballControls } from '../src/lib/three-examples/controls/TrackballControls.js';
 // @ts-ignore
-import { HTMLMesh } from 'three/examples/jsm/interactive/HTMLMesh.js';
+import { PDBLoader } from '../src/lib/three-examples/loaders/PDBLoader.js';
+// @ts-ignore
+import { CSS2DRenderer, CSS2DObject } from '../src/lib/three-examples/renderers/CSS2DRenderer.js';
+// @ts-ignore
+import { ARButton } from '../src/lib/three-examples/webxr/ARButton.js';
+// @ts-ignore
+import { XRControllerModelFactory } from '../src/lib/three-examples/webxr/XRControllerModelFactory.js';
+// @ts-ignore
+import { XRHandModelFactory } from '../src/lib/three-examples/webxr/XRHandModelFactory.js';
+// @ts-ignore
+import { InteractiveGroup } from '../src/lib/three-examples/interactive/InteractiveGroup.js';
+// @ts-ignore
+import { HTMLMesh } from '../src/lib/three-examples/interactive/HTMLMesh.js';
 
 interface PDBViewerProps {
     pdbUrl?: string; // Optional URL, defaults to caffeine

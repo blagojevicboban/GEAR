@@ -314,7 +314,7 @@ const App: React.FC = () => {
         {currentView === 'upload' && (
           <ModelUploadForm
             onUploadSuccess={handleUpload}
-            userName={currentUser?.username || 'Guest'}
+            user={currentUser}
           />
         )}
 

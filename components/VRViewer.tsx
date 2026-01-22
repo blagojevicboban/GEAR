@@ -4,7 +4,7 @@ import { VETModel, Hotspot } from '../types';
 import { analyzeModelDescription } from '../services/geminiService';
 import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
 // @ts-ignore
-import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
+import { STLLoader } from '../src/lib/three-examples/loaders/STLLoader.js';
 import { io, Socket } from 'socket.io-client';
 
 // A-Frame types

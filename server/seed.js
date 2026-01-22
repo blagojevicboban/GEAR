@@ -249,7 +249,20 @@ async function seed() {
       )
     `);
 
+        await connection.query(`
+      CREATE TABLE IF NOT EXISTS workshops (
+        id VARCHAR(50) PRIMARY KEY,
+        modelId VARCHAR(50),
+        createdBy VARCHAR(100),
+        status ENUM('active', 'ended') DEFAULT 'active',
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (modelId) REFERENCES models(id) ON DELETE CASCADE,
+        FOREIGN KEY (createdBy) REFERENCES users(username) ON DELETE CASCADE
+      )
+    `);
+
         console.log('Clearing existing data...');
+        await connection.query('DELETE FROM workshops');
         await connection.query('DELETE FROM hotspots');
         await connection.query('DELETE FROM models');
         await connection.query('DELETE FROM users');

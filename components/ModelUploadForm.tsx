@@ -1,14 +1,14 @@
 
 import React, { useState } from 'react';
-import { EDUSector, EquipmentLevel, VETModel } from '../types';
+import { EDUSector, EquipmentLevel, VETModel, User } from '../types';
 import { generateOptimizationSuggestions } from '../services/geminiService';
 
 interface ModelUploadFormProps {
   onUploadSuccess: (model: VETModel) => void;
-  userName: string;
+  user: User | null;
 }
 
-const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, userName }) => {
+const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadStep, setUploadStep] = useState(1);
   const [showCustomSector, setShowCustomSector] = useState(false);
@@ -19,7 +19,7 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
     customSector: '',
     equipmentType: '',
     level: EquipmentLevel.BASIC,
-    uploadedBy: userName,
+    uploadedBy: user?.username || 'Guest',
     modelFile: null as File | null,
     thumbnailFile: null as File | null
   });
@@ -102,6 +102,7 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
         optimized: true,
         fileSize: formData.modelFile.size,
         uploadedBy: formData.uploadedBy,
+        uploaderProfilePic: user?.profilePicUrl,
         createdAt: new Date().toISOString().split('T')[0],
         hotspots: []
       };
@@ -125,7 +126,7 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-3xl font-bold text-white">Upload VET Asset</h2>
           <div className="text-[10px] font-bold bg-indigo-500/10 text-indigo-400 px-3 py-1 rounded-full border border-indigo-500/20 uppercase tracking-widest">
-            Uploader Session: {userName}
+            Uploader Session: {user?.username || 'Guest'}
           </div>
         </div>
         <p className="text-slate-400 mb-8">Contribute to the repository. Assets are auto-optimized for Meta Quest performance.</p>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { VETModel, EDUSector, User } from '../types';
 
 interface ModelGalleryProps {
@@ -14,11 +14,26 @@ interface ModelGalleryProps {
 }
 
 import { fixAssetUrl } from '../utils/urlUtils';
+import Hero3D from './Hero3D';
 
 const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sectors, onViewModel, onEnterWorkshop, onEditModel, onDeleteModel, onViewUser, initialUserFilter }) => {
   const [filter, setFilter] = useState<string>('All'); // Changed from EDUSector | 'All' to string
   const [userFilter, setUserFilter] = useState<string>(initialUserFilter || 'All');
   const [search, setSearch] = useState('');
+  const [targetPos, setTargetPos] = useState<{ x: number, y: number } | null>(null);
+
+  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    // Calculate normalized coordinates (-1 to 1)
+    const x = ((rect.left + rect.width / 2) / window.innerWidth) * 2 - 1;
+    // Position at the top 20% of the card
+    const y = -(((rect.top + rect.height * 0.2) / window.innerHeight) * 2 - 1);
+    setTargetPos({ x, y });
+  };
+
+  const handleMouseLeave = () => {
+    setTargetPos(null);
+  };
 
   // Extract unique uploaders for the filter dropdown
   const uniqueUploaders = Array.from(new Set(models.map(m => m.uploadedBy))).sort();
@@ -32,7 +47,13 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sector
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12">
+    <div className="max-w-7xl mx-auto px-6 py-12 relative">
+      {/* 3D Hero Overlay */}
+      <div className="fixed inset-0 z-50 pointer-events-none opacity-100">
+        <Suspense fallback={null}>
+          <Hero3D targetPosition={targetPos} />
+        </Suspense>
+      </div>
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
           <h1 className="text-4xl font-bold mb-2">VET Equipment Repository</h1>
@@ -72,7 +93,12 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sector
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredModels.map(model => (
-          <div key={model.id} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col hover:border-slate-700 transition-colors group">
+          <div
+            key={model.id}
+            className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col hover:border-slate-700 transition-colors group"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
             <div className="relative h-40 overflow-hidden">
               <img src={fixAssetUrl(model.thumbnailUrl)} alt={model.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
 

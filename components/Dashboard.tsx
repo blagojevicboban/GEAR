@@ -20,12 +20,27 @@ import Hero3D from './Hero3D';
 const Dashboard: React.FC<DashboardProps> = ({
   modelsCount, onGetStarted, featuredModels, activeWorkshops, onViewModel, onViewUser, onJoinWorkshop
 }) => {
+  const [targetPos, setTargetPos] = React.useState<{ x: number, y: number } | null>(null);
+
+  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    // Calculate normalized coordinates (-1 to 1)
+    const x = ((rect.left + rect.width / 2) / window.innerWidth) * 2 - 1;
+    // Position at the top 20% of the card
+    const y = -(((rect.top + rect.height * 0.2) / window.innerHeight) * 2 - 1);
+    setTargetPos({ x, y });
+  };
+
+  const handleMouseLeave = () => {
+    setTargetPos(null);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-12 relative">
       {/* 3D Hero Overlay - Independent, Rotating, Non-interactive */}
       <div className="fixed inset-0 z-50 pointer-events-none opacity-100">
         <Suspense fallback={null}>
-          <Hero3D />
+          <Hero3D targetPosition={targetPos} />
         </Suspense>
       </div>
 
@@ -58,6 +73,8 @@ const Dashboard: React.FC<DashboardProps> = ({
         <div
           className="relative aspect-video rounded-3xl overflow-hidden bg-slate-800 border border-slate-700 shadow-2xl group cursor-pointer"
           onClick={() => activeWorkshops.length > 0 && onJoinWorkshop(activeWorkshops[0])}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
 
           <img
@@ -91,6 +108,8 @@ const Dashboard: React.FC<DashboardProps> = ({
               key={model.id}
               className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden hover:border-indigo-500/50 transition-all cursor-pointer group"
               onClick={() => onViewModel(model)}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
             >
               <div className="relative h-48 overflow-hidden">
                 <img src={fixAssetUrl(model.thumbnailUrl)} alt={model.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />

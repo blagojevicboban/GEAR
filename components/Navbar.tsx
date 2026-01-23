@@ -44,6 +44,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
 
         {currentUser && (currentUser.role === 'admin' || currentUser.role === 'teacher') && (
           <button
+            id="nav-upload"
             onClick={() => setView('upload')}
             className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${currentView === 'upload'
               ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
@@ -61,6 +62,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
         {currentUser ? (
           <div className="relative">
             <button
+              id="nav-profile"
               onClick={() => setShowDropdown(!showDropdown)}
               className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-full border border-slate-700 transition-all"
             >
@@ -119,12 +121,14 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
         ) : (
           <div className="flex items-center gap-2">
             <button
+              id="nav-login"
               onClick={() => setView('login')}
               className="text-sm font-semibold text-slate-400 hover:text-white px-3 py-2"
             >
               Login
             </button>
             <button
+              id="nav-register"
               onClick={() => setView('register')}
               className="text-sm font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 px-4 py-2 rounded-xl hover:bg-indigo-600 hover:text-white transition-all"
             >

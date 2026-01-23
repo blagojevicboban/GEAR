@@ -71,6 +71,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         <div
+          id="dashboard-workshop"
           className="relative aspect-video rounded-3xl overflow-hidden bg-slate-800 border border-slate-700 shadow-2xl group cursor-pointer"
           onClick={() => activeWorkshops.length > 0 && onJoinWorkshop(activeWorkshops[0])}
           onMouseEnter={handleMouseEnter}

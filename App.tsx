@@ -60,6 +60,57 @@ const App: React.FC = () => {
       content: 'Access tutorials, diagnostics, and support here anytime.',
       position: 'bottom',
       view: 'home'
+    }
+  ];
+
+  // Dynamically add steps based on auth status
+  if (!currentUser) {
+    TOUR_STEPS.push(
+      {
+        targetId: 'nav-login',
+        title: 'Login',
+        content: 'Already have an account? Log in to access your projects.',
+        position: 'bottom',
+        view: 'home'
+      },
+      {
+        targetId: 'nav-register',
+        title: 'Sign Up',
+        content: 'Create a new account to start uploading models and joining workshops.',
+        position: 'bottom',
+        view: 'home'
+      }
+    );
+  } else {
+    // If teacher/admin, show upload
+    if (currentUser.role === 'admin' || currentUser.role === 'teacher') {
+      TOUR_STEPS.push({
+        targetId: 'nav-upload',
+        title: 'Upload Assets',
+        content: 'Contribute new 3D models to the repository.',
+        position: 'bottom',
+        view: 'home'
+      });
+    }
+
+    // Profile for all logged in users
+    TOUR_STEPS.push({
+      targetId: 'nav-profile',
+      title: 'User Profile',
+      content: 'Manage your settings, view your projects, or log out.',
+      position: 'bottom',
+      view: 'home'
+    });
+  }
+
+  // Common steps at the end
+  TOUR_STEPS.push(
+    {
+      targetId: 'dashboard-workshop',
+      title: 'Active Workshops',
+      content: 'Join live multi-user collaborative sessions in VR.',
+      position: 'bottom',
+      view: 'home'
     },
     {
       targetId: 'dashboard-featured',
@@ -68,7 +119,7 @@ const App: React.FC = () => {
       position: 'top',
       view: 'home'
     }
-  ];
+  );
 
   const handleStartTour = () => {
     setIsTourActive(true);

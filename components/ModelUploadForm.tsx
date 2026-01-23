@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { EDUSector, EquipmentLevel, VETModel, User } from '../types';
 import { generateOptimizationSuggestions } from '../services/geminiService';
+import InfoTooltip from './InfoTooltip';
 
 interface ModelUploadFormProps {
   onUploadSuccess: (model: VETModel) => void;
@@ -162,7 +163,10 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
             {/* Asset Files Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-4">
-                <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">1. 3D Model Source (.glb / .gltf)</label>
+                <label className="text-xs font-bold uppercase text-slate-500 tracking-wider flex items-center">
+                  1. 3D Model Source (.glb / .gltf)
+                  <InfoTooltip content="We support .glb (binary) and .gltf formats. For CAD files (.stp, .stl, .pdb), optimization will be limited." />
+                </label>
                 <div className="border-2 border-dashed border-slate-700 rounded-2xl p-6 text-center hover:border-indigo-500/50 transition-all cursor-pointer bg-slate-950/50 group h-40 flex flex-col items-center justify-center">
                   <input
                     type="file"
@@ -233,7 +237,10 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">VET Sector</label>
+                  <label className="text-xs font-bold uppercase text-slate-500 tracking-widest flex items-center">
+                    VET Sector
+                    <InfoTooltip content="Choose the industrial sector this equipment belongs to. Used for filtering in the repository." />
+                  </label>
                   <select
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-white transition-all"
                     value={showCustomSector ? 'CUSTOM' : formData.sector}
@@ -259,7 +266,10 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({ onUploadSuccess, user
                   )}
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Complexity Level</label>
+                  <label className="text-xs font-bold uppercase text-slate-500 tracking-widest flex items-center">
+                    Complexity Level
+                    <InfoTooltip content="Basic: Safe for beginners. Advanced: Contains complex internal parts or safety hazards." />
+                  </label>
                   <select
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-white transition-all"
                     value={formData.level}

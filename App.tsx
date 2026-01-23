@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { AppView, VETModel, User } from './types';
+import { AppView, VETModel, User, TourStep } from './types';
 import { INITIAL_MODELS } from './constants';
 import Navbar from './components/Navbar';
 import Dashboard from './components/Dashboard';
@@ -13,7 +13,9 @@ import CADViewer from './components/CADViewer';
 import FileDownloadViewer from './components/FileDownloadViewer';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
+import HelpPage from './components/HelpPage';
 import ProfileForm from './components/ProfileForm';
+import TourOverlay from './components/TourOverlay';
 
 import UserManagement from './components/UserManagement';
 import UserProfileModal from './components/UserProfileModal';
@@ -32,6 +34,65 @@ const App: React.FC = () => {
     return saved ? JSON.parse(saved) : null;
   });
   const [viewingProfileUser, setViewingProfileUser] = useState<string | null>(null);
+
+  // Tour State
+  const [isTourActive, setIsTourActive] = useState(false);
+  const [tourStepIndex, setTourStepIndex] = useState(0);
+
+  const TOUR_STEPS: TourStep[] = [
+    {
+      targetId: 'nav-logo',
+      title: 'Welcome to THE GEAR',
+      content: 'Your ultimate WebXR open-source repository for vocational training.',
+      position: 'bottom',
+      view: 'home'
+    },
+    {
+      targetId: 'nav-repo',
+      title: '3D Repository',
+      content: 'Browse hundreds of optimized industrial models ready for VR.',
+      position: 'bottom',
+      view: 'home'
+    },
+    {
+      targetId: 'nav-help',
+      title: 'Need Help?',
+      content: 'Access tutorials, diagnostics, and support here anytime.',
+      position: 'bottom',
+      view: 'home'
+    },
+    {
+      targetId: 'dashboard-featured',
+      title: 'Featured Equipment',
+      content: 'Check out the most popular and high-quality models selected for you.',
+      position: 'top',
+      view: 'home'
+    }
+  ];
+
+  const handleStartTour = () => {
+    setIsTourActive(true);
+    setTourStepIndex(0);
+    setCurrentView('home');
+  };
+
+  const handleNextStep = () => {
+    if (tourStepIndex < TOUR_STEPS.length - 1) {
+      const nextStep = TOUR_STEPS[tourStepIndex + 1];
+      if (nextStep.view && nextStep.view !== currentView) {
+        setCurrentView(nextStep.view);
+      }
+      setTourStepIndex(prev => prev + 1);
+    } else {
+      setIsTourActive(false);
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (tourStepIndex > 0) {
+      setTourStepIndex(prev => prev - 1);
+    }
+  };
 
   useEffect(() => {
     fetch('/api/models')
@@ -412,6 +473,10 @@ const App: React.FC = () => {
           )
         )}
 
+        {currentView === 'help' && (
+          <HelpPage onStartTour={handleStartTour} />
+        )}
+
         {currentView === 'login' && (
           <LoginForm
             onLogin={handleLogin}
@@ -432,6 +497,16 @@ const App: React.FC = () => {
           <p>&copy; 2026 THE GEAR - Open Source VET WebXR Platform. Optimized for Meta Quest.</p>
         </footer>
       )}
+
+      {/* Tour Overlay */}
+      <TourOverlay
+        steps={TOUR_STEPS}
+        currentStepIndex={tourStepIndex}
+        isOpen={isTourActive}
+        onNext={handleNextStep}
+        onPrev={handlePrevStep}
+        onClose={() => setIsTourActive(false)}
+      />
     </div>
   );
 };

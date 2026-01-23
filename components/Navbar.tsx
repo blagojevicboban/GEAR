@@ -15,7 +15,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
 
   return (
     <nav className="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-6 py-4 flex items-center justify-between">
-      <div className="flex items-center gap-2 cursor-pointer" onClick={() => setView('home')}>
+      <div id="nav-logo" className="flex items-center gap-2 cursor-pointer" onClick={() => setView('home')}>
         <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center font-black text-xl italic text-white shadow-lg shadow-indigo-500/20">
           G
         </div>
@@ -27,10 +27,19 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
 
       <div className="flex items-center gap-4 sm:gap-8">
         <button
+          id="nav-repo"
           onClick={() => setView('gallery')}
           className={`text-sm font-medium transition-colors ${currentView === 'gallery' ? 'text-indigo-400' : 'text-slate-400 hover:text-white'}`}
         >
           Repository
+        </button>
+
+        <button
+          id="nav-help"
+          onClick={() => setView('help')}
+          className={`text-sm font-medium transition-colors ${currentView === 'help' ? 'text-indigo-400' : 'text-slate-400 hover:text-white'}`}
+        >
+          Help
         </button>
 
         {currentUser && (currentUser.role === 'admin' || currentUser.role === 'teacher') && (

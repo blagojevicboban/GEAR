@@ -97,7 +97,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         </div>
       </div>
 
-      <div className="mb-12">
+      <div className="mb-12" id="dashboard-featured">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-3xl font-bold">Featured Equipment</h2>
           <button onClick={onGetStarted} className="text-indigo-400 hover:text-indigo-300 font-semibold text-sm">View all →</button>

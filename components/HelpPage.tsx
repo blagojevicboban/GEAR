@@ -9,7 +9,37 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
     const [isSecure, setIsSecure] = useState<boolean>(false);
     const [browserName, setBrowserName] = useState<string>('');
 
-    // ... useEffect remains same ...
+    useEffect(() => {
+        // Check Secure Context (HTTPS or localhost)
+        // Fallback to checking protocol if isSecureContext is false but protocol is https
+        const isHttps = window.location.protocol === 'https:';
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        setIsSecure(window.isSecureContext || isHttps || isLocal);
+
+        // Check Browser Name
+        const userAgent = navigator.userAgent;
+        if (userAgent.match(/OculusBrowser/i)) {
+            setBrowserName('Meta Quest Browser');
+        } else if (userAgent.match(/Chrome/i)) {
+            setBrowserName('Chrome / Chromium');
+        } else if (userAgent.match(/Firefox/i)) {
+            setBrowserName('Firefox');
+        } else if (userAgent.match(/Safari/i)) {
+            setBrowserName('Safari');
+        } else {
+            setBrowserName('Unknown Browser');
+        }
+
+        // Check WebXR Support
+        if ('xr' in navigator) {
+            // @ts-ignore
+            navigator.xr.isSessionSupported('immersive-vr')
+                .then((supported: boolean) => setXrSupported(supported))
+                .catch(() => setXrSupported(false));
+        } else {
+            setXrSupported(false);
+        }
+    }, []);
 
     return (
         <div className="max-w-4xl mx-auto px-6 py-12">

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { VETModel } from '../types';
 
 interface DashboardProps {
@@ -15,13 +15,21 @@ interface DashboardProps {
 
 
 import { fixAssetUrl } from '../utils/urlUtils';
+import Hero3D from './Hero3D';
 
 const Dashboard: React.FC<DashboardProps> = ({
   modelsCount, onGetStarted, featuredModels, activeWorkshops, onViewModel, onViewUser, onJoinWorkshop
 }) => {
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+    <div className="max-w-7xl mx-auto px-6 py-12 relative">
+      {/* 3D Hero Overlay - Independent, Rotating, Non-interactive */}
+      <div className="fixed inset-0 z-50 pointer-events-none opacity-100">
+        <Suspense fallback={null}>
+          <Hero3D />
+        </Suspense>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16 relative z-10">
         <div>
           <h1 className="text-5xl lg:text-7xl font-extrabold mb-6 leading-tight">
             The Future of <br />
@@ -51,6 +59,7 @@ const Dashboard: React.FC<DashboardProps> = ({
           className="relative aspect-video rounded-3xl overflow-hidden bg-slate-800 border border-slate-700 shadow-2xl group cursor-pointer"
           onClick={() => activeWorkshops.length > 0 && onJoinWorkshop(activeWorkshops[0])}
         >
+
           <img
             src="https://picsum.photos/seed/xr-hero/1200/800"
             alt="VET VR Training"

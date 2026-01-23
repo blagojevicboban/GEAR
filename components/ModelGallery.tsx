@@ -26,8 +26,8 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sector
     const rect = e.currentTarget.getBoundingClientRect();
     // Calculate normalized coordinates (-1 to 1)
     const x = ((rect.left + rect.width / 2) / window.innerWidth) * 2 - 1;
-    // Position at the top 20% of the card
-    const y = -(((rect.top + rect.height * 0.2) / window.innerHeight) * 2 - 1);
+    // Position at the lower part of the image (approx 130px from top)
+    const y = -(((rect.top + 130) / window.innerHeight) * 2 - 1);
     setTargetPos({ x, y });
   };
 

@@ -37,6 +37,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
     const [atomCount, setAtomCount] = useState(0);
     const [visualStyle, setVisualStyle] = useState<'ball-stick' | 'spacefill' | 'backbone'>('ball-stick');
     const [arSessionActive, setArSessionActive] = useState(false);
+    const [voiceStatus, setVoiceStatus] = useState<string>(''); // Voice feedback text
     const pdbDataRef = useRef<any>(null); // Store parsed PDB data for style switching
 
     useEffect(() => {
@@ -497,7 +498,23 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
 
         renderer.setAnimationLoop(animate);
 
+        // Voice Command Listener (Integration)
+        const handleVoiceCommand = (e: any) => {
+            const action = e.detail.action;
+            if (action === 'scale-up') {
+                const current = rootGroup.scale.x;
+                const next = Math.min(current * 1.2, 5.0); // +20%
+                rootGroup.scale.setScalar(next);
+            } else if (action === 'scale-down') {
+                const current = rootGroup.scale.x;
+                const next = Math.max(current * 0.8, 0.1); // -20%
+                rootGroup.scale.setScalar(next);
+            }
+        };
+        window.addEventListener('gear-voice-command', handleVoiceCommand);
+
         return () => {
+            window.removeEventListener('gear-voice-command', handleVoiceCommand);
             window.removeEventListener('resize', onWindowResize);
             if (container.contains(renderer.domElement)) container.removeChild(renderer.domElement);
             if (container.contains(labelRenderer.domElement)) container.removeChild(labelRenderer.domElement);
@@ -506,8 +523,90 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         };
     }, [fixedPdbUrl, visualStyle]); // Re-run when style changes
 
+    // --- Voice Control Logic ---
+    useEffect(() => {
+        // @ts-ignore
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            console.warn("Speech Recognition not supported in this browser.");
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = () => {
+            console.log("Voice Control Active");
+        };
+
+        recognition.onresult = (event: any) => {
+            const last = event.results.length - 1;
+            const command = event.results[last][0].transcript.trim().toLowerCase();
+            console.log("Voice Command:", command);
+
+            // Visual Feedback
+            setVoiceStatus(`" ${command} "`);
+            setTimeout(() => setVoiceStatus(''), 2000);
+
+            // Command Mapping
+            if (command.includes('reset')) {
+                const btnReset = document.getElementById('btn-reset');
+                if (btnReset) btnReset.click();
+            }
+            else if (command.includes('ball') || command.includes('stick')) {
+                setVisualStyle('ball-stick');
+            }
+            else if (command.includes('space') || command.includes('sphere') || command.includes('atom')) {
+                setVisualStyle('spacefill');
+            }
+            else if (command.includes('backbone') || command.includes('wire')) {
+                setVisualStyle('backbone');
+            }
+            else if (command.includes('zoom in') || command.includes('bigger') || command.includes('enhance')) {
+                // Adjust scale visually if rootGroup is accessible via ref? 
+                // Limitation: rootGroup is inside useEffect. 
+                // Workaround: We trigger a custom event or check if we can access it.
+                // Actually, we can't easily access rootGroup here since it's in the other useEffect.
+                // Let's rely on state text for now?
+                // BETTER: Move rootGroup to a Ref or trigger a re-render? No, re-render rebuilds.
+                // SOLUTION: Dispatch a custom event on window/document that the inner effect listens to.
+                window.dispatchEvent(new CustomEvent('gear-voice-command', { detail: { action: 'scale-up' } }));
+            }
+            else if (command.includes('zoom out') || command.includes('smaller')) {
+                window.dispatchEvent(new CustomEvent('gear-voice-command', { detail: { action: 'scale-down' } }));
+            }
+        };
+
+        recognition.onerror = (event: any) => {
+            console.error("Speech Recognition Error:", event.error);
+        };
+
+        // Start listening only if AR is active or always? Let's do always for testing on desktop too.
+        try {
+            recognition.start();
+        } catch (e) {
+            // Already started
+        }
+
+        return () => {
+            recognition.stop();
+        };
+    }, []); // Run once on mount
+
     return (
         <div className="relative w-full h-full min-h-screen bg-transparent">
+            {/* Voice Feedback Toast */}
+            {voiceStatus && (
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none">
+                    <div className="bg-black/60 text-white px-6 py-4 rounded-full text-2xl font-bold backdrop-blur-md animate-bounce border border-white/20">
+                        🎤 {voiceStatus}
+                    </div>
+                </div>
+            )}
+
             {/* Background Layer - Hidden in AR */}
             {!arSessionActive && (
                 <div className="absolute inset-0 bg-slate-900 -z-20" />

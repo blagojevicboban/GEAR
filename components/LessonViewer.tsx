@@ -79,14 +79,14 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
         const url = modelStub.modelUrl?.toLowerCase() || '';
 
         if (url.endsWith('.pdb') || url.includes('#pdb')) {
-            return <PDBViewer pdbUrl={url.replace('#pdb', '')} onExit={() => { }} />;
+            return <PDBViewer pdbUrl={url.replace('#pdb', '')} onExit={() => !isSidebarOpen ? setIsSidebarOpen(true) : onExit()} />;
         } else if (url.endsWith('.stp') || url.endsWith('.step') || url.includes('#step')) {
-            return <CADViewer fileUrl={url.replace('#step', '')} onExit={() => { }} fileName={modelStub.name} />;
+            return <CADViewer fileUrl={url.replace('#step', '')} onExit={() => !isSidebarOpen ? setIsSidebarOpen(true) : onExit()} fileName={modelStub.name} />;
         } else {
             return (
                 <VRViewer
                     model={modelStub}
-                    onExit={() => { }}
+                    onExit={() => !isSidebarOpen ? setIsSidebarOpen(true) : onExit()}
                     workshopMode={false}
                     user={currentUser}
                 />
@@ -116,9 +116,15 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
                         <h2 className="text-sm font-bold text-indigo-400 uppercase tracking-widest mb-1">Interactive Lesson</h2>
                         <h1 className="text-xl font-bold text-white leading-tight">{lesson.title}</h1>
                     </div>
-                    <button onClick={onExit} className="text-slate-500 hover:text-white transition-colors">
-                        <X size={24} />
-                    </button>
+                    <div className="flex items-center gap-2">
+                        {/* Toggle Sidebar (Mobile/Desktop) */}
+                        <button onClick={() => setIsSidebarOpen(false)} className="md:hidden p-2 text-slate-500 hover:text-white transition-colors bg-slate-800 rounded-lg">
+                            <ChevronLeft size={20} />
+                        </button>
+                        <button onClick={onExit} className="text-slate-500 hover:text-white transition-colors p-2">
+                            <X size={24} />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Content Area */}

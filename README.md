@@ -63,6 +63,9 @@ The PDB Viewer now supports advanced WebXR capabilities on compatible devices (e
 *   **Spatial UI**: A floating 3D menu anchored in the real world.
 *   **Visualization Styles**: Switch instantly between **Ball & Stick**, **Spacefill**, and **Backbone** views.
 *   **Realism**: Dynamic shadows ground the virtual molecule in your physical space.
+*   **Two-Handed Interaction (v1.2.1)**:
+    *   **Pinch-to-Zoom**: Use both hands to intuitively scale the molecule.
+    *   **Two-Handed Rotation**: Rotate the molecule by moving your hands relative to each other.
 
 ## 👥 Roles & Permissions
 

@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import type * as THREE_TYPES from 'three';
 const THREE = (window as any).THREE as typeof THREE_TYPES;
 
-// import { WebGPURenderer, MeshStandardNodeMaterial } from 'three/webgpu'; // Remove WebGPU import
+
 // @ts-ignore
 import { TrackballControls } from '../src/lib/three-examples/controls/TrackballControls.js';
 // @ts-ignore
@@ -56,9 +56,10 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         // Light
         const light = new THREE.DirectionalLight(0xffffff, 2.0); // Reduced instensity slightly, relying more on ambient
         light.position.set(1, 2, 1);
-        // light.castShadow = true; // DISABLE SHADOWS FOR MOBILE STABILITY
-        // light.shadow.mapSize.width = 1024;
-        // light.shadow.mapSize.height = 1024;
+        light.castShadow = true;
+        light.shadow.mapSize.width = 1024;
+        light.shadow.mapSize.height = 1024;
+        light.shadow.bias = -0.0001; // Reduce shadow acne
         scene.add(light);
 
         const ambientLight = new THREE.AmbientLight(0xffffff, 3.0); // Boost Ambient Light strongly
@@ -74,8 +75,8 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
-        // renderer.shadowMap.enabled = true; // DISABLE SHADOW MAP
-        // renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.xr.enabled = true; // Enable WebXR
         container.appendChild(renderer.domElement);
 
@@ -161,6 +162,39 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         controller1.addEventListener('selectend', onSelectEnd);
         controller2.addEventListener('selectstart', onSelectStart);
         controller2.addEventListener('selectend', onSelectEnd);
+
+        // Interaction State for Two-Handed Manipulation
+        const interactionState = {
+            controller1: { selected: null as any, position: new THREE.Vector3() },
+            controller2: { selected: null as any, position: new THREE.Vector3() },
+            initialDistance: 0,
+            initialScale: 1,
+            initialAngle: 0,
+            initialRotationY: 0,
+            isTwoHanded: false
+        };
+
+        function updateInteractionState() {
+            const c1Selected = (controller1 as any).userData.selected;
+            const c2Selected = (controller2 as any).userData.selected;
+
+            if (c1Selected && c2Selected && c1Selected === c2Selected) {
+                // Start Two-Handed Interaction
+                if (!interactionState.isTwoHanded) {
+                    interactionState.isTwoHanded = true;
+                    interactionState.initialDistance = controller1.position.distanceTo(controller2.position);
+                    interactionState.initialScale = rootGroup.scale.x;
+
+                    const dx = controller2.position.x - controller1.position.x;
+                    const dz = controller2.position.z - controller1.position.z;
+                    interactionState.initialAngle = Math.atan2(dz, dx);
+                    interactionState.initialRotationY = rootGroup.rotation.y;
+                }
+            } else {
+                interactionState.isTwoHanded = false;
+            }
+        }
+
 
         // Visual Ray
         const geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
@@ -315,14 +349,15 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             }
 
             // Shadow Catcher Plane
-            // const shadowPlane = new THREE.Mesh(
-            //     new THREE.PlaneGeometry(5, 5),
-            //     new THREE.ShadowMaterial({ opacity: 0.3 })
-            // );
-            // shadowPlane.rotation.x = -Math.PI / 2;
-            // shadowPlane.position.y = -0.6 * scaleFactor; // Slightly lower
-            // shadowPlane.receiveShadow = true;
-            // rootGroup.add(shadowPlane);
+            // Shadow Catcher Plane
+            const shadowPlane = new THREE.Mesh(
+                new THREE.PlaneGeometry(5, 5),
+                new THREE.ShadowMaterial({ opacity: 0.3 })
+            );
+            shadowPlane.rotation.x = -Math.PI / 2;
+            shadowPlane.position.y = -0.6 * scaleFactor; // Slightly lower
+            shadowPlane.receiveShadow = true;
+            rootGroup.add(shadowPlane);
         };
 
         // Load PDB
@@ -416,22 +451,41 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         const animate = (time: number, frame?: any) => {
             controls.update();
 
-            // AR Scaling Logic
+            // AR Scaling/Rotation Logic
             if (frame) {
-                const session = renderer.xr.getSession();
-                if (session) {
-                    for (const source of session.inputSources) {
-                        if (source.gamepad) {
-                            const checkAxis = (axisIndex: number) => {
-                                const value = source.gamepad.axes[axisIndex];
-                                if (Math.abs(value) > 0.1) {
-                                    const scaleSpeed = 0.02;
-                                    const newScale = rootGroup.scale.x - (value * scaleSpeed);
-                                    const clampedScale = Math.max(0.1, Math.min(newScale, 5.0));
-                                    rootGroup.scale.setScalar(clampedScale);
-                                }
-                            };
-                            if (source.gamepad.axes.length > 3) checkAxis(3);
+                updateInteractionState();
+
+                if (interactionState.isTwoHanded) {
+                    // Two-Handed Manipulation
+                    const dist = controller1.position.distanceTo(controller2.position);
+                    const scaleFactor = dist / interactionState.initialDistance;
+                    const newScale = interactionState.initialScale * scaleFactor;
+                    const clampedScale = Math.max(0.1, Math.min(newScale, 5.0));
+                    rootGroup.scale.setScalar(clampedScale);
+
+                    const dx = controller2.position.x - controller1.position.x;
+                    const dz = controller2.position.z - controller1.position.z;
+                    const currentAngle = Math.atan2(dz, dx);
+                    const angleDiff = currentAngle - interactionState.initialAngle;
+                    rootGroup.rotation.y = interactionState.initialRotationY - angleDiff;
+
+                } else {
+                    // Fallback to Stick Scaling if not two-handed
+                    const session = renderer.xr.getSession();
+                    if (session) {
+                        for (const source of session.inputSources) {
+                            if (source.gamepad) {
+                                const checkAxis = (axisIndex: number) => {
+                                    const value = source.gamepad.axes[axisIndex];
+                                    if (Math.abs(value) > 0.1) {
+                                        const scaleSpeed = 0.02;
+                                        const newScale = rootGroup.scale.x - (value * scaleSpeed);
+                                        const clampedScale = Math.max(0.1, Math.min(newScale, 5.0));
+                                        rootGroup.scale.setScalar(clampedScale);
+                                    }
+                                };
+                                if (source.gamepad.axes.length > 3) checkAxis(3);
+                            }
                         }
                     }
                 }

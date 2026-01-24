@@ -145,9 +145,10 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
                                 </div>
                             )}
 
-                            <div className="prose prose-invert prose-sm max-w-none text-slate-300">
-                                <ReactMarkdown>{currentStep.content}</ReactMarkdown>
-                            </div>
+                            <div
+                                className="prose prose-invert prose-sm max-w-none text-slate-300"
+                                dangerouslySetInnerHTML={{ __html: currentStep.content }}
+                            />
                         </div>
                     ) : (
                         <div className="text-slate-400">

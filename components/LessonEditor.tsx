@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { fixAssetUrl } from '../utils/urlUtils';
+import RichTextEditor from './RichTextEditor';
+
 import { Lesson, LessonStep, VETModel } from '../types';
 import { Plus, Trash2, Save, ArrowLeft, MoveUp, MoveDown } from 'lucide-react';
 
@@ -170,14 +173,19 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                 if (target === 'image') {
                     handleStepChange(index, 'image_url', url);
                 } else {
-                    const textarea = e.currentTarget as HTMLTextAreaElement;
-                    const start = textarea.selectionStart;
-                    const end = textarea.selectionEnd;
-                    const text = steps[index].content;
-                    const before = text.substring(0, start);
-                    const after = text.substring(end, text.length);
-                    const newText = `${before}![Image](${url})${after}`;
-                    handleStepChange(index, 'content', newText);
+                    // HTML Image Insertion using execCommand
+                    // Since RichTextEditor is focused (or just was pasted into), this might work.
+                    // But preventDefault was called. We need to manually insert.
+                    // If we can't ensure focus/selection, we append.
+                    // But RichTextEditor handles focus.
+                    // Let's try execCommand.
+                    document.execCommand('insertImage', false, url);
+
+                    // Note: handleInput in RichTextEditor will trigger onChange, updating state properly.
+                    // So we don't need handleStepChange here if execCommand works.
+                    // But if execCommand fails (no focus), we might need fallback.
+                    // Fallback: Append to content.
+                    // handleStepChange(index, 'content', steps[index].content + `<img src="${url}" />`);
                 }
             }
         }
@@ -339,15 +347,15 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
                                 <div>
-                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Content (Markdown)</label>
-                                    <textarea
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Content (Rich Text)</label>
+                                    <RichTextEditor
                                         value={step.content}
-                                        onChange={(e) => handleStepChange(index, 'content', e.target.value)}
+                                        onChange={(html) => handleStepChange(index, 'content', html)}
+                                        placeholder="Write the lesson content here..."
                                         onPaste={(e) => handlePaste(index, e, 'content')}
-                                        className="w-full h-48 bg-slate-950/50 border border-slate-700 rounded-lg p-3 text-sm font-mono text-slate-300 focus:ring-1 focus:ring-indigo-500 outline-none"
-                                        placeholder="Write the lesson content here... (You can paste images)"
-                                    ></textarea>
+                                    />
                                 </div>
                                 <div>
                                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Step Image (Optional)</label>
@@ -408,7 +416,7 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                                                 const m = availableModels.find(mod => mod.id === step.model_id);
                                                 return m ? (
                                                     <>
-                                                        <img src={m.thumbnailUrl} className="w-full h-full object-cover opacity-50" />
+                                                        <img src={fixAssetUrl(m.thumbnailUrl)} className="w-full h-full object-cover opacity-50" />
                                                         <div className="absolute inset-0 flex items-center justify-center">
                                                             <span className="bg-black/70 px-2 py-1 rounded text-xs text-white">{m.name}</span>
                                                         </div>

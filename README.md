@@ -23,13 +23,16 @@
 *   **Help Center**: Dedicated support page with interactive **System Diagnostics** (WebXR/HTTPS checks) and tutorials.
 *   **Contextual Onboarding**: Interactive guided tour for new users and inline tooltips for complex forms.
 
-## 📚 Interactive Lessons (New in v1.3)
-
-Teachers can now create structured educational content directly within the platform:
-*   **Split-Screen Interface**: Instructions on the left, interactive 3D model on the right.
-*   **Rich Content**: Support for Markdown formatting and cover images.
-*   **Model Linking**: Associate different 3D models with specific steps (e.g., show the whole engine in Step 1, piston in Step 2).
-*   **My Lessons**: Personal dashboard for managing created content.
+## 📚 Interactive Lessons (New in v1.4)
+ 
+ Teachers can now create structured educational content directly within the platform:
+ *   **Split-Screen Interface**: Instructions on the left, interactive 3D model on the right.
+ *   **Rich Text Editor (WYSIWYG)**: Format content easily with Bold, Italic, Headers, Lists, and Code blocks without knowing Markdown.
+ *   **Step Media**: Add specific images to each step (displayed in sidebar or fullscreen if no model is present).
+ *   **Smart Paste**: Paste images (`Ctrl+V`) directly into the editor to automatically upload and insert them.
+ *   **Model Linking**: Associate different 3D models with specific steps (e.g., show the whole engine in Step 1, piston in Step 2).
+ *   **Responsive Viewer**: Optimized experience for mobile devices with collapsible sidebar.
+ *   **My Lessons**: Personal dashboard for managing created content.
 
 ## 🥽 Mixed Reality Features (v1.2 Update)
 

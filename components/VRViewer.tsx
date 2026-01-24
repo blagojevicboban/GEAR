@@ -183,7 +183,11 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
   const [isVoiceActive, setIsVoiceActive] = useState(false);
   const [isAssistantSpeaking, setIsAssistantSpeaking] = useState(false);
   const [remoteParticipants, setRemoteParticipants] = useState<any[]>([]);
+  // Gamification State
+  const [activeTaskId, setActiveTaskId] = useState<number | null>(null);
+  const [challengeFeedback, setChallengeFeedback] = useState<{ msg: string, type: 'success' | 'error' | 'info' } | null>(null);
 
+  // Assembly Mode State
   // Assembly Mode State
   const [isAssemblyMode, setIsAssemblyMode] = useState(false);
   const [assemblySystem, setAssemblySystem] = useState<any>(null);
@@ -215,6 +219,35 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
           // Try parent
           name = intersection.object.parent?.name || name;
         }
+
+        // Gamification Logic: Check active challenge
+        if (activeTaskId !== null && isAssemblyMode) {
+          const task = trainingTasks.find(t => t.id === activeTaskId);
+          if (task && task.status !== 'completed') {
+            // Check match
+            const keywords = task.keywords || [];
+            const isMatch = keywords.some((k: string) => name.toLowerCase().includes(k.toLowerCase()));
+
+            if (isMatch) {
+              playSound('success');
+              setChallengeFeedback({ msg: `✅ Found ${name}! Now pull it out using the arrows.`, type: 'success' });
+              // We don't mark complete yet, we wait for movement?
+              // For V1 "Find" is enough, or we listen to transform change?
+              // Let's mark as "Found" state or just Complete for simplicity in V1
+
+              const newTasks = trainingTasks.map(t =>
+                t.id === activeTaskId ? { ...t, status: 'completed' } : t
+              );
+              setTrainingTasks(newTasks);
+              setActiveTaskId(null);
+              setTimeout(() => setChallengeFeedback(null), 3000);
+            } else {
+              playSound('dismiss');
+              setChallengeFeedback({ msg: `❌ That's ${name}. Look for: ${keywords.join(' or ')}`, type: 'error' });
+            }
+          }
+        }
+
         onObjectClick(name);
       }
     };
@@ -436,6 +469,29 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
     };
   }, [model.name, model.description, handleHotspotEvent, stopVoiceSession]);
 
+  // Keyword Extractor Helper
+  const extractKeywords = (text: string) => {
+    // Simple noun extraction heuristic: words starting with Capital letters, or just split by common Delimiters?
+    // Since Gemini returns structured text, we might get technical terms.
+    // Let's just pick words > 3 chars that are likely nouns (Capitalized) and maybe the whole phrase.
+    // Better: Use the Task Name itself as the keyword source.
+    const words = text.split(' ').filter(w => w.length > 3).map(w => w.replace(/[^a-zA-Z]/g, ''));
+    return words;
+  };
+
+  useEffect(() => {
+    if (trainingTasks.length > 0 && !trainingTasks[0].status) {
+      // Initialize tasks with status and keywords
+      setTrainingTasks(prev => prev.map((t, i) => ({
+        ...t,
+        id: i,
+        status: 'pending', // 'pending' | 'completed'
+        keywords: extractKeywords(t.taskName || t.description || '')
+      })));
+    }
+  }, [trainingTasks]);
+
+
   // Workshop Socket Setup
   useEffect(() => {
     if (workshopMode && workshopId && user) {
@@ -511,6 +567,17 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
       {/* UI Overlay */}
       <div className="absolute top-6 left-6 z-10 space-y-4 max-w-sm pointer-events-none">
         <div className="bg-slate-900/90 backdrop-blur-md p-6 rounded-2xl border border-slate-700 pointer-events-auto shadow-2xl">
+
+          {/* Challenge Feedback Overlay */}
+          {challengeFeedback && (
+            <div className={`absolute top-0 left-0 right-0 p-4 rounded-xl mb-4 font-bold text-center animate-bounce shadow-xl border ${challengeFeedback.type === 'success' ? 'bg-green-600 border-green-400 text-white' :
+                challengeFeedback.type === 'error' ? 'bg-rose-600 border-rose-400 text-white' :
+                  'bg-blue-600 text-white'
+              }`}>
+              {challengeFeedback.msg}
+            </div>
+          )}
+
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-xl font-bold truncate pr-4">{model.name}</h2>
             <div className="flex gap-2">
@@ -565,9 +632,36 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
               <div className="text-xs animate-pulse">Generating tasks...</div>
             ) : (
               trainingTasks.map((t, i) => (
-                <div key={`task-${i}`} className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                  <p className="text-xs font-bold text-white mb-1">{t.taskName || 'Instruction'}</p>
-                  <p className="text-[10px] text-slate-500">{t.description || 'No description provided.'}</p>
+                <div key={`task-${i}`} className={`p-3 rounded-xl border transition-all ${t.status === 'completed' ? 'bg-green-900/40 border-green-500/50' :
+                    activeTaskId === t.id ? 'bg-indigo-900/60 border-indigo-400 shadow-[0_0_10px_rgba(99,102,241,0.3)]' :
+                      'bg-slate-950 border-slate-800'
+                  }`}>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className={`text-xs font-bold mb-1 ${t.status === 'completed' ? 'text-green-400 line-through' : 'text-white'}`}>
+                        {t.taskName || 'Instruction'}
+                      </p>
+                      <p className="text-[10px] text-slate-500">{t.description || 'No description provided.'}</p>
+                    </div>
+
+                    {t.status === 'completed' ? (
+                      <span className="text-green-400">✓</span>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          playSound('click');
+                          setActiveTaskId(activeTaskId === t.id ? null : t.id);
+                          if (!isAssemblyMode) setIsAssemblyMode(true); // Auto-enable assembly
+                        }}
+                        className={`text-[10px] px-2 py-1 rounded border ${activeTaskId === t.id
+                            ? 'bg-indigo-600 text-white border-indigo-500'
+                            : 'bg-slate-800 text-slate-400 hover:text-white border-slate-700'
+                          }`}
+                      >
+                        {activeTaskId === t.id ? 'STOP' : 'START'}
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))
             )}

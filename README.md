@@ -314,3 +314,10 @@ If you are using Apache (common with Virtualmin), use `ProxyPass` and `RewriteRu
 3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4.  Push to the Branch (`git push origin feature/AmazingFeature`)
 5.  Open a Pull Request
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
+## 📖 Documentation
+
+*   [API Reference](docs/API.md): Detailed documentation of backend endpoints.
+*   [Developer Guide](CONTRIBUTING.md): Setup, testing, and architecture.

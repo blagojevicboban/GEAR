@@ -6,6 +6,7 @@ import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
 // @ts-ignore
 import { STLLoader } from '../src/lib/three-examples/loaders/STLLoader.js';
 import { io, Socket } from 'socket.io-client';
+import './AssemblyManager'; // Register Assembly Mode components
 
 // A-Frame types
 declare global {
@@ -183,6 +184,10 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
   const [isAssistantSpeaking, setIsAssistantSpeaking] = useState(false);
   const [remoteParticipants, setRemoteParticipants] = useState<any[]>([]);
 
+  // Assembly Mode State
+  const [isAssemblyMode, setIsAssemblyMode] = useState(false);
+  const [assemblySystem, setAssemblySystem] = useState<any>(null);
+
   const socketRef = useRef<Socket | null>(null);
 
   const sceneRef = useRef<any>(null);
@@ -214,9 +219,41 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
       }
     };
 
+
+
     el.addEventListener('click', clickHandler);
-    return () => el.removeEventListener('click', clickHandler);
+
+    // Assembly Mode: Register parts on load
+    const loadHandler = (evt: any) => {
+      const model = evt.detail.model; // THREE.Group
+      if (!model) return;
+
+      // Get system if not yet available (it should be valid by now)
+      const system = bgSceneRef.current?.systems['assembly-mode-system'];
+      if (system) {
+        setAssemblySystem(system);
+
+        model.traverse((node: any) => {
+          if (node.isMesh) {
+            system.registerPart(node);
+          }
+        });
+        console.log("Assembly Mode: Parts Registered");
+      }
+    };
+
+    el.addEventListener('model-loaded', loadHandler);
+    // Also try to register if already loaded?
+    // A-Frame might have loaded it already if we are hot-reloading
+
+    return () => {
+      el.removeEventListener('click', clickHandler);
+      el.removeEventListener('model-loaded', loadHandler);
+    };
   }, [onObjectClick, model.id]);
+
+  // Ref for the scene to access systems
+  const bgSceneRef = useRef<any>(null);
 
   const playSound = useCallback((type: 'click' | 'ping' | 'dismiss' | 'success') => {
     try {
@@ -490,6 +527,29 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
             </div>
           </div>
 
+          {/* Assembly Mode Controls */}
+          <div className="flex gap-2 mb-4">
+            <button
+              onClick={() => setIsAssemblyMode(!isAssemblyMode)}
+              className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${isAssemblyMode
+                ? 'bg-amber-600 border-amber-500 text-white shadow-[0_0_10px_rgba(245,158,11,0.5)]'
+                : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500'}`}
+            >
+              {isAssemblyMode ? '🔧 Assembly Mode ON' : '🔧 Enable Assembly'}
+            </button>
+          </div>
+
+          {isAssemblyMode && (
+            <div className="flex gap-2 mb-4 animate-in fade-in slide-in-from-top-2">
+              <button
+                onClick={() => assemblySystem?.resetAll()}
+                className="flex-1 py-1.5 px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-bold text-slate-300 transition-colors"
+              >
+                ↺ Reset All Parts
+              </button>
+            </div>
+          )}
+
           <div className="flex flex-col gap-2 mb-4">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{model.sector}</span>
@@ -587,12 +647,13 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
 
       {/* A-Frame Scene */}
       <a-scene
-        ref={sceneRef}
+        ref={(ref: any) => { sceneRef.current = ref; bgSceneRef.current = ref; }}
         embedded
         class="absolute inset-0 z-0"
         renderer="colorManagement: true; antialias: true;"
         cursor="rayOrigin: mouse"
         raycaster="objects: .collidable, .interactable-model"
+        assembly-mode-system={`enabled: ${isAssemblyMode}`}
       >
         <a-assets><a-asset-item id="model-asset" src={fixedModel.modelUrl}></a-asset-item></a-assets>
         <a-sky color="#050a14"></a-sky>
@@ -624,9 +685,9 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
           class={onObjectClick ? "interactable-model" : ""}
         >
           {fixedModel.modelUrl.toLowerCase().includes('stl') ? (
-            <a-entity stl-model={`src: ${fixedModel.modelUrl.replace('#stl', '')}`} position="0 0.5 0"></a-entity>
+            <a-entity stl-model={`src: ${fixedModel.modelUrl.replace('#stl', '')}`} position="0 0.5 0" interactive-part=""></a-entity>
           ) : (
-            <a-gltf-model src="#model-asset" position="0 0.5 0"></a-gltf-model>
+            <a-gltf-model src="#model-asset" position="0 0.5 0" interactive-part=""></a-gltf-model>
           )}
           {model.hotspots.map(hs => (
             <a-entity

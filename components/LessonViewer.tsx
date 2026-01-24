@@ -4,7 +4,7 @@ import { Lesson, LessonStep, VETModel } from '../types';
 import VRViewer from './VRViewer';
 import CADViewer from './CADViewer';
 import PDBViewer from './PDBViewer';
-import { ChevronLeft, ChevronRight, X, Menu } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, Menu, CheckCircle, XCircle, HelpCircle } from 'lucide-react';
 
 interface LessonViewerProps {
     lessonId: string;
@@ -17,6 +17,18 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [loading, setLoading] = useState(true);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+    // Interaction State
+    const [quizSelected, setQuizSelected] = useState<number | null>(null);
+    const [quizSubmitted, setQuizSubmitted] = useState(false);
+    const [findPartFeedback, setFindPartFeedback] = useState<{ type: 'success' | 'error', msg: string } | null>(null);
+
+    // Reset interaction state on step change
+    useEffect(() => {
+        setQuizSelected(null);
+        setQuizSubmitted(false);
+        setFindPartFeedback(null);
+    }, [currentStepIndex]);
 
     useEffect(() => {
         fetch(`/api/lessons/${lessonId}`)
@@ -31,6 +43,41 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
             });
     }, [lessonId]);
 
+    // Progress Tracking
+    const recordProgress = async (status?: 'started' | 'completed', score?: number) => {
+        if (!currentUser || !lessonId) return;
+        try {
+            await fetch(`/api/lessons/${lessonId}/attempt`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-Name': currentUser.username
+                },
+                body: JSON.stringify({
+                    status,
+                    score,
+                    last_step: currentStepIndex
+                })
+            });
+        } catch (e) {
+            console.error("Progress save failed", e);
+        }
+    };
+
+    // Initialize attempt
+    useEffect(() => {
+        if (!loading && lesson) {
+            recordProgress('started');
+        }
+    }, [loading, lesson]);
+
+    // Save step progress
+    useEffect(() => {
+        if (!loading && lesson) {
+            recordProgress(undefined);
+        }
+    }, [currentStepIndex]);
+
     if (loading) return <div className="h-screen bg-black text-white flex items-center justify-center">Loading Lesson...</div>;
     if (!lesson) return <div className="h-screen bg-black text-white flex items-center justify-center">Lesson not found.</div>;
 
@@ -41,6 +88,22 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
     // If steps is empty, show lesson description.
 
     const currentStep = steps[currentStepIndex];
+
+    const handleObjectClick = (meshName: string) => {
+        if (!currentStep || currentStep.interaction_type !== 'find_part') return;
+
+        const data = currentStep.interaction_data ? JSON.parse(currentStep.interaction_data) : {};
+        const target = data.targetMesh;
+
+        if (!target) return;
+
+        if (meshName === target) {
+            setFindPartFeedback({ type: 'success', msg: `Correct! You found the ${target}.` });
+            // Optional: Auto-advance after delay?
+        } else {
+            setFindPartFeedback({ type: 'error', msg: `Incorrect. That is part "${meshName}". Try again.` });
+        }
+    };
 
     // Helper to determine viewer type
     const renderViewer = () => {
@@ -89,13 +152,20 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
                     onExit={() => !isSidebarOpen ? setIsSidebarOpen(true) : onExit()}
                     workshopMode={false}
                     user={currentUser}
+                    onObjectClick={handleObjectClick}
                 />
             );
         }
     };
 
     const handleNext = () => {
-        if (currentStepIndex < totalSteps - 1) setCurrentStepIndex(prev => prev + 1);
+        if (currentStepIndex < totalSteps - 1) {
+            setCurrentStepIndex(prev => prev + 1);
+        } else {
+            // Finish
+            recordProgress('completed', 100); // Score 100 for completion? Or calculate.
+            onExit();
+        }
     };
 
     const handlePrev = () => {
@@ -149,6 +219,81 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
                                 className="prose prose-invert prose-sm max-w-none text-slate-300"
                                 dangerouslySetInnerHTML={{ __html: currentStep.content }}
                             />
+
+                            {/* Interaction Area */}
+                            <div className="mt-8">
+                                {currentStep.interaction_type === 'quiz' && (() => {
+                                    const data = currentStep.interaction_data ? JSON.parse(currentStep.interaction_data) : { options: [], correctIndex: 0 };
+                                    const isCorrect = quizSelected === data.correctIndex;
+
+                                    return (
+                                        <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                                            <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                                                <HelpCircle size={16} className="text-indigo-400" />
+                                                Quiz
+                                            </h4>
+                                            <div className="space-y-2">
+                                                {data.options.map((opt: string, i: number) => (
+                                                    <button
+                                                        key={i}
+                                                        onClick={() => !quizSubmitted && setQuizSelected(i)}
+                                                        disabled={quizSubmitted}
+                                                        className={`w-full text-left px-4 py-3 rounded-lg text-sm transition-all ${quizSelected === i
+                                                            ? 'bg-indigo-600/20 border-indigo-500 text-white border'
+                                                            : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-700'
+                                                            } ${quizSubmitted && i === data.correctIndex ? '!bg-emerald-500/20 !border-emerald-500 !text-emerald-400' : ''}
+                                                          ${quizSubmitted && quizSelected === i && !isCorrect ? '!bg-rose-500/20 !border-rose-500 !text-rose-400' : ''}
+                                                        `}
+                                                    >
+                                                        <span className="font-mono opacity-50 mr-2">{String.fromCharCode(65 + i)}.</span>
+                                                        {opt}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            {!quizSubmitted && (
+                                                <button
+                                                    onClick={() => setQuizSubmitted(true)}
+                                                    disabled={quizSelected === null}
+                                                    className="mt-4 w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white py-2 rounded-lg font-bold text-xs"
+                                                >
+                                                    Submit Answer
+                                                </button>
+                                            )}
+                                            {quizSubmitted && (
+                                                <div className={`mt-4 p-3 rounded-lg flex items-center gap-2 text-sm font-bold ${isCorrect ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
+                                                    {isCorrect ? <CheckCircle size={18} /> : <XCircle size={18} />}
+                                                    {isCorrect ? 'Correct Answer!' : 'Incorrect. Try again?'}
+                                                    {!isCorrect && (
+                                                        <button onClick={() => { setQuizSubmitted(false); setQuizSelected(null); }} className="ml-auto underline opacity-80">Retry</button>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })()}
+
+                                {currentStep.interaction_type === 'find_part' && (() => {
+                                    const data = currentStep.interaction_data ? JSON.parse(currentStep.interaction_data) : { targetMesh: '...' };
+                                    return (
+                                        <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                                            <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                                                <CheckCircle size={16} className="text-indigo-400" />
+                                                Task: Find Component
+                                            </h4>
+                                            <p className="text-sm text-slate-300 mb-4">
+                                                Locate and click on the 3D model part: <strong className="text-white">{data.targetMesh}</strong>
+                                            </p>
+
+                                            {findPartFeedback && (
+                                                <div className={`p-3 rounded-lg flex items-center gap-2 text-xs font-bold animate-in fade-in slide-in-from-bottom-2 ${findPartFeedback.type === 'success' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
+                                                    {findPartFeedback.type === 'success' ? <CheckCircle size={16} /> : <XCircle size={16} />}
+                                                    {findPartFeedback.msg}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })()}
+                            </div>
                         </div>
                     ) : (
                         <div className="text-slate-400">
@@ -179,10 +324,16 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
 
                     <button
                         onClick={handleNext}
-                        disabled={currentStepIndex === totalSteps - 1}
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white transition-colors ${currentStepIndex === totalSteps - 1
+                                ? 'bg-emerald-600 hover:bg-emerald-500'
+                                : 'bg-indigo-600 hover:bg-indigo-500'
+                            }`}
                     >
-                        Next <ChevronRight size={16} />
+                        {currentStepIndex === totalSteps - 1 ? (
+                            <>Finish <CheckCircle size={16} /></>
+                        ) : (
+                            <>Next <ChevronRight size={16} /></>
+                        )}
                     </button>
                 </div>
             </div>

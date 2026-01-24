@@ -127,6 +127,7 @@ interface VRViewerProps {
   workshopMode?: boolean;
   workshopId?: string;
   user?: any;
+  onObjectClick?: (meshName: string) => void;
 }
 
 // --- Audio Utils ---
@@ -170,7 +171,7 @@ async function decodeAudioData(
 
 import { fixAssetUrl } from '../utils/urlUtils';
 
-const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, workshopId, user }) => {
+const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, workshopId, user, onObjectClick }) => {
   // Fix model URL for proxy
   const fixedModel = { ...model, modelUrl: fixAssetUrl(model.modelUrl) };
   // From here on use fixedModel instead of model for URL
@@ -195,6 +196,27 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
   const nextStartTimeRef = useRef<number>(0);
   const audioSourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set());
   const micStreamRef = useRef<MediaStream | null>(null);
+  const modelEntityRef = useRef<any>(null);
+
+  useEffect(() => {
+    const el = modelEntityRef.current;
+    if (!el || !onObjectClick) return;
+
+    const clickHandler = (evt: any) => {
+      const intersection = evt.detail.intersection;
+      if (intersection && intersection.object) {
+        let name = intersection.object.name;
+        if (!name || name.includes('Scene')) {
+          // Try parent
+          name = intersection.object.parent?.name || name;
+        }
+        onObjectClick(name);
+      }
+    };
+
+    el.addEventListener('click', clickHandler);
+    return () => el.removeEventListener('click', clickHandler);
+  }, [onObjectClick, model.id]);
 
   const playSound = useCallback((type: 'click' | 'ping' | 'dismiss' | 'success') => {
     try {
@@ -570,7 +592,7 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
         class="absolute inset-0 z-0"
         renderer="colorManagement: true; antialias: true;"
         cursor="rayOrigin: mouse"
-        raycaster="objects: .collidable"
+        raycaster="objects: .collidable, .interactable-model"
       >
         <a-assets><a-asset-item id="model-asset" src={fixedModel.modelUrl}></a-asset-item></a-assets>
         <a-sky color="#050a14"></a-sky>
@@ -596,7 +618,11 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
           </a-entity>
         ))}
 
-        <a-entity drag-rotate="speed: 1">
+        <a-entity
+          drag-rotate="speed: 1"
+          ref={modelEntityRef}
+          class={onObjectClick ? "interactable-model" : ""}
+        >
           {fixedModel.modelUrl.toLowerCase().includes('stl') ? (
             <a-entity stl-model={`src: ${fixedModel.modelUrl.replace('#stl', '')}`} position="0 0.5 0"></a-entity>
           ) : (

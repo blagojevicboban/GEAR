@@ -3,7 +3,8 @@ import { fixAssetUrl } from '../utils/urlUtils';
 import RichTextEditor from './RichTextEditor';
 
 import { Lesson, LessonStep, VETModel } from '../types';
-import { Plus, Trash2, Save, ArrowLeft, MoveUp, MoveDown } from 'lucide-react';
+import { Plus, Trash2, Save, ArrowLeft, MoveUp, MoveDown, Target, BrainCircuit } from 'lucide-react';
+import VRViewer from './VRViewer';
 
 interface LessonEditorProps {
     lessonToEdit?: Lesson; // If null, create mode
@@ -31,6 +32,10 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
 
     // Steps State
     const [steps, setSteps] = useState<LessonStep[]>([]);
+
+    // Picker Modal State
+    const [pickingStepIndex, setPickingStepIndex] = useState<number | null>(null);
+    const [pickerModel, setPickerModel] = useState<VETModel | null>(null);
 
     useEffect(() => {
         if (lessonToEdit && lessonToEdit.steps) {
@@ -191,6 +196,14 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
         }
     };
 
+    const handleObjectClick = (meshName: string) => {
+        if (pickingStepIndex !== null) {
+            handleStepChange(pickingStepIndex, 'interaction_data', JSON.stringify({ targetMesh: meshName }));
+            setPickingStepIndex(null);
+            setPickerModel(null);
+        }
+    };
+
     const handleSave = async () => {
         if (!title.trim()) return alert('Please enter a lesson title');
 
@@ -347,15 +360,106 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
                                 <div>
-                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Content (Rich Text)</label>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Step Type</label>
+                                    <div className="flex gap-2 mb-4">
+                                        {(['read', 'quiz', 'find_part'] as const).map(type => (
+                                            <button
+                                                key={type}
+                                                onClick={() => handleStepChange(index, 'interaction_type', type)}
+                                                className={`flex-1 py-2 rounded-lg text-sm font-bold capitalize border transition-all ${(step.interaction_type || 'read') === type
+                                                    ? 'bg-indigo-600 border-indigo-500 text-white'
+                                                    : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-600'
+                                                    }`}
+                                            >
+                                                {type === 'read' && '📖 Read'}
+                                                {type === 'quiz' && '🧠 Quiz'}
+                                                {type === 'find_part' && '🎯 Find Part'}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+                                        {step.interaction_type === 'quiz' ? 'Question' : 'Content (Rich Text)'}
+                                    </label>
                                     <RichTextEditor
                                         value={step.content}
                                         onChange={(html) => handleStepChange(index, 'content', html)}
-                                        placeholder="Write the lesson content here..."
+                                        placeholder={step.interaction_type === 'quiz' ? "Enter the question here..." : "Write the lesson content here..."}
                                         onPaste={(e) => handlePaste(index, e, 'content')}
                                     />
+
+                                    {/* Quiz Editor */}
+                                    {step.interaction_type === 'quiz' && (
+                                        <div className="mt-4 p-4 bg-slate-900 rounded-lg border border-slate-700">
+                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Answers</label>
+                                            <div className="space-y-2">
+                                                {(() => {
+                                                    const data = step.interaction_data ? JSON.parse(step.interaction_data) : { options: ['', '', '', ''], correctIndex: 0 };
+                                                    const updateQuiz = (newData: any) => handleStepChange(index, 'interaction_data', JSON.stringify({ ...data, ...newData }));
+
+                                                    return data.options.map((opt: string, i: number) => (
+                                                        <div key={i} className="flex gap-2 items-center">
+                                                            <input
+                                                                type="radio"
+                                                                name={`correct-${index}`}
+                                                                checked={data.correctIndex === i}
+                                                                onChange={() => updateQuiz({ correctIndex: i })}
+                                                                className="accent-indigo-500"
+                                                            />
+                                                            <input
+                                                                type="text"
+                                                                value={opt}
+                                                                onChange={(e) => {
+                                                                    const newOpts = [...data.options];
+                                                                    newOpts[i] = e.target.value;
+                                                                    updateQuiz({ options: newOpts });
+                                                                }}
+                                                                placeholder={`Option ${i + 1}`}
+                                                                className="flex-1 bg-slate-950 border border-slate-700 rounded px-2 py-1 text-sm text-white"
+                                                            />
+                                                        </div>
+                                                    ));
+                                                })()}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Find Part Editor */}
+                                    {step.interaction_type === 'find_part' && (
+                                        <div className="mt-4 p-4 bg-slate-900 rounded-lg border border-slate-700">
+                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Target Part</label>
+
+                                            {(() => {
+                                                const data = step.interaction_data ? JSON.parse(step.interaction_data) : { targetMesh: '' };
+                                                return (
+                                                    <div>
+                                                        <div className="flex gap-2 items-center mb-2">
+                                                            <div className="flex-1 bg-slate-950 border border-slate-700 rounded px-3 py-2 text-sm font-mono text-indigo-300 truncate">
+                                                                {data.targetMesh || 'No part selected'}
+                                                            </div>
+                                                            <button
+                                                                onClick={() => {
+                                                                    if (!step.model_id) return alert('Link a 3D model first!');
+                                                                    const m = availableModels.find(mod => mod.id === step.model_id);
+                                                                    if (m) {
+                                                                        setPickerModel(m);
+                                                                        setPickingStepIndex(index);
+                                                                    }
+                                                                }}
+                                                                className="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-xs font-bold whitespace-nowrap"
+                                                            >
+                                                                Pointer
+                                                            </button>
+                                                        </div>
+                                                        <p className="text-[10px] text-slate-500">
+                                                            Link a model, click Pointer, then click the part in the 3D viewer.
+                                                        </p>
+                                                    </div>
+                                                );
+                                            })()}
+                                        </div>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Step Image (Optional)</label>
@@ -430,9 +534,23 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                         </div>
                     ))}
                 </div>
+                <div className="flex justify-end mt-4">
+                    <button
+                        onClick={handleAddStep}
+                        className="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center gap-1"
+                    >
+                        <Plus size={16} /> Add Step
+                    </button>
+                </div>
             </div>
 
-            <div className="flex justify-end pt-6 border-t border-slate-800">
+            <div className="flex justify-end items-center gap-4 pt-6 border-t border-slate-800">
+                <button
+                    onClick={onCancel}
+                    className="px-6 py-3 rounded-lg font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                >
+                    Cancel
+                </button>
                 <button
                     onClick={handleSave}
                     className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-bold transition-colors shadow-lg shadow-indigo-900/20"
@@ -441,6 +559,27 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                     Save Lesson
                 </button>
             </div>
+            {/* Part Picker Modal */}
+            {pickingStepIndex !== null && pickerModel && (
+                <div className="fixed inset-0 z-50 bg-black flex flex-col">
+                    <div className="absolute top-4 left-4 z-20 bg-slate-900/90 p-4 rounded-xl border border-slate-700">
+                        <h3 className="text-white font-bold mb-2">Select Target Part</h3>
+                        <p className="text-xs text-slate-400 mb-4">Click on the specific part of the model to set it as the target.</p>
+                        <button
+                            onClick={() => { setPickingStepIndex(null); setPickerModel(null); }}
+                            className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded text-xs font-bold"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                    <VRViewer
+                        model={pickerModel}
+                        onExit={() => { setPickingStepIndex(null); setPickerModel(null); }}
+                        onObjectClick={handleObjectClick}
+                        workshopMode={false}
+                    />
+                </div>
+            )}
         </div>
     );
 };

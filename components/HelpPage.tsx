@@ -189,6 +189,32 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                     </div>
                 </div>
 
+                {/* Section 4: Gamified Learning */}
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
+                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <span className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">🎓</span>
+                        Interactive & Gamified Learning
+                    </h2>
+                    <div className="space-y-6 text-slate-400">
+                        <div>
+                            <strong className="text-white block mb-1">Guided Lessons</strong>
+                            Take step-by-step lessons created by teachers. Split-screen view allows you to read instructions while interacting with the 3D equipment.
+                        </div>
+                        <div>
+                            <strong className="text-white block mb-1">Quizzes</strong>
+                            Test your knowledge with built-in multiple choice questions. Receive instant feedback on your answers.
+                        </div>
+                        <div>
+                            <strong className="text-white block mb-1">"Find the Part" Challenges</strong>
+                            Put your skills to the test in the 3D environment. You'll be asked to locate specific components (e.g., "Find the Emergency Stop Button") and confirm by clicking on the actual 3D mesh.
+                        </div>
+                        <div>
+                            <strong className="text-white block mb-1">Progress Tracking</strong>
+                            Your progress is automatically saved. Teachers can monitor class performance via the **Teacher Dashboard**.
+                        </div>
+                    </div>
+                </div>
+
                 <div className="text-center pt-8">
                     <p className="text-slate-500 mb-4">Still have questions?</p>
                     <a href="mailto:support@thegear.app" className="text-indigo-400 hover:text-indigo-300 font-bold hover:underline">

@@ -34,6 +34,14 @@
  *   **Responsive Viewer**: Optimized experience for mobile devices with collapsible sidebar.
  *   **My Lessons**: Personal dashboard for managing created content.
 
+## 🎓 Gamification & Progress Tracking (New in v1.5)
+
+To increase student engagement, lessons now support interactive challenges:
+*   **Quizzes**: Embed multiple-choice questions within regular lesson flow. Instant feedback validates understanding.
+*   **Find-the-Part**: Task students with locating specific components on the 3D model (e.g., "Find the Safety Valve"). Requires clicking the correct mesh to proceed.
+*   **Teacher Dashboard**: Dedicated analytics view for teachers to monitor who has started or completed their lessons.
+*   **Progress Tracking**: Automatic recording of lesson attempts, including last step reached and completion timestamps.
+
 ## 🥽 Mixed Reality Features (v1.2 Update)
 
 The PDB Viewer now supports advanced WebXR capabilities on compatible devices (e.g., Meta Quest 2/3/Pro):

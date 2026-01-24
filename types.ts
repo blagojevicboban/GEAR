@@ -52,7 +52,7 @@ export interface User {
   createdAt?: string; // Added to match DB
 }
 
-export type AppView = 'home' | 'gallery' | 'lessons' | 'lesson-view' | 'lesson-edit' | 'my-lessons' | 'upload' | 'edit' | 'viewer' | 'login' | 'register' | 'profile' | 'users' | 'my-projects' | 'help';
+export type AppView = 'home' | 'gallery' | 'lessons' | 'lesson-view' | 'lesson-edit' | 'my-lessons' | 'upload' | 'edit' | 'viewer' | 'login' | 'register' | 'profile' | 'users' | 'my-projects' | 'help' | 'teacher-dashboard';
 
 export interface TourStep {
   targetId: string;
@@ -67,10 +67,12 @@ export interface LessonStep {
   lesson_id: string;
   step_order: number;
   title: string;
-  content: string; // Markdown
+  content: string; // Markdown/HTML
   model_id?: string;
   hotspot_id?: string;
   image_url?: string;
+  interaction_type?: 'read' | 'quiz' | 'find_part';
+  interaction_data?: string; // JSON string
 }
 
 export interface Lesson {

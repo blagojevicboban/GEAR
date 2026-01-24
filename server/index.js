@@ -730,11 +730,13 @@ app.post('/api/lessons', async (req, res) => {
                 s.content,
                 s.model_id || null,  // Ensure empty string becomes null
                 s.hotspot_id || null,
-                s.image_url || null
+                s.image_url || null,
+                s.interaction_type || 'read',
+                s.interaction_data || null
             ]);
 
             await pool.query(
-                'INSERT INTO lesson_steps (id, lesson_id, step_order, title, content, model_id, hotspot_id, image_url) VALUES ?',
+                'INSERT INTO lesson_steps (id, lesson_id, step_order, title, content, model_id, hotspot_id, image_url, interaction_type, interaction_data) VALUES ?',
                 [stepValues]
             );
         }
@@ -785,11 +787,13 @@ app.put('/api/lessons/:id', async (req, res) => {
                     s.content,
                     s.model_id || null,
                     s.hotspot_id || null,
-                    s.image_url || null
+                    s.image_url || null,
+                    s.interaction_type || 'read',
+                    s.interaction_data || null
                 ]);
 
                 await pool.query(
-                    'INSERT INTO lesson_steps (id, lesson_id, step_order, title, content, model_id, hotspot_id, image_url) VALUES ?',
+                    'INSERT INTO lesson_steps (id, lesson_id, step_order, title, content, model_id, hotspot_id, image_url, interaction_type, interaction_data) VALUES ?',
                     [stepValues]
                 );
             }
@@ -824,6 +828,102 @@ app.delete('/api/lessons/:id', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to delete lesson' });
+    }
+});
+
+// --- Progress Tracking API ---
+
+// Record Lesson Attempt / Progress
+app.post('/api/lessons/:id/attempt', async (req, res) => {
+    const { id: lessonId } = req.params;
+    const { status, score, last_step } = req.body;
+    const requestor = req.headers['x-user-name'];
+
+    try {
+        const [users] = await pool.query('SELECT id FROM users WHERE username = ?', [requestor]);
+        if (users.length === 0) return res.status(401).json({ error: 'User not found' });
+        const userId = users[0].id;
+
+        // Check if attempt exists
+        const [existing] = await pool.query(
+            'SELECT id FROM lesson_attempts WHERE user_id = ? AND lesson_id = ?',
+            [userId, lessonId]
+        );
+
+        if (existing.length > 0) {
+            // Update
+            const attemptId = existing[0].id;
+            let query = 'UPDATE lesson_attempts SET last_step = ?';
+            const params = [last_step];
+
+            if (status) {
+                query += ', status = ?';
+                params.push(status);
+                if (status === 'completed') {
+                    query += ', completed_at = CURRENT_TIMESTAMP';
+                }
+            }
+            if (score !== undefined) {
+                query += ', score = ?';
+                params.push(score);
+            }
+
+            query += ' WHERE id = ?';
+            params.push(attemptId);
+
+            await pool.query(query, params);
+            res.json({ success: true, id: attemptId });
+        } else {
+            // Create
+            const attemptId = 'att-' + Date.now();
+            await pool.query(
+                'INSERT INTO lesson_attempts (id, user_id, lesson_id, status, score, last_step) VALUES (?, ?, ?, ?, ?, ?)',
+                [attemptId, userId, lessonId, status || 'started', score || 0, last_step || 0]
+            );
+            res.json({ success: true, id: attemptId });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to record progress' });
+    }
+});
+
+// Get Teacher Stats (Lessons created by teacher + student attempts)
+app.get('/api/teacher/stats', async (req, res) => {
+    const requestor = req.headers['x-user-name'];
+
+    try {
+        const [users] = await pool.query('SELECT id, role FROM users WHERE username = ?', [requestor]);
+        if (users.length === 0) return res.status(401).json({ error: 'User not found' });
+
+        const user = users[0];
+        // Allow admin to see everything? Or just their own? Let's stick to their own + admin see all if needed.
+        // For now, simple: Author Stats.
+
+        let query = `
+            SELECT 
+                l.id as lessonId, l.title as lessonTitle, 
+                la.status, la.score, la.started_at, la.completed_at,
+                u.username as studentName, u.profilePicUrl as studentPic
+            FROM lessons l
+            JOIN lesson_attempts la ON l.id = la.lesson_id
+            JOIN users u ON la.user_id = u.id
+        `;
+
+        const params = [];
+
+        if (user.role !== 'admin') {
+            query += ' WHERE l.author_id = ?';
+            params.push(user.id);
+        }
+
+        query += ' ORDER BY la.started_at DESC';
+
+        const [results] = await pool.query(query, params);
+        res.json(results);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch stats' });
     }
 });
 

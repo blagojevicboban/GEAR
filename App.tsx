@@ -22,6 +22,7 @@ import LessonEditor from './components/LessonEditor';
 
 import UserManagement from './components/UserManagement';
 import UserProfileModal from './components/UserProfileModal';
+import TeacherDashboard from './components/TeacherDashboard';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>('home');
@@ -509,6 +510,10 @@ const App: React.FC = () => {
 
         {currentView === 'users' && currentUser && (
           <UserManagement currentUser={currentUser} models={models} />
+        )}
+
+        {currentView === 'teacher-dashboard' && currentUser && (
+          <TeacherDashboard currentUser={currentUser} />
         )}
 
         {viewingProfileUser && (

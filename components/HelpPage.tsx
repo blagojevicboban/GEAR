@@ -215,6 +215,41 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                     </div>
                 </div>
 
+                {/* Section 5: Offline & Installation */}
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
+                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <span className="w-8 h-8 rounded-lg bg-cyan-600 flex items-center justify-center">📱</span>
+                        Install App (Offline Mode)
+                    </h2>
+                    <div className="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 className="font-bold text-white mb-4">How to Install</h3>
+                            <ul className="space-y-3 text-slate-400">
+                                <li className="flex items-start gap-2">
+                                    <span className="font-bold text-slate-200">Desktop (Chrome/Edge):</span> Click the install icon (Computer with Down Arrow) in the right of the address bar.
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="font-bold text-slate-200">Android (Chrome):</span> Tap the menu (⋮) → "Install App" or "Add to Home Screen".
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="font-bold text-slate-200">iOS (Safari):</span> Tap the Share button → "Add to Home Screen".
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-white mb-4">Offline Capabilities</h3>
+                            <p className="text-slate-400 mb-4">
+                                Once installed, the app works even without an internet connection.
+                            </p>
+                            <ul className="list-disc list-inside text-slate-400 space-y-2">
+                                <li>Launch the app instantly from your home screen.</li>
+                                <li>View previously opened models and lessons.</li>
+                                <li>Navigate the interface and dashboard.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
                 <div className="text-center pt-8">
                     <p className="text-slate-500 mb-4">Still have questions?</p>
                     <a href="mailto:support@thegear.app" className="text-indigo-400 hover:text-indigo-300 font-bold hover:underline">

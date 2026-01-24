@@ -42,6 +42,13 @@ To increase student engagement, lessons now support interactive challenges:
 *   **Teacher Dashboard**: Dedicated analytics view for teachers to monitor who has started or completed their lessons.
 *   **Progress Tracking**: Automatic recording of lesson attempts, including last step reached and completion timestamps.
 
+## 📱 PWA & Offline Support (New in v1.6)
+
+THE GEAR is now a fully functional **Progressive Web App (PWA)**:
+*   **Installable**: Add to Home Screen on iOS/Android or install as a desktop app via Chrome/Edge for a native-like experience.
+*   **Offline Access**: The application shell and visited content (models, lessons) are automatically cached. You can continue learning even without an internet connection.
+*   **Performance**: Faster load times thanks to Service Worker caching strategies.
+
 ## 🥽 Mixed Reality Features (v1.2 Update)
 
 The PDB Viewer now supports advanced WebXR capabilities on compatible devices (e.g., Meta Quest 2/3/Pro):

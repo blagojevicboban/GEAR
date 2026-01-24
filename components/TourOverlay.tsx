@@ -58,6 +58,9 @@ const TourOverlay: React.FC<TourOverlayProps> = ({ steps, currentStepIndex, isOp
 
     // Calculate Tooltip Position
     let tooltipStyle: React.CSSProperties = {};
+    const tooltipWidth = 320; // w-80 is 320px
+    const margin = 16;
+
     if (targetRect) {
         if (currentStep.position === 'center') {
             tooltipStyle = {
@@ -66,20 +69,40 @@ const TourOverlay: React.FC<TourOverlayProps> = ({ steps, currentStepIndex, isOp
                 transform: 'translate(-50%, -50%)',
             };
         } else {
-            // Default offset
             const gap = 12;
 
-            // Basic logic - can be improved with Popper.js
             if (currentStep.position === 'bottom') {
+                let left = targetRect.left + targetRect.width / 2;
+                // Check bounds (assuming centered transform initially)
+                // Left edge would be left - 160, Right edge would be left + 160
+
+                // If overflowing left
+                if (left - tooltipWidth / 2 < margin) {
+                    left = margin + tooltipWidth / 2;
+                }
+                // If overflowing right
+                if (left + tooltipWidth / 2 > window.innerWidth - margin) {
+                    left = window.innerWidth - margin - tooltipWidth / 2;
+                }
+
                 tooltipStyle = {
                     top: targetRect.bottom + gap,
-                    left: targetRect.left + targetRect.width / 2,
+                    left: left,
                     transform: 'translateX(-50%)'
                 };
             } else if (currentStep.position === 'top') {
+                let left = targetRect.left + targetRect.width / 2;
+
+                if (left - tooltipWidth / 2 < margin) {
+                    left = margin + tooltipWidth / 2;
+                }
+                if (left + tooltipWidth / 2 > window.innerWidth - margin) {
+                    left = window.innerWidth - margin - tooltipWidth / 2;
+                }
+
                 tooltipStyle = {
                     top: targetRect.top - gap,
-                    left: targetRect.left + targetRect.width / 2,
+                    left: left,
                     transform: 'translate(-50%, -100%)'
                 };
             } else if (currentStep.position === 'right') {
@@ -95,7 +118,6 @@ const TourOverlay: React.FC<TourOverlayProps> = ({ steps, currentStepIndex, isOp
                     transform: 'translate(-100%, -50%)'
                 };
             } else {
-                // Fallback to center if unspecified
                 tooltipStyle = {
                     top: '50%',
                     left: '50%',
@@ -104,7 +126,6 @@ const TourOverlay: React.FC<TourOverlayProps> = ({ steps, currentStepIndex, isOp
             }
         }
     } else {
-        // Fallback if element not found yet
         tooltipStyle = { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
     }
 

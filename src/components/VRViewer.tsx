@@ -4,7 +4,7 @@ import { VETModel, Hotspot } from '../types';
 import { analyzeModelDescription } from '../services/geminiService';
 import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
 // @ts-ignore
-import { STLLoader } from '../src/lib/three-examples/loaders/STLLoader.js';
+import { STLLoader } from '../lib/three-examples/loaders/STLLoader.js';
 import { io, Socket } from 'socket.io-client';
 import './AssemblyManager'; // Register Assembly Mode components
 
@@ -571,8 +571,8 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
           {/* Challenge Feedback Overlay */}
           {challengeFeedback && (
             <div className={`absolute top-0 left-0 right-0 p-4 rounded-xl mb-4 font-bold text-center animate-bounce shadow-xl border ${challengeFeedback.type === 'success' ? 'bg-green-600 border-green-400 text-white' :
-                challengeFeedback.type === 'error' ? 'bg-rose-600 border-rose-400 text-white' :
-                  'bg-blue-600 text-white'
+              challengeFeedback.type === 'error' ? 'bg-rose-600 border-rose-400 text-white' :
+                'bg-blue-600 text-white'
               }`}>
               {challengeFeedback.msg}
             </div>
@@ -633,8 +633,8 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
             ) : (
               trainingTasks.map((t, i) => (
                 <div key={`task-${i}`} className={`p-3 rounded-xl border transition-all ${t.status === 'completed' ? 'bg-green-900/40 border-green-500/50' :
-                    activeTaskId === t.id ? 'bg-indigo-900/60 border-indigo-400 shadow-[0_0_10px_rgba(99,102,241,0.3)]' :
-                      'bg-slate-950 border-slate-800'
+                  activeTaskId === t.id ? 'bg-indigo-900/60 border-indigo-400 shadow-[0_0_10px_rgba(99,102,241,0.3)]' :
+                    'bg-slate-950 border-slate-800'
                   }`}>
                   <div className="flex justify-between items-start">
                     <div>
@@ -654,8 +654,8 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
                           if (!isAssemblyMode) setIsAssemblyMode(true); // Auto-enable assembly
                         }}
                         className={`text-[10px] px-2 py-1 rounded border ${activeTaskId === t.id
-                            ? 'bg-indigo-600 text-white border-indigo-500'
-                            : 'bg-slate-800 text-slate-400 hover:text-white border-slate-700'
+                          ? 'bg-indigo-600 text-white border-indigo-500'
+                          : 'bg-slate-800 text-slate-400 hover:text-white border-slate-700'
                           }`}
                       >
                         {activeTaskId === t.id ? 'STOP' : 'START'}

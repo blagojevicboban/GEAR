@@ -85,7 +85,7 @@ export default defineConfig(({ mode }) => {
     },
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(__dirname, 'src'),
         'opencascade.js': path.resolve(__dirname, 'src/lib/opencascade-custom.js')
       }
     }

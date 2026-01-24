@@ -6,6 +6,7 @@ import { Server } from 'socket.io';
 import { createServer } from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import bcrypt from 'bcryptjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -93,9 +94,11 @@ app.post('/api/register', async (req, res) => {
         // Prevent users from registering as admin directly
         const userRole = (role === 'admin') ? 'student' : (role || 'student');
 
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         await pool.query(
             'INSERT INTO users (id, username, email, institution, password, role) VALUES (?, ?, ?, ?, ?, ?)',
-            [id, username, email, institution, password, userRole]
+            [id, username, email, institution, hashedPassword, userRole]
         );
         res.json({ id, username, email, institution, role: userRole });
     } catch (err) {
@@ -108,10 +111,26 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body; // username here is email from frontend login form
     try {
-        const [users] = await pool.query('SELECT * FROM users WHERE email = ? AND password = ?', [username, password]);
+        const [users] = await pool.query('SELECT * FROM users WHERE email = ?', [username]);
+
         if (users.length > 0) {
-            const { password: _, ...user } = users[0];
-            res.json(user);
+            const user = users[0];
+            let valid = await bcrypt.compare(password, user.password);
+
+            // Legacy support for plain text passwords (auto-migrate)
+            if (!valid && password === user.password) {
+                console.log(`Migrating user ${user.email} to hashed password`);
+                const newHash = await bcrypt.hash(password, 10);
+                await pool.query('UPDATE users SET password = ? WHERE id = ?', [newHash, user.id]);
+                valid = true;
+            }
+
+            if (valid) {
+                const { password: _, ...userData } = user;
+                res.json(userData);
+            } else {
+                res.status(401).json({ error: 'Invalid credentials' });
+            }
         } else {
             res.status(401).json({ error: 'Invalid credentials' });
         }
@@ -133,9 +152,11 @@ app.post('/api/users', async (req, res) => {
         }
 
         const id = 'user-' + Date.now();
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         await pool.query(
             'INSERT INTO users (id, username, email, institution, password, role) VALUES (?, ?, ?, ?, ?, ?)',
-            [id, username, email, institution, password, role || 'student']
+            [id, username, email, institution, hashedPassword, role || 'student']
         );
         res.json({ id, username, email, institution, role });
     } catch (err) {

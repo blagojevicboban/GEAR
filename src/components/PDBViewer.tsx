@@ -5,21 +5,21 @@ const THREE = (window as any).THREE as typeof THREE_TYPES;
 
 
 // @ts-ignore
-import { TrackballControls } from '../src/lib/three-examples/controls/TrackballControls.js';
+import { TrackballControls } from '../lib/three-examples/controls/TrackballControls.js';
 // @ts-ignore
-import { PDBLoader } from '../src/lib/three-examples/loaders/PDBLoader.js';
+import { PDBLoader } from '../lib/three-examples/loaders/PDBLoader.js';
 // @ts-ignore
-import { CSS2DRenderer, CSS2DObject } from '../src/lib/three-examples/renderers/CSS2DRenderer.js';
+import { CSS2DRenderer, CSS2DObject } from '../lib/three-examples/renderers/CSS2DRenderer.js';
 // @ts-ignore
-import { ARButton } from '../src/lib/three-examples/webxr/ARButton.js';
+import { ARButton } from '../lib/three-examples/webxr/ARButton.js';
 // @ts-ignore
-import { XRControllerModelFactory } from '../src/lib/three-examples/webxr/XRControllerModelFactory.js';
+import { XRControllerModelFactory } from '../lib/three-examples/webxr/XRControllerModelFactory.js';
 // @ts-ignore
-import { XRHandModelFactory } from '../src/lib/three-examples/webxr/XRHandModelFactory.js';
+import { XRHandModelFactory } from '../lib/three-examples/webxr/XRHandModelFactory.js';
 // @ts-ignore
-import { InteractiveGroup } from '../src/lib/three-examples/interactive/InteractiveGroup.js';
+import { InteractiveGroup } from '../lib/three-examples/interactive/InteractiveGroup.js';
 // @ts-ignore
-import { HTMLMesh } from '../src/lib/three-examples/interactive/HTMLMesh.js';
+import { HTMLMesh } from '../lib/three-examples/interactive/HTMLMesh.js';
 import { io, Socket } from 'socket.io-client';
 
 interface PDBViewerProps {

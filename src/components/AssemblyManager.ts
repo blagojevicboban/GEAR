@@ -1,6 +1,6 @@
 
 // @ts-ignore
-import { TransformControls } from '../src/lib/TransformControls.js';
+import { TransformControls } from '../lib/TransformControls.js';
 
 // We need to extend the Window interface to include AFRAME
 declare global {

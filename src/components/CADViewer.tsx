@@ -3,7 +3,7 @@ import type * as THREE_TYPES from 'three';
 const THREE = (window as any).THREE as typeof THREE_TYPES;
 
 // @ts-ignore
-import { OrbitControls } from '../src/lib/three-examples/controls/OrbitControls.js';
+import { OrbitControls } from '../lib/three-examples/controls/OrbitControls.js';
 // @ts-ignore
 import initOpenCascade from 'opencascade.js';
 

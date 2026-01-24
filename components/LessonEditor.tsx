@@ -119,6 +119,70 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
         }
     };
 
+    const handleUploadFile = async (file: File): Promise<string | null> => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (res.ok) {
+                return data.url;
+            } else {
+                alert('Upload failed: ' + data.error);
+                return null;
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Upload failed');
+            return null;
+        }
+    };
+
+    const handleStepImageUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const url = await handleUploadFile(file);
+        if (url) {
+            handleStepChange(index, 'image_url', url);
+        }
+    };
+
+    const handlePaste = async (index: number, e: React.ClipboardEvent, target: 'content' | 'image') => {
+        const items = e.clipboardData.items;
+        let file = null;
+
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                file = items[i].getAsFile();
+                break;
+            }
+        }
+
+        if (file) {
+            e.preventDefault();
+            const url = await handleUploadFile(file);
+            if (url) {
+                if (target === 'image') {
+                    handleStepChange(index, 'image_url', url);
+                } else {
+                    const textarea = e.currentTarget as HTMLTextAreaElement;
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+                    const text = steps[index].content;
+                    const before = text.substring(0, start);
+                    const after = text.substring(end, text.length);
+                    const newText = `${before}![Image](${url})${after}`;
+                    handleStepChange(index, 'content', newText);
+                }
+            }
+        }
+    };
+
     const handleSave = async () => {
         if (!title.trim()) return alert('Please enter a lesson title');
 
@@ -280,11 +344,48 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                                     <textarea
                                         value={step.content}
                                         onChange={(e) => handleStepChange(index, 'content', e.target.value)}
+                                        onPaste={(e) => handlePaste(index, e, 'content')}
                                         className="w-full h-48 bg-slate-950/50 border border-slate-700 rounded-lg p-3 text-sm font-mono text-slate-300 focus:ring-1 focus:ring-indigo-500 outline-none"
-                                        placeholder="Write the lesson content here..."
+                                        placeholder="Write the lesson content here... (You can paste images)"
                                     ></textarea>
                                 </div>
                                 <div>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Step Image (Optional)</label>
+                                    <div
+                                        className="bg-slate-950/50 border border-slate-700 rounded-lg p-3 mb-4 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                        onPaste={(e) => handlePaste(index, e, 'image')}
+                                        tabIndex={0}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            {step.image_url ? (
+                                                <div className="relative w-16 h-16 rounded overflow-hidden group/img shrink-0">
+                                                    <img src={step.image_url} alt="Step" className="w-full h-full object-cover" />
+                                                    <button
+                                                        onClick={() => handleStepChange(index, 'image_url', '')}
+                                                        className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover/img:opacity-100 text-rose-500 transition-opacity"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className="w-16 h-16 bg-slate-800 rounded flex items-center justify-center text-slate-600 shrink-0">
+                                                    <span className="text-xs">No Img</span>
+                                                </div>
+                                            )}
+                                            <div className="flex-1">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => handleStepImageUpload(index, e)}
+                                                    className="block w-full text-xs text-slate-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-500/10 file:text-indigo-400 hover:file:bg-indigo-500/20"
+                                                />
+                                                <p className="text-[10px] text-slate-500 mt-1 ml-1">
+                                                    Click here and paste (Ctrl+V) an image
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Linked 3D Model</label>
                                     <select
                                         value={step.model_id || ''}

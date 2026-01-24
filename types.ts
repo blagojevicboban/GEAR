@@ -70,6 +70,7 @@ export interface LessonStep {
   content: string; // Markdown
   model_id?: string;
   hotspot_id?: string;
+  image_url?: string;
 }
 
 export interface Lesson {

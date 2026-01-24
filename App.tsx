@@ -59,6 +59,13 @@ const App: React.FC = () => {
       view: 'home'
     },
     {
+      targetId: 'nav-lessons',
+      title: 'Interactive Lessons',
+      content: 'Explore guided 3D learning experiences designed by teachers.',
+      position: 'bottom',
+      view: 'home'
+    },
+    {
       targetId: 'nav-help',
       title: 'Need Help?',
       content: 'Access tutorials, diagnostics, and support here anytime.',

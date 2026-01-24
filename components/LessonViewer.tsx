@@ -44,7 +44,17 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
 
     // Helper to determine viewer type
     const renderViewer = () => {
-        if (!currentStep || !currentStep.model_id) {
+        if (!currentStep) return null;
+
+        // If no model, check for step image to show in main view
+        if (!currentStep.model_id) {
+            if (currentStep.image_url) {
+                return (
+                    <div className="w-full h-full bg-black flex items-center justify-center">
+                        <img src={currentStep.image_url} alt="Step" className="max-w-full max-h-full object-contain" />
+                    </div>
+                );
+            }
             return (
                 <div className="flex flex-col items-center justify-center h-full text-slate-500 bg-slate-950">
                     <div className="text-6xl mb-4">📚</div>
@@ -54,13 +64,14 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
         }
 
         // We only have limited model info from the join (url, name).
-        // We need to construct a partial VETModel compatible object.
+        // ... (rest of model rendering logic)
+
         const modelStub: any = {
             id: currentStep.model_id,
             name: (currentStep as any).modelName || 'Lesson Model',
             description: 'Loaded from lesson step',
             modelUrl: (currentStep as any).modelUrl,
-            hotspots: [], // We could fetch hotspots if we want full interactivity
+            hotspots: [],
             sector: lesson.sector,
             uploadedBy: lesson.authorName,
         };
@@ -72,7 +83,6 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
         } else if (url.endsWith('.stp') || url.endsWith('.step') || url.includes('#step')) {
             return <CADViewer fileUrl={url.replace('#step', '')} onExit={() => { }} fileName={modelStub.name} />;
         } else {
-            // Default to VR/GLB Viewer
             return (
                 <VRViewer
                     model={modelStub}
@@ -121,6 +131,14 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
                                 </span>
                                 <h3 className="text-lg font-semibold text-slate-200">{currentStep.title}</h3>
                             </div>
+
+                            {/* Show image in sidebar if we have a model (since main view shows model) */}
+                            {currentStep.model_id && currentStep.image_url && (
+                                <div className="mb-6 rounded-lg overflow-hidden border border-slate-700">
+                                    <img src={currentStep.image_url} alt="Step Visual" className="w-full h-auto object-cover" />
+                                </div>
+                            )}
+
                             <div className="prose prose-invert prose-sm max-w-none text-slate-300">
                                 <ReactMarkdown>{currentStep.content}</ReactMarkdown>
                             </div>

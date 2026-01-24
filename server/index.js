@@ -729,11 +729,12 @@ app.post('/api/lessons', async (req, res) => {
                 s.title,
                 s.content,
                 s.model_id || null,  // Ensure empty string becomes null
-                s.hotspot_id || null
+                s.hotspot_id || null,
+                s.image_url || null
             ]);
 
             await pool.query(
-                'INSERT INTO lesson_steps (id, lesson_id, step_order, title, content, model_id, hotspot_id) VALUES ?',
+                'INSERT INTO lesson_steps (id, lesson_id, step_order, title, content, model_id, hotspot_id, image_url) VALUES ?',
                 [stepValues]
             );
         }
@@ -783,11 +784,12 @@ app.put('/api/lessons/:id', async (req, res) => {
                     s.title,
                     s.content,
                     s.model_id || null,
-                    s.hotspot_id || null
+                    s.hotspot_id || null,
+                    s.image_url || null
                 ]);
 
                 await pool.query(
-                    'INSERT INTO lesson_steps (id, lesson_id, step_order, title, content, model_id, hotspot_id) VALUES ?',
+                    'INSERT INTO lesson_steps (id, lesson_id, step_order, title, content, model_id, hotspot_id, image_url) VALUES ?',
                     [stepValues]
                 );
             }

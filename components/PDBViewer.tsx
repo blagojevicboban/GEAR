@@ -417,6 +417,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         window.addEventListener('resize', onWindowResize);
 
         // Spatial UI (3D Menu)
+        let menuMesh: any = null; // Reference for animation loop
         const menuElement = document.getElementById('ar-menu');
         if (menuElement) {
             // @ts-ignore
@@ -424,10 +425,13 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             scene.add(interactionGroup);
 
             const mesh = new HTMLMesh(menuElement);
-            mesh.position.set(0.4, 0, -0.5); // To the right
+            // mesh.position.set(0.4, 0, -0.5); // To the right (Old static pos)
+            // Initial position (will be overridden by Wrist logic if AR is active)
+            mesh.position.set(0.4, 0, -0.5);
             mesh.rotation.y = -Math.PI / 6;
-            mesh.scale.setScalar(2);
+            mesh.scale.setScalar(1.5); // Slightly smaller for wrist
             interactionGroup.add(mesh);
+            menuMesh = mesh;
 
             // Button Listeners
             const btnReset = document.getElementById('btn-reset');
@@ -494,6 +498,33 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
 
             renderer.render(scene, camera);
             labelRenderer.render(scene, camera);
+
+            // Wrist Menu Update
+            if (menuMesh && arSessionActive && controller1) {
+                // Check if controller is tracking
+                // We can simply lerp to controller position + offset
+                const targetPos = new THREE.Vector3();
+                const targetRot = new THREE.Quaternion();
+
+                // Get controller world transform
+                targetPos.setFromMatrixPosition(controller1.matrixWorld);
+                targetRot.setFromRotationMatrix(controller1.matrixWorld);
+
+                // Offset: 15cm "above" the controller (Simulating looking at a watch)
+                // We need to apply offset in local controller space.
+                const offset = new THREE.Vector3(0.05, 0.15, 0.0); // Right 5cm, Up 15cm
+                offset.applyQuaternion(targetRot);
+                targetPos.add(offset);
+
+                // Update Mesh
+                menuMesh.position.lerp(targetPos, 0.1); // Smooth follow
+                menuMesh.quaternion.slerp(targetRot, 0.1);
+                // Fix Rotation (Make it face the user? Or just fixed to wrist? Fixed to wrist is better for "Watch" feel)
+                // But HTMLMesh might need rotation adjustment to be readable.
+                // Let's rotate it -90 deg on X to be flat-ish like a watch?
+                // Or actually, user rotates wrist. Let's keep it aligned with controller.
+                menuMesh.rotateX(-Math.PI / 2);
+            }
         };
 
         renderer.setAnimationLoop(animate);

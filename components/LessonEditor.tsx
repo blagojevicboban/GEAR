@@ -431,6 +431,16 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                     ))}
                 </div>
             </div>
+
+            <div className="flex justify-end pt-6 border-t border-slate-800">
+                <button
+                    onClick={handleSave}
+                    className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-bold transition-colors shadow-lg shadow-indigo-900/20"
+                >
+                    <Save size={18} />
+                    Save Lesson
+                </button>
+            </div>
         </div>
     );
 };

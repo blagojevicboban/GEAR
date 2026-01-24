@@ -20,6 +20,7 @@ import { XRHandModelFactory } from '../src/lib/three-examples/webxr/XRHandModelF
 import { InteractiveGroup } from '../src/lib/three-examples/interactive/InteractiveGroup.js';
 // @ts-ignore
 import { HTMLMesh } from '../src/lib/three-examples/interactive/HTMLMesh.js';
+import { io, Socket } from 'socket.io-client';
 
 interface PDBViewerProps {
     pdbUrl?: string; // Optional URL, defaults to caffeine
@@ -40,6 +41,8 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
     const [interactionMode, setInteractionMode] = useState<'manipulate' | 'annotate'>('manipulate');
     const [voiceStatus, setVoiceStatus] = useState<string>(''); // Voice feedback text
     const pdbDataRef = useRef<any>(null); // Store parsed PDB data for style switching
+    const socketRef = useRef<Socket | null>(null); // Socket Logic
+    const isRemoteUpdate = useRef(false); // Flag to prevent echo loops
 
     // We need a ref for interaction mode to use inside the event listener (which is created inside useEffect)
     const modeRef = useRef('manipulate');
@@ -575,184 +578,271 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             }
         };
 
-        renderer.setAnimationLoop(animate);
-
-        // Voice Command Listener (Integration)
-        const handleVoiceCommand = (e: any) => {
-            const action = e.detail.action;
-            if (action === 'scale-up') {
-                const current = rootGroup.scale.x;
-                const next = Math.min(current * 1.2, 5.0); // +20%
-                rootGroup.scale.setScalar(next);
-            } else if (action === 'scale-down') {
-                const current = rootGroup.scale.x;
-                const next = Math.max(current * 0.8, 0.1); // -20%
-                rootGroup.scale.setScalar(next);
-            }
-        };
-        window.addEventListener('gear-voice-command', handleVoiceCommand);
-
-        return () => {
-            window.removeEventListener('gear-voice-command', handleVoiceCommand);
-            window.removeEventListener('resize', onWindowResize);
-            if (container.contains(renderer.domElement)) container.removeChild(renderer.domElement);
-            if (container.contains(labelRenderer.domElement)) container.removeChild(labelRenderer.domElement);
-            if (document.body.contains(arButton)) document.body.removeChild(arButton); // Remove AR Button
-            renderer.dispose();
-        };
-    }, [fixedPdbUrl, visualStyle]); // Re-run when style changes
-
-    // --- Voice Control Logic ---
-    useEffect(() => {
-        // @ts-ignore
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            console.warn("Speech Recognition not supported in this browser.");
-            return;
+        // Broadcast Transform
+        const now = performance.now();
+        if (now - lastBroadcast > 100 && socketRef.current) {
+            // Check if WE are manipulating (to avoid echo loops, though we can just blindly emit state)
+            // Better: Emit generally.
+            const transform = {
+                position: { x: rootGroup.position.x, y: rootGroup.position.y, z: rootGroup.position.z },
+                rotation: { x: rootGroup.rotation.x, y: rootGroup.rotation.y, z: rootGroup.rotation.z },
+                scale: rootGroup.scale.x
+            };
+            socketRef.current.emit('update-molecule', transform);
+            lastBroadcast = now;
         }
+    };
 
-        const recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.lang = 'en-US';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
+    renderer.setAnimationLoop(animate);
 
-        recognition.onstart = () => {
-            console.log("Voice Control Active");
-        };
+    // Voice Command Listener (Integration)
+    const handleVoiceCommand = (e: any) => {
+        const action = e.detail.action;
+        if (action === 'scale-up') {
+            const current = rootGroup.scale.x;
+            const next = Math.min(current * 1.2, 5.0); // +20%
+            rootGroup.scale.setScalar(next);
+        } else if (action === 'scale-down') {
+            const current = rootGroup.scale.x;
+            const next = Math.max(current * 0.8, 0.1); // -20%
+            rootGroup.scale.setScalar(next);
+        }
+    };
+    window.addEventListener('gear-voice-command', handleVoiceCommand);
 
-        recognition.onresult = (event: any) => {
-            const last = event.results.length - 1;
-            const command = event.results[last][0].transcript.trim().toLowerCase();
-            console.log("Voice Command:", command);
+    // Remote Update Listener (Socket -> Effect)
+    const handleRemoteUpdate = (e: any) => {
+        const data = e.detail;
+        if (data.position && data.rotation && data.scale) {
+            // Apply transforms
+            rootGroup.position.set(data.position.x, data.position.y, data.position.z);
+            rootGroup.rotation.set(data.rotation.x, data.rotation.y, data.rotation.z);
+            rootGroup.scale.setScalar(data.scale);
+        }
+    };
+    window.addEventListener('gear-remote-update', handleRemoteUpdate);
 
-            // Visual Feedback
-            setVoiceStatus(`" ${command} "`);
+    // Broadcast Loop (Effect -> Socket)
+    // Rate limit: 10Hz
+    let lastBroadcast = 0;
+    const broadcastLoop = (time: number) => {
+        if (time - lastBroadcast > 100 && socketRef.current) {
+            const transform = {
+                position: rootGroup.position,
+                rotation: rootGroup.rotation, // Euler
+                scale: rootGroup.scale.x // Uniform scale
+            };
+            socketRef.current.emit('update-molecule', transform);
+            lastBroadcast = time;
+        }
+    };
+    // Add to existing animate loop? Or just run check inside animate.
+    // We can add it to the 'animate' function defined above.
+
+    return () => {
+        window.removeEventListener('gear-remote-update', handleRemoteUpdate);
+        window.removeEventListener('gear-voice-command', handleVoiceCommand);
+        window.removeEventListener('resize', onWindowResize);
+        if (container.contains(renderer.domElement)) container.removeChild(renderer.domElement);
+        if (container.contains(labelRenderer.domElement)) container.removeChild(labelRenderer.domElement);
+        if (document.body.contains(arButton)) document.body.removeChild(arButton); // Remove AR Button
+        renderer.dispose();
+
+        // Disconnect Socket
+        if (socketRef.current) {
+            socketRef.current.disconnect();
+        }
+    };
+}, [fixedPdbUrl, visualStyle]); // Re-run when style changes
+
+// --- Socket.io Integration ---
+useEffect(() => {
+    // Initialize Socket
+    const socket = io(window.location.origin.replace('5173', '3001')); // Handle Vite proxy port
+    socketRef.current = socket;
+
+    socket.on('connect', () => {
+        console.log('Connected to PDB Collab Socket');
+        // Join a default room for now, or based on URL
+        socket.emit('join-room', 'pdb-default-room');
+    });
+
+    // Listen: Transform Updates
+    socket.on('update-molecule', (data: any) => {
+        // data: { position, rotation, scale }
+        // We need to access rootGroup.
+        // Limitation: rootGroup is inside the main Effect.
+        // We can use the custom event trick again to pass data into the effect!
+        window.dispatchEvent(new CustomEvent('gear-remote-update', { detail: data }));
+    });
+
+    // Listen: Style Updates
+    socket.on('update-style', (style: any) => {
+        if (style !== visualStyle) {
+            isRemoteUpdate.current = true;
+            setVisualStyle(style);
+            setVoiceStatus(`Remote: ${style}`);
             setTimeout(() => setVoiceStatus(''), 2000);
-
-            // Command Mapping
-            if (command.includes('reset')) {
-                const btnReset = document.getElementById('btn-reset');
-                if (btnReset) btnReset.click();
-            }
-            else if (command.includes('ball') || command.includes('stick')) {
-                setVisualStyle('ball-stick');
-            }
-            else if (command.includes('space') || command.includes('sphere') || command.includes('atom')) {
-                setVisualStyle('spacefill');
-            }
-            else if (command.includes('backbone') || command.includes('wire')) {
-                setVisualStyle('backbone');
-            }
-            else if (command.includes('zoom in') || command.includes('bigger') || command.includes('enhance')) {
-                // Adjust scale visually if rootGroup is accessible via ref? 
-                // Limitation: rootGroup is inside useEffect. 
-                // Workaround: We trigger a custom event or check if we can access it.
-                // Actually, we can't easily access rootGroup here since it's in the other useEffect.
-                // Let's rely on state text for now?
-                // BETTER: Move rootGroup to a Ref or trigger a re-render? No, re-render rebuilds.
-                // SOLUTION: Dispatch a custom event on window/document that the inner effect listens to.
-                window.dispatchEvent(new CustomEvent('gear-voice-command', { detail: { action: 'scale-up' } }));
-            }
-            else if (command.includes('zoom out') || command.includes('smaller')) {
-                window.dispatchEvent(new CustomEvent('gear-voice-command', { detail: { action: 'scale-down' } }));
-            }
-        };
-
-        recognition.onerror = (event: any) => {
-            console.error("Speech Recognition Error:", event.error);
-        };
-
-        // Start listening only if AR is active or always? Let's do always for testing on desktop too.
-        try {
-            recognition.start();
-        } catch (e) {
-            // Already started
         }
+    });
 
-        return () => {
-            recognition.stop();
-        };
-    }, []); // Run once on mount
+    return () => {
+        socket.disconnect();
+    };
+}, []); // Run once
 
-    return (
-        <div className="relative w-full h-full min-h-screen bg-transparent">
-            {/* Voice Feedback Toast */}
-            {voiceStatus && (
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none">
-                    <div className="bg-black/60 text-white px-6 py-4 rounded-full text-2xl font-bold backdrop-blur-md animate-bounce border border-white/20">
-                        🎤 {voiceStatus}
-                    </div>
+// Broadcast Style Changes
+useEffect(() => {
+    if (socketRef.current && !isRemoteUpdate.current) {
+        socketRef.current.emit('update-style', visualStyle);
+    }
+    isRemoteUpdate.current = false; // Reset flag
+}, [visualStyle]);
+
+// --- Voice Control Logic ---
+useEffect(() => {
+    // @ts-ignore
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        console.warn("Speech Recognition not supported in this browser.");
+        return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+        console.log("Voice Control Active");
+    };
+
+    recognition.onresult = (event: any) => {
+        const last = event.results.length - 1;
+        const command = event.results[last][0].transcript.trim().toLowerCase();
+        console.log("Voice Command:", command);
+
+        // Visual Feedback
+        setVoiceStatus(`" ${command} "`);
+        setTimeout(() => setVoiceStatus(''), 2000);
+
+        // Command Mapping
+        if (command.includes('reset')) {
+            const btnReset = document.getElementById('btn-reset');
+            if (btnReset) btnReset.click();
+        }
+        else if (command.includes('ball') || command.includes('stick')) {
+            setVisualStyle('ball-stick');
+        }
+        else if (command.includes('space') || command.includes('sphere') || command.includes('atom')) {
+            setVisualStyle('spacefill');
+        }
+        else if (command.includes('backbone') || command.includes('wire')) {
+            setVisualStyle('backbone');
+        }
+        else if (command.includes('zoom in') || command.includes('bigger') || command.includes('enhance')) {
+            window.dispatchEvent(new CustomEvent('gear-voice-command', { detail: { action: 'scale-up' } }));
+        }
+        else if (command.includes('zoom out') || command.includes('smaller')) {
+            window.dispatchEvent(new CustomEvent('gear-voice-command', { detail: { action: 'scale-down' } }));
+        }
+    };
+
+    recognition.onerror = (event: any) => {
+        console.error("Speech Recognition Error:", event.error);
+    };
+
+    // Start listening only if AR is active or always? Let's do always for testing on desktop too.
+    try {
+        recognition.start();
+    } catch (e) {
+        // Already started
+    }
+
+    return () => {
+        recognition.stop();
+    };
+}, []); // Run once on mount
+
+return (
+    <div className="relative w-full h-full min-h-screen bg-transparent">
+        {/* Voice Feedback Toast */}
+        {voiceStatus && (
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none">
+                <div className="bg-black/60 text-white px-6 py-4 rounded-full text-2xl font-bold backdrop-blur-md animate-bounce border border-white/20">
+                    🎤 {voiceStatus}
                 </div>
-            )}
+            </div>
+        )}
 
-            {/* Background Layer - Hidden in AR */}
-            {!arSessionActive && (
-                <div className="absolute inset-0 bg-slate-900 -z-20" />
-            )}
+        {/* Background Layer - Hidden in AR */}
+        {!arSessionActive && (
+            <div className="absolute inset-0 bg-slate-900 -z-20" />
+        )}
 
-            <div ref={containerRef} className="absolute inset-0 z-0" />
+        <div ref={containerRef} className="absolute inset-0 z-0" />
 
-            <div className="absolute top-4 left-4 z-10">
-                <button
-                    onClick={onExit}
-                    className="px-4 py-2 bg-slate-800 text-white rounded hover:bg-slate-700 transition"
-                >
-                    Back
+        <div className="absolute top-4 left-4 z-10">
+            <button
+                onClick={onExit}
+                className="px-4 py-2 bg-slate-800 text-white rounded hover:bg-slate-700 transition"
+            >
+                Back
+            </button>
+        </div>
+
+        {/* Spatial UI Container (Hidden in 2D, used for texture) */}
+        <div id="ar-menu" className="absolute top-0 left-0 -z-50 opacity-0 pointer-events-none">
+            <div className="w-64 p-4 bg-slate-800/90 text-white rounded-xl border border-blue-500/50 flex flex-col gap-2">
+                <h3 className="text-lg font-bold text-center border-b border-white/10 pb-2 mb-2">Controls</h3>
+                <button id="btn-reset" className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-center font-medium transition active:scale-95">
+                    Reset View
                 </button>
-            </div>
 
-            {/* Spatial UI Container (Hidden in 2D, used for texture) */}
-            <div id="ar-menu" className="absolute top-0 left-0 -z-50 opacity-0 pointer-events-none">
-                <div className="w-64 p-4 bg-slate-800/90 text-white rounded-xl border border-blue-500/50 flex flex-col gap-2">
-                    <h3 className="text-lg font-bold text-center border-b border-white/10 pb-2 mb-2">Controls</h3>
-                    <button id="btn-reset" className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-center font-medium transition active:scale-95">
-                        Reset View
+                <div className="grid grid-cols-3 gap-1 mt-2">
+                    <button id="btn-style-bs" className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded transition">B&S</button>
+                    <button id="btn-style-sf" className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded transition">Space</button>
+                    <button id="btn-style-bb" className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded transition">Bone</button>
+                </div>
+
+                <div className="mt-2 border-t border-white/10 pt-2">
+                    <button id="btn-mode-toggle" className="w-full px-2 py-1 bg-emerald-600 hover:bg-emerald-500 rounded text-sm font-medium transition">
+                        Mode: Manipulate
                     </button>
-
-                    <div className="grid grid-cols-3 gap-1 mt-2">
-                        <button id="btn-style-bs" className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded transition">B&S</button>
-                        <button id="btn-style-sf" className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded transition">Space</button>
-                        <button id="btn-style-bb" className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded transition">Bone</button>
-                    </div>
-
-                    <div className="mt-2 border-t border-white/10 pt-2">
-                        <button id="btn-mode-toggle" className="w-full px-2 py-1 bg-emerald-600 hover:bg-emerald-500 rounded text-sm font-medium transition">
-                            Mode: Manipulate
-                        </button>
-                    </div>
-
-                    <div className="text-xs text-slate-400 text-center mt-1">
-                        Grab/Pinch to Move<br />Stick to Zoom
-                    </div>
                 </div>
-            </div>
 
-            {loading && (
-                <div className="absolute inset-0 z-20 flex items-center justify-center text-white bg-black/50">
-                    <div className="text-xl font-bold animate-pulse">Loading Molecule...</div>
+                <div className="text-xs text-slate-400 text-center mt-1">
+                    Grab/Pinch to Move<br />Stick to Zoom
                 </div>
-            )}
-
-            {error && (
-                <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
-                    <div className="bg-red-900/80 text-white px-8 py-6 rounded-xl border border-red-500 shadow-2xl max-w-md text-center">
-                        <svg className="w-12 h-12 mx-auto mb-4 text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                        <h3 className="text-xl font-bold mb-2">Failed to Load Molecule</h3>
-                        <p className="opacity-90">{error}</p>
-                    </div>
-                </div>
-            )}
-
-            <div className="absolute bottom-4 left-4 z-10 text-slate-400 text-sm pointer-events-none bg-slate-900/50 p-2 rounded">
-                <p>Model: {pdbUrl.split('/').pop()}</p>
-                <p>Atoms: {atomCount}</p>
-                <p>Style: {visualStyle === 'ball-stick' ? 'Ball & Stick' : visualStyle === 'spacefill' ? 'Spacefill' : 'Backbone'}</p>
-                <p>Controls: Desktop (Mouse) | AR (Grab/Pinch & Move, Stick Up/Down to Scale)</p>
-                <p>Renderer: WebGL + WebXR (AR) + Hand Tracking</p>
             </div>
         </div>
-    );
+
+        {loading && (
+            <div className="absolute inset-0 z-20 flex items-center justify-center text-white bg-black/50">
+                <div className="text-xl font-bold animate-pulse">Loading Molecule...</div>
+            </div>
+        )}
+
+        {error && (
+            <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
+                <div className="bg-red-900/80 text-white px-8 py-6 rounded-xl border border-red-500 shadow-2xl max-w-md text-center">
+                    <svg className="w-12 h-12 mx-auto mb-4 text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                    <h3 className="text-xl font-bold mb-2">Failed to Load Molecule</h3>
+                    <p className="opacity-90">{error}</p>
+                </div>
+            </div>
+        )}
+
+        <div className="absolute bottom-4 left-4 z-10 text-slate-400 text-sm pointer-events-none bg-slate-900/50 p-2 rounded">
+            <p>Model: {pdbUrl.split('/').pop()}</p>
+            <p>Atoms: {atomCount}</p>
+            <p>Style: {visualStyle === 'ball-stick' ? 'Ball & Stick' : visualStyle === 'spacefill' ? 'Spacefill' : 'Backbone'}</p>
+            <p>Controls: Desktop (Mouse) | AR (Grab/Pinch & Move, Stick Up/Down to Scale)</p>
+            <p>Renderer: WebGL + WebXR (AR) + Hand Tracking</p>
+        </div>
+    </div>
+);
 };
 
 export default PDBViewer;

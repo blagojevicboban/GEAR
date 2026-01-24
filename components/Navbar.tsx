@@ -35,6 +35,14 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
         </button>
 
         <button
+          id="nav-lessons"
+          onClick={() => setView('lessons')}
+          className={`text-sm font-medium transition-colors ${currentView === 'lessons' ? 'text-indigo-400' : 'text-slate-400 hover:text-white'}`}
+        >
+          Lessons
+        </button>
+
+        <button
           id="nav-help"
           onClick={() => setView('help')}
           className={`text-sm font-medium transition-colors ${currentView === 'help' ? 'text-indigo-400' : 'text-slate-400 hover:text-white'}`}
@@ -93,7 +101,13 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
                   onClick={() => { setView('my-projects'); setShowDropdown(false); }}
                   className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-indigo-600/10 hover:text-indigo-400 transition-colors"
                 >
-                  My Projects
+                  My Models
+                </button>
+                <button
+                  onClick={() => { setView('my-lessons'); setShowDropdown(false); }}
+                  className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-indigo-600/10 hover:text-indigo-400 transition-colors"
+                >
+                  My Lessons
                 </button>
                 <button
                   onClick={() => { setView('profile'); setShowDropdown(false); }}

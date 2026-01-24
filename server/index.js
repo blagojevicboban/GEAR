@@ -648,6 +648,183 @@ app.get('/api/sectors', async (req, res) => {
     }
 });
 
+// --- Lessons API ---
+
+// Get all lessons
+app.get('/api/lessons', async (req, res) => {
+    try {
+        const [lessons] = await pool.query(`
+            SELECT l.*, s.name as sectorName, u.username as authorName, u.profilePicUrl as authorPic
+            FROM lessons l
+            LEFT JOIN sectors s ON l.sector_id = s.id
+            LEFT JOIN users u ON l.author_id = u.id
+            ORDER BY l.created_at DESC
+        `);
+        res.json(lessons);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch lessons' });
+    }
+});
+
+// Get single lesson with steps
+app.get('/api/lessons/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [lessons] = await pool.query(`
+            SELECT l.*, s.name as sectorName, u.username as authorName 
+            FROM lessons l
+            LEFT JOIN sectors s ON l.sector_id = s.id
+            LEFT JOIN users u ON l.author_id = u.id
+            WHERE l.id = ?
+        `, [id]);
+
+        if (lessons.length === 0) return res.status(404).json({ error: 'Lesson not found' });
+
+        const lesson = lessons[0];
+
+        const [steps] = await pool.query(`
+            SELECT ls.*, m.modelUrl, m.name as modelName 
+            FROM lesson_steps ls 
+            LEFT JOIN models m ON ls.model_id = m.id 
+            WHERE ls.lesson_id = ? 
+            ORDER BY ls.step_order ASC
+        `, [id]);
+
+        lesson.steps = steps;
+        res.json(lesson);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch lesson' });
+    }
+});
+
+// Create Lesson
+app.post('/api/lessons', async (req, res) => {
+    const { title, description, sector_id, steps, image_url } = req.body;
+    const requestor = req.headers['x-user-name']; // Username
+
+    try {
+        // Get User ID from Username
+        const [users] = await pool.query('SELECT id, role FROM users WHERE username = ?', [requestor]);
+        if (users.length === 0) return res.status(401).json({ error: 'User not found' });
+
+        const user = users[0];
+        if (user.role !== 'admin' && user.role !== 'teacher') {
+            return res.status(403).json({ error: 'Only teachers and admins can create lessons' });
+        }
+
+        const id = 'lesson-' + Date.now();
+        await pool.query(
+            'INSERT INTO lessons (id, title, description, sector_id, author_id, image_url) VALUES (?, ?, ?, ?, ?, ?)',
+            [id, title, description, sector_id, user.id, image_url || null]
+        );
+
+        // Insert Steps if present
+        if (steps && Array.isArray(steps) && steps.length > 0) {
+            const stepValues = steps.map((s, index) => [
+                s.id || 'step-' + Date.now() + '-' + index,
+                id,
+                index + 1, // step_order
+                s.title,
+                s.content,
+                s.model_id || null,  // Ensure empty string becomes null
+                s.hotspot_id || null
+            ]);
+
+            await pool.query(
+                'INSERT INTO lesson_steps (id, lesson_id, step_order, title, content, model_id, hotspot_id) VALUES ?',
+                [stepValues]
+            );
+        }
+
+        res.json({ id, title, description, sector_id, author_id: user.id, steps });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to create lesson' });
+    }
+});
+
+// Update Lesson (Metadata + Steps)
+app.put('/api/lessons/:id', async (req, res) => {
+    const { id } = req.params;
+    const { title, description, sector_id, steps, image_url } = req.body;
+    const requestor = req.headers['x-user-name'];
+
+    try {
+        // Auth check
+        const [users] = await pool.query('SELECT id, role FROM users WHERE username = ?', [requestor]);
+        if (users.length === 0) return res.status(401).json({ error: 'User not found' });
+        const user = users[0];
+
+        // Ownership check
+        const [existing] = await pool.query('SELECT author_id FROM lessons WHERE id = ?', [id]);
+        if (existing.length === 0) return res.status(404).json({ error: 'Lesson not found' });
+
+        if (user.role !== 'admin' && existing[0].author_id !== user.id) {
+            return res.status(403).json({ error: 'You can only edit your own lessons' });
+        }
+
+        // Update Metadata
+        await pool.query(
+            'UPDATE lessons SET title=?, description=?, sector_id=?, image_url=? WHERE id=?',
+            [title, description, sector_id, image_url || null, id]
+        );
+
+        // Update Steps (Delete all and insert)
+        if (steps && Array.isArray(steps)) {
+            await pool.query('DELETE FROM lesson_steps WHERE lesson_id = ?', [id]);
+
+            if (steps.length > 0) {
+                const stepValues = steps.map((s, index) => [
+                    s.id || 'step-' + Date.now() + '-' + index,
+                    id,
+                    index + 1, // step_order
+                    s.title,
+                    s.content,
+                    s.model_id || null,
+                    s.hotspot_id || null
+                ]);
+
+                await pool.query(
+                    'INSERT INTO lesson_steps (id, lesson_id, step_order, title, content, model_id, hotspot_id) VALUES ?',
+                    [stepValues]
+                );
+            }
+        }
+
+        res.json({ success: true, id });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to update lesson' });
+    }
+});
+
+// Delete Lesson
+app.delete('/api/lessons/:id', async (req, res) => {
+    const { id } = req.params;
+    const requestor = req.headers['x-user-name'];
+
+    try {
+        const [users] = await pool.query('SELECT id, role FROM users WHERE username = ?', [requestor]);
+        if (users.length === 0) return res.status(401).json({ error: 'User not found' });
+        const user = users[0];
+
+        const [existing] = await pool.query('SELECT author_id FROM lessons WHERE id = ?', [id]);
+        if (existing.length === 0) return res.status(404).json({ error: 'Lesson not found' });
+
+        if (user.role !== 'admin' && existing[0].author_id !== user.id) {
+            return res.status(403).json({ error: 'You can only delete your own lessons' });
+        }
+
+        await pool.query('DELETE FROM lessons WHERE id = ?', [id]); // Cascades to steps
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to delete lesson' });
+    }
+});
+
 // Serve static files from the React build
 app.use(express.static(path.join(__dirname, '../dist')));
 

@@ -14,12 +14,22 @@
 *   **CAD Support**: Dedicated kernel-based viewer for `.stp` / `.step` industrial files (powered by OpenCascade.js).
 *   **Smart Uploads**: Support for **.ZIP** archives with automatic extraction and detection of main CAD assembly files (`.step`, `.sldasm`, etc.).
 *   **Dynamic Sectors**: Flexible categorization system that adapts as users upload content from different fields.
-*   **Interactive Hotspots**: Add educational Points of Interest (POI) with text, video, and audio.
+*   **Interactive Lessons**: Create and take guided 3D lessons with step-by-step instructions (Markdown) linked to specific CAD/VR models.
 *   **AI Mentor**: Voice-activated AI assistant (Gemini 2.0 Flash) for context-aware guidance.
 *   **Multi-User Workshops**: Shared virtual spaces with real-time position synchronization and collaborative interactions.
-*   **Dashboard**: Featured models, category-based filtering (sectors), and **My Projects** personalized view.
+*   **Dashboard**: Featured models, category-based filtering (sectors), and **My Models** personalized view.
 *   **Mixed Reality Mode**: Immersive AR experience with Passthrough, Hand Tracking, and Spatial UI controls.
 *   **User Management System**: Three-tier Role-Based Access Control (Admin, Teacher, Student) with profile customization.
+*   **Help Center**: Dedicated support page with interactive **System Diagnostics** (WebXR/HTTPS checks) and tutorials.
+*   **Contextual Onboarding**: Interactive guided tour for new users and inline tooltips for complex forms.
+
+## 📚 Interactive Lessons (New in v1.3)
+
+Teachers can now create structured educational content directly within the platform:
+*   **Split-Screen Interface**: Instructions on the left, interactive 3D model on the right.
+*   **Rich Content**: Support for Markdown formatting and cover images.
+*   **Model Linking**: Associate different 3D models with specific steps (e.g., show the whole engine in Step 1, piston in Step 2).
+*   **My Lessons**: Personal dashboard for managing created content.
 
 ## 🥽 Mixed Reality Features (v1.2 Update)
 

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { AppView, VETModel, User, TourStep } from './types';
+import { AppView, VETModel, User, TourStep, Lesson } from './types';
 import { INITIAL_MODELS } from './constants';
 import Navbar from './components/Navbar';
 import Dashboard from './components/Dashboard';
@@ -16,6 +16,9 @@ import RegisterForm from './components/RegisterForm';
 import HelpPage from './components/HelpPage';
 import ProfileForm from './components/ProfileForm';
 import TourOverlay from './components/TourOverlay';
+import LessonsList from './components/LessonsList';
+import LessonViewer from './components/LessonViewer';
+import LessonEditor from './components/LessonEditor';
 
 import UserManagement from './components/UserManagement';
 import UserProfileModal from './components/UserProfileModal';
@@ -34,6 +37,7 @@ const App: React.FC = () => {
     return saved ? JSON.parse(saved) : null;
   });
   const [viewingProfileUser, setViewingProfileUser] = useState<string | null>(null);
+  const [selectedLesson, setSelectedLesson] = useState<Lesson | undefined>(undefined);
 
   // Tour State
   const [isTourActive, setIsTourActive] = useState(false);
@@ -365,6 +369,21 @@ const App: React.FC = () => {
     return featured.length > 0 ? featured : models.slice(0, 3);
   };
 
+  const handeEditLesson = (lesson: Lesson) => {
+    setSelectedLesson(lesson);
+    setCurrentView('lesson-edit');
+  };
+
+  const handleCreateLesson = () => {
+    setSelectedLesson(undefined);
+    setCurrentView('lesson-edit');
+  };
+
+  const handleViewLesson = (lesson: Lesson) => {
+    setSelectedLesson(lesson);
+    setCurrentView('lesson-view');
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-950 font-sans text-slate-200">
       {currentView !== 'viewer' && (
@@ -542,6 +561,36 @@ const App: React.FC = () => {
           />
         )}
       </main>
+
+      {(currentView === 'lessons' || (currentView === 'my-lessons' && currentUser)) && (
+        <LessonsList
+          currentUser={currentUser}
+          onViewLesson={handleViewLesson}
+          onEditLesson={handeEditLesson}
+          onCreateLesson={handleCreateLesson}
+          onViewUser={setViewingProfileUser}
+          initialAuthorFilter={currentView === 'my-lessons' ? currentUser?.username : undefined}
+        />
+      )}
+
+      {currentView === 'lesson-view' && selectedLesson && (
+        <LessonViewer
+          lessonId={selectedLesson.id}
+          onExit={() => setCurrentView('lessons')}
+          currentUser={currentUser}
+        />
+      )}
+
+      {currentView === 'lesson-edit' && (
+        <LessonEditor
+          lessonToEdit={selectedLesson}
+          currentUser={currentUser}
+          onSaveSuccess={() => setCurrentView('lessons')}
+          onCancel={() => setCurrentView('lessons')}
+          availableModels={models}
+          availableSectors={sectors}
+        />
+      )}
 
       {currentView !== 'viewer' && (
         <footer className="bg-slate-900 border-t border-slate-800 py-6 text-center text-slate-500 text-sm">

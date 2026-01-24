@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { User, VETModel } from '../types';
+import { User, VETModel, Lesson } from '../types';
+import { BookOpen } from 'lucide-react';
 import { fixAssetUrl } from '../utils/urlUtils';
 
 interface UserProfileModalProps {
@@ -10,16 +11,25 @@ interface UserProfileModalProps {
 
 const UserProfileModal: React.FC<UserProfileModalProps> = ({ username, models, onClose }) => {
     const [user, setUser] = useState<User | null>(null);
+    const [lessons, setLessons] = useState<Lesson[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         setLoading(true);
-        fetch(`/api/users/public/${username}`)
-            .then(res => {
-                if (!res.ok) throw new Error('User not found');
-                return res.json();
-            })
-            .then(data => setUser(data))
+        Promise.all([
+            fetch(`/api/users/public/${username}`).then(res => res.ok ? res.json() : null),
+            fetch(`/api/lessons`).then(res => res.json())
+        ]).then(([userData, allLessons]) => {
+            if (!userData) throw new Error('User not found');
+            setUser(userData);
+            if (allLessons && Array.isArray(allLessons)) {
+                setLessons(allLessons.filter((l: any) => l.authorName === username)); // We filter by authorName which is username in this app, or better match ID if possible.
+                // But typically public profile uses username. Let's check if user object has ID.
+                // The public user endpoint returns username.
+                // Lesson object has authorName and author_id.
+                // Safest to filter by username since we have it.
+            }
+        })
             .catch(err => console.error(err))
             .finally(() => setLoading(false));
     }, [username]);
@@ -109,11 +119,43 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ username, models, o
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-center py-12 bg-slate-800/30 rounded-2xl border border-slate-800 border-dashed">
+                            <div className="text-center py-12 bg-slate-800/30 rounded-2xl border border-slate-800 border-dashed mb-10">
                                 <p className="text-slate-500">No models uploaded by this user.</p>
                             </div>
                         )}
                     </div>
+
+                    {/* Lessons Section */}
+                    {lessons.length > 0 && (
+                        <div className="mt-10 pt-10 border-t border-slate-800">
+                            <h4 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                                Created Lessons
+                                <span className="bg-slate-800 text-slate-400 text-xs px-2 py-1 rounded-full">
+                                    {lessons.length}
+                                </span>
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {lessons.map(lesson => (
+                                    <div key={lesson.id} className="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden p-4">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <span className="text-[10px] uppercase font-bold text-indigo-400 bg-indigo-400/10 px-2 py-1 rounded">
+                                                {lesson.sectorName || 'General'}
+                                            </span>
+                                            <span className="text-xs text-slate-500">
+                                                {new Date(lesson.created_at).toLocaleDateString()}
+                                            </span>
+                                        </div>
+                                        <h5 className="font-bold text-white mb-2">{lesson.title}</h5>
+                                        <p className="text-xs text-slate-400 line-clamp-2 mb-4">{lesson.description}</p>
+                                        <div className="flex items-center gap-2 text-xs text-slate-500">
+                                            <BookOpen size={14} />
+                                            <span>{lesson.steps?.length || 0} Steps</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

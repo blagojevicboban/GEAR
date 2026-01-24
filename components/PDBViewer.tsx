@@ -37,8 +37,14 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
     const [atomCount, setAtomCount] = useState(0);
     const [visualStyle, setVisualStyle] = useState<'ball-stick' | 'spacefill' | 'backbone'>('ball-stick');
     const [arSessionActive, setArSessionActive] = useState(false);
+    const [interactionMode, setInteractionMode] = useState<'manipulate' | 'annotate'>('manipulate');
     const [voiceStatus, setVoiceStatus] = useState<string>(''); // Voice feedback text
     const pdbDataRef = useRef<any>(null); // Store parsed PDB data for style switching
+
+    // We need a ref for interaction mode to use inside the event listener (which is created inside useEffect)
+    const modeRef = useRef('manipulate');
+    // Update ref when state changes
+    useEffect(() => { modeRef.current = interactionMode; }, [interactionMode]);
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -142,12 +148,39 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                 const intersection = intersections[0];
                 const object = intersection.object;
 
-                // For grabbing, we grab the whole molecule
-                controller.attach(rootGroup);
-                (controller as any).userData.selected = rootGroup;
-                (controller as any).userData.isSelecting = true;
+                if (modeRef.current === 'annotate') {
+                    // ANNOTATION MODE
+                    // Find which atom was clicked.
+                    // object is the Mesh.
+                    // We can spawn a label here.
+
+                    // Create Label
+                    const labelDiv = document.createElement('div');
+                    labelDiv.className = 'ar-annotation';
+                    labelDiv.textContent = 'Atom'; // Default text
+                    labelDiv.style.background = 'rgba(0,0,0,0.8)';
+                    labelDiv.style.color = 'white';
+                    labelDiv.style.padding = '4px 8px';
+                    labelDiv.style.borderRadius = '8px';
+                    labelDiv.style.fontSize = '24px'; // Large for AR
+                    labelDiv.style.border = '1px solid white';
+
+                    const label = new HTMLMesh(labelDiv);
+                    label.position.copy(intersection.point);
+                    label.lookAt(camera.position); // Look at user
+                    rootGroup.add(label);
+
+                } else {
+                    // MANIPULATION MODE
+                    // For grabbing, we grab the whole molecule
+                    controller.attach(rootGroup);
+                    (controller as any).userData.selected = rootGroup;
+                    (controller as any).userData.isSelecting = true;
+                }
             }
         }
+
+
 
         function onSelectEnd(event: any) {
             const controller = event.target;
@@ -451,6 +484,21 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
 
             const btnStyleBB = document.getElementById('btn-style-bb');
             if (btnStyleBB) btnStyleBB.onclick = () => setVisualStyle('backbone');
+
+            const btnMode = document.getElementById('btn-mode-toggle');
+            if (btnMode) {
+                // Update text initially
+                btnMode.textContent = `Mode: ${modeRef.current === 'manipulate' ? 'Manipulate' : 'Annotate'}`;
+
+                btnMode.onclick = () => {
+                    const newMode = modeRef.current === 'manipulate' ? 'annotate' : 'manipulate';
+                    setInteractionMode(newMode);
+                    btnMode.textContent = `Mode: ${newMode === 'manipulate' ? 'Manipulate' : 'Annotate'}`;
+                    // Visual feedback
+                    setVoiceStatus(`Mode: ${newMode.toUpperCase()}`);
+                    setTimeout(() => setVoiceStatus(''), 1500);
+                };
+            }
         }
 
         const animate = (time: number, frame?: any) => {
@@ -666,6 +714,12 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                         <button id="btn-style-bs" className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded transition">B&S</button>
                         <button id="btn-style-sf" className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded transition">Space</button>
                         <button id="btn-style-bb" className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded transition">Bone</button>
+                    </div>
+
+                    <div className="mt-2 border-t border-white/10 pt-2">
+                        <button id="btn-mode-toggle" className="w-full px-2 py-1 bg-emerald-600 hover:bg-emerald-500 rounded text-sm font-medium transition">
+                            Mode: Manipulate
+                        </button>
                     </div>
 
                     <div className="text-xs text-slate-400 text-center mt-1">

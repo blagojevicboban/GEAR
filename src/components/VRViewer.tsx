@@ -7,6 +7,7 @@ import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
 import { STLLoader } from '../lib/three-examples/loaders/STLLoader.js';
 import { io, Socket } from 'socket.io-client';
 import './AssemblyManager'; // Register Assembly Mode components
+import Avatar from './Avatar';
 
 // A-Frame types
 declare global {
@@ -129,6 +130,8 @@ interface VRViewerProps {
   workshopId?: string;
   user?: any;
   onObjectClick?: (meshName: string) => void;
+  isEditMode?: boolean;
+  onHotspotPlace?: (position: { x: number, y: number, z: number }, normal: { x: number, y: number, z: number }) => void;
 }
 
 // --- Audio Utils ---
@@ -172,7 +175,7 @@ async function decodeAudioData(
 
 import { fixAssetUrl } from '../utils/urlUtils';
 
-const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, workshopId, user, onObjectClick }) => {
+const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, workshopId, user, onObjectClick, isEditMode, onHotspotPlace }) => {
   // Fix model URL for proxy
   const fixedModel = { ...model, modelUrl: fixAssetUrl(model.modelUrl) };
   // From here on use fixedModel instead of model for URL
@@ -192,6 +195,11 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
   const [isAssemblyMode, setIsAssemblyMode] = useState(false);
   const [assemblySystem, setAssemblySystem] = useState<any>(null);
 
+  // Optimization State
+  const [useOptimized, setUseOptimized] = useState(model.optimized && !!model.optimizedUrl);
+  // Compute active URL
+  const activeModelUrl = (useOptimized && model.optimizedUrl) ? fixAssetUrl(model.optimizedUrl) : fixAssetUrl(model.modelUrl);
+
   const socketRef = useRef<Socket | null>(null);
 
   const sceneRef = useRef<any>(null);
@@ -209,46 +217,56 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
 
   useEffect(() => {
     const el = modelEntityRef.current;
-    if (!el || !onObjectClick) return;
+    if (!el) return;
 
     const clickHandler = (evt: any) => {
       const intersection = evt.detail.intersection;
-      if (intersection && intersection.object) {
-        let name = intersection.object.name;
-        if (!name || name.includes('Scene')) {
-          // Try parent
-          name = intersection.object.parent?.name || name;
+
+      if (intersection) {
+        // Edit Mode Priority: Hotspot Placement
+        if (isEditMode && onHotspotPlace) {
+          onHotspotPlace(intersection.point, intersection.face?.normal || { x: 0, y: 1, z: 0 });
+          return;
         }
 
-        // Gamification Logic: Check active challenge
-        if (activeTaskId !== null && isAssemblyMode) {
-          const task = trainingTasks.find(t => t.id === activeTaskId);
-          if (task && task.status !== 'completed') {
-            // Check match
-            const keywords = task.keywords || [];
-            const isMatch = keywords.some((k: string) => name.toLowerCase().includes(k.toLowerCase()));
+        // Object Click Logic
+        if (onObjectClick && intersection.object) {
+          let name = intersection.object.name;
+          if (!name || name.includes('Scene')) {
+            // Try parent
+            name = intersection.object.parent?.name || name;
+          }
 
-            if (isMatch) {
-              playSound('success');
-              setChallengeFeedback({ msg: `✅ Found ${name}! Now pull it out using the arrows.`, type: 'success' });
-              // We don't mark complete yet, we wait for movement?
-              // For V1 "Find" is enough, or we listen to transform change?
-              // Let's mark as "Found" state or just Complete for simplicity in V1
+          // Gamification Logic: Check active challenge
+          if (activeTaskId !== null && isAssemblyMode) {
+            const task = trainingTasks.find(t => t.id === activeTaskId);
+            if (task && task.status !== 'completed') {
+              // Check match
+              const keywords = task.keywords || [];
+              const isMatch = keywords.some((k: string) => name.toLowerCase().includes(k.toLowerCase()));
 
-              const newTasks = trainingTasks.map(t =>
-                t.id === activeTaskId ? { ...t, status: 'completed' } : t
-              );
-              setTrainingTasks(newTasks);
-              setActiveTaskId(null);
-              setTimeout(() => setChallengeFeedback(null), 3000);
-            } else {
-              playSound('dismiss');
-              setChallengeFeedback({ msg: `❌ That's ${name}. Look for: ${keywords.join(' or ')}`, type: 'error' });
+              if (isMatch) {
+                playSound('success');
+                setChallengeFeedback({ msg: `✅ Found ${name}! Now pull it out using the arrows.`, type: 'success' });
+                // We don't mark complete yet, we wait for movement?
+                // For V1 "Find" is enough, or we listen to transform change?
+                // Let's mark as "Found" state or just Complete for simplicity in V1
+
+                const newTasks = trainingTasks.map(t =>
+                  t.id === activeTaskId ? { ...t, status: 'completed' } : t
+                );
+                setTrainingTasks(newTasks);
+                setActiveTaskId(null);
+                setTimeout(() => setChallengeFeedback(null), 3000);
+              } else {
+                playSound('dismiss');
+                setChallengeFeedback({ msg: `❌ That's ${name}. Look for: ${keywords.join(' or ')}`, type: 'error' });
+              }
             }
           }
-        }
 
-        onObjectClick(name);
+          onObjectClick(name);
+        }
       }
     };
 
@@ -507,12 +525,16 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
       });
 
       socket.on('user-joined', ({ socketId, user }) => {
-        setRemoteParticipants(prev => [...prev, { socketId, ...user, pos: { x: 0, y: 1.6, z: 0 } }]);
+        setRemoteParticipants(prev => [...prev, {
+          socketId,
+          ...user,
+          transforms: { head: { pos: { x: 0, y: 1.6, z: 0 }, rot: { x: 0, y: 0, z: 0 } } }
+        }]);
       });
 
-      socket.on('participant-moved', ({ socketId, pos, rot }) => {
+      socket.on('participant-moved', ({ socketId, transforms }) => {
         setRemoteParticipants(prev => prev.map(p =>
-          p.socketId === socketId ? { ...p, pos, rot } : p
+          p.socketId === socketId ? { ...p, transforms } : p
         ));
       });
 
@@ -538,17 +560,61 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
     if (!workshopMode || !workshopId || !socketRef.current) return;
 
     const interval = setInterval(() => {
+      if (!socketRef.current) return;
       const camera = sceneRef.current?.camera;
+
+      const transforms: any = { head: { pos: { x: 0, y: 0, z: 0 }, rot: { x: 0, y: 0, z: 0 } } };
+
       if (camera) {
         const pos = camera.getWorldPosition(new (window as any).THREE.Vector3());
         const rot = camera.getWorldQuaternion(new (window as any).THREE.Quaternion());
-        socketRef.current?.emit('update-transform', {
-          workshopId,
+        // Quaternion to Euler conversion might be needed if A-Frame expects Euler, 
+        // but for now let's send Euler rotations as A-Frame usually deals with them.
+        const euler = new (window as any).THREE.Euler().setFromQuaternion(rot, 'YXZ');
+
+        transforms.head = {
           pos: { x: pos.x, y: pos.y, z: pos.z },
-          rot: { x: rot.x, y: rot.y, z: rot.z }
-        });
+          rot: { x: (euler.x * 180 / Math.PI), y: (euler.y * 180 / Math.PI), z: (euler.z * 180 / Math.PI) }
+        };
       }
-    }, 100);
+
+      // Track Hands (Controllers)
+      // We need to access the entities. Since they are inside the camera rig usually?
+      // Wait, we haven't defined a rig yet. We relied on default camera.
+      // To get controllers, we need to query selecting them.
+      const leftHand = document.querySelector('[oculus-touch-controls="hand: left"]');
+      const rightHand = document.querySelector('[oculus-touch-controls="hand: right"]');
+
+      if (leftHand) {
+        const obj = (leftHand as any).object3D;
+        if (obj) {
+          const pos = obj.position;
+          const rot = obj.rotation; // Euler
+          transforms.leftHand = {
+            pos: { x: pos.x, y: pos.y, z: pos.z },
+            rot: { x: (rot.x * 180 / Math.PI), y: (rot.y * 180 / Math.PI), z: (rot.z * 180 / Math.PI) }
+          };
+        }
+      }
+
+      if (rightHand) {
+        const obj = (rightHand as any).object3D;
+        if (obj) {
+          const pos = obj.position;
+          const rot = obj.rotation;
+          transforms.rightHand = {
+            pos: { x: pos.x, y: pos.y, z: pos.z },
+            rot: { x: (rot.x * 180 / Math.PI), y: (rot.y * 180 / Math.PI), z: (rot.z * 180 / Math.PI) }
+          };
+        }
+      }
+
+      socketRef.current.emit('update-transform', {
+        workshopId,
+        transforms
+      });
+
+    }, 50); // 20 updates per second
 
     return () => clearInterval(interval);
   }, [workshopMode, workshopId]);
@@ -604,6 +670,17 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
             >
               {isAssemblyMode ? '🔧 Assembly Mode ON' : '🔧 Enable Assembly'}
             </button>
+
+            {model.optimized && (
+              <button
+                onClick={() => setUseOptimized(!useOptimized)}
+                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${useOptimized
+                  ? 'bg-emerald-600 border-emerald-500 text-white shadow-[0_0_10px_rgba(16,185,129,0.5)]'
+                  : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500'}`}
+              >
+                {useOptimized ? '✨ Optimized (AI)' : '📦 Original (High-Poly)'}
+              </button>
+            )}
           </div>
 
           {isAssemblyMode && (
@@ -749,7 +826,7 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
         raycaster="objects: .collidable, .interactable-model"
         assembly-mode-system={`enabled: ${isAssemblyMode}`}
       >
-        <a-assets><a-asset-item id="model-asset" src={fixedModel.modelUrl}></a-asset-item></a-assets>
+        <a-assets><a-asset-item id="model-asset" src={activeModelUrl}></a-asset-item></a-assets>
         <a-sky color="#050a14"></a-sky>
         <a-grid-helper size="20" divisions="20" color="#1e293b"></a-grid-helper>
 
@@ -767,19 +844,25 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
         )}
 
         {workshopMode && remoteParticipants.map(p => (
-          <a-entity key={p.socketId} position={`${p.pos.x} ${p.pos.y} ${p.pos.z}`}>
-            <a-sphere radius="0.1" color={p.role === 'teacher' ? '#f43f5e' : '#10b981'} material="opacity: 0.9"></a-sphere>
-            <a-text value={p.username} align="center" position="0 0.2 0" scale="0.3 0.3 0.3"></a-text>
-          </a-entity>
+          <Avatar key={p.socketId} username={p.username} role={p.role} transforms={p.transforms} />
         ))}
+
+        {/* Local Controller Rig for Tracking */}
+        <a-entity>
+          <a-camera look-controls wasd-controls position="0 1.6 0">
+            <a-cursor fuse="true" fuse-timeout="500" color="yellow"></a-cursor>
+          </a-camera>
+          <a-entity oculus-touch-controls="hand: left"></a-entity>
+          <a-entity oculus-touch-controls="hand: right"></a-entity>
+        </a-entity>
 
         <a-entity
           drag-rotate="speed: 1"
           ref={modelEntityRef}
           class={onObjectClick ? "interactable-model" : ""}
         >
-          {fixedModel.modelUrl.toLowerCase().includes('stl') ? (
-            <a-entity stl-model={`src: ${fixedModel.modelUrl.replace('#stl', '')}`} position="0 0.5 0" interactive-part=""></a-entity>
+          {activeModelUrl.toLowerCase().includes('stl') ? (
+            <a-entity stl-model={`src: ${activeModelUrl.replace('#stl', '')}`} position="0 0.5 0" interactive-part=""></a-entity>
           ) : (
             <a-gltf-model src="#model-asset" position="0 0.5 0" interactive-part=""></a-gltf-model>
           )}

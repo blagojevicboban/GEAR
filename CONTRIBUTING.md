@@ -12,6 +12,7 @@ Thank you for your interest in contributing to THE GEAR! We welcome contribution
   - **`index.js`**: Main entry point and API routes.
   - **`db.js`**: Database connection pool.
   - **`uploads/`**: Directory for storing uploaded assets.
+  - **`scripts/`**: Python/Shell scripts for data processing (e.g., CAD optimization).
 - **`deployment/`**: Deployment scripts and webhook logic.
 - **`tests/`**: End-to-end tests using Playwright.
 

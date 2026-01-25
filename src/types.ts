@@ -16,7 +16,9 @@ export enum EquipmentLevel {
 
 export interface Hotspot {
   id: string;
+  model_id?: string;
   position: { x: number; y: number; z: number };
+  normal?: { x: number; y: number; z: number };
   title: string;
   description: string;
   mediaUrl?: string;
@@ -33,6 +35,9 @@ export interface VETModel {
   modelUrl: string;
   thumbnailUrl: string;
   optimized: boolean;
+  optimizedUrl?: string;
+  aiAnalysis?: string;
+  optimizationStats?: string; // JSON string
   fileSize: number; // in bytes
   uploadedBy: string;
   createdAt: string;
@@ -52,7 +57,7 @@ export interface User {
   createdAt?: string; // Added to match DB
 }
 
-export type AppView = 'home' | 'gallery' | 'lessons' | 'lesson-view' | 'lesson-edit' | 'my-lessons' | 'upload' | 'edit' | 'viewer' | 'login' | 'register' | 'profile' | 'users' | 'my-projects' | 'help' | 'teacher-dashboard';
+export type AppView = 'home' | 'gallery' | 'lessons' | 'lesson-view' | 'lesson-edit' | 'my-lessons' | 'upload' | 'edit' | 'viewer' | 'login' | 'register' | 'profile' | 'users' | 'my-projects' | 'help' | 'teacher-dashboard' | 'academy';
 
 export interface TourStep {
   targetId: string;

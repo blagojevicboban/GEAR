@@ -18,11 +18,12 @@ import ProfileForm from './components/ProfileForm';
 import TourOverlay from './components/TourOverlay';
 import LessonsList from './components/LessonsList';
 import LessonViewer from './components/LessonViewer';
-import LessonEditor from './components/LessonEditor';
+import WorkbookBuilder from './components/WorkbookBuilder';
 
 import UserManagement from './components/UserManagement';
 import UserProfileModal from './components/UserProfileModal';
 import TeacherDashboard from './components/TeacherDashboard';
+import Academy from './components/Academy';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>('home');
@@ -306,6 +307,40 @@ const App: React.FC = () => {
     }
   };
 
+  const handleOptimizeModel = async (model: VETModel) => {
+    if (!confirm(`Start AI Optimization for ${model.name}? This will generate a low-poly version.`)) return;
+
+    // Optimistic UI update or Loading state could be here
+    try {
+      const res = await fetch(`/api/models/${model.id}/optimize`, {
+        method: 'POST',
+        headers: {
+          'X-User-Name': currentUser?.username || ''
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        // Update local state
+        setModels(prev => prev.map(m => m.id === model.id ? {
+          ...m,
+          optimized: true,
+          optimizedUrl: data.stats.output_path,
+          optimizationStats: JSON.stringify(data.stats),
+          aiAnalysis: data.ai
+        } : m));
+        alert(`Optimization Complete!\nReduction: ${data.stats.reduction_percentage}%\nAI Verdict: ${typeof data.ai === 'string' ? data.ai.substring(0, 100) : 'Analyzed'}`);
+      } else {
+        const err = await res.json();
+        alert(`Optimization failed: ${err.error}`);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Network error starting optimization");
+    }
+  };
+
+
+
   const handleProfileUpdate = (updatedUser: User) => {
     setCurrentUser(updatedUser);
     setCurrentView('home');
@@ -572,6 +607,10 @@ const App: React.FC = () => {
             onSwitchToLogin={() => setCurrentView('login')}
           />
         )}
+
+        {currentView === 'academy' && (
+          <Academy />
+        )}
       </main>
 
       {(currentView === 'lessons' || (currentView === 'my-lessons' && currentUser)) && (
@@ -594,7 +633,7 @@ const App: React.FC = () => {
       )}
 
       {currentView === 'lesson-edit' && (
-        <LessonEditor
+        <WorkbookBuilder
           lessonToEdit={selectedLesson}
           currentUser={currentUser}
           onSaveSuccess={() => setCurrentView('lessons')}

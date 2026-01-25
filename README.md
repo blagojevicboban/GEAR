@@ -6,6 +6,28 @@
 
 ### 🌐 [Live Demo: gear.tsp.edu.rs](https://gear.tsp.edu.rs)
 
+## 🇪🇺 Erasmus+ Project Results (ARVR4VET)
+This platform implements the 4 key intellectual outputs of the **ARVR4VET** project:
+
+### ✅ Result 1: Multi-User WebXR Ecosystem
+*   **Room-Based Collaboration**: Users join isolated workshop rooms (`workshopId`) for privacy.
+*   **Avatar System**: Real-time synchronization of **Head and Hands (Controllers)** using Inverse Kinematics principles.
+*   **Visual Roles**: Distinct avatars for Teachers (Red) and Students (Green).
+
+### ✅ Result 2: AI-Driven CAD Engine
+*   **Automated Optimization**: Server-side pipeline converts huge industrial STEP files into optimized low-poly GLB models for VR.
+*   **AI Verdict**: Google Gemini 1.5 Pro analyzes the model geometry and metadata to provide technical summaries.
+*   **Performance Toggle**: Instantly switch between "Original (High-Poly)" and "Optimized (AI)" versions in the viewer.
+
+### ✅ Result 3: Interactive Workbook
+*   **Teacher Tools**: A drag-and-drop **Workbook Builder** allows educators to create step-by-step 3D lessons.
+*   **Hotspot Editor**: Place spatial information markers directly on 3D models.
+*   **Pedagogical Interactions**: Support for "Find the Part" gamification logic.
+
+### ✅ Result 4: GEAR MOOC Suite
+*   **GEAR Academy**: Built-in video portal (`/academy`) for training teachers.
+*   **Methodological Support**: "Bloom's Taxonomy" tips integrated into the lesson editor to ensure didactic quality.
+
 ## 🚀 Key Features
 
 *   **3D Asset Repository**: Upload and manage `.glb`, `.gltf`, `.obj`, and `.stl` models.

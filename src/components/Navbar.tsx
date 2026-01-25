@@ -50,6 +50,14 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
           Help
         </button>
 
+        <button
+          id="nav-academy"
+          onClick={() => setView('academy')}
+          className={`text-sm font-medium transition-colors ${currentView === 'academy' ? 'text-indigo-400' : 'text-slate-400 hover:text-white'}`}
+        >
+          Academy
+        </button>
+
         {currentUser && (currentUser.role === 'admin' || currentUser.role === 'teacher') && (
           <button
             id="nav-upload"

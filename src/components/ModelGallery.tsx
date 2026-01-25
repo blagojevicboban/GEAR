@@ -10,13 +10,15 @@ interface ModelGalleryProps {
   onEditModel: (m: VETModel) => void;
   onDeleteModel: (id: string) => void;
   onViewUser: (username: string) => void;
+  onOptimizeModel?: (m: VETModel) => void; // New prop
   initialUserFilter?: string;
 }
 
 import { fixAssetUrl } from '../utils/urlUtils';
 import Hero3D from './Hero3D';
+import { Sparkles, BrainCircuit } from 'lucide-react';
 
-const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sectors, onViewModel, onEnterWorkshop, onEditModel, onDeleteModel, onViewUser, initialUserFilter }) => {
+const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sectors, onViewModel, onEnterWorkshop, onEditModel, onDeleteModel, onViewUser, onOptimizeModel, initialUserFilter }) => {
   const [filter, setFilter] = useState<string>('All'); // Changed from EDUSector | 'All' to string
   const [userFilter, setUserFilter] = useState<string>(initialUserFilter || 'All');
   const [search, setSearch] = useState('');
@@ -115,6 +117,17 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sector
                 </button>
               )}
 
+              {/* Optimize Button - Visible to Admin or Owner if NOT optimized */}
+              {currentUser && (currentUser.role === 'admin' || currentUser.username === model.uploadedBy) && !model.optimized && onOptimizeModel && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onOptimizeModel(model); }}
+                  className="absolute top-2 left-2 bg-emerald-600 p-2 rounded-lg text-white shadow-lg z-10 opacity-0 group-hover:opacity-100 transition-all hover:bg-emerald-500"
+                  title="Auto-Optimize with AI"
+                >
+                  <BrainCircuit size={16} />
+                </button>
+              )}
+
               {/* Delete Button - Visible to Admin or Owner */}
               {currentUser && (currentUser.role === 'admin' || currentUser.username === model.uploadedBy) && (
                 <button
@@ -147,7 +160,16 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sector
                   {model.modelUrl.split('.').pop()?.toUpperCase() || 'CAD'} • {(model.fileSize / 1024 / 1024).toFixed(1)}MB
                 </span>
               </div>
-              <h3 className="font-bold text-lg mb-1">{model.name}</h3>
+
+              <div className="flex items-center justify-between mb-1">
+                <h3 className="font-bold text-lg">{model.name}</h3>
+                {model.optimized && (
+                  <div className="flex items-center gap-1 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30" title="Optimized by AI CAD Engine">
+                    <Sparkles size={10} />
+                    <span className="text-[10px] font-bold uppercase">AI Optimized</span>
+                  </div>
+                )}
+              </div>
               <p className="text-slate-500 text-xs mb-3 flex-1 line-clamp-2">{model.description}</p>
 
               <div className="mb-4 flex items-center gap-2">
@@ -197,7 +219,7 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sector
           </div>
         )}
       </div>
-    </div>
+    </div >
   );
 };
 

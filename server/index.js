@@ -7,6 +7,8 @@ import { createServer } from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
+import { spawn } from 'child_process';
+import { GoogleGenAI } from '@google/genai';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -63,12 +65,25 @@ app.get('/api/health', (req, res) => {
 // Get all models with their hotspots
 app.get('/api/models', async (req, res) => {
     try {
+        // Startup Migration Check (Quick & Dirty for Prototype)
+        // Check if 'optimizedUrl' exists, if not add it
+        try {
+            await pool.query('SELECT optimizedUrl FROM models LIMIT 1');
+        } catch (e) {
+            console.log("Migrating DB: Adding optimization columns...");
+            await pool.query('ALTER TABLE models ADD COLUMN optimizedUrl VARCHAR(255)');
+            await pool.query('ALTER TABLE models ADD COLUMN aiAnalysis TEXT');
+            await pool.query('ALTER TABLE models ADD COLUMN optimizationStats TEXT');
+        }
+
         const [models] = await pool.query(`
             SELECT m.*, u.profilePicUrl as uploaderProfilePic 
             FROM models m 
             LEFT JOIN users u ON m.uploadedBy = u.username
         `);
         const [hotspots] = await pool.query('SELECT * FROM hotspots');
+
+
 
         const modelsWithHotspots = models.map(model => ({
             ...model,
@@ -83,6 +98,71 @@ app.get('/api/models', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Database error' });
+    }
+});
+
+app.post('/api/models/:id/optimize', async (req, res) => {
+    const { id } = req.params;
+    console.log(`Starting AI Optimization for model ${id}...`);
+
+    try {
+        const [rows] = await pool.query('SELECT * FROM models WHERE id = ?', [id]);
+        if (rows.length === 0) return res.status(404).json({ error: 'Model not found' });
+
+        const model = rows[0];
+
+        let localPath;
+        if (model.modelUrl.startsWith('/api/uploads/')) {
+            localPath = path.join(uploadDir, model.modelUrl.replace('/api/uploads/', ''));
+        } else {
+            localPath = path.join(uploadDir, path.basename(model.modelUrl));
+        }
+
+        if (!fs.existsSync(localPath)) {
+            return res.status(400).json({ error: 'Source file not found on server' });
+        }
+
+        const pythonProcess = spawn('python3', ['server/scripts/optimize.py', localPath]);
+
+        let dataString = '';
+        pythonProcess.stdout.on('data', (data) => { dataString += data.toString(); });
+
+        pythonProcess.on('close', async (code) => {
+            if (code !== 0) return res.status(500).json({ error: 'Optimization script failed' });
+
+            try {
+                const result = JSON.parse(dataString);
+
+                let aiVerdict = "AI Verification Skipped";
+                if (process.env.API_KEY) {
+                    try {
+                        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+                        const prompt = `CAD Optimization Audit:\nStats: ${JSON.stringify(result)}\nContext: Is this safe for training? Returns JSON {status, reason}`;
+
+                        const aiRes = await ai.models.generateContent({
+                            model: 'gemini-2.0-flash-exp',
+                            contents: prompt,
+                            config: { responseMimeType: 'application/json' }
+                        });
+                        aiVerdict = aiRes.text;
+                    } catch (e) { console.error("AI Error", e); }
+                }
+
+                await pool.query(
+                    'UPDATE models SET optimizedUrl = ?, optimizationStats = ?, aiAnalysis = ?, optimized = 1 WHERE id = ?',
+                    [result.output_path, JSON.stringify(result), aiVerdict, id]
+                );
+
+                res.json({ success: true, stats: result, ai: aiVerdict });
+            } catch (err) {
+                console.error(err);
+                res.status(500).json({ error: 'Processing failed' });
+            }
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
     }
 });
 
@@ -573,53 +653,71 @@ const workshopParticipants = new Map(); // workshopId -> Map(socketId -> userDat
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
 
+    // --- Multi-User Avatar System (Result 1) ---
+    // Using rooms for isolation (Room = `workshop_${workshopId}`)
     socket.on('join-workshop', ({ workshopId, user }) => {
-        socket.join(workshopId);
+        const roomName = `workshop_${workshopId}`;
+        socket.join(roomName);
 
+        // Store in memory map for state tracking (optional but good for 'current-participants')
         if (!workshopParticipants.has(workshopId)) {
             workshopParticipants.set(workshopId, new Map());
         }
-
         const participants = workshopParticipants.get(workshopId);
         participants.set(socket.id, {
             ...user,
-            pos: { x: 0, y: 1.6, z: 0 },
-            rot: { x: 0, y: 0, z: 0 }
+            transforms: {
+                head: { pos: { x: 0, y: 1.6, z: 0 }, rot: { x: 0, y: 0, z: 0 } },
+                leftHand: null,
+                rightHand: null
+            }
         });
 
-        // Notify others
-        socket.to(workshopId).emit('user-joined', { socketId: socket.id, user });
+        // Broadcast to others in the room
+        socket.to(roomName).emit('user-joined', { socketId: socket.id, user });
 
-        // Send existing participants to the new user
-        socket.emit('current-participants', Array.from(participants.entries()).map(([id, data]) => ({
-            socketId: id,
-            ...data
-        })));
+        // Send existing participants to the joiner
+        const others = Array.from(participants.entries())
+            .filter(([id]) => id !== socket.id)
+            .map(([id, data]) => ({ socketId: id, ...data }));
 
-        console.log(`User ${user.username} joined workshop ${workshopId}`);
+        socket.emit('current-participants', others);
+
+        console.log(`User ${user.username} joined ${roomName}`);
     });
 
-    socket.on('update-transform', ({ workshopId, pos, rot }) => {
+    socket.on('update-transform', ({ workshopId, transforms }) => {
+        // Update server state (lightweight)
         const participants = workshopParticipants.get(workshopId);
         if (participants && participants.has(socket.id)) {
-            const data = participants.get(socket.id);
-            data.pos = pos;
-            data.rot = rot;
-            socket.to(workshopId).emit('participant-moved', { socketId: socket.id, pos, rot });
+            const p = participants.get(socket.id);
+            p.transforms = transforms;
         }
+
+        // Broadcast movement to everyone else in the room
+        // transforms = { head: {pos, rot}, leftHand: {pos, rot}, rightHand: {pos, rot} }
+        socket.to(`workshop_${workshopId}`).emit('participant-moved', {
+            socketId: socket.id,
+            transforms
+        });
     });
 
     socket.on('sync-event', ({ workshopId, type, data }) => {
-        // Broadcast interactions like hotspot activation
-        socket.to(workshopId).emit('workshop-event', { type, data, sender: socket.id });
+        socket.to(`workshop_${workshopId}`).emit('workshop-event', { type, data, sender: socket.id });
+    });
+
+    // Voice Data Relay
+    socket.on('voice-data', ({ workshopId, data }) => {
+        socket.to(`workshop_${workshopId}`).emit('voice-data', { socketId: socket.id, data });
     });
 
     socket.on('disconnect', () => {
         workshopParticipants.forEach((participants, workshopId) => {
             if (participants.has(socket.id)) {
                 participants.delete(socket.id);
-                socket.to(workshopId).emit('user-left', socket.id);
-                console.log(`User ${socket.id} left workshop ${workshopId}`);
+                socket.to(`workshop_${workshopId}`).emit('user-left', socket.id);
+                console.log(`User ${socket.id} disconnected from ${workshopId}`);
+                if (participants.size === 0) workshopParticipants.delete(workshopId);
             }
         });
     });

@@ -76,6 +76,21 @@ app.get('/api/models', async (req, res) => {
             await pool.query('ALTER TABLE models ADD COLUMN optimizationStats TEXT');
         }
 
+        // Migration Check for system_settings
+        try {
+            await pool.query('SELECT * FROM system_settings LIMIT 1');
+        } catch (e) {
+            console.log("Migrating DB: Creating system_settings table...");
+            await pool.query(`
+                CREATE TABLE IF NOT EXISTS system_settings (
+                    setting_key VARCHAR(255) PRIMARY KEY,
+                    setting_value TEXT
+                )
+            `);
+            // Insert defaults
+            await pool.query("INSERT IGNORE INTO system_settings (setting_key, setting_value) VALUES ('maintenance_mode', 'false'), ('global_announcement', '')");
+        }
+
         const [models] = await pool.query(`
             SELECT m.*, u.profilePicUrl as uploaderProfilePic 
             FROM models m 
@@ -758,7 +773,7 @@ app.get('/api/workshops/active', async (req, res) => {
 // Get all sectors
 app.get('/api/sectors', async (req, res) => {
     try {
-        const [sectors] = await pool.query('SELECT name FROM sectors ORDER BY name ASC');
+        const [sectors] = await pool.query('SELECT DISTINCT name FROM sectors ORDER BY name ASC');
         // Return simple array of strings: ['Chemistry', 'Construction', ...]
         res.json(sectors.map(s => s.name));
     } catch (err) {
@@ -767,7 +782,170 @@ app.get('/api/sectors', async (req, res) => {
     }
 });
 
+// --- Admin Endpoints ---
+
+// Get Server Logs
+app.get('/api/admin/logs', async (req, res) => {
+    const requestor = req.headers['x-user-name'];
+    try {
+        const role = await getUserRole(requestor);
+        if (role !== 'admin') {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+
+        const logPath = path.join(process.cwd(), 'server_error.log');
+        if (fs.existsSync(logPath)) {
+            // Read last 100 lines
+            const data = fs.readFileSync(logPath, 'utf8');
+            const lines = data.split('\n');
+            const last100 = lines.slice(-100).join('\n');
+            res.send(last100);
+        } else {
+            res.send('No logs found.');
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to read logs' });
+    }
+});
+
+// Delete Sector
+app.delete('/api/sectors/:name', async (req, res) => {
+    const { name } = req.params;
+    const requestor = req.headers['x-user-name'];
+
+    try {
+        const role = await getUserRole(requestor);
+        if (role !== 'admin') {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+
+        // Check if in use
+        const [models] = await pool.query('SELECT id FROM models WHERE sector = ?', [name]);
+        if (models.length > 0) {
+            return res.status(400).json({ error: 'Sector is in use by models. Cannot delete.' });
+        }
+
+        await pool.query('DELETE FROM sectors WHERE name = ?', [name]);
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to delete sector' });
+    }
+});
+
+// Rename Sector
+app.put('/api/sectors/:name', async (req, res) => {
+    const { name } = req.params; // Old name
+    const { newName } = req.body;
+    const requestor = req.headers['x-user-name'];
+
+    try {
+        const role = await getUserRole(requestor);
+        if (role !== 'admin') {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+
+        if (!newName) return res.status(400).json({ error: 'New name required' });
+
+        // Update Sector Table (if we had IDs, we'd just update name. Since ID=Name currently or mixed usage, let's be careful)
+        // Check how sectors are stored. based on `INSERT INTO sectors (id, name...) VALUES (?, ?, ?)` in POST /api/models
+        // It seems `id` is the name.
+
+        // 1. Create new sector if not exists
+        const [exists] = await pool.query('SELECT * FROM sectors WHERE id = ?', [newName]);
+        if (exists.length === 0) {
+            await pool.query('INSERT INTO sectors (id, name, description) VALUES (?, ?, ?)', [newName, newName, 'Renamed Sector']);
+        }
+
+        // 2. Migrate all models
+        await pool.query('UPDATE models SET sector = ? WHERE sector = ?', [newName, name]);
+
+        // 3. Delete old sector
+        await pool.query('DELETE FROM sectors WHERE id = ?', [name]);
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to rename sector' });
+    }
+});
+
+// Get System Config
+app.get('/api/admin/config', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM system_settings');
+        const config = {};
+        rows.forEach(r => config[r.setting_key] = r.setting_value);
+        res.json(config);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch config' });
+    }
+});
+
+// Update System Config
+app.put('/api/admin/config', async (req, res) => {
+    const requestor = req.headers['x-user-name'];
+    const settings = req.body; // { key: value, key2: value2 }
+
+    try {
+        const role = await getUserRole(requestor);
+        if (role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
+
+        for (const [key, value] of Object.entries(settings)) {
+            await pool.query(
+                'INSERT INTO system_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?',
+                [key, String(value), String(value)]
+            );
+        }
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to update config' });
+    }
+});
+
+// Database Backup Endpoint
+app.get('/api/admin/backup', async (req, res) => {
+    const requestor = req.headers['x-user-name'];
+    try {
+        const role = await getUserRole(requestor);
+        if (role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
+
+        // Simple mysqldump wrapper (assuming mysqldump is available in environment)
+        // Note: In a real docker environment, we would need to know the credentials.
+        // For this prototype, we'll manualy construct a JSON dump which is safer and portable for this node app.
+
+        const backupData = {
+            timestamp: new Date().toISOString(),
+            tables: {}
+        };
+
+        // List of tables to dump
+        const tables = ['users', 'models', 'workshops', 'sectors', 'lessons', 'hotspots', 'system_settings'];
+
+        for (const table of tables) {
+            try {
+                const [rows] = await pool.query(`SELECT * FROM ${table}`);
+                backupData.tables[table] = rows;
+            } catch (e) {
+                console.warn(`Skipping table ${table} in backup: ${e.message}`);
+            }
+        }
+
+        res.setHeader('Content-Disposition', `attachment; filename="gear_backup_${Date.now()}.json"`);
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify(backupData, null, 2));
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Backup failed' });
+    }
+});
+
 // --- Lessons API ---
+
 
 // Get all lessons
 app.get('/api/lessons', async (req, res) => {

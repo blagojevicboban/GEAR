@@ -6,7 +6,7 @@
 
 ### 🌐 [Live Demo: gear.tsp.edu.rs](https://gear.tsp.edu.rs)
 
-## 🇪🇺 Erasmus+ Project Results (ARVR4VET)
+
 This platform implements the 4 key intellectual outputs of the **ARVR4VET** project:
 
 ### ✅ Result 1: Multi-User WebXR Ecosystem

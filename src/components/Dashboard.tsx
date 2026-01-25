@@ -21,12 +21,20 @@ const Dashboard: React.FC<DashboardProps> = ({
   modelsCount, onGetStarted, featuredModels, activeWorkshops, onViewModel, onViewUser, onJoinWorkshop
 }) => {
   const [targetPos, setTargetPos] = React.useState<{ x: number, y: number } | null>(null);
+  const [announcement, setAnnouncement] = React.useState<string>('');
+
+  React.useEffect(() => {
+    fetch('/api/admin/config')
+      .then(res => res.json())
+      .then(data => {
+        if (data.global_announcement) setAnnouncement(data.global_announcement);
+      })
+      .catch(e => console.error(e));
+  }, []);
 
   const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    // Calculate normalized coordinates (-1 to 1)
     const x = ((rect.left + rect.width / 2) / window.innerWidth) * 2 - 1;
-    // Position at the top 20% of the card
     const y = -(((rect.top + rect.height * 0.2) / window.innerHeight) * 2 - 1);
     setTargetPos({ x, y });
   };
@@ -37,6 +45,18 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12 relative">
+      {announcement && (
+        <div className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/50 rounded-xl p-4 mb-8 flex items-start gap-4 animate-in slide-in-from-top-4">
+          <div className="p-2 bg-amber-500/20 rounded-full text-amber-500 shrink-0">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg>
+          </div>
+          <div>
+            <h4 className="font-bold text-amber-400 mb-1">System Announcement</h4>
+            <p className="text-amber-200/80 text-sm">{announcement}</p>
+          </div>
+        </div>
+      )}
+
       {/* 3D Hero Overlay - Independent, Rotating, Non-interactive */}
       <div className="fixed inset-0 z-50 pointer-events-none opacity-100">
         <Suspense fallback={null}>

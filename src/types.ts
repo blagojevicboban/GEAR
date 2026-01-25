@@ -57,7 +57,7 @@ export interface User {
   createdAt?: string; // Added to match DB
 }
 
-export type AppView = 'home' | 'gallery' | 'lessons' | 'lesson-view' | 'lesson-edit' | 'my-lessons' | 'upload' | 'edit' | 'viewer' | 'login' | 'register' | 'profile' | 'users' | 'my-projects' | 'help' | 'teacher-dashboard' | 'academy';
+export type AppView = 'home' | 'gallery' | 'lessons' | 'lesson-view' | 'lesson-edit' | 'my-lessons' | 'upload' | 'edit' | 'viewer' | 'login' | 'register' | 'profile' | 'users' | 'my-projects' | 'help' | 'teacher-dashboard' | 'academy' | 'admin-settings';
 
 export interface TourStep {
   targetId: string;

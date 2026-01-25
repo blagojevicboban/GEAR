@@ -24,6 +24,7 @@ import UserManagement from './components/UserManagement';
 import UserProfileModal from './components/UserProfileModal';
 import TeacherDashboard from './components/TeacherDashboard';
 import Academy from './components/Academy';
+import AdminSettings from './components/AdminSettings';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>('home');
@@ -398,7 +399,7 @@ const App: React.FC = () => {
   }, [currentUser, handleLogout]);
 
   const protectedSetView = (view: AppView) => {
-    if ((view === 'upload' || view === 'edit' || view === 'profile' || view === 'users' || view === 'my-projects') && !currentUser) {
+    if ((view === 'upload' || view === 'edit' || view === 'profile' || view === 'users' || view === 'my-projects' || view === 'admin-settings') && !currentUser) {
       setCurrentView('login');
     } else {
       setCurrentView(view);
@@ -544,6 +545,10 @@ const App: React.FC = () => {
 
         {currentView === 'users' && currentUser && (
           <UserManagement currentUser={currentUser} models={models} />
+        )}
+
+        {currentView === 'admin-settings' && currentUser && (
+          <AdminSettings currentUser={currentUser} models={models} />
         )}
 
         {currentView === 'teacher-dashboard' && currentUser && (

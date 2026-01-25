@@ -371,7 +371,7 @@ app.delete('/api/users/:id', async (req, res) => {
 
 // File Upload Endpoint
 app.post('/api/upload', (req, res, next) => {
-    console.log('Incoming upload request');
+    // console.log('Incoming upload request');
     upload.single('file')(req, res, (err) => {
         if (err) {
             console.error('Multer error:', err);
@@ -384,7 +384,7 @@ app.post('/api/upload', (req, res, next) => {
         console.error('No file property in request after multer');
         return res.status(400).json({ error: 'No file uploaded' });
     }
-    console.log('File successfully saved:', req.file.filename);
+    // console.log('File successfully saved:', req.file.filename);
 
     const filePath = req.file.path;
     const fileExt = path.extname(req.file.originalname).toLowerCase();

@@ -106,7 +106,7 @@ if (AFRAME && THREE) {
 
                 // Attach controls
                 if (this.transformControls) {
-                    this.transformControls.attach(object);
+                    this.transformControls.attach(object as any);
                     this.transformControls.visible = true;
                     this.transformControls.enabled = true;
                 }
@@ -225,7 +225,7 @@ if (AFRAME && THREE) {
                     // For now, let's traverse the model entity.
                     const modelEl = document.querySelector('.interactable-model');
                     if (modelEl) {
-                        modelEl.object3D.traverse((node: any) => {
+                        (modelEl as any).object3D.traverse((node: any) => {
                             if (node.isMesh && node.uuid === uuid) {
                                 node.position.copy(data.position);
                                 node.quaternion.copy(data.quaternion);

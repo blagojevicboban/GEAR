@@ -121,20 +121,20 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
 
             // Controller Grips
             const controllerGrip1 = renderer.xr.getControllerGrip(0);
-            controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1));
+            controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1) as any);
             scene.add(controllerGrip1);
 
             const controllerGrip2 = renderer.xr.getControllerGrip(1);
-            controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
+            controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2) as any);
             scene.add(controllerGrip2);
 
             // Hand Models
             const hand1 = renderer.xr.getHand(0);
-            hand1.add(handModelFactory.createHandModel(hand1));
+            hand1.add(handModelFactory.createHandModel(hand1) as any);
             scene.add(hand1);
 
             const hand2 = renderer.xr.getHand(1);
-            hand2.add(handModelFactory.createHandModel(hand2));
+            hand2.add(handModelFactory.createHandModel(hand2) as any);
             scene.add(hand2);
         } catch (e) {
             console.warn("Failed to initialize XR Models:", e);
@@ -172,7 +172,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                     const label = new HTMLMesh(labelDiv);
                     label.position.copy(intersection.point);
                     label.lookAt(camera.position); // Look at user
-                    rootGroup.add(label);
+                    rootGroup.add(label as any);
 
                 } else {
                     // MANIPULATION MODE
@@ -342,7 +342,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                     text.style.fontSize = '12px';
                     const label = new CSS2DObject(text);
                     label.position.copy(object.position);
-                    rootGroup.add(label);
+                    rootGroup.add(label as any);
                 }
             }
 
@@ -459,7 +459,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         if (menuElement) {
             // @ts-ignore
             const interactionGroup = new InteractiveGroup(renderer, camera);
-            scene.add(interactionGroup);
+            scene.add(interactionGroup as any);
 
             const mesh = new HTMLMesh(menuElement);
             // mesh.position.set(0.4, 0, -0.5); // To the right (Old static pos)
@@ -467,7 +467,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             mesh.position.set(0.4, 0, -0.5);
             mesh.rotation.y = -Math.PI / 6;
             mesh.scale.setScalar(1.5); // Slightly smaller for wrist
-            interactionGroup.add(mesh);
+            interactionGroup.add(mesh as any);
             menuMesh = mesh;
 
             // Button Listeners

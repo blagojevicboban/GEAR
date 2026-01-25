@@ -18,18 +18,18 @@ const CADViewer: React.FC<CADViewerProps> = ({ fileUrl, onExit, fileName }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isMeasuring, setIsMeasuring] = useState(false);
-    const [measurePoints, setMeasurePoints] = useState<THREE.Vector3[]>([]);
+    const [measurePoints, setMeasurePoints] = useState<THREE_TYPES.Vector3[]>([]);
     const [distance, setDistance] = useState<number | null>(null);
 
-    const sceneRef = useRef<THREE.Scene | null>(null);
-    const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-    const meshRef = useRef<THREE.Mesh | null>(null);
-    const measurementLinesRef = useRef<THREE.Group | null>(null);
+    const sceneRef = useRef<THREE_TYPES.Scene | null>(null);
+    const cameraRef = useRef<THREE_TYPES.PerspectiveCamera | null>(null);
+    const meshRef = useRef<THREE_TYPES.Mesh | null>(null);
+    const measurementLinesRef = useRef<THREE_TYPES.Group | null>(null);
 
     useEffect(() => {
-        let renderer: THREE.WebGLRenderer;
-        let scene: THREE.Scene;
-        let camera: THREE.PerspectiveCamera;
+        let renderer: THREE_TYPES.WebGLRenderer;
+        let scene: THREE_TYPES.Scene;
+        let camera: THREE_TYPES.PerspectiveCamera;
         let frameId: number;
         let oc: any;
 

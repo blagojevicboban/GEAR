@@ -31,23 +31,27 @@ Authenticate a user.
 
 ### GET /users/public/:username
 Get public profile information for a user.
-**Response:**
-```json
-{
-  "username": "jdoe",
-  "role": "student",
-  "institution": "Technical School",
-  "bio": "...",
-  "profilePicUrl": "..."
-}
-```
 
 ### GET /users (Admin Only)
 Get a list of all users.
 **Headers:** `x-user-name: <admin_username>`
 
+### POST /users (Admin Only)
+Create a new user manually.
+**Headers:** `x-user-name: <admin_username>`
+**Body:** Same as `/register`
+
 ### PUT /users/:id (Admin Only)
 Update user role or institution.
+**Headers:** `x-user-name: <admin_username>`
+**Body:** `{"role": "teacher", "institution": "..."}`
+
+### PUT /users/:id/profile
+Update own profile information.
+**Body:** `{"username": "...", "institution": "...", "bio": "...", "profilePicUrl": "..."}`
+
+### DELETE /users/:id (Admin Only)
+Delete a user account.
 **Headers:** `x-user-name: <admin_username>`
 
 ## Models
@@ -65,9 +69,16 @@ Create a new model entry (after file upload).
   "description": "...",
   "sector": "Automotive",
   "modelUrl": "/api/uploads/...",
-  "uploadedBy": "jdoe"
+  "uploadedBy": "jdoe",
+  "fileSize": 1024,
+  "equipmentType": "Machine",
+  "level": "Basic"
 }
 ```
+
+### POST /models/:id/optimize
+Trigger AI optimization and analysis for a model.
+**Response:** `{"success": true, "stats": {...}, "ai": "..."}`
 
 ### POST /upload
 Upload a file (model or image).
@@ -80,70 +91,24 @@ Update a model's metadata or hotspots.
 ### DELETE /models/:id
 Delete a model and its associated file.
 
-## Admin Endpoints
+## Sectors
 
-### Get System Logs
-**GET** `/api/admin/logs`
-*   **Headers**: `X-User-Name: <admin_username>`
-*   **Response**: Plain text (last 100 lines of server error log).
+### GET /sectors
+Get a list of all available industry sectors.
+**Response:** `["Chemistry", "Mechanical", ...]`
 
-### Get System Config
-**GET** `/api/admin/config`
-*   **Response**: `200 OK`
-    ```json
-    {
-      "maintenance_mode": "false",
-      "global_announcement": "Check out the new engine model!"
-    }
-    ```
+### POST /sectors (Admin Only)
+**Headers:** `X-User-Name: <admin_username>`
+**Body:** `{"name": "New Sector"}`
 
-### Update System Config
-**PUT** `/api/admin/config`
-*   **Headers**: `X-User-Name: <admin_username>`
-*   **Body**:
-    ```json
-    {
-      "maintenance_mode": "true",
-      "global_announcement": "System maintenance in 1 hour."
-    }
-    ```
+### PUT /sectors/:name (Admin Only)
+Rename a sector and migrate all models.
+**Headers:** `X-User-Name: <admin_username>`
+**Body:** `{"newName": "Updated Sector Name"}`
 
-### Database Backup
-**GET** `/api/admin/backup`
-*   **Headers**: `X-User-Name: <admin_username>`
-*   **Query Params**: `format=json` (default) or `format=sql`
-*   **Response**: File download (`.json` or `.sql`).
-
-### Database Restore
-**POST** `/api/admin/restore`
-*   **Headers**: `X-User-Name: <admin_username>`
-*   **Body** (Multipart): `file` (.json or .sql)
-*   **Response**: `200 OK` or `500 Error`
-
----
-
-## Sector Endpoints
-
-### Get All Sectors
-**GET** `/api/sectors`
-*   **Response**: Array of strings. `["Chemistry", "Mechanical", ...]`
-
-### Create Sector
-**POST** `/api/sectors`
-*   **Headers**: `X-User-Name: <admin_username>`
-*   **Body**: `{"name": "New Sector"}`
-*   **Response**: `200 OK`
-
-### Rename Sector
-**PUT** `/api/sectors/:name`
-*   **Headers**: `X-User-Name: <admin_username>`
-*   **Body**: `{"newName": "Updated Sector Name"}`
-
-### Delete Sector
-**DELETE** `/api/sectors/:name`
-*   **Headers**: `X-User-Name: <admin_username>`
-
----
+### DELETE /sectors/:name (Admin Only)
+Delete a sector (only if unused).
+**Headers:** `X-User-Name: <admin_username>`
 
 ## Lessons
 
@@ -165,6 +130,22 @@ Create a new lesson.
 }
 ```
 
+### PUT /lessons/:id
+Update lesson metadata and steps.
+
+### DELETE /lessons/:id
+Delete a lesson.
+
+### POST /lessons/:id/attempt
+Record a student's progress.
+**Body:** `{"status": "completed", "score": 100, "last_step": 5}`
+
+## Teacher Stats
+
+### GET /teacher/stats
+Get performance statistics for lessons created by the requesting teacher.
+**Headers:** `X-User-Name: <teacher_username>`
+
 ## Workshops
 
 ### GET /workshops/active
@@ -172,8 +153,36 @@ Get a list of currently active collaborative workshops.
 
 ### POST /workshops
 Create a new workshop session for a specific model.
+**Body:** `{"modelId": "...", "createdBy": "..."}`
 
-## Sectors
+## GEAR Academy
 
-### GET /sectors
-Get a list of all available industry sectors.
+### GET /academy
+Get list of training videos.
+
+### POST /academy (Admin Only)
+Add a new video.
+**Body:** `{"category": "basics", "video": {"title": "...", "url": "..."}}`
+
+### PUT /academy/:id
+Update a video.
+
+### DELETE /academy/:id
+Remove a video.
+
+## Admin System
+
+### GET /admin/logs
+Get last 100 lines of server error logs.
+
+### GET /admin/config
+Get system configuration (maintenance mode, etc).
+
+### PUT /admin/config
+Update system configuration.
+
+### GET /admin/backup
+Download database backup (JSON or SQL).
+
+### POST /admin/restore
+Restore database from backup file.

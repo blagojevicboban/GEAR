@@ -1,0 +1,57 @@
+{
+  "basics": [
+    {
+      "id": 1,
+      "title": "What is glTF and How to Use It",
+      "duration": "5:20",
+      "url": "https://www.youtube.com/embed/Q71l9WaY2yM",
+      "desc": "What is glTF and How to Use It\n"
+    },
+    {
+      "id": 2,
+      "title": "Building Immersive XR Experiences With WebXR",
+      "duration": "3:15",
+      "url": "https://www.youtube.com/embed/ucbuA0nbz58",
+      "desc": "Building Immersive XR Experiences With WebXR\n"
+    },
+    {
+      "title": "WebXR + AR + Three.js Course: Intro to Augmented Reality on the Web",
+      "desc": "WebXR + AR + Three.js Course: Intro to Augmented Reality on the Web\n",
+      "url": "https://www.youtube.com/embed/kbymJ5ib1gQ",
+      "duration": "00:00",
+      "id": 1769376078365
+    }
+  ],
+  "creation": [
+    {
+      "id": 3,
+      "title": "The Complete glTF Asset Creation Pipeline",
+      "duration": "8:45",
+      "url": "https://www.youtube.com/embed/KTPdNUGwIGc",
+      "desc": "The Complete glTF Asset Creation Pipeline\n"
+    },
+    {
+      "id": 4,
+      "title": "Adding Interactive Hotspots",
+      "duration": "4:30",
+      "url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "desc": "Attaching media to 3D parts."
+    }
+  ],
+  "pedagogy": [
+    {
+      "id": 5,
+      "title": "Bloom's Taxonomy in VR",
+      "duration": "12:00",
+      "url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "desc": "Structuring learning outcomes."
+    },
+    {
+      "id": 6,
+      "title": "Flipped Classroom with GEAR",
+      "duration": "9:10",
+      "url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "desc": "Assigning VR homework."
+    }
+  ]
+}

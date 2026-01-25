@@ -1,27 +1,112 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { User } from '../types';
+import { Trash2, Plus, Edit2 } from 'lucide-react';
 
-const Academy: React.FC = () => {
+interface AcademyProps {
+    currentUser?: User | null;
+}
+
+const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
     const [activeCategory, setActiveCategory] = useState<'basics' | 'creation' | 'pedagogy'>('basics');
+    const [videos, setVideos] = useState<any>({ basics: [], creation: [], pedagogy: [] });
+    const [isAdding, setIsAdding] = useState(false);
+    const [editingId, setEditingId] = useState<number | null>(null);
 
-    const VIDEOS = {
-        basics: [
-            { id: 1, title: 'Installing GEAR Locally', duration: '5:20', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', desc: 'Deploying Docker containers in schools.' },
-            { id: 2, title: 'Navigating the 3D Repo', duration: '3:15', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', desc: 'Finding and filtering VET models.' },
-        ],
-        creation: [
-            { id: 3, title: 'Creating Your First Lesson', duration: '8:45', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', desc: 'Using the Workbook Editor.' },
-            { id: 4, title: 'Adding Interactive Hotspots', duration: '4:30', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', desc: 'Attaching media to 3D parts.' },
-        ],
-        pedagogy: [
-            { id: 5, title: 'Bloom\'s Taxonomy in VR', duration: '12:00', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', desc: 'Structuring learning outcomes.' },
-            { id: 6, title: 'Flipped Classroom with GEAR', duration: '9:10', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', desc: ' assigning VR homework.' },
-        ]
+    // New/Edit Video Form
+    const [newTitle, setNewTitle] = useState('');
+    const [newDesc, setNewDesc] = useState('');
+    const [newUrl, setNewUrl] = useState('');
+    const [newDuration, setNewDuration] = useState('00:00');
+
+    useEffect(() => {
+        fetch('/api/academy')
+            .then(res => res.json())
+            .then(data => setVideos(data))
+            .catch(err => console.error(err));
+    }, []);
+
+    const handleDelete = async (id: number) => {
+        if (!confirm("Delete this training video?")) return;
+        try {
+            await fetch(`/api/academy/${id}`, { method: 'DELETE' });
+            const newVids = { ...videos };
+            newVids[activeCategory] = newVids[activeCategory].filter((v: any) => v.id !== id);
+            setVideos(newVids);
+        } catch (e) { alert("Failed to delete"); }
     };
+
+    const handleEdit = (video: any) => {
+        setEditingId(video.id);
+        setNewTitle(video.title);
+        setNewDesc(video.desc);
+        setNewUrl(video.url);
+        setNewDuration(video.duration);
+        setIsAdding(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const getEmbedUrl = (url: string) => {
+        if (url.includes('youtube.com/watch?v=')) {
+            return url.replace('watch?v=', 'embed/').split('&')[0];
+        }
+        if (url.includes('youtu.be/')) {
+            return url.replace('youtu.be/', 'youtube.com/embed/');
+        }
+        return url;
+    };
+
+    const handleSave = async () => {
+        if (!newTitle || !newUrl) return alert("Title and URL required");
+
+        const finalUrl = getEmbedUrl(newUrl);
+
+        const payload = {
+            category: activeCategory,
+            video: { title: newTitle, desc: newDesc, url: finalUrl, duration: newDuration }
+        };
+
+        try {
+            let res;
+            if (editingId) {
+                // Update
+                res = await fetch(`/api/academy/${editingId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-User-Name': currentUser?.username || '' },
+                    body: JSON.stringify(payload)
+                });
+            } else {
+                // Create
+                res = await fetch('/api/academy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-User-Name': currentUser?.username || '' },
+                    body: JSON.stringify(payload)
+                });
+            }
+
+            if (res.ok) {
+                // Refetch all to be safe or optimize local state
+                const freshData = await (await fetch('/api/academy')).json();
+                setVideos(freshData);
+
+                setIsAdding(false);
+                setEditingId(null);
+                setNewTitle(''); setNewUrl(''); setNewDesc('');
+            }
+        } catch (e) { alert("Failed to save video"); }
+    };
+
+    const handleCancel = () => {
+        setIsAdding(false);
+        setEditingId(null);
+        setNewTitle(''); setNewUrl(''); setNewDesc('');
+    };
+
+    const isAdmin = currentUser?.role === 'admin';
 
     return (
         <div className="max-w-7xl mx-auto px-6 py-12">
             <div className="mb-12 text-center">
-                <h1 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">GEAR Academy</h1>
+                <h1 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">GEAR Academy <span className="text-white text-sm bg-indigo-600 px-2 py-1 rounded ml-2 shadow-lg">BETA</span></h1>
                 <p className="text-slate-400 max-w-2xl mx-auto">
                     Master the platform and upgrade your teaching methodology.
                     The MOOC Suite provides certified training for VET educators.
@@ -44,10 +129,58 @@ const Academy: React.FC = () => {
                 ))}
             </div>
 
+            {isAdmin && !isAdding && (
+                <div className="mb-8 flex justify-end">
+                    <button
+                        onClick={() => setIsAdding(true)}
+                        className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2"
+                    >
+                        <Plus size={16} /> Add Video
+                    </button>
+                </div>
+            )}
+
+            {/* Admin Add/Edit Form */}
+            {isAdmin && isAdding && (
+                <div className="mb-8 bg-slate-900 border border-slate-700 p-6 rounded-xl animate-in fade-in slide-in-from-top-4">
+                    <h3 className="font-bold text-white mb-4">{editingId ? 'Edit Video' : `Add New Video to "${activeCategory}"`}</h3>
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                        <input placeholder="Title" value={newTitle} onChange={e => setNewTitle(e.target.value)} className="bg-slate-950 border border-slate-700 p-2 rounded text-white" />
+                        <input placeholder="Duration (e.g., 12:30)" value={newDuration} onChange={e => setNewDuration(e.target.value)} className="bg-slate-950 border border-slate-700 p-2 rounded text-white" />
+                        <input placeholder="Embed URL (YouTube/Vimeo)" value={newUrl} onChange={e => setNewUrl(e.target.value)} className="bg-slate-950 border border-slate-700 p-2 rounded text-white col-span-2" />
+                        <textarea placeholder="Description" value={newDesc} onChange={e => setNewDesc(e.target.value)} className="bg-slate-950 border border-slate-700 p-2 rounded text-white col-span-2" rows={2} />
+                    </div>
+                    <div className="flex gap-2">
+                        <button onClick={handleSave} className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded font-bold">{editingId ? 'Update Video' : 'Save Video'}</button>
+                        <button onClick={handleCancel} className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded font-bold">Cancel</button>
+                    </div>
+                </div>
+            )}
+
             {/* Video Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {VIDEOS[activeCategory].map(video => (
-                    <div key={video.id} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-indigo-500/50 transition-colors group">
+                {videos[activeCategory]?.length > 0 ? videos[activeCategory].map((video: any) => (
+                    <div key={video.id} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-indigo-500/50 transition-colors group relative">
+
+                        {isAdmin && (
+                            <div className="absolute top-2 right-2 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                    onClick={() => handleEdit(video)}
+                                    className="bg-indigo-600 text-white p-2 rounded-full hover:bg-indigo-500 shadow-md"
+                                    title="Edit Video"
+                                >
+                                    <Edit2 size={14} />
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(video.id)}
+                                    className="bg-rose-600 text-white p-2 rounded-full hover:bg-rose-500 shadow-md"
+                                    title="Delete Video"
+                                >
+                                    <Trash2 size={14} />
+                                </button>
+                            </div>
+                        )}
+
                         <div className="aspect-video relative bg-black">
                             <iframe
                                 src={video.url}
@@ -69,7 +202,11 @@ const Academy: React.FC = () => {
                             </button>
                         </div>
                     </div>
-                ))}
+                )) : (
+                    <div className="col-span-3 text-center py-12 text-slate-500">
+                        No videos in this category yet.
+                    </div>
+                )}
             </div>
 
             {/* Certification Banner */}

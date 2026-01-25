@@ -43,14 +43,6 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
         </button>
 
         <button
-          id="nav-help"
-          onClick={() => setView('help')}
-          className={`text-sm font-medium transition-colors ${currentView === 'help' ? 'text-indigo-400' : 'text-slate-400 hover:text-white'}`}
-        >
-          Help
-        </button>
-
-        <button
           id="nav-academy"
           onClick={() => setView('academy')}
           className={`text-sm font-medium transition-colors ${currentView === 'academy' ? 'text-indigo-400' : 'text-slate-400 hover:text-white'}`}
@@ -58,18 +50,15 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
           Academy
         </button>
 
-        {currentUser && (currentUser.role === 'admin' || currentUser.role === 'teacher') && (
-          <button
-            id="nav-upload"
-            onClick={() => setView('upload')}
-            className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${currentView === 'upload'
-              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
-              : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700'
-              }`}
-          >
-            + Upload
-          </button>
-        )}
+        <button
+          id="nav-help"
+          onClick={() => setView('help')}
+          className={`text-sm font-medium transition-colors ${currentView === 'help' ? 'text-indigo-400' : 'text-slate-400 hover:text-white'}`}
+        >
+          Help
+        </button>
+
+
 
 
 

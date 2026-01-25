@@ -10,7 +10,8 @@ interface ModelGalleryProps {
   onEditModel: (m: VETModel) => void;
   onDeleteModel: (id: string) => void;
   onViewUser: (username: string) => void;
-  onOptimizeModel?: (m: VETModel) => void; // New prop
+  onOptimizeModel?: (m: VETModel) => void;
+  onUpload?: () => void;
   initialUserFilter?: string;
 }
 
@@ -18,7 +19,7 @@ import { fixAssetUrl } from '../utils/urlUtils';
 import Hero3D from './Hero3D';
 import { Sparkles, BrainCircuit } from 'lucide-react';
 
-const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sectors, onViewModel, onEnterWorkshop, onEditModel, onDeleteModel, onViewUser, onOptimizeModel, initialUserFilter }) => {
+const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sectors, onViewModel, onEnterWorkshop, onEditModel, onDeleteModel, onViewUser, onOptimizeModel, onUpload, initialUserFilter }) => {
   const [filter, setFilter] = useState<string>('All'); // Changed from EDUSector | 'All' to string
   const [userFilter, setUserFilter] = useState<string>(initialUserFilter || 'All');
   const [search, setSearch] = useState('');
@@ -62,7 +63,15 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sector
           <p className="text-slate-400">Standardized, optimized, and interactive 3D twins.</p>
         </div>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-3 items-center">
+          {filteredModels.length > 0 && currentUser && (currentUser.role === 'admin' || currentUser.role === 'teacher') && onUpload && (
+            <button
+              onClick={onUpload}
+              className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/20 flex items-center gap-2 animate-pulse"
+            >
+              <span className="text-lg leading-none">+</span> Upload New Model
+            </button>
+          )}
           <input
             type="text"
             placeholder="Search equipment..."

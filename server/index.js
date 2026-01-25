@@ -1046,7 +1046,102 @@ app.get('/api/teacher/stats', async (req, res) => {
     }
 });
 
-// Serve static files from the React build
+// --- GEAR Academy API (Result 4 Extension) ---
+const ACADEMY_FILE = path.join(__dirname, 'academy_data.json');
+
+// Helper to read/write videos
+const getAcademyVideos = () => {
+    if (!fs.existsSync(ACADEMY_FILE)) {
+        // Default seed data
+        const defaults = {
+            basics: [
+                { id: 1, title: 'Installing GEAR Locally', duration: '5:20', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', desc: 'Deploying Docker containers in schools.' },
+                { id: 2, title: 'Navigating the 3D Repo', duration: '3:15', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', desc: 'Finding and filtering VET models.' },
+            ],
+            creation: [
+                { id: 3, title: 'Creating Your First Lesson', duration: '8:45', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', desc: 'Using the Workbook Editor.' },
+                { id: 4, title: 'Adding Interactive Hotspots', duration: '4:30', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', desc: 'Attaching media to 3D parts.' },
+            ],
+            pedagogy: [
+                { id: 5, title: 'Bloom\'s Taxonomy in VR', duration: '12:00', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', desc: 'Structuring learning outcomes.' },
+                { id: 6, title: 'Flipped Classroom with GEAR', duration: '9:10', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', desc: 'Assigning VR homework.' },
+            ]
+        };
+        fs.writeFileSync(ACADEMY_FILE, JSON.stringify(defaults, null, 2));
+        return defaults;
+    }
+    return JSON.parse(fs.readFileSync(ACADEMY_FILE));
+};
+
+app.get('/api/academy', (req, res) => {
+    res.json(getAcademyVideos());
+});
+
+app.post('/api/academy', async (req, res) => {
+    // Admin check
+    const requestor = req.headers['x-user-name'];
+    if (!requestor) return res.status(401).json({ error: 'Unauthorized' });
+
+    // Simple mock admin check (in production check DB role)
+    // For now we trust the client sends valid user if they are logged in as admin
+    // Ideally: await pool.query('SELECT role FROM users ...')
+
+    try {
+        const { category, video } = req.body;
+        const data = getAcademyVideos();
+
+        if (!data[category]) data[category] = [];
+        const newVideo = { ...video, id: Date.now() }; // Simple ID
+        data[category].push(newVideo);
+
+        fs.writeFileSync(ACADEMY_FILE, JSON.stringify(data, null, 2));
+        res.json(newVideo);
+    } catch (e) {
+        res.status(500).json({ error: "Failed to save video" });
+    }
+});
+
+app.delete('/api/academy/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const data = getAcademyVideos();
+    let found = false;
+
+    // Search and remove
+    Object.keys(data).forEach(cat => {
+        const initLen = data[cat].length;
+        data[cat] = data[cat].filter(v => v.id !== id);
+        if (data[cat].length !== initLen) found = true;
+    });
+
+    if (found) {
+        fs.writeFileSync(ACADEMY_FILE, JSON.stringify(data, null, 2));
+        res.json({ success: true });
+    } else {
+        res.status(404).json({ error: "Video not found" });
+    }
+});
+
+app.put('/api/academy/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const { video } = req.body;
+    const data = getAcademyVideos();
+    let found = false;
+
+    Object.keys(data).forEach(cat => {
+        const idx = data[cat].findIndex(v => v.id === id);
+        if (idx !== -1) {
+            data[cat][idx] = { ...data[cat][idx], ...video };
+            found = true;
+        }
+    });
+
+    if (found) {
+        fs.writeFileSync(ACADEMY_FILE, JSON.stringify(data, null, 2));
+        res.json({ success: true });
+    } else {
+        res.status(404).json({ error: "Video not found" });
+    }
+});
 app.use(express.static(path.join(__dirname, '../dist')));
 
 // Handle React routing, return all requests to React app

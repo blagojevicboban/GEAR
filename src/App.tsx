@@ -56,7 +56,7 @@ const App: React.FC = () => {
     {
       targetId: 'nav-repo',
       title: '3D Repository',
-      content: 'Browse hundreds of optimized industrial models ready for VR.',
+      content: 'Browse, filter, and upload new industrial models.',
       position: 'bottom',
       view: 'home'
     },
@@ -64,6 +64,13 @@ const App: React.FC = () => {
       targetId: 'nav-lessons',
       title: 'Interactive Lessons',
       content: 'Explore guided 3D learning experiences designed by teachers.',
+      position: 'bottom',
+      view: 'home'
+    },
+    {
+      targetId: 'nav-academy',
+      title: 'GEAR Academy',
+      content: 'Master the platform with video tutorials and pedagogy tips.',
       position: 'bottom',
       view: 'home'
     },
@@ -95,16 +102,7 @@ const App: React.FC = () => {
       }
     );
   } else {
-    // If teacher/admin, show upload
-    if (currentUser.role === 'admin' || currentUser.role === 'teacher') {
-      TOUR_STEPS.push({
-        targetId: 'nav-upload',
-        title: 'Upload Assets',
-        content: 'Contribute new 3D models to the repository.',
-        position: 'bottom',
-        view: 'home'
-      });
-    }
+
 
     // Profile for all logged in users
     TOUR_STEPS.push({
@@ -460,6 +458,7 @@ const App: React.FC = () => {
             onViewModel={(m) => handleViewModel(m)}
             onViewUser={setViewingProfileUser}
             onEnterWorkshop={(m) => handleViewModel(m, true)}
+            onUpload={() => setCurrentView('upload')}
             onEditModel={handleEditRequest}
             onDeleteModel={async (id) => {
               if (!confirm('Are you sure you want to delete this model?')) return;
@@ -609,7 +608,7 @@ const App: React.FC = () => {
         )}
 
         {currentView === 'academy' && (
-          <Academy />
+          <Academy currentUser={currentUser} />
         )}
       </main>
 

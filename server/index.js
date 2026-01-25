@@ -809,6 +809,33 @@ app.get('/api/admin/logs', async (req, res) => {
     }
 });
 
+// Create Sector
+app.post('/api/sectors', async (req, res) => {
+    const { name } = req.body;
+    const requestor = req.headers['x-user-name'];
+
+    try {
+        const role = await getUserRole(requestor);
+        if (role !== 'admin') {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+
+        if (!name) return res.status(400).json({ error: 'Name required' });
+
+        // Check if exists
+        const [exists] = await pool.query('SELECT * FROM sectors WHERE name = ?', [name]);
+        if (exists.length > 0) {
+            return res.status(400).json({ error: 'Sector already exists' });
+        }
+
+        await pool.query('INSERT INTO sectors (id, name, description) VALUES (?, ?, ?)', [name, name, 'Manual Entry']);
+        res.json({ success: true, name });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to create sector' });
+    }
+});
+
 // Delete Sector
 app.delete('/api/sectors/:name', async (req, res) => {
     const { name } = req.params;
@@ -909,34 +936,68 @@ app.put('/api/admin/config', async (req, res) => {
 // Database Backup Endpoint
 app.get('/api/admin/backup', async (req, res) => {
     const requestor = req.headers['x-user-name'];
+    const { format } = req.query; // 'json' or 'sql'
+
     try {
         const role = await getUserRole(requestor);
         if (role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
 
-        // Simple mysqldump wrapper (assuming mysqldump is available in environment)
-        // Note: In a real docker environment, we would need to know the credentials.
-        // For this prototype, we'll manualy construct a JSON dump which is safer and portable for this node app.
-
-        const backupData = {
-            timestamp: new Date().toISOString(),
-            tables: {}
-        };
-
-        // List of tables to dump
         const tables = ['users', 'models', 'workshops', 'sectors', 'lessons', 'hotspots', 'system_settings'];
 
-        for (const table of tables) {
-            try {
-                const [rows] = await pool.query(`SELECT * FROM ${table}`);
-                backupData.tables[table] = rows;
-            } catch (e) {
-                console.warn(`Skipping table ${table} in backup: ${e.message}`);
-            }
-        }
+        if (format === 'sql') {
+            let sqlDump = `-- GEAR Database Backup\n-- Generated: ${new Date().toISOString()}\n\n`;
 
-        res.setHeader('Content-Disposition', `attachment; filename="gear_backup_${Date.now()}.json"`);
-        res.setHeader('Content-Type', 'application/json');
-        res.send(JSON.stringify(backupData, null, 2));
+            for (const table of tables) {
+                try {
+                    const [rows] = await pool.query(`SELECT * FROM ${table}`);
+                    if (rows.length > 0) {
+                        sqlDump += `\n-- Table: ${table}\n`;
+                        sqlDump += `LOCK TABLES \`${table}\` WRITE;\n`;
+                        sqlDump += `/*!40000 ALTER TABLE \`${table}\` DISABLE KEYS */;\n`;
+
+                        const insertStatements = rows.map(row => {
+                            const values = Object.values(row).map(val => {
+                                if (val === null) return 'NULL';
+                                if (typeof val === 'number') return val;
+                                // Escape single quotes and backslashes
+                                return `'${String(val).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+                            }).join(', ');
+                            return `INSERT INTO \`${table}\` VALUES (${values});`;
+                        }).join('\n');
+
+                        sqlDump += insertStatements + '\n';
+                        sqlDump += `/*!40000 ALTER TABLE \`${table}\` ENABLE KEYS */;\n`;
+                        sqlDump += `UNLOCK TABLES;\n`;
+                    }
+                } catch (e) {
+                    console.warn(`Skipping table ${table} in backup: ${e.message}`);
+                }
+            }
+
+            res.setHeader('Content-Disposition', `attachment; filename="gear_backup_${Date.now()}.sql"`);
+            res.setHeader('Content-Type', 'application/sql');
+            res.send(sqlDump);
+
+        } else {
+            // Default JSON
+            const backupData = {
+                timestamp: new Date().toISOString(),
+                tables: {}
+            };
+
+            for (const table of tables) {
+                try {
+                    const [rows] = await pool.query(`SELECT * FROM ${table}`);
+                    backupData.tables[table] = rows;
+                } catch (e) {
+                    console.warn(`Skipping table ${table} in backup: ${e.message}`);
+                }
+            }
+
+            res.setHeader('Content-Disposition', `attachment; filename="gear_backup_${Date.now()}.json"`);
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify(backupData, null, 2));
+        }
 
     } catch (err) {
         console.error(err);

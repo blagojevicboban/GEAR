@@ -119,21 +119,16 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
         }
     };
 
-    const handleBackup = () => {
-        // Trigger download
-        const link = document.createElement('a');
-        link.href = '/api/admin/backup';
-        // Add header if needed? Browser handles GET. But we need Auth middleware check on GET? 
-        // Our GET endpoint checks X-User-Name header. Browser navigation doesn't send custom headers easily.
-        // Quick fix: Admin endpoint should check session or token. 
-        // Since we rely on 'X-User-Name' for this prototype auth, we need to fetch and blob it.
+    const handleBackup = (format: 'json' | 'sql' = 'json') => {
+        const ext = format === 'json' ? 'json' : 'sql';
 
-        fetch('/api/admin/backup', { headers: { 'X-User-Name': currentUser.username } })
+        fetch(`/api/admin/backup?format=${format}`, { headers: { 'X-User-Name': currentUser.username } })
             .then(res => res.blob())
             .then(blob => {
                 const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
                 link.href = url;
-                link.download = `gear_backup_${new Date().toISOString().split('T')[0]}.json`;
+                link.download = `gear_backup_${new Date().toISOString().split('T')[0]}.${ext}`;
                 link.click();
             })
             .catch(e => alert("Backup failed: " + e));
@@ -188,12 +183,22 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                     </div>
                     <h3 className="text-lg font-bold text-white mb-1">Export Database</h3>
                     <p className="text-sm text-slate-500 mb-6">Download a complete JSON dump of all tables.</p>
-                    <button
-                        onClick={handleBackup}
-                        className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-6 rounded-lg transition-colors border border-slate-600"
-                    >
-                        Download Backup
-                    </button>
+                    <div className="flex gap-4 items-center">
+                        <button
+                            onClick={() => handleBackup('json')}
+                            className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-6 rounded-lg transition-colors border border-slate-600 flex items-center gap-2"
+                        >
+                            <span className="text-xs uppercase bg-slate-800 px-1.5 py-0.5 rounded text-amber-400">JSON</span>
+                            Download
+                        </button>
+                        <button
+                            onClick={() => handleBackup('sql')}
+                            className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-6 rounded-lg transition-colors border border-slate-600 flex items-center gap-2"
+                        >
+                            <span className="text-xs uppercase bg-slate-800 px-1.5 py-0.5 rounded text-blue-400">SQL</span>
+                            Download
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -205,6 +210,7 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
     const [loading, setLoading] = useState(true);
     const [editingSector, setEditingSector] = useState<string | null>(null);
     const [newSectorName, setNewSectorName] = useState('');
+    const [addSectorName, setAddSectorName] = useState('');
 
     const fetchSectors = async () => {
         setLoading(true);
@@ -224,6 +230,30 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
     useEffect(() => {
         fetchSectors();
     }, []);
+
+    const handleAdd = async () => {
+        if (!addSectorName.trim()) return;
+        try {
+            const res = await fetch('/api/sectors', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-Name': currentUser.username
+                },
+                body: JSON.stringify({ name: addSectorName.trim() })
+            });
+            if (res.ok) {
+                setAddSectorName('');
+                fetchSectors();
+            } else {
+                const err = await res.json();
+                alert(`Failed to add sector: ${err.error}`);
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Network error");
+        }
+    };
 
     const handleDelete = async (sectorName: string) => {
         if (!confirm(`Are you sure you want to delete the sector "${sectorName}"? This is only possible if no models are using it.`)) return;
@@ -284,6 +314,24 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
         <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-xl">
             <h2 className="text-2xl font-bold text-white mb-4">Sector Management</h2>
             <p className="text-slate-400 mb-6">Manage the list of educational sectors. Rename to fix typos or consolidate categories.</p>
+
+            <div className="flex gap-4 mb-6">
+                <input
+                    type="text"
+                    placeholder="New Sector Name"
+                    className="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white outline-none focus:ring-2 focus:ring-indigo-500 w-full max-w-md"
+                    value={addSectorName}
+                    onChange={(e) => setAddSectorName(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+                />
+                <button
+                    onClick={handleAdd}
+                    disabled={!addSectorName.trim()}
+                    className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2 px-6 rounded-xl transition-colors"
+                >
+                    Add Sector
+                </button>
+            </div>
 
             <div className="overflow-hidden rounded-xl border border-slate-700">
                 <table className="w-full text-left text-slate-300">

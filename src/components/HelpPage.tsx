@@ -180,7 +180,7 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                         </div>
                         <div>
                             <strong className="text-white block mb-1">Teachers & Admins</strong>
-                            Upload new models (GLB), set up educational hotspots, host multi-user workshops, and manage the repository.
+                            Upload new models (via the **+ Upload** button in Repository), create interactive lessons, host workshops, and track student progress.
                         </div>
                         <div>
                             <strong className="text-white block mb-1">Collaborative Workshops</strong>
@@ -193,24 +193,38 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
                     <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">🎓</span>
-                        Interactive & Gamified Learning
+                        Interactive Learning & Academy
                     </h2>
                     <div className="space-y-6 text-slate-400">
                         <div>
-                            <strong className="text-white block mb-1">Guided Lessons</strong>
-                            Take step-by-step lessons created by teachers. Split-screen view allows you to read instructions while interacting with the 3D equipment.
+                            <strong className="text-white block mb-1">GEAR Academy</strong>
+                            Access official video training for educators. Learn how to create lessons, manage workshops, and use the platform effectively via the **Academy** tab.
                         </div>
                         <div>
-                            <strong className="text-white block mb-1">Quizzes</strong>
-                            Test your knowledge with built-in multiple choice questions. Receive instant feedback on your answers.
+                            <strong className="text-white block mb-1">Guided Lessons & Quizzes</strong>
+                            Take step-by-step 3D lessons with built-in quizzes. Receive instant feedback and track your progress.
                         </div>
                         <div>
                             <strong className="text-white block mb-1">"Find the Part" Challenges</strong>
-                            Put your skills to the test in the 3D environment. You'll be asked to locate specific components (e.g., "Find the Emergency Stop Button") and confirm by clicking on the actual 3D mesh.
+                            Put your skills to the test in the 3D environment. Locate specific components (e.g., "Find the Emergency Stop Button") and confirm by clicking the mesh.
+                        </div>
+                    </div>
+                </div>
+
+                {/* Section 5: AI & Optimization */}
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
+                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <span className="w-8 h-8 rounded-lg bg-purple-600 flex items-center justify-center">✨</span>
+                        AI Engine (New)
+                    </h2>
+                    <div className="space-y-6 text-slate-400">
+                        <div>
+                            <strong className="text-white block mb-1">Automated Optimization</strong>
+                            Large CAD files (STEP/IGES) can be automatically converted into VR-ready GLB models. Use the **Optimize** button in the Repository.
                         </div>
                         <div>
-                            <strong className="text-white block mb-1">Progress Tracking</strong>
-                            Your progress is automatically saved. Teachers can monitor class performance via the **Teacher Dashboard**.
+                            <strong className="text-white block mb-1">AI Verdict</strong>
+                            Google Gemini analyzes every model to provide technical descriptions and quality assessments.
                         </div>
                     </div>
                 </div>

@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { User } from '../types';
 
 interface RegisterFormProps {
@@ -8,6 +8,7 @@ interface RegisterFormProps {
 }
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin }) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -29,7 +30,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
       });
 
       if (!res.ok) {
-        alert('Registration failed');
+        alert(t('auth.error_register'));
         return;
       }
 
@@ -37,7 +38,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
       onRegister(user);
     } catch (err) {
       console.error("Registration error", err);
-      alert('Error connecting to server');
+      alert(t('auth.error_server'));
     } finally {
       setLoading(false);
     }
@@ -49,58 +50,58 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-indigo-500"></div>
 
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-white mb-2">Create Account</h2>
-          <p className="text-slate-500 text-sm">Join the global VET repository</p>
+          <h2 className="text-3xl font-bold text-white mb-2">{t('auth.register_title')}</h2>
+          <p className="text-slate-500 text-sm">{t('auth.register_subtitle')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Username</label>
+            <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">{t('auth.username')}</label>
             <input
               required
               type="text"
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:border-indigo-500 outline-none transition-all text-white"
               value={formData.username}
               onChange={e => setFormData({ ...formData, username: e.target.value })}
-              placeholder="johndoe"
+              placeholder={t('auth.placeholder_username')}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Educational Email</label>
+            <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">{t('auth.email')}</label>
             <input
               required
               type="email"
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:border-indigo-500 outline-none transition-all text-white"
               value={formData.email}
               onChange={e => setFormData({ ...formData, email: e.target.value })}
-              placeholder="john@school.edu"
+              placeholder={t('auth.placeholder_email')}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Institution</label>
+            <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">{t('auth.institution')}</label>
             <input
               required
               type="text"
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:border-indigo-500 outline-none transition-all text-white"
               value={formData.institution}
               onChange={e => setFormData({ ...formData, institution: e.target.value })}
-              placeholder="Polytechnic High School"
+              placeholder={t('auth.placeholder_institution')}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Account Type</label>
+            <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">{t('auth.account_type')}</label>
             <select
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:border-indigo-500 outline-none transition-all text-white appearance-none"
               value={formData.role}
               onChange={e => setFormData({ ...formData, role: e.target.value as 'student' | 'teacher' })}
             >
-              <option value="student">Student</option>
-              <option value="teacher">Teacher</option>
+              <option value="student">{t('auth.student')}</option>
+              <option value="teacher">{t('auth.teacher')}</option>
             </select>
           </div>
 
           <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Password</label>
+            <label className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">{t('auth.password')}</label>
             <input
               required
               type="password"
@@ -119,19 +120,19 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
             {loading ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
             ) : (
-              'Create Account'
+              t('auth.sign_up')
             )}
           </button>
         </form>
 
         <div className="mt-8 text-center border-t border-slate-800 pt-6">
           <p className="text-slate-500 text-sm">
-            Already have an account?{' '}
+            {t('auth.have_account')}{' '}
             <button
               onClick={onSwitchToLogin}
               className="text-indigo-400 font-bold hover:text-indigo-300 transition-colors"
             >
-              Sign In
+              {t('auth.sign_in')}
             </button>
           </p>
         </div>

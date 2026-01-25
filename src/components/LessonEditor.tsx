@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { fixAssetUrl } from '../utils/urlUtils';
 import RichTextEditor from './RichTextEditor';
 
@@ -23,6 +24,7 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
     availableModels,
     availableSectors
 }) => {
+    const { t } = useTranslation();
     // Lesson Metadata State
     const [title, setTitle] = useState(lessonToEdit?.title || '');
     const [description, setDescription] = useState(lessonToEdit?.description || '');
@@ -54,8 +56,8 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                 id: '', // new
                 lesson_id: '',
                 step_order: 1,
-                title: 'Introduction',
-                content: '# Welcome to this lesson\n\nStart by explaining the topic.',
+                title: t('lessons.editor.intro_title'),
+                content: t('lessons.editor.intro_content'),
                 model_id: ''
             }]);
         }
@@ -68,7 +70,7 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                 id: '',
                 lesson_id: '',
                 step_order: prev.length + 1,
-                title: `Step ${prev.length + 1}`,
+                title: `${t('lessons.editor.add_step').split(' ')[1]} ${prev.length + 1}`,
                 content: '',
                 model_id: ''
             }
@@ -140,12 +142,12 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
             if (res.ok) {
                 return data.url;
             } else {
-                alert('Upload failed: ' + data.error);
+                alert(t('builder.errors.save_failed') + ': ' + data.error);
                 return null;
             }
         } catch (err) {
             console.error(err);
-            alert('Upload failed');
+            alert(t('builder.errors.save_failed'));
             return null;
         }
     };
@@ -205,7 +207,7 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
     };
 
     const handleSave = async () => {
-        if (!title.trim()) return alert('Please enter a lesson title');
+        if (!title.trim()) return alert(t('lessons.editor.errors.enter_title'));
 
         const payload = {
             title,
@@ -242,7 +244,7 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
             }
         } catch (e) {
             console.error(e);
-            alert('Network error saving lesson');
+            alert(t('builder.errors.network_error'));
         }
     };
 
@@ -255,7 +257,7 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                         <ArrowLeft />
                     </button>
                     <h1 className="text-2xl font-bold text-white">
-                        {lessonToEdit ? 'Edit Lesson' : 'Create New Lesson'}
+                        {lessonToEdit ? t('lessons.editor.edit_title') : t('lessons.editor.create_title')}
                     </h1>
                 </div>
                 <button
@@ -263,7 +265,7 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                     className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-bold transition-colors shadow-lg shadow-indigo-900/20"
                 >
                     <Save size={18} />
-                    Save Lesson
+                    {t('lessons.editor.save_btn')}
                 </button>
             </div>
 
@@ -271,17 +273,17 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-1">Lesson Title</label>
+                        <label className="block text-sm font-medium text-slate-400 mb-1">{t('lessons.editor.lesson_title')}</label>
                         <input
                             type="text"
                             value={title}
                             onChange={e => setTitle(e.target.value)}
                             className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
-                            placeholder="e.g. Introduction to Robotics"
+                            placeholder={t('lessons.editor.title_placeholder')}
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-1">Sector</label>
+                        <label className="block text-sm font-medium text-slate-400 mb-1">{t('lessons.editor.sector')}</label>
                         <select
                             value={sector}
                             onChange={e => setSector(e.target.value)}
@@ -293,7 +295,7 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                         </select>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-1">Lesson Image</label>
+                        <label className="block text-sm font-medium text-slate-400 mb-1">{t('lessons.editor.image')}</label>
                         <div className="flex items-center gap-4">
                             {imageUrl && (
                                 <img src={imageUrl} alt="Preview" className="w-16 h-16 object-cover rounded-lg border border-slate-700" />
@@ -305,16 +307,16 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                                 className="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-500/10 file:text-indigo-400 hover:file:bg-indigo-500/20"
                             />
                         </div>
-                        {isUploading && <p className="text-xs text-indigo-400 mt-1">Uploading...</p>}
+                        {isUploading && <p className="text-xs text-indigo-400 mt-1">{t('lessons.editor.uploading')}</p>}
                     </div>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-1">Description</label>
+                    <label className="block text-sm font-medium text-slate-400 mb-1">{t('lessons.editor.description')}</label>
                     <textarea
                         value={description}
                         onChange={e => setDescription(e.target.value)}
                         className="w-full h-[180px] bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
-                        placeholder="Brief overview of what this lesson covers..."
+                        placeholder={t('lessons.editor.desc_placeholder')}
                     ></textarea>
                 </div>
             </div>
@@ -322,12 +324,12 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
             {/* Steps Editor */}
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-white">Lesson Steps</h2>
+                    <h2 className="text-xl font-bold text-white">{t('lessons.editor.steps_title')}</h2>
                     <button
                         onClick={handleAddStep}
                         className="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center gap-1"
                     >
-                        <Plus size={16} /> Add Step
+                        <Plus size={16} /> {t('lessons.editor.add_step')}
                     </button>
                 </div>
 
@@ -355,13 +357,13 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                                     value={step.title}
                                     onChange={(e) => handleStepChange(index, 'title', e.target.value)}
                                     className="bg-transparent border-b border-transparent hover:border-slate-600 focus:border-indigo-500 outline-none text-lg font-bold text-indigo-300 w-full max-w-md px-2"
-                                    placeholder="Step Title"
+                                    placeholder={t('lessons.editor.step_title_placeholder')}
                                 />
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Step Type</label>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">{t('lessons.editor.step_type')}</label>
                                     <div className="flex gap-2 mb-4">
                                         {(['read', 'quiz', 'find_part'] as const).map(type => (
                                             <button
@@ -372,27 +374,27 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                                                     : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-600'
                                                     }`}
                                             >
-                                                {type === 'read' && '📖 Read'}
-                                                {type === 'quiz' && '🧠 Quiz'}
-                                                {type === 'find_part' && '🎯 Find Part'}
+                                                {type === 'read' && t('lessons.editor.read')}
+                                                {type === 'quiz' && t('lessons.editor.quiz')}
+                                                {type === 'find_part' && t('lessons.editor.find_part')}
                                             </button>
                                         ))}
                                     </div>
 
                                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
-                                        {step.interaction_type === 'quiz' ? 'Question' : 'Content (Rich Text)'}
+                                        {step.interaction_type === 'quiz' ? t('lessons.editor.question') : t('lessons.editor.content_rich')}
                                     </label>
                                     <RichTextEditor
                                         value={step.content}
                                         onChange={(html) => handleStepChange(index, 'content', html)}
-                                        placeholder={step.interaction_type === 'quiz' ? "Enter the question here..." : "Write the lesson content here..."}
+                                        placeholder={step.interaction_type === 'quiz' ? t('lessons.editor.question_placeholder') : t('lessons.editor.content_placeholder')}
                                         onPaste={(e) => handlePaste(index, e, 'content')}
                                     />
 
                                     {/* Quiz Editor */}
                                     {step.interaction_type === 'quiz' && (
                                         <div className="mt-4 p-4 bg-slate-900 rounded-lg border border-slate-700">
-                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Answers</label>
+                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">{t('lessons.editor.answers')}</label>
                                             <div className="space-y-2">
                                                 {(() => {
                                                     const data = step.interaction_data ? JSON.parse(step.interaction_data) : { options: ['', '', '', ''], correctIndex: 0 };
@@ -415,7 +417,7 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                                                                     newOpts[i] = e.target.value;
                                                                     updateQuiz({ options: newOpts });
                                                                 }}
-                                                                placeholder={`Option ${i + 1}`}
+                                                                placeholder={t('lessons.editor.option', { number: i + 1 })}
                                                                 className="flex-1 bg-slate-950 border border-slate-700 rounded px-2 py-1 text-sm text-white"
                                                             />
                                                         </div>
@@ -428,7 +430,7 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                                     {/* Find Part Editor */}
                                     {step.interaction_type === 'find_part' && (
                                         <div className="mt-4 p-4 bg-slate-900 rounded-lg border border-slate-700">
-                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Target Part</label>
+                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">{t('lessons.editor.target_part')}</label>
 
                                             {(() => {
                                                 const data = step.interaction_data ? JSON.parse(step.interaction_data) : { targetMesh: '' };
@@ -436,11 +438,11 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                                                     <div>
                                                         <div className="flex gap-2 items-center mb-2">
                                                             <div className="flex-1 bg-slate-950 border border-slate-700 rounded px-3 py-2 text-sm font-mono text-indigo-300 truncate">
-                                                                {data.targetMesh || 'No part selected'}
+                                                                {data.targetMesh || t('lessons.editor.no_part')}
                                                             </div>
                                                             <button
                                                                 onClick={() => {
-                                                                    if (!step.model_id) return alert('Link a 3D model first!');
+                                                                    if (!step.model_id) return alert(t('lessons.editor.errors.link_model_first'));
                                                                     const m = availableModels.find(mod => mod.id === step.model_id);
                                                                     if (m) {
                                                                         setPickerModel(m);
@@ -449,11 +451,11 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                                                                 }}
                                                                 className="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-xs font-bold whitespace-nowrap"
                                                             >
-                                                                Pointer
+                                                                {t('lessons.editor.pointer')}
                                                             </button>
                                                         </div>
                                                         <p className="text-[10px] text-slate-500">
-                                                            Link a model, click Pointer, then click the part in the 3D viewer.
+                                                            {t('lessons.editor.pointer_tip')}
                                                         </p>
                                                     </div>
                                                 );
@@ -462,7 +464,7 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                                     )}
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Step Image (Optional)</label>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">{t('lessons.editor.step_image')}</label>
                                     <div
                                         className="bg-slate-950/50 border border-slate-700 rounded-lg p-3 mb-4 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                                         onPaste={(e) => handlePaste(index, e, 'image')}
@@ -481,7 +483,7 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                                                 </div>
                                             ) : (
                                                 <div className="w-16 h-16 bg-slate-800 rounded flex items-center justify-center text-slate-600 shrink-0">
-                                                    <span className="text-xs">No Img</span>
+                                                    <span className="text-xs">{t('lessons.editor.no_img')}</span>
                                                 </div>
                                             )}
                                             <div className="flex-1">
@@ -492,19 +494,19 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                                                     className="block w-full text-xs text-slate-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-500/10 file:text-indigo-400 hover:file:bg-indigo-500/20"
                                                 />
                                                 <p className="text-[10px] text-slate-500 mt-1 ml-1">
-                                                    Click here and paste (Ctrl+V) an image
+                                                    {t('lessons.editor.paste_img_tip')}
                                                 </p>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Linked 3D Model</label>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">{t('lessons.editor.linked_model')}</label>
                                     <select
                                         value={step.model_id || ''}
                                         onChange={(e) => handleStepChange(index, 'model_id', e.target.value)}
                                         className="w-full bg-slate-950/50 border border-slate-700 rounded-lg p-3 text-sm text-slate-300 focus:ring-1 focus:ring-indigo-500 outline-none mb-4"
                                     >
-                                        <option value="">No Model (Text only)</option>
+                                        <option value="">{t('lessons.editor.no_model_text')}</option>
                                         {availableModels.map(m => (
                                             <option key={m.id} value={m.id}>
                                                 {m.name} ({m.sector})
@@ -525,7 +527,7 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                                                             <span className="bg-black/70 px-2 py-1 rounded text-xs text-white">{m.name}</span>
                                                         </div>
                                                     </>
-                                                ) : <span className="text-xs text-red-500">Model not found</span>
+                                                ) : <span className="text-xs text-red-500">{t('lessons.editor.model_not_found')}</span>
                                             })()}
                                         </div>
                                     )}
@@ -539,7 +541,7 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                         onClick={handleAddStep}
                         className="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center gap-1"
                     >
-                        <Plus size={16} /> Add Step
+                        <Plus size={16} /> {t('lessons.editor.add_step')}
                     </button>
                 </div>
             </div>
@@ -549,27 +551,27 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                     onClick={onCancel}
                     className="px-6 py-3 rounded-lg font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
                 >
-                    Cancel
+                    {t('common.cancel')}
                 </button>
                 <button
                     onClick={handleSave}
                     className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-bold transition-colors shadow-lg shadow-indigo-900/20"
                 >
                     <Save size={18} />
-                    Save Lesson
+                    {t('lessons.editor.save_btn')}
                 </button>
             </div>
             {/* Part Picker Modal */}
             {pickingStepIndex !== null && pickerModel && (
                 <div className="fixed inset-0 z-50 bg-black flex flex-col">
                     <div className="absolute top-4 left-4 z-20 bg-slate-900/90 p-4 rounded-xl border border-slate-700">
-                        <h3 className="text-white font-bold mb-2">Select Target Part</h3>
-                        <p className="text-xs text-slate-400 mb-4">Click on the specific part of the model to set it as the target.</p>
+                        <h3 className="text-white font-bold mb-2">{t('lessons.editor.select_target')}</h3>
+                        <p className="text-xs text-slate-400 mb-4">{t('lessons.editor.select_target_tip')}</p>
                         <button
                             onClick={() => { setPickingStepIndex(null); setPickerModel(null); }}
                             className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded text-xs font-bold"
                         >
-                            Cancel
+                            {t('common.cancel')}
                         </button>
                     </div>
                     <VRViewer

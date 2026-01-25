@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { fixAssetUrl } from '../utils/urlUtils';
 import RichTextEditor from './RichTextEditor';
 import VRViewer from './VRViewer';
@@ -25,6 +26,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
     availableModels,
     availableSectors
 }) => {
+    const { t } = useTranslation();
     // --- State: Lesson Metadata ---
     const [title, setTitle] = useState(lessonToEdit?.title || '');
     const [description, setDescription] = useState(lessonToEdit?.description || '');
@@ -63,8 +65,8 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                 id: 'step-init',
                 lesson_id: '',
                 step_order: 1,
-                title: 'Introduction',
-                content: 'Welcome to this interactive workbook.',
+                title: t('builder.intro_title'),
+                content: t('builder.intro_content'),
                 model_id: '',
                 interaction_type: 'read'
             }]);
@@ -89,7 +91,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
             id: `step-${Date.now()}`,
             lesson_id: '',
             step_order: steps.length + 1,
-            title: `Step ${steps.length + 1}`,
+            title: `${t('builder.step_editor').split(' ')[0]} ${steps.length + 1}`,
             content: '',
             model_id: currentStep?.model_id || '', // Inherit model from previous step
             interaction_type: 'read'
@@ -107,7 +109,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
 
     // --- Hotspot Logic ---
     const handleStartPlacingHotspot = () => {
-        if (!currentModel) return alert("Select a 3D model for this step first.");
+        if (!currentModel) return alert(t('builder.errors.select_model'));
         setIsPlacingHotspot(true);
     };
 
@@ -115,9 +117,9 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
         setTempHotspotPos({ pos, normal });
         setIsPlacingHotspot(false);
         setShowHotspotModal(true);
-        setNewHotspotTitle("New Hotspot");
+        setNewHotspotTitle(t('builder.define_hotspot'));
         setNewHotspotDesc("");
-    }, []);
+    }, [t]);
 
     const handleSaveHotspot = async () => {
         if (!currentModel || !tempHotspotPos) return;
@@ -178,13 +180,13 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
 
         } catch (e) {
             console.error("Failed to save hotspot", e);
-            alert("Failed to save hotspot to model.");
+            alert(t('builder.errors.save_failed'));
         }
     };
 
     // --- Main Save ---
     const handleSaveLesson = async () => {
-        if (!title.trim()) return alert('Please enter a lesson title');
+        if (!title.trim()) return alert(t('builder.errors.enter_title'));
 
         const payload = {
             title,
@@ -214,12 +216,9 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
             if (res.ok) {
                 const data = await res.json();
                 onSaveSuccess(data.id);
-            } else {
-                const err = await res.json();
-                alert(`Failed to save: ${err.error}`);
             }
         } catch (e) {
-            alert('Network error saving lesson');
+            alert(t('builder.errors.network_error'));
         }
     };
 
@@ -232,9 +231,9 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                     <button onClick={onCancel} className="p-2 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white">
                         <ArrowLeft size={20} />
                     </button>
-                    <span className="font-bold text-sm uppercase tracking-wider text-slate-500">Workbook Builder</span>
+                    <span className="font-bold text-sm uppercase tracking-wider text-slate-500">{t('builder.title')}</span>
                     <button onClick={handleSaveLesson} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow-lg shadow-indigo-500/20 transition-all">
-                        <Save size={16} /> Save
+                        <Save size={16} /> {t('common.save')}
                     </button>
                 </div>
 
@@ -247,21 +246,21 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                             type="text"
                             value={title} onChange={e => setTitle(e.target.value)}
                             className="bg-transparent text-xl font-bold w-full outline-none placeholder:text-slate-600"
-                            placeholder="Lesson Title..."
+                            placeholder={t('builder.lesson_title')}
                         />
                         <textarea
                             value={description} onChange={e => setDescription(e.target.value)}
                             className="w-full bg-slate-900 rounded p-2 text-xs text-slate-400 resize-none outline-none focus:ring-1 focus:ring-slate-700"
                             rows={2}
-                            placeholder="Short description..."
+                            placeholder={t('builder.short_description')}
                         />
                         {/* Pedagogical Tip (Result 4) */}
                         <div className="mt-2 p-2 bg-indigo-900/20 border border-indigo-500/20 rounded-lg flex gap-2">
                             <Info size={14} className="text-indigo-400 flex-shrink-0 mt-0.5" />
                             <div>
-                                <span className="text-[10px] font-bold text-indigo-400 uppercase block mb-0.5">Pedagogical Tip</span>
+                                <span className="text-[10px] font-bold text-indigo-400 uppercase block mb-0.5">{t('builder.pedagogical_tip')}</span>
                                 <p className="text-[10px] text-slate-400 italic">
-                                    "Use Bloom's Taxonomy: Start with 'Identify' steps (Knowledge) before moving to 'Assemble' (Application)."
+                                    {t('builder.bloom_tip')}
                                 </p>
                             </div>
                         </div>
@@ -291,10 +290,10 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                         <div className="space-y-4 animate-in fade-in slide-in-from-left-4">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                                    <span className="bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded text-[10px] uppercase">Step {activeStepIndex + 1}</span>
-                                    Editor
+                                    <span className="bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded text-[10px] uppercase">{t('builder.step_editor').split(' ')[0]} {activeStepIndex + 1}</span>
+                                    {t('builder.step_editor').split(' ')[1]}
                                 </h3>
-                                <button onClick={() => handleRemoveStep(activeStepIndex)} className="text-rose-500 hover:bg-rose-900/20 p-1.5 rounded transition-colors" title="Delete Step"><Trash2 size={14} /></button>
+                                <button onClick={() => handleRemoveStep(activeStepIndex)} className="text-rose-500 hover:bg-rose-900/20 p-1.5 rounded transition-colors" title={t('common.delete')}><Trash2 size={14} /></button>
                             </div>
 
                             <input
@@ -302,19 +301,19 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                 value={currentStep.title}
                                 onChange={e => handleStepChange('title', e.target.value)}
                                 className="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold focus:border-indigo-500 outline-none transition-colors"
-                                placeholder="Step Headline"
+                                placeholder={t('builder.step_headline')}
                             />
 
                             {/* Model Selection */}
                             <div>
-                                <label className="block text-[10px] font-bold uppercase text-slate-600 mb-1">Attached 3D Model</label>
+                                <label className="block text-[10px] font-bold uppercase text-slate-600 mb-1">{t('builder.attached_model')}</label>
                                 <div className="relative">
                                     <select
                                         value={currentStep.model_id || ''}
                                         onChange={e => handleStepChange('model_id', e.target.value)}
                                         className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-xs appearance-none focus:ring-1 focus:ring-indigo-500 outline-none"
                                     >
-                                        <option value="">-- No Model --</option>
+                                        <option value="">{t('builder.no_model')}</option>
                                         {availableModels.map(m => (
                                             <option key={m.id} value={m.id}>{m.name}</option>
                                         ))}
@@ -325,11 +324,11 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
 
                             {/* Content Editor */}
                             <div>
-                                <label className="block text-[10px] font-bold uppercase text-slate-600 mb-1">Step Content</label>
+                                <label className="block text-[10px] font-bold uppercase text-slate-600 mb-1">{t('builder.step_content')}</label>
                                 <RichTextEditor
                                     value={currentStep.content}
                                     onChange={val => handleStepChange('content', val)}
-                                    placeholder="Explain what the student should do..."
+                                    placeholder={t('builder.content_placeholder')}
                                 />
                             </div>
 
@@ -338,7 +337,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                 <div className="p-4 bg-indigo-900/10 border border-indigo-500/20 rounded-xl space-y-3">
                                     <div className="flex items-center justify-between">
                                         <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-2">
-                                            <MousePointer size={12} /> Interaction
+                                            <MousePointer size={12} /> {t('builder.interaction')}
                                         </span>
                                     </div>
 
@@ -347,13 +346,13 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                             onClick={() => handleStepChange('interaction_type', 'read')}
                                             className={`flex-1 py-1.5 rounded text-xs font-bold border ${currentStep.interaction_type === 'read' ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-500'}`}
                                         >
-                                            Read
+                                            {t('builder.read')}
                                         </button>
                                         <button
                                             onClick={() => handleStepChange('interaction_type', 'find_part')}
                                             className={`flex-1 py-1.5 rounded text-xs font-bold border ${currentStep.interaction_type === 'find_part' ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-500'}`}
                                         >
-                                            Find Part
+                                            {t('builder.find_part')}
                                         </button>
                                     </div>
 
@@ -367,12 +366,12 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                             }`}
                                     >
                                         <MapPin size={14} />
-                                        {isPlacingHotspot ? 'Click on Model to Place...' : 'Place New Hotspot'}
+                                        {isPlacingHotspot ? t('builder.hotspot_instruction') : t('builder.place_hotspot')}
                                     </button>
 
                                     {currentStep.hotspot_id && (
                                         <div className="flex items-center gap-2 p-2 bg-green-900/20 border border-green-500/30 rounded text-xs text-green-400">
-                                            <span className="font-bold">✓ Hotspot Linked</span>
+                                            <span className="font-bold">✓ {t('builder.hotspot_linked')}</span>
                                             <button onClick={() => handleStepChange('hotspot_id', '')} className="ml-auto hover:text-white"><Trash2 size={12} /></button>
                                         </div>
                                     )}
@@ -390,7 +389,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                     <>
                         {isPlacingHotspot && (
                             <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-amber-600 text-white px-4 py-2 rounded-full shadow-xl font-bold text-sm animate-bounce">
-                                AIM & CLICK on the model to place the pin
+                                {t('builder.aim_click_tip')}
                             </div>
                         )}
                         <VRViewer
@@ -408,8 +407,8 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                 ) : (
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-600">
                         <Layout size={48} className="mb-4 opacity-50" />
-                        <p className="font-bold">No 3D Model Selected</p>
-                        <p className="text-sm">Select a model in the left panel to begin.</p>
+                        <p className="font-bold">{t('builder.no_model_selected')}</p>
+                        <p className="text-sm">{t('builder.no_model_tip')}</p>
                     </div>
                 )}
             </div>
@@ -418,11 +417,11 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
             {showHotspotModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
                     <div className="bg-slate-900 border border-indigo-500/30 p-6 rounded-2xl w-96 shadow-2xl">
-                        <h3 className="text-lg font-bold text-white mb-4">Define Hotspot</h3>
+                        <h3 className="text-lg font-bold text-white mb-4">{t('builder.define_hotspot')}</h3>
 
                         <div className="space-y-4 mb-6">
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Title</label>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">{t('builder.hotspot_title')}</label>
                                 <input
                                     type="text"
                                     value={newHotspotTitle}
@@ -432,7 +431,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">Description</label>
+                                <label className="block text-xs font-bold text-slate-500 mb-1">{t('builder.hotspot_description')}</label>
                                 <textarea
                                     value={newHotspotDesc}
                                     onChange={e => setNewHotspotDesc(e.target.value)}
@@ -447,13 +446,13 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                 onClick={() => { setShowHotspotModal(false); setIsPlacingHotspot(false); }}
                                 className="px-4 py-2 text-slate-400 hover:text-white text-sm font-bold"
                             >
-                                Cancel
+                                {t('common.cancel')}
                             </button>
                             <button
                                 onClick={handleSaveHotspot}
                                 className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-bold shadow-lg"
                             >
-                                Create & Link
+                                {t('builder.create_link')}
                             </button>
                         </div>
                     </div>

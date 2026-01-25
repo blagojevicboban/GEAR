@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { User, VETModel } from '../types';
 import UserManagement from './UserManagement';
 
@@ -8,6 +9,7 @@ interface AdminSettingsProps {
 }
 
 const AdminSettings: React.FC<AdminSettingsProps> = ({ currentUser, models }) => {
+    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<'users' | 'sectors' | 'logs' | 'config'>('users');
 
     return (
@@ -15,7 +17,7 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ currentUser, models }) =>
             {/* Header / Tabs */}
             <div className="bg-slate-900 border-b border-slate-800 pt-8 pb-0 px-6 sticky top-0 z-30">
                 <div className="max-w-7xl mx-auto">
-                    <h1 className="text-3xl font-bold text-white mb-6">Admin Settings</h1>
+                    <h1 className="text-3xl font-bold text-white mb-6">{t('admin.settings.title')}</h1>
                     <div className="flex gap-8 overflow-x-auto">
                         <button
                             onClick={() => setActiveTab('users')}
@@ -24,7 +26,7 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ currentUser, models }) =>
                                 : 'border-transparent text-slate-400 hover:text-white hover:border-slate-700'
                                 }`}
                         >
-                            User Management
+                            {t('admin.settings.tabs.users')}
                         </button>
                         <button
                             onClick={() => setActiveTab('sectors')}
@@ -33,7 +35,7 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ currentUser, models }) =>
                                 : 'border-transparent text-slate-400 hover:text-white hover:border-slate-700'
                                 }`}
                         >
-                            Sector Management
+                            {t('admin.settings.tabs.sectors')}
                         </button>
                         <button
                             onClick={() => setActiveTab('config')}
@@ -42,7 +44,7 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ currentUser, models }) =>
                                 : 'border-transparent text-slate-400 hover:text-white hover:border-slate-700'
                                 }`}
                         >
-                            Configuration
+                            {t('admin.settings.tabs.config')}
                         </button>
                         <button
                             onClick={() => setActiveTab('logs')}
@@ -51,7 +53,7 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ currentUser, models }) =>
                                 : 'border-transparent text-slate-400 hover:text-white hover:border-slate-700'
                                 }`}
                         >
-                            System Logs
+                            {t('admin.settings.tabs.logs')}
                         </button>
                     </div>
                 </div>
@@ -90,6 +92,7 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ currentUser, models }) =>
 // --- Sub-components ---
 
 const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
+    const { t } = useTranslation();
     const [config, setConfig] = useState({ maintenance_mode: 'false', global_announcement: '' });
     const [loading, setLoading] = useState(true);
 
@@ -113,9 +116,9 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                 },
                 body: JSON.stringify(config)
             });
-            alert('Settings saved successfully!');
+            alert(t('admin.config.alerts.saved'));
         } catch (e) {
-            alert('Failed to save settings.');
+            alert(t('admin.config.alerts.failed'));
         }
     };
 
@@ -134,19 +137,19 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
             .catch(e => alert("Backup failed: " + e));
     };
 
-    if (loading) return <div className="text-slate-400">Loading settings...</div>;
+    if (loading) return <div className="text-slate-400">{t('admin.config.loading')}</div>;
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-xl">
-                <h2 className="text-2xl font-bold text-white mb-6">Global Settings</h2>
+                <h2 className="text-2xl font-bold text-white mb-6">{t('admin.config.title')}</h2>
 
                 <div className="space-y-6">
                     <div>
                         <label className="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl border border-slate-700 cursor-pointer hover:bg-slate-800 transition-colors">
                             <div>
-                                <span className="block font-bold text-white">Maintenance Mode</span>
-                                <span className="text-xs text-slate-400">Block login for non-admin users.</span>
+                                <span className="block font-bold text-white">{t('admin.config.maintenance.label')}</span>
+                                <span className="text-xs text-slate-400">{t('admin.config.maintenance.desc')}</span>
                             </div>
                             <div className={`w-12 h-6 rounded-full p-1 transition-colors ${config.maintenance_mode === 'true' ? 'bg-indigo-600' : 'bg-slate-600'}`} onClick={() => setConfig({ ...config, maintenance_mode: config.maintenance_mode === 'true' ? 'false' : 'true' })}>
                                 <div className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform ${config.maintenance_mode === 'true' ? 'translate-x-6' : ''}`}></div>
@@ -155,10 +158,10 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-slate-300 mb-2">Global Announcement</label>
+                        <label className="block text-sm font-bold text-slate-300 mb-2">{t('admin.config.announcement.label')}</label>
                         <textarea
                             className="w-full bg-slate-950 border border-slate-700 rounded-xl padding-4 text-white p-3 h-24 focus:ring-2 focus:ring-indigo-500 outline-none"
-                            placeholder="Enter a message to be displayed on the top of the dashboard..."
+                            placeholder={t('admin.config.announcement.placeholder')}
                             value={config.global_announcement}
                             onChange={(e) => setConfig({ ...config, global_announcement: e.target.value })}
                         />
@@ -168,35 +171,35 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                         onClick={handleSave}
                         className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-500/20 transition-all"
                     >
-                        Save Configuration
+                        {t('admin.config.save_btn')}
                     </button>
                 </div>
             </div>
 
             <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-xl h-fit">
-                <h2 className="text-2xl font-bold text-white mb-2">Data Management</h2>
-                <p className="text-slate-400 mb-6">Backup your data regularly to prevent data loss.</p>
+                <h2 className="text-2xl font-bold text-white mb-2">{t('admin.config.data_mgmt.title')}</h2>
+                <p className="text-slate-400 mb-6">{t('admin.config.data_mgmt.desc')}</p>
 
                 <div className="bg-slate-800/30 border border-slate-800 rounded-xl p-6 flex flex-col items-center text-center">
                     <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4 text-slate-400">
                         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-1">Export Database</h3>
-                    <p className="text-sm text-slate-500 mb-6">Download a complete JSON dump of all tables.</p>
+                    <h3 className="text-lg font-bold text-white mb-1">{t('admin.config.data_mgmt.export_title')}</h3>
+                    <p className="text-sm text-slate-500 mb-6">{t('admin.config.data_mgmt.export_desc')}</p>
                     <div className="flex gap-4 items-center">
                         <button
                             onClick={() => handleBackup('json')}
                             className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-6 rounded-lg transition-colors border border-slate-600 flex items-center gap-2"
                         >
                             <span className="text-xs uppercase bg-slate-800 px-1.5 py-0.5 rounded text-amber-400">JSON</span>
-                            Download
+                            {t('admin.config.data_mgmt.download')}
                         </button>
                         <button
                             onClick={() => handleBackup('sql')}
                             className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-6 rounded-lg transition-colors border border-slate-600 flex items-center gap-2"
                         >
                             <span className="text-xs uppercase bg-slate-800 px-1.5 py-0.5 rounded text-blue-400">SQL</span>
-                            Download
+                            {t('admin.config.data_mgmt.download')}
                         </button>
                     </div>
                 </div>
@@ -205,8 +208,8 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                     <div className="w-16 h-16 bg-red-900/30 rounded-full flex items-center justify-center mb-4 text-red-500">
                         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-1">Restore Database</h3>
-                    <p className="text-sm text-slate-500 mb-6 max-w-xs">Danger: Restoring will overwrite existing data. Use SQL or JSON backup files.</p>
+                    <h3 className="text-lg font-bold text-white mb-1">{t('admin.config.data_mgmt.restore_title')}</h3>
+                    <p className="text-sm text-slate-500 mb-6 max-w-xs">{t('admin.config.data_mgmt.restore_desc')}</p>
 
                     <div className="relative">
                         <input
@@ -217,7 +220,7 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                             onChange={async (e) => {
                                 const file = e.target.files?.[0];
                                 if (!file) return;
-                                if (!confirm(`WARNING: You are about to restore database from "${file.name}".\n\nExisting data might be overwritten.\n\nAre you sure?`)) {
+                                if (!confirm(t('admin.config.data_mgmt.restore_confirm', { filename: file.name }))) {
                                     e.target.value = '';
                                     return;
                                 }
@@ -248,7 +251,7 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                             htmlFor="restore-upload"
                             className="bg-red-900/50 hover:bg-red-900/70 text-red-100 font-bold py-2 px-6 rounded-lg transition-colors border border-red-800 cursor-pointer flex items-center gap-2"
                         >
-                            Upload Backup
+                            {t('admin.config.data_mgmt.upload')}
                         </label>
                     </div>
                 </div>
@@ -258,6 +261,7 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
 };
 
 const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
+    const { t } = useTranslation();
     const [sectors, setSectors] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [editingSector, setEditingSector] = useState<string | null>(null);
@@ -308,7 +312,7 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
     };
 
     const handleDelete = async (sectorName: string) => {
-        if (!confirm(`Are you sure you want to delete the sector "${sectorName}"? This is only possible if no models are using it.`)) return;
+        if (!confirm(t('admin.sectors.confirm_delete', { sectorName }))) return;
 
         try {
             const res = await fetch(`/api/sectors/${encodeURIComponent(sectorName)}`, {
@@ -334,7 +338,7 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
             return;
         }
 
-        if (!confirm(`Rename "${editingSector}" to "${newSectorName}"? This will update all associated models.`)) return;
+        if (!confirm(t('admin.sectors.confirm_rename', { editingSector, newSectorName }))) return;
 
         try {
             const res = await fetch(`/api/sectors/${encodeURIComponent(editingSector)}`, {
@@ -360,17 +364,17 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
         }
     };
 
-    if (loading) return <div className="text-slate-400">Loading sectors...</div>;
+    if (loading) return <div className="text-slate-400">{t('admin.sectors.loading')}</div>;
 
     return (
         <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-xl">
-            <h2 className="text-2xl font-bold text-white mb-4">Sector Management</h2>
-            <p className="text-slate-400 mb-6">Manage the list of educational sectors. Rename to fix typos or consolidate categories.</p>
+            <h2 className="text-2xl font-bold text-white mb-4">{t('admin.sectors.title')}</h2>
+            <p className="text-slate-400 mb-6">{t('admin.sectors.desc')}</p>
 
             <div className="flex gap-4 mb-6">
                 <input
                     type="text"
-                    placeholder="New Sector Name"
+                    placeholder={t('admin.sectors.add_placeholder')}
                     className="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white outline-none focus:ring-2 focus:ring-indigo-500 w-full max-w-md"
                     value={addSectorName}
                     onChange={(e) => setAddSectorName(e.target.value)}
@@ -381,7 +385,7 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                     disabled={!addSectorName.trim()}
                     className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2 px-6 rounded-xl transition-colors"
                 >
-                    Add Sector
+                    {t('admin.sectors.add_btn')}
                 </button>
             </div>
 
@@ -389,8 +393,8 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                 <table className="w-full text-left text-slate-300">
                     <thead className="bg-slate-800 text-slate-400 text-xs uppercase">
                         <tr>
-                            <th className="px-6 py-4">Sector Name</th>
-                            <th className="px-6 py-4 text-right">Actions</th>
+                            <th className="px-6 py-4">{t('admin.sectors.table.header_name')}</th>
+                            <th className="px-6 py-4 text-right">{t('admin.sectors.table.header_actions')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800">
@@ -418,8 +422,8 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                 <td className="px-6 py-4 text-right flex justify-end gap-3">
                                     {editingSector === sector ? (
                                         <>
-                                            <button onClick={handleUpdate} className="text-green-400 hover:text-green-300 text-sm font-bold">Save</button>
-                                            <button onClick={() => setEditingSector(null)} className="text-slate-500 hover:text-slate-400 text-sm">Cancel</button>
+                                            <button onClick={handleUpdate} className="text-green-400 hover:text-green-300 text-sm font-bold">{t('common.save')}</button>
+                                            <button onClick={() => setEditingSector(null)} className="text-slate-500 hover:text-slate-400 text-sm">{t('common.cancel')}</button>
                                         </>
                                     ) : (
                                         <>
@@ -427,13 +431,13 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                                 onClick={() => { setEditingSector(sector); setNewSectorName(sector); }}
                                                 className="text-blue-400 hover:text-blue-300 text-sm font-medium"
                                             >
-                                                Rename
+                                                {t('common.edit')}
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(sector)}
                                                 className="text-red-400 hover:text-red-300 text-sm font-medium"
                                             >
-                                                Delete
+                                                {t('common.delete')}
                                             </button>
                                         </>
                                     )}
@@ -442,20 +446,21 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                         ))}
                         {sectors.length === 0 && (
                             <tr>
-                                <td colSpan={2} className="px-6 py-8 text-center text-slate-500">No custom sectors found.</td>
+                                <td colSpan={2} className="px-6 py-8 text-center text-slate-500">{t('admin.sectors.table.no_sectors')}</td>
                             </tr>
                         )}
                     </tbody>
                 </table>
             </div>
             <div className="mt-4 text-xs text-slate-500">
-                Tip: New sectors are automatically created when uploading models if they don't exist.
+                {t('admin.sectors.tip')}
             </div>
         </div>
     );
 };
 
 const SystemLogs: React.FC<{ currentUser: User }> = ({ currentUser }) => {
+    const { t } = useTranslation();
     const [logs, setLogs] = useState('');
     const [loading, setLoading] = useState(true);
 
@@ -469,10 +474,10 @@ const SystemLogs: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                 const text = await res.text();
                 setLogs(text);
             } else {
-                setLogs('Failed to load logs. You might not have permission.');
+                setLogs(t('admin.logs.load_failed'));
             }
         } catch (e) {
-            setLogs('Network error loading logs.');
+            setLogs(t('admin.logs.network_error'));
         } finally {
             setLoading(false);
         }
@@ -486,13 +491,13 @@ const SystemLogs: React.FC<{ currentUser: User }> = ({ currentUser }) => {
         <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-xl">
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h2 className="text-2xl font-bold text-white mb-1">System Logs</h2>
-                    <p className="text-slate-400">View the last 100 lines of server error logs.</p>
+                    <h2 className="text-2xl font-bold text-white mb-1">{t('admin.logs.title')}</h2>
+                    <p className="text-slate-400">{t('admin.logs.desc')}</p>
                 </div>
                 <button
                     onClick={fetchLogs}
                     className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 transition-colors"
-                    title="Refresh Logs"
+                    title={t('admin.logs.refresh_tooltip')}
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -501,7 +506,7 @@ const SystemLogs: React.FC<{ currentUser: User }> = ({ currentUser }) => {
             </div>
 
             <div className="bg-black/50 rounded-xl border border-slate-800 p-4 font-mono text-xs text-green-400 h-[600px] overflow-auto whitespace-pre-wrap">
-                {loading ? 'Loading logs...' : (logs || 'No logs available.')}
+                {loading ? t('admin.logs.loading') : (logs || t('admin.logs.no_logs'))}
             </div>
         </div>
     );

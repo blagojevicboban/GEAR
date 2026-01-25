@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import { Lesson, LessonStep, VETModel } from '../types';
 import VRViewer from './VRViewer';
@@ -13,6 +14,7 @@ interface LessonViewerProps {
 }
 
 const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUser }) => {
+    const { t } = useTranslation();
     const [lesson, setLesson] = useState<Lesson | null>(null);
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -78,8 +80,8 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
         }
     }, [currentStepIndex]);
 
-    if (loading) return <div className="h-screen bg-black text-white flex items-center justify-center">Loading Lesson...</div>;
-    if (!lesson) return <div className="h-screen bg-black text-white flex items-center justify-center">Lesson not found.</div>;
+    if (loading) return <div className="h-screen bg-black text-white flex items-center justify-center">{t('lessons.viewer.loading')}</div>;
+    if (!lesson) return <div className="h-screen bg-black text-white flex items-center justify-center">{t('lessons.viewer.not_found')}</div>;
 
     const steps = lesson.steps || [];
     const totalSteps = steps.length;
@@ -98,10 +100,10 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
         if (!target) return;
 
         if (meshName === target) {
-            setFindPartFeedback({ type: 'success', msg: `Correct! You found the ${target}.` });
+            setFindPartFeedback({ type: 'success', msg: t('lessons.viewer.find_success', { target }) });
             // Optional: Auto-advance after delay?
         } else {
-            setFindPartFeedback({ type: 'error', msg: `Incorrect. That is part "${meshName}". Try again.` });
+            setFindPartFeedback({ type: 'error', msg: t('lessons.viewer.find_error', { meshName }) });
         }
     };
 
@@ -121,7 +123,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
             return (
                 <div className="flex flex-col items-center justify-center h-full text-slate-500 bg-slate-950">
                     <div className="text-6xl mb-4">📚</div>
-                    <p>No model attached to this step.</p>
+                    <p>{t('lessons.viewer.no_model')}</p>
                 </div>
             );
         }
@@ -183,7 +185,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
                 {/* Header */}
                 <div className="p-6 border-b border-slate-800 flex justify-between items-start">
                     <div>
-                        <h2 className="text-sm font-bold text-indigo-400 uppercase tracking-widest mb-1">Interactive Lesson</h2>
+                        <h2 className="text-sm font-bold text-indigo-400 uppercase tracking-widest mb-1">{t('lessons.viewer.interactive_lesson')}</h2>
                         <h1 className="text-xl font-bold text-white leading-tight">{lesson.title}</h1>
                     </div>
                     <div className="flex items-center gap-2">
@@ -203,7 +205,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
                         <div className="animate-in fade-in slide-in-from-right-4 duration-300">
                             <div className="flex items-center gap-2 mb-4">
                                 <span className="bg-indigo-600 text-white text-xs font-bold px-2 py-1 rounded">
-                                    Step {currentStepIndex + 1} of {totalSteps}
+                                    {t('lessons.viewer.step_x_of_y', { current: currentStepIndex + 1, total: totalSteps })}
                                 </span>
                                 <h3 className="text-lg font-semibold text-slate-200">{currentStep.title}</h3>
                             </div>
@@ -230,7 +232,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
                                         <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
                                             <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
                                                 <HelpCircle size={16} className="text-indigo-400" />
-                                                Quiz
+                                                {t('lessons.viewer.quiz')}
                                             </h4>
                                             <div className="space-y-2">
                                                 {data.options.map((opt: string, i: number) => (
@@ -256,15 +258,15 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
                                                     disabled={quizSelected === null}
                                                     className="mt-4 w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white py-2 rounded-lg font-bold text-xs"
                                                 >
-                                                    Submit Answer
+                                                    {t('lessons.viewer.submit_answer')}
                                                 </button>
                                             )}
                                             {quizSubmitted && (
                                                 <div className={`mt-4 p-3 rounded-lg flex items-center gap-2 text-sm font-bold ${isCorrect ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
                                                     {isCorrect ? <CheckCircle size={18} /> : <XCircle size={18} />}
-                                                    {isCorrect ? 'Correct Answer!' : 'Incorrect. Try again?'}
+                                                    {isCorrect ? t('lessons.viewer.correct_answer') : t('lessons.viewer.incorrect_answer')}
                                                     {!isCorrect && (
-                                                        <button onClick={() => { setQuizSubmitted(false); setQuizSelected(null); }} className="ml-auto underline opacity-80">Retry</button>
+                                                        <button onClick={() => { setQuizSubmitted(false); setQuizSelected(null); }} className="ml-auto underline opacity-80">{t('lessons.viewer.retry')}</button>
                                                     )}
                                                 </div>
                                             )}
@@ -278,10 +280,10 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
                                         <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
                                             <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
                                                 <CheckCircle size={16} className="text-indigo-400" />
-                                                Task: Find Component
+                                                {t('lessons.viewer.find_task')}
                                             </h4>
                                             <p className="text-sm text-slate-300 mb-4">
-                                                Locate and click on the 3D model part: <strong className="text-white">{data.targetMesh}</strong>
+                                                {t('lessons.viewer.find_instruction', { target: data.targetMesh })}
                                             </p>
 
                                             {findPartFeedback && (
@@ -298,7 +300,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
                     ) : (
                         <div className="text-slate-400">
                             <p className="mb-4">{lesson.description}</p>
-                            <button onClick={() => setCurrentStepIndex(0)} className="text-indigo-400 underline">Start First Step</button>
+                            <button onClick={() => setCurrentStepIndex(0)} className="text-indigo-400 underline">{t('lessons.viewer.start_first')}</button>
                         </div>
                     )}
                 </div>
@@ -310,7 +312,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
                         disabled={currentStepIndex === 0}
                         className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                        <ChevronLeft size={16} /> Previous
+                        <ChevronLeft size={16} /> {t('lessons.viewer.previous')}
                     </button>
 
                     <div className="flex gap-1">
@@ -325,14 +327,14 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
                     <button
                         onClick={handleNext}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white transition-colors ${currentStepIndex === totalSteps - 1
-                                ? 'bg-emerald-600 hover:bg-emerald-500'
-                                : 'bg-indigo-600 hover:bg-indigo-500'
+                            ? 'bg-emerald-600 hover:bg-emerald-500'
+                            : 'bg-indigo-600 hover:bg-indigo-500'
                             }`}
                     >
                         {currentStepIndex === totalSteps - 1 ? (
-                            <>Finish <CheckCircle size={16} /></>
+                            <>{t('lessons.viewer.finish')} <CheckCircle size={16} /></>
                         ) : (
-                            <>Next <ChevronRight size={16} /></>
+                            <>{t('lessons.viewer.next')} <ChevronRight size={16} /></>
                         )}
                     </button>
                 </div>

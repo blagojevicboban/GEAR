@@ -1,0 +1,486 @@
+{
+    "nav": {
+        "library": "3D Biblioteka",
+        "lessons": "Lekcije",
+        "academy": "Akademija",
+        "help": "Pomoć",
+        "login": "Prijava",
+        "register": "Registracija",
+        "user_menu": {
+            "institution": "Institucija",
+            "independent": "Nezavisan",
+            "my_models": "Moji modeli",
+            "my_lessons": "Moje lekcije",
+            "edit_profile": "Izmeni profil",
+            "teacher_dashboard": "Panel za nastavnike",
+            "admin_settings": "Administratorska podešavanja",
+            "logout": "Odjavi se"
+        },
+        "profile": "Profil",
+        "theme": "Tema",
+        "language": "Jezik"
+    },
+    "home": {
+        "welcome_title": "Dobrodošli u THE GEAR",
+        "welcome_subtitle": "Vaš vrhunski WebXR repozitorijum otvorenog koda za stručno obrazovanje.",
+        "get_started": "Započnite",
+        "featured_models": "Izdvojena Oprema",
+        "active_workshops": "Aktivne Radionice",
+        "no_workshops": "Trenutno nema aktivnih radionica.",
+        "join": "Pridruži se"
+    },
+    "tour": {
+        "welcome_title": "Dobrodošli u THE GEAR",
+        "welcome_content": "Vaš vrhunski WebXR repozitorijum otvorenog koda za stručno obrazovanje.",
+        "library_title": "3D Biblioteka",
+        "library_content": "Pregledajte, filtrirajte i otpremite nove industrijske modele.",
+        "lessons_title": "Interaktivne Lekcije",
+        "lessons_content": "Istražite vođena 3D iskustva učenja koja su kreirali nastavnici.",
+        "academy_title": "GEAR Akademija",
+        "academy_content": "Ovladajte platformom uz video tutorijale i pedagoške savete.",
+        "help_title": "Centar za Podršku",
+        "help_content": "Pristupite tutorijalima, dijagnostici i podršci bilo kada.",
+        "login_title": "Prijava",
+        "login_content": "Već imate nalog? Prijavite se da biste pristupili svojim projektima.",
+        "signup_title": "Registracija",
+        "signup_content": "Kreirajte novi nalog da biste počeli sa otpremanjem modela i pridruživanjem radionicama.",
+        "profile_title": "Korisnički Profil",
+        "profile_content": "Upravljajte svojim podešavanjima, pregledajte projekte ili se odjavite.",
+        "workshops_title": "Aktivne Radionice",
+        "workshops_content": "Pridružite se sesijama saradnje uživo za više korisnika u VR-u.",
+        "featured_title": "Izdvojena Oprema",
+        "featured_content": "Pogledajte najpopularnije i najkvalitetnije modele odabrane za vas."
+    },
+    "gallery": {
+        "title": "VET Repozitorijum Opreme",
+        "subtitle": "Standardizovani, optimizovani i interaktivni 3D blizanci.",
+        "upload": "Otpremi Novi Model",
+        "search_placeholder": "Pretraži opremu...",
+        "all_sectors": "Svi Sektori",
+        "all_users": "Svi Korisnici",
+        "quick_view": "Brzi Pregled",
+        "ai_optimized": "AI Optimizovano",
+        "explore_xr": "Istraži u XR",
+        "download": "Preuzmi",
+        "join": "Pridruži se",
+        "no_models": "Nisu pronađeni modeli koji odgovaraju vašim kriterijumima.",
+        "edit_tooltip": "Izmeni metapodatke i hotspotove",
+        "optimize_tooltip": "Auto-optimizacija pomoću AI",
+        "delete_tooltip": "Obriši model"
+    },
+    "help": {
+        "title": "Kako koristiti THE GEAR",
+        "subtitle": "Vaš vodič za vrhunsko WebXR VET iskustvo.",
+        "start_tour": "Započni interaktivnu turu",
+        "diagnostics": {
+            "title": "Sistemska Dijagnostika",
+            "connection": "Veza",
+            "secure": "Siguran kontekst aktivan (HTTPS/Localhost).",
+            "insecure": "Nesigurna veza. WebXR zahteva HTTPS.",
+            "webxr": "WebXR Podrška",
+            "supported": "Vaš pretraživač podržava imerzivni VR.",
+            "not_detected": "WebXR nije detektovan.",
+            "checking": "Provera podrške...",
+            "browser": "Pretraživač",
+            "optimized": "Optimizovano za THE GEAR.",
+            "meta_quest_tip": "Za najbolje VR rezultate, koristite Meta Quest Browser."
+        },
+        "sections": {
+            "vr_start": {
+                "title": "Brzi početak u VR režimu",
+                "requirements": "Zahtevi",
+                "req_list": [
+                    "Meta Quest 2, 3 ili Pro kaciga",
+                    "Stabilna Wi-Fi veza",
+                    "Koristite ugrađeni Meta Quest Browser"
+                ],
+                "how_to": "Kako ući u VR",
+                "how_list": [
+                    "Otvorite the-gear.app u vašoj kacigi",
+                    "Izaberite model iz repozitorijuma",
+                    "Kliknite na dugme Enter VR",
+                    "Dozvolite \"Immersive Mode\" ako se zatraži"
+                ],
+                "enter_vr": "Uđi u VR"
+            },
+            "controls": {
+                "title": "Kontrole i navigacija",
+                "desktop_title": "U Desktop / Mobilnom režimu",
+                "vr_title": "U VR režimu (Touch kontroleri)",
+                "desktop_list": {
+                    "rotate": "Levi klik + prevlačenje: Rotiranje modela",
+                    "pan": "Desni klik + prevlačenje: Pomeranje kamere",
+                    "zoom": "Skrolovanje: Zumiranje"
+                },
+                "vr_list": {
+                    "move": "Thumbstick: Teleportacija / Kretanje",
+                    "grab": "Grip dugme: Hvatanje objekata / UI",
+                    "interact": "Trigger: Interakcija sa dugmićima"
+                }
+            },
+            "features": {
+                "title": "Funkcije i uloge",
+                "students_title": "Učenici",
+                "students_desc": "Istražite ceo repozitorijum, pregledajte modele u 3D/VR-u, preuzmite standardne CAD datoteke (STEP) i pridružite se radionicama koje vode nastavnici.",
+                "teachers_title": "Nastavnici i administratori",
+                "teachers_desc": "Otpremite nove modele (preko dugmeta + Otpremi u Repozitorijumu), kreirajte interaktivne lekcije, vodite radionice i pratite napredak učenika.",
+                "workshops_title": "Kolaborativne radionice",
+                "workshops_desc": "Nastavnici mogu kreirati \"Sobu\" kojoj se više učenika može pridružiti u VR-u. Svi vide isti model i mogu komunicirati sa njim zajedno u realnom vremenu."
+            },
+            "learning": {
+                "title": "Interaktivno učenje i Akademija",
+                "academy_title": "GEAR Akademija",
+                "academy_desc": "Pristupite zvaničnoj video obuci za edukatore. Naučite kako da kreirate lekcije, upravljate radionicama i efikasno koristite platformu putem kartice Akademija.",
+                "lessons_title": "Vođene lekcije i kvizovi",
+                "lessons_desc": "Pohađajte 3D lekcije korak po korak sa ugrađenim kvizovima. Dobijte trenutnu povratnu informaciju i pratite svoj napredak.",
+                "challenges_title": "Izazovi \"Pronađi deo\"",
+                "challenges_desc": "Stavite svoje veštine na test u 3D okruženju. Pronađite specifične komponente (npr. \"Pronađite dugme za hitno zaustavljanje\") i potvrdite klikom na model."
+            },
+            "ai": {
+                "title": "AI Engine (Novo)",
+                "opt_title": "Automatska optimizacija",
+                "opt_desc": "Velike CAD datoteke (STEP/IGES) mogu se automatski konvertovati u VR-spremne GLB modele. Koristite dugme Optimizuj u Repozitorijumu.",
+                "verdict_title": "AI Verdict",
+                "verdict_desc": "Google Gemini analizira svaki model kako bi pružio tehničke opise i procenu kvaliteta."
+            },
+            "install": {
+                "title": "Instaliraj aplikaciju (Offline režim)",
+                "how_title": "Kako instalirati",
+                "desktop_inst": "Desktop (Chrome/Edge): Kliknite na ikonu za instalaciju (računar sa strelicom nadole) na desnoj strani adresne trake.",
+                "android_inst": "Android (Chrome): Dodirnite meni (⋮) → \"Instaliraj aplikaciju\" ili \"Dodaj na početni ekran\".",
+                "ios_inst": "iOS (Safari): Dodirnite dugme Deli → \"Dodaj na početni ekran\".",
+                "offline_title": "Offline mogućnosti",
+                "offline_desc": "Nakon instalacije, aplikacija radi čak i bez internet veze.",
+                "offline_list": [
+                    "Pokrenite aplikaciju trenutno sa početnog ekrana.",
+                    "Pregledajte prethodno otvorene modele i lekcije.",
+                    "Navigirajte kroz interfejs i kontrolnu tablu."
+                ]
+            }
+        },
+        "footer": {
+            "questions": "Još uvek imate pitanja?",
+            "contact": "Kontaktirajte podršku"
+        }
+    },
+    "auth": {
+        "login_title": "Dobrodošli nazad",
+        "login_subtitle": "Pristupite VET WebXR čvorištu",
+        "register_title": "Kreiraj nalog",
+        "register_subtitle": "Pridružite se globalnom VET repozitorijumu",
+        "email": "Email adresa",
+        "password": "Lozinka",
+        "username": "Korisničko ime",
+        "institution": "Institucija",
+        "account_type": "Tip naloga",
+        "sign_in": "Prijavi se",
+        "sign_up": "Registruj se",
+        "no_account": "Nemate nalog?",
+        "have_account": "Već imate nalog?",
+        "placeholder_email": "ime@institucija.edu.rs",
+        "placeholder_username": "korisnik",
+        "placeholder_institution": "Tehnička škola",
+        "student": "Učenik",
+        "teacher": "Nastavnik",
+        "loading": "Učitavanje...",
+        "error_credentials": "Neispravni podaci za prijavu",
+        "error_register": "Registracija nije uspela",
+        "error_server": "Greška pri povezivanju sa serverom"
+    },
+    "common": {
+        "back": "Nazad",
+        "cancel": "Otkaži",
+        "save": "Sačuvaj",
+        "delete": "Obriši",
+        "edit": "Izmeni",
+        "add": "Dodaj",
+        "next": "Sledeće",
+        "previous": "Prethodno",
+        "loading": "Učitavanje..."
+    },
+    "builder": {
+        "title": "Kreator Lekcija",
+        "lesson_title": "Naslov lekcije...",
+        "short_description": "Kratak opis...",
+        "pedagogical_tip": "Pedagoški savet",
+        "bloom_tip": "\"Koristite Blumovu taksonomiju: Počnite sa koracima 'Identifikuj' (Znanje) pre prelaska na 'Sastavi' (Primena).\"",
+        "step_editor": "Uređivač koraka",
+        "step_headline": "Naslov koraka",
+        "attached_model": "Priloženi 3D Model",
+        "no_model": "-- Bez Modela --",
+        "step_content": "Sadržaj koraka",
+        "content_placeholder": "Objasnite šta učenik treba da uradi...",
+        "interaction": "Interakcija",
+        "read": "Čitanje",
+        "find_part": "Pronađi deo",
+        "place_hotspot": "Postavi novi hotspot",
+        "hotspot_instruction": "Kliknite na model da postavite...",
+        "hotspot_linked": "Hotspot povezan",
+        "no_model_selected": "Nije izabran 3D model",
+        "no_model_tip": "Izaberite model u levom panelu da biste počeli.",
+        "aim_click_tip": "NANIŠANITE I KLIKNITE na model da postavite pin",
+        "define_hotspot": "Definiši Hotspot",
+        "hotspot_title": "Naslov",
+        "hotspot_description": "Opis",
+        "create_link": "Kreiraj i poveži",
+        "errors": {
+            "select_model": "Prvo izaberite 3D model za ovaj korak.",
+            "enter_title": "Molimo unesite naslov lekcije",
+            "network_error": "Mrežna greška pri čuvanju lekcije",
+            "save_failed": "Čuvanje nije uspelo: "
+        },
+        "intro_title": "Uvod",
+        "intro_content": "Dobrodošli u ovu interaktivnu radnu svesku."
+    },
+    "academy": {
+        "title": "GEAR Akademija",
+        "subtitle": "Ovladajte platformom i unapredite svoju metodologiju nastave. MOOC Suite pruža sertifikovanu obuku za VET edukatore.",
+        "basics": "🛠️ Osnove platforme",
+        "creation": "🎨 Kreiranje sadržaja",
+        "pedagogy": "🎓 Pedagogija",
+        "add_video": "Dodaj video",
+        "edit_video": "Izmeni video",
+        "delete_confirm": "Obrisati ovaj video za obuku?",
+        "save_video": "Sačuvaj video",
+        "update_video": "Ažuriraj video",
+        "no_videos": "Još uvek nema video zapisa u ovoj kategoriji.",
+        "get_certified": "Dobijte Sertifikat",
+        "cert_desc": "Završite sve module da biste dobili svoj zvanični Erasmus+ VET Digital Educator sertifikat.",
+        "check_progress": "Proveri moj napredak",
+        "mark_completed": "Označi kao završeno",
+        "form": {
+            "title": "Naslov",
+            "description": "Opis",
+            "url": "Embed URL (YouTube/Vimeo)",
+            "duration": "Trajanje (npr. 12:30)",
+            "add_new": "Dodaj novi video u \"{{category}}\""
+        }
+    },
+    "lessons": {
+        "list_title": "Interaktivne Lekcije",
+        "list_subtitle": "Vođena 3D iskustva učenja",
+        "create_btn": "Kreiraj Lekciju",
+        "all_sectors": "Svi Sektori",
+        "loading": "Učitavanje lekcija...",
+        "no_lessons": "Nisu pronađene lekcije u ovom sektoru.",
+        "start_btn": "Započni Lekciju",
+        "edit_btn": "Izmeni",
+        "delete_btn": "Obriši",
+        "delete_confirm": "Da li ste sigurni da želite da obrišete ovu lekciju?",
+        "general": "Opšte",
+        "unknown": "Nepoznato",
+        "viewer": {
+            "loading": "Učitavanje Lekcije...",
+            "not_found": "Lekcija nije pronađena.",
+            "interactive_lesson": "Interaktivna Lekcija",
+            "step_x_of_y": "Korak {{current}} od {{total}}",
+            "no_model": "Nema modela priloženog ovom koraku.",
+            "quiz": "Kviz",
+            "submit_answer": "Pošalji Odgovor",
+            "correct_answer": "Tačan Odgovor!",
+            "incorrect_answer": "Netačno. Pokušajte ponovo?",
+            "retry": "Pokušaj ponovo",
+            "find_task": "Zadatak: Pronađi Komponentu",
+            "find_instruction": "Pronađite i kliknite na deo 3D modela: {{target}}",
+            "find_success": "Tačno! Pronašli ste {{target}}.",
+            "find_error": "Netačno. To je deo \"{{meshName}}\". Pokušajte ponovo.",
+            "start_first": "Započni Prvi Korak",
+            "previous": "Prethodno",
+            "next": "Sledeće",
+            "finish": "Završi"
+        },
+        "editor": {
+            "edit_title": "Izmeni Lekciju",
+            "create_title": "Kreiraj Novu Lekciju",
+            "save_btn": "Sačuvaj Lekciju",
+            "lesson_title": "Naslov Lekcije",
+            "title_placeholder": "npr. Uvod u Robotiku",
+            "sector": "Sektor",
+            "image": "Slika Lekcije",
+            "uploading": "Otpremanje...",
+            "description": "Opis",
+            "desc_placeholder": "Kratak pregled onoga što ova lekcija pokriva...",
+            "steps_title": "Koraci Lekcije",
+            "add_step": "Dodaj Korak",
+            "step_title_placeholder": "Naslov Koraka",
+            "step_type": "Tip Koraka",
+            "read": "📖 Čitanje",
+            "quiz": "🧠 Kviz",
+            "find_part": "🎯 Pronađi Deo",
+            "question": "Pitanje",
+            "content_rich": "Sadržaj (Bogat tekst)",
+            "question_placeholder": "Unesite pitanje ovde...",
+            "content_placeholder": "Napišite sadržaj lekcije ovde...",
+            "answers": "Odgovori",
+            "option": "Opcija {{number}}",
+            "target_part": "Ciljni Deo",
+            "no_part": "Nije izabran nijedan deo",
+            "pointer": "Pokazivač",
+            "pointer_tip": "Povežite model, kliknite na Pokazivač, a zatim kliknite na deo u 3D pregledaču.",
+            "step_image": "Slika Koraka (Opciono)",
+            "no_img": "Nema Slike",
+            "paste_img_tip": "Kliknite ovde i zalepite (Ctrl+V) sliku",
+            "linked_model": "Povezani 3D Model",
+            "no_model_text": "Bez Modela (Samo tekst)",
+            "model_not_found": "Model nije pronađen",
+            "select_target": "Izaberite Ciljni Deo",
+            "select_target_tip": "Kliknite na specifičan deo modela da biste ga postavili kao cilj.",
+            "intro_title": "Uvod",
+            "intro_content": "# Dobrodošli u ovu lekciju\n\nPočnite sa objašnjenjem teme.",
+            "errors": {
+                "enter_title": "Molimo unesite naslov lekcije",
+                "link_model_first": "Prvo povežite 3D model!"
+            }
+        }
+    },
+    "admin": {
+        "settings": {
+            "title": "Administratorska podešavanja",
+            "tabs": {
+                "users": "Upravljanje korisnicima",
+                "sectors": "Upravljanje sektorima",
+                "config": "Konfiguracija",
+                "logs": "Sistemski logovi"
+            }
+        },
+        "config": {
+            "loading": "Učitavanje podešavanja...",
+            "title": "Globalna podešavanja",
+            "maintenance": {
+                "label": "Režim održavanja",
+                "desc": "Onemogući prijavu za korisnike koji nisu administratori."
+            },
+            "announcement": {
+                "label": "Globalno obaveštenje",
+                "placeholder": "Unesite poruku koja će biti prikazana na vrhu kontrolne table..."
+            },
+            "save_btn": "Sačuvaj konfiguraciju",
+            "data_mgmt": {
+                "title": "Upravljanje podacima",
+                "desc": "Redovno pravite rezervne kopije podataka kako biste sprečili gubitak.",
+                "export_title": "Izvoz baze podataka",
+                "export_desc": "Preuzmite kompletan JSON snimak svih tabela.",
+                "download": "Preuzmi",
+                "restore_title": "Vraćanje baze podataka",
+                "restore_desc": "Opasnost: Vraćanje će prepisati postojeće podatke. Koristite SQL ili JSON datoteke.",
+                "upload": "Otpremi rezervnu kopiju",
+                "restore_confirm": "UPOZORENJE: Spremate se da vratite bazu podataka iz datoteke \"{{filename}}\".\n\nPostojeći podaci mogu biti prepisani.\n\nDa li ste sigurni?"
+            },
+            "alerts": {
+                "saved": "Podešavanja su uspešno sačuvana!",
+                "failed": "Čuvanje podešavanja nije uspelo."
+            }
+        },
+        "sectors": {
+            "loading": "Učitavanje sektora...",
+            "title": "Upravljanje sektorima",
+            "desc": "Upravljajte listom obrazovnih sektora. Preimenujte ih da biste ispravili greške kucanja ili spojili kategorije.",
+            "add_placeholder": "Naziv novog sektora",
+            "add_btn": "Dodaj sektor",
+            "table": {
+                "header_name": "Naziv sektora",
+                "header_actions": "Akcije",
+                "no_sectors": "Nisu pronađeni prilagođeni sektori."
+            },
+            "tip": "Savet: Novi sektori se automatski kreiraju prilikom otpremanja modela ako ne postoje.",
+            "confirm_delete": "Da li ste sigurni da želite da obrišete sektor \"{{sectorName}}\"? Ovo je moguće samo ako ga nijedan model ne koristi.",
+            "confirm_rename": "Preimenovati \"{{editingSector}}\" u \"{{newSectorName}}\"? Ovo će ažurirati sve povezane modele."
+        },
+        "logs": {
+            "title": "Sistemski logovi",
+            "desc": "Pregledajte poslednjih 100 linija sistemskih grešaka.",
+            "loading": "Učitavanje logova...",
+            "no_logs": "Logovi nisu dostupni.",
+            "refresh_tooltip": "Osveži logove",
+            "load_failed": "Učitavanje logova nije uspelo. Možda nemate dozvolu.",
+            "network_error": "Mrežna greška prilikom učitavanja logova."
+        },
+        "users": {
+            "loading": "Učitavanje korisnika...",
+            "title": "Upravljanje korisnicima",
+            "subtitle": "Upravljajte registrovanim korisnicima i njihovim dozvolama.",
+            "add_btn": "+ Dodaj novog korisnika",
+            "create_form": {
+                "title": "Kreiraj novog korisnika",
+                "username": "Korisničko ime",
+                "email": "Email",
+                "password": "Lozinka",
+                "institution": "Institucija",
+                "role": "Uloga",
+                "create_btn": "Kreiraj"
+            },
+            "table": {
+                "username": "Korisničko ime",
+                "email": "Email",
+                "institution": "Institucija",
+                "role": "Uloga",
+                "actions": "Akcije"
+            },
+            "actions": {
+                "view": "Pregledaj",
+                "edit": "Izmeni",
+                "delete": "Obriši"
+            },
+            "confirm_delete": "Da li ste sigurni da želite da obrišete ovog korisnika?",
+            "alerts": {
+                "delete_failed": "Brisanje korisnika nije uspelo",
+                "update_failed": "Ažuriranje korisnika nije uspelo",
+                "create_failed": "Kreiranje korisnika nije uspelo: {{error}}"
+            }
+        }
+    },
+    "teacher": {
+        "dashboard": {
+            "title": "Panel za nastavnike",
+            "subtitle": "Pratite napredak i angažovanje učenika.",
+            "loading": "Učitavanje panela...",
+            "attempts": "Pokušaji",
+            "completed": "Završeno",
+            "in_progress": "U toku",
+            "search_placeholder": "Traži učenika ili lekciju...",
+            "no_stats": "Nisu pronađeni statistički podaci za vaše lekcije.",
+            "table": {
+                "student": "Učenik",
+                "lesson": "Lekcija",
+                "status": "Status",
+                "score": "Poeni",
+                "started": "Započeto",
+                "completed": "Završeno"
+            }
+        }
+    },
+    "profile": {
+        "modal": {
+            "title": "Korisnički profil",
+            "loading": "Učitavanje profila...",
+            "email": "Email",
+            "institution": "Institucija",
+            "not_specified": "Nije navedeno",
+            "bio": "Biografija",
+            "no_bio": "Biografija nije uneta.",
+            "uploaded_models": "Otpremljeni modeli",
+            "no_models": "Ovaj korisnik nema otpremljenih modela.",
+            "created_lessons": "Kreirane lekcije",
+            "steps": "{{count}} koraka"
+        },
+        "form": {
+            "title": "Izmeni profil",
+            "subtitle": "Upravljajte svojim nalogom i podacima o instituciji.",
+            "update_photo": "Ažuriraj sliku",
+            "updating": "Ažuriranje profila...",
+            "username": "Korisničko ime",
+            "username_placeholder": "Vaše ime za prikaz",
+            "email": "Email adresa",
+            "email_placeholder": "ime@institucija.edu",
+            "institution": "Institucija / Škola",
+            "institution_placeholder": "npr. Tehnička škola Pirot",
+            "bio": "Kratka biografija",
+            "bio_placeholder": "Ukratko opišite svoju ulogu (npr. Nastavnik mehatronike)...",
+            "save_btn": "Sačuvaj profil",
+            "errors": {
+                "upload_failed": "Otpremanje slike nije uspelo",
+                "update_failed": "Ažuriranje profila nije uspelo"
+            }
+        }
+    }
+}

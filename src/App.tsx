@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AppView, VETModel, User, TourStep, Lesson } from './types';
 import { INITIAL_MODELS } from './constants';
 import Navbar from './components/Navbar';
@@ -27,6 +28,7 @@ import Academy from './components/Academy';
 import AdminSettings from './components/AdminSettings';
 
 const App: React.FC = () => {
+  const { t } = useTranslation();
   const [currentView, setCurrentView] = useState<AppView>('home');
   const [models, setModels] = useState<VETModel[]>(INITIAL_MODELS); // Initialize with constants
   const [selectedModel, setSelectedModel] = useState<VETModel | null>(null);
@@ -49,36 +51,36 @@ const App: React.FC = () => {
   const TOUR_STEPS: TourStep[] = [
     {
       targetId: 'nav-logo',
-      title: 'Welcome to THE GEAR',
-      content: 'Your ultimate WebXR open-source repository for vocational training.',
+      title: t('tour.welcome_title'),
+      content: t('tour.welcome_content'),
       position: 'bottom',
       view: 'home'
     },
     {
       targetId: 'nav-repo',
-      title: '3D Library',
-      content: 'Browse, filter, and upload new industrial models.',
+      title: t('tour.library_title'),
+      content: t('tour.library_content'),
       position: 'bottom',
       view: 'home'
     },
     {
       targetId: 'nav-lessons',
-      title: 'Interactive Lessons',
-      content: 'Explore guided 3D learning experiences designed by teachers.',
+      title: t('tour.lessons_title'),
+      content: t('tour.lessons_content'),
       position: 'bottom',
       view: 'home'
     },
     {
       targetId: 'nav-academy',
-      title: 'GEAR Academy',
-      content: 'Master the platform with video tutorials and pedagogy tips.',
+      title: t('tour.academy_title'),
+      content: t('tour.academy_content'),
       position: 'bottom',
       view: 'home'
     },
     {
       targetId: 'nav-help',
-      title: 'Support Center',
-      content: 'Access tutorials, diagnostics, and support here anytime.',
+      title: t('tour.help_title'),
+      content: t('tour.help_content'),
       position: 'bottom',
       view: 'home'
     }
@@ -89,15 +91,15 @@ const App: React.FC = () => {
     TOUR_STEPS.push(
       {
         targetId: 'nav-login',
-        title: 'Login',
-        content: 'Already have an account? Log in to access your projects.',
+        title: t('tour.login_title'),
+        content: t('tour.login_content'),
         position: 'bottom',
         view: 'home'
       },
       {
         targetId: 'nav-register',
-        title: 'Sign Up',
-        content: 'Create a new account to start uploading models and joining workshops.',
+        title: t('tour.signup_title'),
+        content: t('tour.signup_content'),
         position: 'bottom',
         view: 'home'
       }
@@ -108,8 +110,8 @@ const App: React.FC = () => {
     // Profile for all logged in users
     TOUR_STEPS.push({
       targetId: 'nav-profile',
-      title: 'User Profile',
-      content: 'Manage your settings, view your projects, or log out.',
+      title: t('tour.profile_title'),
+      content: t('tour.profile_content'),
       position: 'bottom',
       view: 'home'
     });
@@ -119,15 +121,15 @@ const App: React.FC = () => {
   TOUR_STEPS.push(
     {
       targetId: 'dashboard-workshop',
-      title: 'Active Workshops',
-      content: 'Join live multi-user collaborative sessions in VR.',
+      title: t('tour.workshops_title'),
+      content: t('tour.workshops_content'),
       position: 'bottom',
       view: 'home'
     },
     {
       targetId: 'dashboard-featured',
-      title: 'Featured Equipment',
-      content: 'Check out the most popular and high-quality models selected for you.',
+      title: t('tour.featured_title'),
+      content: t('tour.featured_content'),
       position: 'top',
       view: 'home'
     }

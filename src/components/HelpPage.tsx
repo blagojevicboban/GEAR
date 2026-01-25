@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface HelpPageProps {
     onStartTour?: () => void;
 }
 
 const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
+    const { t } = useTranslation();
     const [xrSupported, setXrSupported] = useState<boolean | null>(null);
     const [isSecure, setIsSecure] = useState<boolean>(false);
     const [browserName, setBrowserName] = useState<string>('');
@@ -45,17 +47,17 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
         <div className="max-w-4xl mx-auto px-6 py-12">
             <div className="text-center mb-16">
                 <h1 className="text-4xl lg:text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">
-                    How to use THE GEAR
+                    {t('help.title')}
                 </h1>
                 <p className="text-xl text-slate-400 mb-8">
-                    Your guide to the ultimate WebXR VET experience.
+                    {t('help.subtitle')}
                 </p>
                 {onStartTour && (
                     <button
                         onClick={onStartTour}
                         className="px-8 py-3 bg-slate-800 hover:bg-slate-700 border border-indigo-500/30 text-indigo-400 font-bold rounded-xl transition-all shadow-lg hover:shadow-indigo-500/10 flex items-center gap-2 mx-auto"
                     >
-                        <span>🎬</span> Start Interactive Tour
+                        <span>🎬</span> {t('help.start_tour')}
                     </button>
                 )}
             </div>
@@ -65,38 +67,38 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
                     <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">🩺</span>
-                        System Diagnostics
+                        {t('help.diagnostics.title')}
                     </h2>
                     <div className="grid md:grid-cols-3 gap-6">
                         <div className={`p-4 rounded-xl border ${isSecure ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-rose-500/10 border-rose-500/30'}`}>
                             <div className="flex items-center justify-between mb-2">
-                                <span className={`font-bold ${isSecure ? 'text-emerald-400' : 'text-rose-400'}`}>Connection</span>
+                                <span className={`font-bold ${isSecure ? 'text-emerald-400' : 'text-rose-400'}`}>{t('help.diagnostics.connection')}</span>
                                 <span>{isSecure ? '✅' : '❌'}</span>
                             </div>
                             <p className="text-xs text-slate-400">
-                                {isSecure ? 'Secure context active (HTTPS/Localhost).' : 'Insecure connection. WebXR requires HTTPS.'}
+                                {isSecure ? t('help.diagnostics.secure') : t('help.diagnostics.insecure')}
                             </p>
                         </div>
 
                         <div className={`p-4 rounded-xl border ${xrSupported ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-amber-500/10 border-amber-500/30'}`}>
                             <div className="flex items-center justify-between mb-2">
-                                <span className={`font-bold ${xrSupported ? 'text-emerald-400' : 'text-amber-400'}`}>WebXR Support</span>
+                                <span className={`font-bold ${xrSupported ? 'text-emerald-400' : 'text-amber-400'}`}>{t('help.diagnostics.webxr')}</span>
                                 <span>{xrSupported ? '✅' : '⚠️'}</span>
                             </div>
                             <p className="text-xs text-slate-400">
-                                {xrSupported === true && 'Your browser supports immersive VR.'}
-                                {xrSupported === false && 'WebXR not detected.'}
-                                {xrSupported === null && 'Checking support...'}
+                                {xrSupported === true && t('help.diagnostics.supported')}
+                                {xrSupported === false && t('help.diagnostics.not_detected')}
+                                {xrSupported === null && t('help.diagnostics.checking')}
                             </p>
                         </div>
 
                         <div className="p-4 rounded-xl border bg-slate-800/50 border-slate-700">
                             <div className="flex items-center justify-between mb-2">
-                                <span className="font-bold text-slate-300">Browser</span>
+                                <span className="font-bold text-slate-300">{t('help.diagnostics.browser')}</span>
                                 <span className="text-xs bg-slate-700 px-2 py-0.5 rounded text-slate-300">{browserName}</span>
                             </div>
                             <p className="text-xs text-slate-400">
-                                {browserName === 'Meta Quest Browser' ? 'Optimized for THE GEAR.' : 'For best VR results, use Meta Quest Browser.'}
+                                {browserName === 'Meta Quest Browser' ? t('help.diagnostics.optimized') : t('help.diagnostics.meta_quest_tip')}
                             </p>
                         </div>
                     </div>
@@ -106,24 +108,23 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
                     <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">🥽</span>
-                        VR Mode Quick Start
+                        {t('help.sections.vr_start.title')}
                     </h2>
                     <div className="grid md:grid-cols-2 gap-8">
                         <div className="space-y-4">
-                            <h3 className="tex-lg font-bold text-indigo-400">Requirements</h3>
+                            <h3 className="tex-lg font-bold text-indigo-400">{t('help.sections.vr_start.requirements')}</h3>
                             <ul className="list-disc list-inside text-slate-400 space-y-2">
-                                <li>Meta Quest 2, 3, or Pro headset</li>
-                                <li>Stable Wi-Fi connection</li>
-                                <li>Use the built-in <strong>Meta Quest Browser</strong></li>
+                                {(t('help.sections.vr_start.req_list', { returnObjects: true }) as string[]).map((req, i) => (
+                                    <li key={i}>{req}</li>
+                                ))}
                             </ul>
                         </div>
                         <div className="space-y-4">
-                            <h3 className="tex-lg font-bold text-indigo-400">How to Enter VR</h3>
+                            <h3 className="tex-lg font-bold text-indigo-400">{t('help.sections.vr_start.how_to')}</h3>
                             <ol className="list-decimal list-inside text-slate-400 space-y-2">
-                                <li>Open <strong>the-gear.app</strong> in your headset</li>
-                                <li>Select a model from the Repository</li>
-                                <li>Click the <span className="text-white px-2 py-0.5 bg-indigo-600 rounded text-xs">Enter VR</span> button</li>
-                                <li>Allow "Immersive Mode" if prompted</li>
+                                {(t('help.sections.vr_start.how_list', { returnObjects: true }) as string[]).map((step, i) => (
+                                    <li key={i} dangerouslySetInnerHTML={{ __html: step.replace('the-gear.app', '<strong>the-gear.app</strong>').replace('Enter VR', `<span className="text-white px-2 py-0.5 bg-indigo-600 rounded text-xs">${t('help.sections.vr_start.enter_vr')}</span>`) }}></li>
+                                ))}
                             </ol>
                         </div>
                     </div>
@@ -133,34 +134,34 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
                     <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">🎮</span>
-                        Controls & Navigation
+                        {t('help.sections.controls.title')}
                     </h2>
                     <div className="grid md:grid-cols-2 gap-8">
                         <div>
-                            <h3 className="font-bold text-white mb-4">In Desktop / Mobile Mode</h3>
+                            <h3 className="font-bold text-white mb-4">{t('help.sections.controls.desktop_title')}</h3>
                             <ul className="space-y-3 text-slate-400">
                                 <li className="flex items-start gap-2">
-                                    <span className="font-bold text-slate-200">Left Click + Drag:</span> Rotate model
+                                    {t('help.sections.controls.desktop_list.rotate')}
                                 </li>
                                 <li className="flex items-start gap-2">
-                                    <span className="font-bold text-slate-200">Right Click + Drag:</span> Pan camera
+                                    {t('help.sections.controls.desktop_list.pan')}
                                 </li>
                                 <li className="flex items-start gap-2">
-                                    <span className="font-bold text-slate-200">Scroll:</span> Zoom in/out
+                                    {t('help.sections.controls.desktop_list.zoom')}
                                 </li>
                             </ul>
                         </div>
                         <div>
-                            <h3 className="font-bold text-white mb-4">In VR Mode (Touch Controllers)</h3>
+                            <h3 className="font-bold text-white mb-4">{t('help.sections.controls.vr_title')}</h3>
                             <ul className="space-y-3 text-slate-400">
                                 <li className="flex items-start gap-2">
-                                    <span className="font-bold text-slate-200">Thumbstick:</span> Teleport / Move
+                                    {t('help.sections.controls.vr_list.move')}
                                 </li>
                                 <li className="flex items-start gap-2">
-                                    <span className="font-bold text-slate-200">Grip Button:</span> Grab objects / UI
+                                    {t('help.sections.controls.vr_list.grab')}
                                 </li>
                                 <li className="flex items-start gap-2">
-                                    <span className="font-bold text-slate-200">Trigger:</span> Interact with buttons
+                                    {t('help.sections.controls.vr_list.interact')}
                                 </li>
                             </ul>
                         </div>
@@ -171,20 +172,20 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
                     <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">👥</span>
-                        Features & Roles
+                        {t('help.sections.features.title')}
                     </h2>
                     <div className="space-y-6 text-slate-400">
                         <div>
-                            <strong className="text-white block mb-1">Students</strong>
-                            Explore the entire repository, view models in 3D/VR, download standard CAD files (STEP), and join workshops hosted by teachers.
+                            <strong className="text-white block mb-1">{t('help.sections.features.students_title')}</strong>
+                            {t('help.sections.features.students_desc')}
                         </div>
                         <div>
-                            <strong className="text-white block mb-1">Teachers & Admins</strong>
-                            Upload new models (via the **+ Upload** button in Repository), create interactive lessons, host workshops, and track student progress.
+                            <strong className="text-white block mb-1">{t('help.sections.features.teachers_title')}</strong>
+                            {t('help.sections.features.teachers_desc')}
                         </div>
                         <div>
-                            <strong className="text-white block mb-1">Collaborative Workshops</strong>
-                            Teachers can spawn a "Room" where multiple students can join in VR. Everyone sees the same model and can interact with it together in real-time.
+                            <strong className="text-white block mb-1">{t('help.sections.features.workshops_title')}</strong>
+                            {t('help.sections.features.workshops_desc')}
                         </div>
                     </div>
                 </div>
@@ -193,20 +194,20 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
                     <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">🎓</span>
-                        Interactive Learning & Academy
+                        {t('help.sections.learning.title')}
                     </h2>
                     <div className="space-y-6 text-slate-400">
                         <div>
-                            <strong className="text-white block mb-1">GEAR Academy</strong>
-                            Access official video training for educators. Learn how to create lessons, manage workshops, and use the platform effectively via the **Academy** tab.
+                            <strong className="text-white block mb-1">{t('help.sections.learning.academy_title')}</strong>
+                            {t('help.sections.learning.academy_desc')}
                         </div>
                         <div>
-                            <strong className="text-white block mb-1">Guided Lessons & Quizzes</strong>
-                            Take step-by-step 3D lessons with built-in quizzes. Receive instant feedback and track your progress.
+                            <strong className="text-white block mb-1">{t('help.sections.learning.lessons_title')}</strong>
+                            {t('help.sections.learning.lessons_desc')}
                         </div>
                         <div>
-                            <strong className="text-white block mb-1">"Find the Part" Challenges</strong>
-                            Put your skills to the test in the 3D environment. Locate specific components (e.g., "Find the Emergency Stop Button") and confirm by clicking the mesh.
+                            <strong className="text-white block mb-1">{t('help.sections.learning.challenges_title')}</strong>
+                            {t('help.sections.learning.challenges_desc')}
                         </div>
                     </div>
                 </div>
@@ -215,59 +216,59 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
                     <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-purple-600 flex items-center justify-center">✨</span>
-                        AI Engine (New)
+                        {t('help.sections.ai.title')}
                     </h2>
                     <div className="space-y-6 text-slate-400">
                         <div>
-                            <strong className="text-white block mb-1">Automated Optimization</strong>
-                            Large CAD files (STEP/IGES) can be automatically converted into VR-ready GLB models. Use the **Optimize** button in the Repository.
+                            <strong className="text-white block mb-1">{t('help.sections.ai.opt_title')}</strong>
+                            {t('help.sections.ai.opt_desc')}
                         </div>
                         <div>
-                            <strong className="text-white block mb-1">AI Verdict</strong>
-                            Google Gemini analyzes every model to provide technical descriptions and quality assessments.
+                            <strong className="text-white block mb-1">{t('help.sections.ai.verdict_title')}</strong>
+                            {t('help.sections.ai.verdict_desc')}
                         </div>
                     </div>
                 </div>
 
-                {/* Section 5: Offline & Installation */}
+                {/* Section 6: Offline & Installation */}
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
                     <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-cyan-600 flex items-center justify-center">📱</span>
-                        Install App (Offline Mode)
+                        {t('help.sections.install.title')}
                     </h2>
                     <div className="grid md:grid-cols-2 gap-8">
                         <div>
-                            <h3 className="font-bold text-white mb-4">How to Install</h3>
+                            <h3 className="font-bold text-white mb-4">{t('help.sections.install.how_title')}</h3>
                             <ul className="space-y-3 text-slate-400">
                                 <li className="flex items-start gap-2">
-                                    <span className="font-bold text-slate-200">Desktop (Chrome/Edge):</span> Click the install icon (Computer with Down Arrow) in the right of the address bar.
+                                    {t('help.sections.install.desktop_inst')}
                                 </li>
                                 <li className="flex items-start gap-2">
-                                    <span className="font-bold text-slate-200">Android (Chrome):</span> Tap the menu (⋮) → "Install App" or "Add to Home Screen".
+                                    {t('help.sections.install.android_inst')}
                                 </li>
                                 <li className="flex items-start gap-2">
-                                    <span className="font-bold text-slate-200">iOS (Safari):</span> Tap the Share button → "Add to Home Screen".
+                                    {t('help.sections.install.ios_inst')}
                                 </li>
                             </ul>
                         </div>
                         <div>
-                            <h3 className="font-bold text-white mb-4">Offline Capabilities</h3>
+                            <h3 className="font-bold text-white mb-4">{t('help.sections.install.offline_title')}</h3>
                             <p className="text-slate-400 mb-4">
-                                Once installed, the app works even without an internet connection.
+                                {t('help.sections.install.offline_desc')}
                             </p>
                             <ul className="list-disc list-inside text-slate-400 space-y-2">
-                                <li>Launch the app instantly from your home screen.</li>
-                                <li>View previously opened models and lessons.</li>
-                                <li>Navigate the interface and dashboard.</li>
+                                {(t('help.sections.install.offline_list', { returnObjects: true }) as string[]).map((cap, i) => (
+                                    <li key={i}>{cap}</li>
+                                ))}
                             </ul>
                         </div>
                     </div>
                 </div>
 
                 <div className="text-center pt-8">
-                    <p className="text-slate-500 mb-4">Still have questions?</p>
+                    <p className="text-slate-500 mb-4">{t('help.footer.questions')}</p>
                     <a href="mailto:support@thegear.app" className="text-indigo-400 hover:text-indigo-300 font-bold hover:underline">
-                        Contact Support
+                        {t('help.footer.contact')}
                     </a>
                 </div>
             </div>

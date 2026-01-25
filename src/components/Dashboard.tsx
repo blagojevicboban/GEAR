@@ -1,5 +1,6 @@
 
 import React, { Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import { VETModel } from '../types';
 
 interface DashboardProps {
@@ -20,6 +21,7 @@ import Hero3D from './Hero3D';
 const Dashboard: React.FC<DashboardProps> = ({
   modelsCount, onGetStarted, featuredModels, activeWorkshops, onViewModel, onViewUser, onJoinWorkshop
 }) => {
+  const { t } = useTranslation();
   const [targetPos, setTargetPos] = React.useState<{ x: number, y: number } | null>(null);
   const [announcement, setAnnouncement] = React.useState<string>('');
 
@@ -67,21 +69,17 @@ const Dashboard: React.FC<DashboardProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16 relative z-10">
         <div>
           <h1 className="text-5xl lg:text-7xl font-extrabold mb-6 leading-tight">
-            The Future of <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">
-              VET Training
-            </span>
+            {t('home.welcome_title')} <br />
           </h1>
           <p className="text-xl text-slate-400 mb-8 max-w-xl">
-            THE GEAR is the ultimate WebXR open-source repository for vocational schools.
-            Upload, optimize, and simulate industrial equipment in 1:1 scale directly in your Meta Quest browser.
+            {t('home.welcome_subtitle')}
           </p>
           <div className="flex gap-4">
             <button
               onClick={onGetStarted}
               className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-bold text-lg transition-all shadow-xl shadow-indigo-500/20 active:scale-95"
             >
-              Explore Hub
+              {t('home.get_started')}
             </button>
             <div className="flex flex-col justify-center">
               <span className="text-2xl font-bold text-white">{modelsCount}</span>
@@ -106,13 +104,13 @@ const Dashboard: React.FC<DashboardProps> = ({
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent"></div>
           <div className="absolute bottom-6 left-6 right-6">
             <div className={`inline-block px-3 py-1 ${activeWorkshops.length > 0 ? 'bg-rose-500 animate-pulse' : 'bg-green-500/20'} border border-rose-500/50 text-white text-xs font-bold rounded-full mb-3 uppercase`}>
-              {activeWorkshops.length > 0 ? `${activeWorkshops.length} ACTIVE WORKSHOPS` : 'LIVE WORKSHOP SUPPORT'}
+              {activeWorkshops.length > 0 ? `${activeWorkshops.length} ${t('home.active_workshops').toUpperCase()}` : t('home.active_workshops').toUpperCase()}
             </div>
             <h3 className="text-2xl font-bold text-white mb-2">
-              {activeWorkshops.length > 0 ? `Join ${activeWorkshops[0].creatorName}'s Lab` : 'Multi-user Collaborative Lab'}
+              {activeWorkshops.length > 0 ? `${t('home.join')} ${activeWorkshops[0].creatorName}'s Lab` : t('home.active_workshops')}
             </h3>
             <p className="text-slate-400 text-sm">
-              {activeWorkshops.length > 0 ? `Currently viewing ${activeWorkshops[0].modelName}. Click to join.` : 'Join teachers and students from across the globe in virtual workshops.'}
+              {activeWorkshops.length > 0 ? `${t('home.join')} ${activeWorkshops[0].modelName}` : t('home.no_workshops')}
             </p>
           </div>
         </div>
@@ -120,7 +118,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 
       <div className="mb-12" id="dashboard-featured">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-3xl font-bold">Featured Equipment</h2>
+          <h2 className="text-3xl font-bold">{t('home.featured_models')}</h2>
           <button onClick={onGetStarted} className="text-indigo-400 hover:text-indigo-300 font-semibold text-sm">View all →</button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

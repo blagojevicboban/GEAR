@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AppView, User } from '../types';
 import { fixAssetUrl } from '../utils/urlUtils';
 
@@ -11,7 +12,13 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLogout }) => {
+  const { t, i18n } = useTranslation();
   const [showDropdown, setShowDropdown] = useState(false);
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'sr' ? 'en' : 'sr';
+    i18n.changeLanguage(newLang);
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-6 py-4 flex items-center justify-between">
@@ -31,7 +38,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
           onClick={() => setView('gallery')}
           className={`text-sm font-medium transition-colors ${currentView === 'gallery' ? 'text-indigo-400' : 'text-slate-400 hover:text-white'}`}
         >
-          Library
+          {t('nav.library')}
         </button>
 
         <button
@@ -39,7 +46,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
           onClick={() => setView('lessons')}
           className={`text-sm font-medium transition-colors ${currentView === 'lessons' ? 'text-indigo-400' : 'text-slate-400 hover:text-white'}`}
         >
-          Lessons
+          {t('nav.lessons')}
         </button>
 
         <button
@@ -47,7 +54,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
           onClick={() => setView('academy')}
           className={`text-sm font-medium transition-colors ${currentView === 'academy' ? 'text-indigo-400' : 'text-slate-400 hover:text-white'}`}
         >
-          Academy
+          {t('nav.academy')}
         </button>
 
         <button
@@ -55,7 +62,16 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
           onClick={() => setView('help')}
           className={`text-sm font-medium transition-colors ${currentView === 'help' ? 'text-indigo-400' : 'text-slate-400 hover:text-white'}`}
         >
-          Support
+          {t('nav.help')}
+        </button>
+
+        {/* Language Toggle */}
+        <button
+          onClick={toggleLanguage}
+          className="text-xs font-bold bg-slate-800 text-slate-300 px-2 py-1 rounded border border-slate-700 hover:border-slate-500 transition-colors uppercase"
+          title={t('nav.language')}
+        >
+          {i18n.language === 'sr' ? 'SR' : 'EN'}
         </button>
 
 
@@ -88,36 +104,36 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
               <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl py-2 overflow-hidden animate-in fade-in slide-in-from-top-2">
                 <div className="px-4 py-2 border-b border-slate-800 mb-1">
                   <div className="flex justify-between items-center">
-                    <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Institution</p>
-                    <span className="text-[10px] bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded uppercase font-bold">{currentUser.role}</span>
+                    <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">{t('nav.user_menu.institution')}</p>
+                    <span className="text-[10px] bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded uppercase font-bold">{t(`auth.roles.${currentUser.role}`)}</span>
                   </div>
-                  <p className="text-sm text-slate-300 truncate">{currentUser.institution || 'Independent'}</p>
+                  <p className="text-sm text-slate-300 truncate">{currentUser.institution || t('nav.user_menu.independent')}</p>
                 </div>
 
                 <button
                   onClick={() => { setView('my-projects'); setShowDropdown(false); }}
                   className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-indigo-600/10 hover:text-indigo-400 transition-colors"
                 >
-                  My Models
+                  {t('nav.user_menu.my_models')}
                 </button>
                 <button
                   onClick={() => { setView('my-lessons'); setShowDropdown(false); }}
                   className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-indigo-600/10 hover:text-indigo-400 transition-colors"
                 >
-                  My Lessons
+                  {t('nav.user_menu.my_lessons')}
                 </button>
                 <button
                   onClick={() => { setView('profile'); setShowDropdown(false); }}
                   className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-indigo-600/10 hover:text-indigo-400 transition-colors"
                 >
-                  Edit Profile
+                  {t('nav.user_menu.edit_profile')}
                 </button>
                 {(currentUser.role === 'admin' || currentUser.role === 'teacher') && (
                   <button
                     onClick={() => { setView('teacher-dashboard'); setShowDropdown(false); }}
                     className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-indigo-600/10 hover:text-indigo-400 transition-colors"
                   >
-                    Teacher Dashboard
+                    {t('nav.user_menu.teacher_dashboard')}
                   </button>
                 )}
                 {currentUser.role === 'admin' && (
@@ -125,14 +141,14 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
                     onClick={() => { setView('admin-settings'); setShowDropdown(false); }}
                     className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-indigo-600/10 hover:text-indigo-400 transition-colors"
                   >
-                    Admin Settings
+                    {t('nav.user_menu.admin_settings')}
                   </button>
                 )}
                 <button
                   onClick={() => { onLogout(); setShowDropdown(false); }}
                   className="w-full text-left px-4 py-2 text-sm text-rose-400 hover:bg-rose-500/10 transition-colors"
                 >
-                  Logout
+                  {t('nav.user_menu.logout')}
                 </button>
               </div>
             )}
@@ -144,14 +160,14 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
               onClick={() => setView('login')}
               className="text-sm font-semibold text-slate-400 hover:text-white px-3 py-2"
             >
-              Login
+              {t('nav.login')}
             </button>
             <button
               id="nav-register"
               onClick={() => setView('register')}
               className="text-sm font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 px-4 py-2 rounded-xl hover:bg-indigo-600 hover:text-white transition-all"
             >
-              Sign Up
+              {t('nav.register')}
             </button>
           </div>
         )}

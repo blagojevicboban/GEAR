@@ -2,6 +2,7 @@
 import React from 'react';
 import './index.css';
 import ReactDOM from 'react-dom/client';
+import './i18n'; // Initialize i18n
 import App from './App';
 
 const rootElement = document.getElementById('root');

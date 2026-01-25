@@ -1,5 +1,6 @@
 
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { User } from '../types';
 import { fixAssetUrl } from '../utils/urlUtils';
 
@@ -10,6 +11,7 @@ interface ProfileFormProps {
 }
 
 const ProfileForm: React.FC<ProfileFormProps> = ({ user, onUpdateSuccess, onCancel }) => {
+  const { t } = useTranslation();
   const [isUpdating, setIsUpdating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
@@ -49,7 +51,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ user, onUpdateSuccess, onCanc
           method: 'POST',
           body: uploadData
         });
-        if (!uploadRes.ok) throw new Error('Image upload failed');
+        if (!uploadRes.ok) throw new Error(t('profile.form.errors.upload_failed'));
         const uploadJson = await uploadRes.json();
         finalProfilePicUrl = uploadJson.url;
       }
@@ -68,7 +70,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ user, onUpdateSuccess, onCanc
         })
       });
 
-      if (!res.ok) throw new Error('Failed to update profile');
+      if (!res.ok) throw new Error(t('profile.form.errors.update_failed'));
       const updatedUser = await res.json();
 
       onUpdateSuccess({
@@ -76,9 +78,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ user, onUpdateSuccess, onCanc
         ...updatedUser
       });
 
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Failed to update profile');
+      alert(err.message || t('profile.form.errors.update_failed'));
     } finally {
       setIsUpdating(false);
     }
@@ -91,8 +93,8 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ user, onUpdateSuccess, onCanc
 
         <div className="flex flex-col sm:flex-row items-center justify-between mb-10 gap-6">
           <div className="text-center sm:text-left">
-            <h2 className="text-3xl font-bold text-white">Edit Profile</h2>
-            <p className="text-slate-500 text-sm">Manage your account and institutional details.</p>
+            <h2 className="text-3xl font-bold text-white">{t('profile.form.title')}</h2>
+            <p className="text-slate-500 text-sm">{t('profile.form.subtitle')}</p>
           </div>
 
           <div className="relative group">
@@ -121,61 +123,61 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ user, onUpdateSuccess, onCanc
               className="hidden"
               onChange={handleImageChange}
             />
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest text-center mt-2">Update Photo</p>
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest text-center mt-2">{t('profile.form.update_photo')}</p>
           </div>
         </div>
 
         {isUpdating ? (
           <div className="py-20 text-center">
             <div className="w-12 h-12 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-slate-400 font-bold animate-pulse">Updating Profile...</p>
+            <p className="text-slate-400 font-bold animate-pulse">{t('profile.form.updating')}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Username</label>
+                <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">{t('profile.form.username')}</label>
                 <input
                   required
                   type="text"
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-white"
                   value={formData.username}
                   onChange={e => setFormData({ ...formData, username: e.target.value })}
-                  placeholder="Your display name"
+                  placeholder={t('profile.form.username_placeholder')}
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Email Address</label>
+                <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">{t('profile.form.email')}</label>
                 <input
                   required
                   type="email"
                   disabled
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-slate-500 cursor-not-allowed"
                   value={formData.email}
-                  placeholder="name@institution.edu"
+                  placeholder={t('profile.form.email_placeholder')}
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Institution / School</label>
+              <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">{t('profile.form.institution')}</label>
               <input
                 type="text"
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-white"
                 value={formData.institution}
                 onChange={e => setFormData({ ...formData, institution: e.target.value })}
-                placeholder="e.g., Technical School Pirot"
+                placeholder={t('profile.form.institution_placeholder')}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">Short Bio</label>
+              <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">{t('profile.form.bio')}</label>
               <textarea
                 rows={3}
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-white resize-none"
                 value={formData.bio}
                 onChange={e => setFormData({ ...formData, bio: e.target.value })}
-                placeholder="Briefly describe your role or focus (e.g., Mechatronics Teacher)..."
+                placeholder={t('profile.form.bio_placeholder')}
               />
             </div>
 
@@ -185,13 +187,13 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ user, onUpdateSuccess, onCanc
                 onClick={onCancel}
                 className="flex-1 py-4 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-all"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 type="submit"
                 className="flex-[2] py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-xl shadow-indigo-600/20 transition-all active:scale-[0.98]"
               >
-                Save Profile
+                {t('profile.form.save_btn')}
               </button>
             </div>
           </form>

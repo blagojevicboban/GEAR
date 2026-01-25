@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { User } from '../types';
 import { Trash2, Plus, Edit2 } from 'lucide-react';
 
@@ -7,6 +8,7 @@ interface AcademyProps {
 }
 
 const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
+    const { t } = useTranslation();
     const [activeCategory, setActiveCategory] = useState<'basics' | 'creation' | 'pedagogy'>('basics');
     const [videos, setVideos] = useState<any>({ basics: [], creation: [], pedagogy: [] });
     const [isAdding, setIsAdding] = useState(false);
@@ -26,13 +28,13 @@ const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
     }, []);
 
     const handleDelete = async (id: number) => {
-        if (!confirm("Delete this training video?")) return;
+        if (!confirm(t('academy.delete_confirm'))) return;
         try {
             await fetch(`/api/academy/${id}`, { method: 'DELETE' });
             const newVids = { ...videos };
             newVids[activeCategory] = newVids[activeCategory].filter((v: any) => v.id !== id);
             setVideos(newVids);
-        } catch (e) { alert("Failed to delete"); }
+        } catch (e) { alert(t('builder.errors.save_failed')); }
     };
 
     const handleEdit = (video: any) => {
@@ -56,7 +58,7 @@ const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
     };
 
     const handleSave = async () => {
-        if (!newTitle || !newUrl) return alert("Title and URL required");
+        if (!newTitle || !newUrl) return alert(t('academy.form.title') + " & URL required");
 
         const finalUrl = getEmbedUrl(newUrl);
 
@@ -88,11 +90,9 @@ const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
                 const freshData = await (await fetch('/api/academy')).json();
                 setVideos(freshData);
 
-                setIsAdding(false);
-                setEditingId(null);
                 setNewTitle(''); setNewUrl(''); setNewDesc('');
             }
-        } catch (e) { alert("Failed to save video"); }
+        } catch (e) { alert(t('builder.errors.save_failed')); }
     };
 
     const handleCancel = () => {
@@ -106,10 +106,9 @@ const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
     return (
         <div className="max-w-7xl mx-auto px-6 py-12">
             <div className="mb-12 text-center">
-                <h1 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">GEAR Academy <span className="text-white text-sm bg-indigo-600 px-2 py-1 rounded ml-2 shadow-lg">BETA</span></h1>
+                <h1 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">{t('academy.title')} <span className="text-white text-sm bg-indigo-600 px-2 py-1 rounded ml-2 shadow-lg">BETA</span></h1>
                 <p className="text-slate-400 max-w-2xl mx-auto">
-                    Master the platform and upgrade your teaching methodology.
-                    The MOOC Suite provides certified training for VET educators.
+                    {t('academy.subtitle')}
                 </p>
             </div>
 
@@ -124,7 +123,7 @@ const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
                             : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
                             }`}
                     >
-                        {cat === 'basics' ? '🛠️ Platform Basics' : cat === 'creation' ? '🎨 Content Creation' : '🎓 Pedagogy'}
+                        {cat === 'basics' ? t('academy.basics') : cat === 'creation' ? t('academy.creation') : t('academy.pedagogy')}
                     </button>
                 ))}
             </div>
@@ -135,7 +134,7 @@ const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
                         onClick={() => setIsAdding(true)}
                         className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2"
                     >
-                        <Plus size={16} /> Add Video
+                        <Plus size={16} /> {t('academy.add_video')}
                     </button>
                 </div>
             )}
@@ -143,16 +142,16 @@ const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
             {/* Admin Add/Edit Form */}
             {isAdmin && isAdding && (
                 <div className="mb-8 bg-slate-900 border border-slate-700 p-6 rounded-xl animate-in fade-in slide-in-from-top-4">
-                    <h3 className="font-bold text-white mb-4">{editingId ? 'Edit Video' : `Add New Video to "${activeCategory}"`}</h3>
+                    <h3 className="font-bold text-white mb-4">{editingId ? t('academy.edit_video') : t('academy.form.add_new', { category: t(`academy.${activeCategory}`) })}</h3>
                     <div className="grid grid-cols-2 gap-4 mb-4">
-                        <input placeholder="Title" value={newTitle} onChange={e => setNewTitle(e.target.value)} className="bg-slate-950 border border-slate-700 p-2 rounded text-white" />
-                        <input placeholder="Duration (e.g., 12:30)" value={newDuration} onChange={e => setNewDuration(e.target.value)} className="bg-slate-950 border border-slate-700 p-2 rounded text-white" />
-                        <input placeholder="Embed URL (YouTube/Vimeo)" value={newUrl} onChange={e => setNewUrl(e.target.value)} className="bg-slate-950 border border-slate-700 p-2 rounded text-white col-span-2" />
-                        <textarea placeholder="Description" value={newDesc} onChange={e => setNewDesc(e.target.value)} className="bg-slate-950 border border-slate-700 p-2 rounded text-white col-span-2" rows={2} />
+                        <input placeholder={t('academy.form.title')} value={newTitle} onChange={e => setNewTitle(e.target.value)} className="bg-slate-950 border border-slate-700 p-2 rounded text-white" />
+                        <input placeholder={t('academy.form.duration')} value={newDuration} onChange={e => setNewDuration(e.target.value)} className="bg-slate-950 border border-slate-700 p-2 rounded text-white" />
+                        <input placeholder={t('academy.form.url')} value={newUrl} onChange={e => setNewUrl(e.target.value)} className="bg-slate-950 border border-slate-700 p-2 rounded text-white col-span-2" />
+                        <textarea placeholder={t('academy.form.description')} value={newDesc} onChange={e => setNewDesc(e.target.value)} className="bg-slate-950 border border-slate-700 p-2 rounded text-white col-span-2" rows={2} />
                     </div>
                     <div className="flex gap-2">
-                        <button onClick={handleSave} className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded font-bold">{editingId ? 'Update Video' : 'Save Video'}</button>
-                        <button onClick={handleCancel} className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded font-bold">Cancel</button>
+                        <button onClick={handleSave} className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded font-bold">{editingId ? t('academy.update_video') : t('academy.save_video')}</button>
+                        <button onClick={handleCancel} className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded font-bold">{t('common.cancel')}</button>
                     </div>
                 </div>
             )}
@@ -167,14 +166,14 @@ const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
                                 <button
                                     onClick={() => handleEdit(video)}
                                     className="bg-indigo-600 text-white p-2 rounded-full hover:bg-indigo-500 shadow-md"
-                                    title="Edit Video"
+                                    title={t('academy.edit_video')}
                                 >
                                     <Edit2 size={14} />
                                 </button>
                                 <button
                                     onClick={() => handleDelete(video.id)}
                                     className="bg-rose-600 text-white p-2 rounded-full hover:bg-rose-500 shadow-md"
-                                    title="Delete Video"
+                                    title={t('common.delete')}
                                 >
                                     <Trash2 size={14} />
                                 </button>
@@ -198,13 +197,13 @@ const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
                             <p className="text-sm text-slate-500">{video.desc}</p>
 
                             <button className="mt-4 w-full py-2 bg-slate-800/50 hover:bg-indigo-600 text-indigo-400 hover:text-white rounded-lg text-sm font-bold transition-all border border-slate-700 hover:border-indigo-500">
-                                Mark as Completed
+                                {t('academy.mark_completed')}
                             </button>
                         </div>
                     </div>
                 )) : (
                     <div className="col-span-3 text-center py-12 text-slate-500">
-                        No videos in this category yet.
+                        {t('academy.no_videos')}
                     </div>
                 )}
             </div>
@@ -212,11 +211,11 @@ const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
             {/* Certification Banner */}
             <div className="mt-16 p-8 bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border border-indigo-500/30 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6">
                 <div>
-                    <h3 className="text-2xl font-bold mb-2">Get Certified</h3>
-                    <p className="text-slate-400">Complete all modules to receive your official Erasmus+ VET Digital Educator certificate.</p>
+                    <h3 className="text-2xl font-bold mb-2">{t('academy.get_certified')}</h3>
+                    <p className="text-slate-400">{t('academy.cert_desc')}</p>
                 </div>
                 <button className="px-8 py-3 bg-white text-indigo-900 font-bold rounded-xl hover:bg-indigo-50 transition-colors shadow-lg">
-                    Check My Progress
+                    {t('academy.check_progress')}
                 </button>
             </div>
         </div>

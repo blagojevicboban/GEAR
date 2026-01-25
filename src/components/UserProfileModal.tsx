@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { User, VETModel, Lesson } from '../types';
 import { BookOpen } from 'lucide-react';
 import { fixAssetUrl } from '../utils/urlUtils';
@@ -10,6 +11,7 @@ interface UserProfileModalProps {
 }
 
 const UserProfileModal: React.FC<UserProfileModalProps> = ({ username, models, onClose }) => {
+    const { t } = useTranslation();
     const [user, setUser] = useState<User | null>(null);
     const [lessons, setLessons] = useState<Lesson[]>([]);
     const [loading, setLoading] = useState(true);
@@ -41,7 +43,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ username, models, o
     if (loading) {
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-                <div className="text-white">Loading profile...</div>
+                <div className="text-white">{t('profile.modal.loading')}</div>
             </div>
         );
     }
@@ -52,7 +54,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ username, models, o
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in" onClick={onClose}>
             <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95" onClick={e => e.stopPropagation()}>
                 <div className="sticky top-0 bg-slate-900/95 backdrop-blur z-10 border-b border-slate-800 p-6 flex justify-between items-center">
-                    <h3 className="text-2xl font-bold text-white">User Profile</h3>
+                    <h3 className="text-2xl font-bold text-white">{t('profile.modal.title')}</h3>
                     <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
@@ -80,16 +82,16 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ username, models, o
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-300">
                                 <div className="bg-slate-800/50 p-3 rounded-lg">
-                                    <p className="text-xs text-slate-500 uppercase font-bold mb-1">Email</p>
+                                    <p className="text-xs text-slate-500 uppercase font-bold mb-1">{t('profile.modal.email')}</p>
                                     <p>{user.email}</p>
                                 </div>
                                 <div className="bg-slate-800/50 p-3 rounded-lg">
-                                    <p className="text-xs text-slate-500 uppercase font-bold mb-1">Institution</p>
-                                    <p>{user.institution || 'Not specified'}</p>
+                                    <p className="text-xs text-slate-500 uppercase font-bold mb-1">{t('profile.modal.institution')}</p>
+                                    <p>{user.institution || t('profile.modal.not_specified')}</p>
                                 </div>
                                 <div className="bg-slate-800/50 p-3 rounded-lg col-span-1 md:col-span-2">
-                                    <p className="text-xs text-slate-500 uppercase font-bold mb-1">Bio</p>
-                                    <p>{user.bio || 'No bio provided.'}</p>
+                                    <p className="text-xs text-slate-500 uppercase font-bold mb-1">{t('profile.modal.bio')}</p>
+                                    <p>{user.bio || t('profile.modal.no_bio')}</p>
                                 </div>
                             </div>
                         </div>
@@ -97,7 +99,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ username, models, o
 
                     <div>
                         <h4 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
-                            Uploaded Models
+                            {t('profile.modal.uploaded_models')}
                             <span className="bg-slate-800 text-slate-400 text-xs px-2 py-1 rounded-full">
                                 {getUserModels().length}
                             </span>
@@ -120,7 +122,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ username, models, o
                             </div>
                         ) : (
                             <div className="text-center py-12 bg-slate-800/30 rounded-2xl border border-slate-800 border-dashed mb-10">
-                                <p className="text-slate-500">No models uploaded by this user.</p>
+                                <p className="text-slate-500">{t('profile.modal.no_models')}</p>
                             </div>
                         )}
                     </div>
@@ -129,7 +131,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ username, models, o
                     {lessons.length > 0 && (
                         <div className="mt-10 pt-10 border-t border-slate-800">
                             <h4 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
-                                Created Lessons
+                                {t('profile.modal.created_lessons')}
                                 <span className="bg-slate-800 text-slate-400 text-xs px-2 py-1 rounded-full">
                                     {lessons.length}
                                 </span>
@@ -149,7 +151,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ username, models, o
                                         <p className="text-xs text-slate-400 line-clamp-2 mb-4">{lesson.description}</p>
                                         <div className="flex items-center gap-2 text-xs text-slate-500">
                                             <BookOpen size={14} />
-                                            <span>{lesson.steps?.length || 0} Steps</span>
+                                            <span>{t('profile.modal.steps', { count: lesson.steps?.length || 0 })}</span>
                                         </div>
                                     </div>
                                 ))}

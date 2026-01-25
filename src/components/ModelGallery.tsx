@@ -1,4 +1,5 @@
 import React, { useState, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import { VETModel, EDUSector, User } from '../types';
 
 interface ModelGalleryProps {
@@ -20,6 +21,7 @@ import Hero3D from './Hero3D';
 import { Sparkles, BrainCircuit } from 'lucide-react';
 
 const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sectors, onViewModel, onEnterWorkshop, onEditModel, onDeleteModel, onViewUser, onOptimizeModel, onUpload, initialUserFilter }) => {
+  const { t } = useTranslation();
   const [filter, setFilter] = useState<string>('All'); // Changed from EDUSector | 'All' to string
   const [userFilter, setUserFilter] = useState<string>(initialUserFilter || 'All');
   const [search, setSearch] = useState('');
@@ -59,8 +61,8 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sector
       </div>
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>
-          <h1 className="text-4xl font-bold mb-2">VET Equipment Repository</h1>
-          <p className="text-slate-400">Standardized, optimized, and interactive 3D twins.</p>
+          <h1 className="text-4xl font-bold mb-2">{t('gallery.title')}</h1>
+          <p className="text-slate-400">{t('gallery.subtitle')}</p>
         </div>
 
         <div className="flex flex-wrap gap-3 items-center">
@@ -69,12 +71,12 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sector
               onClick={onUpload}
               className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/20 flex items-center gap-2 animate-pulse"
             >
-              <span className="text-lg leading-none">+</span> Upload New Model
+              <span className="text-lg leading-none">+</span> {t('gallery.upload')}
             </button>
           )}
           <input
             type="text"
-            placeholder="Search equipment..."
+            placeholder={t('gallery.search_placeholder')}
             className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500 w-full md:w-64"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -84,7 +86,7 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sector
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
           >
-            <option value="All">All Sectors</option>
+            <option value="All">{t('gallery.all_sectors')}</option>
             {sectors && sectors.length > 0 ? (
               sectors.map(s => <option key={s} value={s}>{s}</option>)
             ) : (
@@ -96,7 +98,7 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sector
             value={userFilter}
             onChange={(e) => setUserFilter(e.target.value)}
           >
-            <option value="All">All Users</option>
+            <option value="All">{t('gallery.all_users')}</option>
             {uniqueUploaders.map(user => <option key={user} value={user}>{user}</option>)}
           </select>
         </div>
@@ -118,7 +120,7 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sector
                 <button
                   onClick={(e) => { e.stopPropagation(); onEditModel(model); }}
                   className="absolute top-2 right-2 bg-indigo-600 p-2 rounded-lg text-white shadow-lg z-10 opacity-0 group-hover:opacity-100 transition-all hover:bg-indigo-500"
-                  title="Edit Model Metadata & Hotspots"
+                  title={t('gallery.edit_tooltip')}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -131,7 +133,7 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sector
                 <button
                   onClick={(e) => { e.stopPropagation(); onOptimizeModel(model); }}
                   className="absolute top-2 left-2 bg-emerald-600 p-2 rounded-lg text-white shadow-lg z-10 opacity-0 group-hover:opacity-100 transition-all hover:bg-emerald-500"
-                  title="Auto-Optimize with AI"
+                  title={t('gallery.optimize_tooltip')}
                 >
                   <BrainCircuit size={16} />
                 </button>
@@ -142,7 +144,7 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sector
                 <button
                   onClick={(e) => { e.stopPropagation(); onDeleteModel(model.id); }}
                   className="absolute top-12 right-2 bg-rose-600 p-2 rounded-lg text-white shadow-lg z-10 opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-500"
-                  title="Delete Model"
+                  title={t('gallery.delete_tooltip')}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -155,7 +157,7 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sector
                   onClick={() => onViewModel(model)}
                   className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold"
                 >
-                  Quick View
+                  {t('gallery.quick_view')}
                 </button>
               </div>
             </div>
@@ -175,7 +177,7 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sector
                 {model.optimized && (
                   <div className="flex items-center gap-1 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30" title="Optimized by AI CAD Engine">
                     <Sparkles size={10} />
-                    <span className="text-[10px] font-bold uppercase">AI Optimized</span>
+                    <span className="text-[10px] font-bold uppercase">{t('gallery.ai_optimized')}</span>
                   </div>
                 )}
               </div>
@@ -197,7 +199,7 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sector
                   onClick={() => onViewModel(model)}
                   className="w-full py-2 bg-indigo-600/10 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-600/30 rounded-lg text-sm font-bold transition-all"
                 >
-                  Explore in XR
+                  {t('gallery.explore_xr')}
                 </button>
                 <div className="flex gap-2">
                   <a
@@ -207,15 +209,15 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sector
                     title="Download 3D Model"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                    Download
+                    {t('gallery.download')}
                   </a>
                   <button
                     onClick={() => onEnterWorkshop(model)}
                     className="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2"
                     title="Join Workshop"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                    Join
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                    {t('gallery.join')}
                   </button>
                 </div>
               </div>
@@ -224,7 +226,7 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({ models, currentUser, sector
         ))}
         {filteredModels.length === 0 && (
           <div className="col-span-full py-20 text-center">
-            <p className="text-slate-500 italic">No models found matching your criteria.</p>
+            <p className="text-slate-500 italic">{t('gallery.no_models')}</p>
           </div>
         )}
       </div>

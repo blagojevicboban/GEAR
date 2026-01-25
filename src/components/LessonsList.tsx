@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Lesson, User } from '../types';
 import { BookOpen, Calendar, Plus, User as UserIcon } from 'lucide-react';
 import { fixAssetUrl } from '../utils/urlUtils';
@@ -13,6 +14,7 @@ interface LessonsListProps {
 }
 
 const LessonsList: React.FC<LessonsListProps> = ({ currentUser, onViewLesson, onEditLesson, onCreateLesson, onViewUser, initialAuthorFilter }) => {
+    const { t } = useTranslation();
     const [lessons, setLessons] = useState<Lesson[]>([]);
     const [loading, setLoading] = useState(true);
     const [filterSector, setFilterSector] = useState<string>('All');
@@ -44,16 +46,16 @@ const LessonsList: React.FC<LessonsListProps> = ({ currentUser, onViewLesson, on
 
     const canCreate = currentUser && (currentUser.role === 'admin' || currentUser.role === 'teacher');
 
-    if (loading) return <div className="p-8 text-center text-slate-400">Loading lessons...</div>;
+    if (loading) return <div className="p-8 text-center text-slate-400">{t('lessons.loading')}</div>;
 
     return (
         <div className="p-6 max-w-7xl mx-auto">
             <div className="flex justify-between items-center mb-8">
                 <div>
                     <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-                        Interactive Lessons
+                        {t('lessons.list_title')}
                     </h1>
-                    <p className="text-slate-400 mt-2">Guided 3D learning experiences</p>
+                    <p className="text-slate-400 mt-2">{t('lessons.list_subtitle')}</p>
                 </div>
 
                 {canCreate && (
@@ -62,7 +64,7 @@ const LessonsList: React.FC<LessonsListProps> = ({ currentUser, onViewLesson, on
                         className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors"
                     >
                         <Plus size={20} />
-                        Create Lesson
+                        {t('lessons.create_btn')}
                     </button>
                 )}
             </div>
@@ -76,7 +78,7 @@ const LessonsList: React.FC<LessonsListProps> = ({ currentUser, onViewLesson, on
                         : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
                         }`}
                 >
-                    All Sectors
+                    {t('lessons.all_sectors')}
                 </button>
                 {sectors.map(sector => (
                     <button
@@ -111,7 +113,7 @@ const LessonsList: React.FC<LessonsListProps> = ({ currentUser, onViewLesson, on
                         <div className="p-6 flex-1 flex flex-col">
                             <div className="flex justify-between items-start mb-4">
                                 <span className="px-2 py-1 bg-slate-800 text-indigo-300 text-xs rounded uppercase tracking-wider font-semibold">
-                                    {lesson.sectorName || 'General'}
+                                    {lesson.sectorName || t('lessons.general')}
                                 </span>
                                 {/* Actions */}
                                 {currentUser && (currentUser.id === lesson.author_id || currentUser.role === 'admin') && (
@@ -120,12 +122,12 @@ const LessonsList: React.FC<LessonsListProps> = ({ currentUser, onViewLesson, on
                                             onClick={(e) => { e.stopPropagation(); onEditLesson(lesson); }}
                                             className="text-slate-500 hover:text-white text-xs underline"
                                         >
-                                            Edit
+                                            {t('lessons.edit_btn')}
                                         </button>
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                if (confirm('Are you sure you want to delete this lesson?')) {
+                                                if (confirm(t('lessons.delete_confirm'))) {
                                                     fetch(`/api/lessons/${lesson.id}`, {
                                                         method: 'DELETE',
                                                         headers: {
@@ -142,7 +144,7 @@ const LessonsList: React.FC<LessonsListProps> = ({ currentUser, onViewLesson, on
                                             }}
                                             className="text-slate-500 hover:text-rose-500 text-xs underline"
                                         >
-                                            Delete
+                                            {t('lessons.delete_btn')}
                                         </button>
                                     </div>
                                 )}
@@ -165,7 +167,7 @@ const LessonsList: React.FC<LessonsListProps> = ({ currentUser, onViewLesson, on
                                     ) : (
                                         <UserIcon size={14} />
                                     )}
-                                    <span className="font-medium">{lesson.authorName || 'Unknown'}</span>
+                                    <span className="font-medium">{lesson.authorName || t('lessons.unknown')}</span>
                                 </button>
                                 <div className="flex items-center gap-2">
                                     <Calendar size={14} />
@@ -179,14 +181,14 @@ const LessonsList: React.FC<LessonsListProps> = ({ currentUser, onViewLesson, on
                             className="w-full bg-slate-800 hover:bg-indigo-600 text-slate-300 hover:text-white py-3 transition-colors flex items-center justify-center gap-2 font-medium"
                         >
                             <BookOpen size={18} />
-                            Start Lesson
+                            {t('lessons.start_btn')}
                         </button>
                     </div>
                 ))}
 
                 {filteredLessons.length === 0 && (
                     <div className="col-span-full text-center py-12 text-slate-500 bg-slate-900/50 rounded-xl border border-dashed border-slate-800">
-                        No lessons found in this sector.
+                        {t('lessons.no_lessons')}
                     </div>
                 )}
             </div>

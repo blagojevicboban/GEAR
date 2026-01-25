@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { User, VETModel } from '../types';
 import { fixAssetUrl } from '../utils/urlUtils';
 
@@ -8,6 +9,7 @@ interface UserManagementProps {
 }
 
 const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) => {
+    const { t } = useTranslation();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [showCreateForm, setShowCreateForm] = useState(false);
@@ -40,7 +42,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
     };
 
     const handleDelete = async (userId: string) => {
-        if (!confirm('Are you sure you want to delete this user?')) return;
+        if (!confirm(t('admin.users.confirm_delete'))) return;
         try {
             const res = await fetch(`/api/users/${userId}`, {
                 method: 'DELETE',
@@ -51,7 +53,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
             if (res.ok) {
                 setUsers(prev => prev.filter(u => u.id !== userId));
             } else {
-                alert('Failed to delete user');
+                alert(t('admin.users.alerts.delete_failed'));
             }
         } catch (err) {
             console.error(err);
@@ -79,7 +81,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                 setUsers(prev => prev.map(u => u.id === editingUser.id ? editingUser : u));
                 setEditingUser(null);
             } else {
-                alert('Failed to update user');
+                alert(t('admin.users.alerts.update_failed'));
             }
         } catch (err) {
             console.error(err);
@@ -105,7 +107,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                 setNewUser({ username: '', email: '', password: '', institution: '', role: 'student' });
             } else {
                 const err = await res.json();
-                alert(`Failed to create user: ${err.error}`);
+                alert(t('admin.users.alerts.create_failed', { error: err.error }));
             }
         } catch (err) {
             console.error(err);
@@ -116,32 +118,32 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
         return models.filter(m => m.uploadedBy === username);
     };
 
-    if (loading) return <div className="text-white text-center py-10">Loading users...</div>;
+    if (loading) return <div className="text-white text-center py-10">{t('admin.users.loading')}</div>;
 
     return (
         <div className="max-w-6xl mx-auto px-6 py-12">
             <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl">
                 <div className="flex justify-between items-center mb-6">
                     <div>
-                        <h2 className="text-3xl font-bold text-white mb-2">User Management</h2>
-                        <p className="text-slate-400">Manage registered users and their permissions.</p>
+                        <h2 className="text-3xl font-bold text-white mb-2">{t('admin.users.title')}</h2>
+                        <p className="text-slate-400">{t('admin.users.subtitle')}</p>
                     </div>
                     <button
                         onClick={() => setShowCreateForm(true)}
                         className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-xl shadow-lg shadow-indigo-500/20 transition-all"
                     >
-                        + Add New User
+                        {t('admin.users.add_btn')}
                     </button>
                 </div>
 
                 {showCreateForm && (
                     <div className="mb-8 bg-slate-800/50 p-6 rounded-2xl border border-slate-700 animate-in fade-in slide-in-from-top-4">
-                        <h3 className="text-xl font-bold text-white mb-4">Create New User</h3>
+                        <h3 className="text-xl font-bold text-white mb-4">{t('admin.users.create_form.title')}</h3>
                         <form onSubmit={handleCreateUser} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input
                                 required
                                 type="text"
-                                placeholder="Username"
+                                placeholder={t('admin.users.create_form.username')}
                                 className="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white"
                                 value={newUser.username}
                                 onChange={e => setNewUser({ ...newUser, username: e.target.value })}
@@ -149,7 +151,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                             <input
                                 required
                                 type="email"
-                                placeholder="Email"
+                                placeholder={t('admin.users.create_form.email')}
                                 className="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white"
                                 value={newUser.email}
                                 onChange={e => setNewUser({ ...newUser, email: e.target.value })}
@@ -157,14 +159,14 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                             <input
                                 required
                                 type="password"
-                                placeholder="Password"
+                                placeholder={t('admin.users.create_form.password')}
                                 className="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white"
                                 value={newUser.password}
                                 onChange={e => setNewUser({ ...newUser, password: e.target.value })}
                             />
                             <input
                                 type="text"
-                                placeholder="Institution"
+                                placeholder={t('admin.users.create_form.institution')}
                                 className="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white"
                                 value={newUser.institution}
                                 onChange={e => setNewUser({ ...newUser, institution: e.target.value })}
@@ -174,13 +176,13 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                                 value={newUser.role}
                                 onChange={e => setNewUser({ ...newUser, role: e.target.value })}
                             >
-                                <option value="student">Student</option>
-                                <option value="teacher">Teacher</option>
-                                <option value="admin">Admin</option>
+                                <option value="student">{t('auth.roles.student')}</option>
+                                <option value="teacher">{t('auth.roles.teacher')}</option>
+                                <option value="admin">{t('auth.roles.admin')}</option>
                             </select>
                             <div className="flex gap-2">
-                                <button type="submit" className="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-xl">Create</button>
-                                <button type="button" onClick={() => setShowCreateForm(false)} className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-xl">Cancel</button>
+                                <button type="submit" className="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-xl">{t('admin.users.create_form.create_btn')}</button>
+                                <button type="button" onClick={() => setShowCreateForm(false)} className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-xl">{t('common.cancel')}</button>
                             </div>
                         </form>
                     </div>
@@ -190,11 +192,11 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                     <table className="w-full text-left text-slate-300">
                         <thead className="text-xs uppercase bg-slate-800 text-slate-400">
                             <tr>
-                                <th className="px-6 py-3">Username</th>
-                                <th className="px-6 py-3">Email</th>
-                                <th className="px-6 py-3">Institution</th>
-                                <th className="px-6 py-3">Role</th>
-                                <th className="px-6 py-3">Actions</th>
+                                <th className="px-6 py-3">{t('admin.users.table.username')}</th>
+                                <th className="px-6 py-3">{t('admin.users.table.email')}</th>
+                                <th className="px-6 py-3">{t('admin.users.table.institution')}</th>
+                                <th className="px-6 py-3">{t('admin.users.table.role')}</th>
+                                <th className="px-6 py-3">{t('admin.users.table.actions')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -229,9 +231,9 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                                                 value={editingUser.role}
                                                 onChange={e => setEditingUser({ ...editingUser, role: e.target.value as any })}
                                             >
-                                                <option value="student">Student</option>
-                                                <option value="teacher">Teacher</option>
-                                                <option value="admin">Admin</option>
+                                                <option value="student">{t('auth.roles.student')}</option>
+                                                <option value="teacher">{t('auth.roles.teacher')}</option>
+                                                <option value="admin">{t('auth.roles.admin')}</option>
                                             </select>
                                         ) : (
                                             <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${user.role === 'admin' ? 'bg-red-500/10 text-red-400' :
@@ -245,14 +247,14 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                                     <td className="px-6 py-4 flex gap-2">
                                         {editingUser?.id === user.id ? (
                                             <>
-                                                <button onClick={handleUpdate} className="text-green-400 hover:text-green-300 font-bold text-sm">Save</button>
-                                                <button onClick={() => setEditingUser(null)} className="text-slate-400 hover:text-slate-300 text-sm">Cancel</button>
+                                                <button onClick={handleUpdate} className="text-green-400 hover:text-green-300 font-bold text-sm">{t('common.save')}</button>
+                                                <button onClick={() => setEditingUser(null)} className="text-slate-400 hover:text-slate-300 text-sm">{t('common.cancel')}</button>
                                             </>
                                         ) : (
                                             <>
-                                                <button onClick={() => setViewingUser(user)} className="text-indigo-400 hover:text-indigo-300 font-bold text-sm">View</button>
-                                                <button onClick={() => setEditingUser(user)} className="text-blue-400 hover:text-blue-300 font-bold text-sm">Edit</button>
-                                                <button onClick={() => handleDelete(user.id)} className="text-red-400 hover:text-red-300 text-sm">Delete</button>
+                                                <button onClick={() => setViewingUser(user)} className="text-indigo-400 hover:text-indigo-300 font-bold text-sm">{t('admin.users.actions.view')}</button>
+                                                <button onClick={() => setEditingUser(user)} className="text-blue-400 hover:text-blue-300 font-bold text-sm">{t('admin.users.actions.edit')}</button>
+                                                <button onClick={() => handleDelete(user.id)} className="text-red-400 hover:text-red-300 text-sm">{t('admin.users.actions.delete')}</button>
                                             </>
                                         )}
                                     </td>
@@ -268,7 +270,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
                     <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95">
                         <div className="sticky top-0 bg-slate-900/95 backdrop-blur z-10 border-b border-slate-800 p-6 flex justify-between items-center">
-                            <h3 className="text-2xl font-bold text-white">User Profile</h3>
+                            <h3 className="text-2xl font-bold text-white">{t('profile.modal.title')}</h3>
                             <button onClick={() => setViewingUser(null)} className="text-slate-400 hover:text-white transition-colors">
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
@@ -296,16 +298,16 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-300">
                                         <div className="bg-slate-800/50 p-3 rounded-lg">
-                                            <p className="text-xs text-slate-500 uppercase font-bold mb-1">Email</p>
+                                            <p className="text-xs text-slate-500 uppercase font-bold mb-1">{t('profile.modal.email')}</p>
                                             <p>{viewingUser.email}</p>
                                         </div>
                                         <div className="bg-slate-800/50 p-3 rounded-lg">
-                                            <p className="text-xs text-slate-500 uppercase font-bold mb-1">Institution</p>
-                                            <p>{viewingUser.institution || 'Not specified'}</p>
+                                            <p className="text-xs text-slate-500 uppercase font-bold mb-1">{t('profile.modal.institution')}</p>
+                                            <p>{viewingUser.institution || t('profile.modal.not_specified')}</p>
                                         </div>
                                         <div className="bg-slate-800/50 p-3 rounded-lg col-span-1 md:col-span-2">
-                                            <p className="text-xs text-slate-500 uppercase font-bold mb-1">Bio</p>
-                                            <p>{viewingUser.bio || 'No bio provided.'}</p>
+                                            <p className="text-xs text-slate-500 uppercase font-bold mb-1">{t('profile.modal.bio')}</p>
+                                            <p>{viewingUser.bio || t('profile.modal.no_bio')}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -313,7 +315,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
 
                             <div>
                                 <h4 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
-                                    Uploaded Models
+                                    {t('profile.modal.uploaded_models')}
                                     <span className="bg-slate-800 text-slate-400 text-xs px-2 py-1 rounded-full">
                                         {getUserModels(viewingUser.username).length}
                                     </span>
@@ -336,7 +338,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                                     </div>
                                 ) : (
                                     <div className="text-center py-12 bg-slate-800/30 rounded-2xl border border-slate-800 border-dashed">
-                                        <p className="text-slate-500">No models uploaded by this user.</p>
+                                        <p className="text-slate-500">{t('profile.modal.no_models')}</p>
                                     </div>
                                 )}
                             </div>

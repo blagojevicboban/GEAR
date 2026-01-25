@@ -200,6 +200,58 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                         </button>
                     </div>
                 </div>
+
+                <div className="bg-slate-800/30 border border-slate-800 rounded-xl p-6 mt-6 flex flex-col items-center text-center">
+                    <div className="w-16 h-16 bg-red-900/30 rounded-full flex items-center justify-center mb-4 text-red-500">
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-1">Restore Database</h3>
+                    <p className="text-sm text-slate-500 mb-6 max-w-xs">Danger: Restoring will overwrite existing data. Use SQL or JSON backup files.</p>
+
+                    <div className="relative">
+                        <input
+                            type="file"
+                            accept=".json,.sql"
+                            className="hidden"
+                            id="restore-upload"
+                            onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                if (!confirm(`WARNING: You are about to restore database from "${file.name}".\n\nExisting data might be overwritten.\n\nAre you sure?`)) {
+                                    e.target.value = '';
+                                    return;
+                                }
+
+                                const formData = new FormData();
+                                formData.append('file', file);
+
+                                try {
+                                    const res = await fetch('/api/admin/restore', {
+                                        method: 'POST',
+                                        headers: { 'X-User-Name': currentUser.username },
+                                        body: formData
+                                    });
+                                    const data = await res.json();
+                                    if (res.ok) {
+                                        alert(data.message);
+                                        window.location.reload();
+                                    } else {
+                                        alert("Restore Failed: " + data.error);
+                                    }
+                                } catch (err) {
+                                    alert("Network Error");
+                                }
+                                e.target.value = '';
+                            }}
+                        />
+                        <label
+                            htmlFor="restore-upload"
+                            className="bg-red-900/50 hover:bg-red-900/70 text-red-100 font-bold py-2 px-6 rounded-lg transition-colors border border-red-800 cursor-pointer flex items-center gap-2"
+                        >
+                            Upload Backup
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
     );

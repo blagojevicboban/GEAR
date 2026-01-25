@@ -9,7 +9,8 @@ const pool = mysql.createPool({
     database: process.env.DB_NAME || 'gear',
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    queueLimit: 0,
+    multipleStatements: true
 });
 
 export default pool;

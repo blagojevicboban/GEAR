@@ -1005,6 +1005,68 @@ app.get('/api/admin/backup', async (req, res) => {
     }
 });
 
+// Database Restore Endpoint
+app.post('/api/admin/restore', upload.single('file'), async (req, res) => {
+    const requestor = req.headers['x-user-name'];
+
+    try {
+        const role = await getUserRole(requestor);
+        if (role !== 'admin') {
+            if (req.file) fs.unlinkSync(req.file.path);
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        const ext = path.extname(req.file.originalname).toLowerCase();
+
+        if (ext === '.sql') {
+            const sqlContent = fs.readFileSync(req.file.path, 'utf8');
+            try {
+                await pool.query(sqlContent);
+                res.json({ success: true, message: 'Database restored successfully (SQL).' });
+            } catch (sqlErr) {
+                console.error("SQL Restore Error:", sqlErr);
+                res.status(500).json({ error: 'SQL Execution Failed: ' + sqlErr.message });
+            }
+
+        } else if (ext === '.json') {
+            const jsonContent = fs.readFileSync(req.file.path, 'utf8');
+            const data = JSON.parse(jsonContent);
+
+            try {
+                const tables = Object.keys(data.tables || {});
+                for (const table of tables) {
+                    const rows = data.tables[table];
+                    if (rows.length > 0) {
+                        const columns = Object.keys(rows[0]).map(c => `\`${c}\``).join(', ');
+                        const values = rows.map(row => {
+                            return '(' + Object.values(row).map(val => pool.escape(val)).join(', ') + ')';
+                        }).join(', ');
+                        await pool.query(`REPLACE INTO \`${table}\` (${columns}) VALUES ${values}`);
+                    }
+                }
+                res.json({ success: true, message: 'Database restored successfully (JSON Upsert).' });
+            } catch (jsonErr) {
+                console.error("JSON Restore Error:", jsonErr);
+                res.status(500).json({ error: 'JSON Import Failed: ' + jsonErr.message });
+            }
+
+        } else {
+            res.status(400).json({ error: 'Unsupported file format. Use .sql or .json' });
+        }
+
+        if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+
+    } catch (err) {
+        console.error(err);
+        if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+        res.status(500).json({ error: 'Restore failed' });
+    }
+});
+
 // --- Lessons API ---
 
 

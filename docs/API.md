@@ -80,6 +80,71 @@ Update a model's metadata or hotspots.
 ### DELETE /models/:id
 Delete a model and its associated file.
 
+## Admin Endpoints
+
+### Get System Logs
+**GET** `/api/admin/logs`
+*   **Headers**: `X-User-Name: <admin_username>`
+*   **Response**: Plain text (last 100 lines of server error log).
+
+### Get System Config
+**GET** `/api/admin/config`
+*   **Response**: `200 OK`
+    ```json
+    {
+      "maintenance_mode": "false",
+      "global_announcement": "Check out the new engine model!"
+    }
+    ```
+
+### Update System Config
+**PUT** `/api/admin/config`
+*   **Headers**: `X-User-Name: <admin_username>`
+*   **Body**:
+    ```json
+    {
+      "maintenance_mode": "true",
+      "global_announcement": "System maintenance in 1 hour."
+    }
+    ```
+
+### Database Backup
+**GET** `/api/admin/backup`
+*   **Headers**: `X-User-Name: <admin_username>`
+*   **Query Params**: `format=json` (default) or `format=sql`
+*   **Response**: File download (`.json` or `.sql`).
+
+### Database Restore
+**POST** `/api/admin/restore`
+*   **Headers**: `X-User-Name: <admin_username>`
+*   **Body** (Multipart): `file` (.json or .sql)
+*   **Response**: `200 OK` or `500 Error`
+
+---
+
+## Sector Endpoints
+
+### Get All Sectors
+**GET** `/api/sectors`
+*   **Response**: Array of strings. `["Chemistry", "Mechanical", ...]`
+
+### Create Sector
+**POST** `/api/sectors`
+*   **Headers**: `X-User-Name: <admin_username>`
+*   **Body**: `{"name": "New Sector"}`
+*   **Response**: `200 OK`
+
+### Rename Sector
+**PUT** `/api/sectors/:name`
+*   **Headers**: `X-User-Name: <admin_username>`
+*   **Body**: `{"newName": "Updated Sector Name"}`
+
+### Delete Sector
+**DELETE** `/api/sectors/:name`
+*   **Headers**: `X-User-Name: <admin_username>`
+
+---
+
 ## Lessons
 
 ### GET /lessons

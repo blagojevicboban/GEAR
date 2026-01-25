@@ -132,7 +132,7 @@ The platform implements a strict Role-Based Access Control (RBAC) system:
 ## 💻 Local Initialization
 
 ### 1. Prerequisites
-*   Node.js (v18+)
+*   Node.js (v20+)
 *   MariaDB or MySQL Server
 
 ### 2. Installation

@@ -56,7 +56,7 @@ const App: React.FC = () => {
     },
     {
       targetId: 'nav-repo',
-      title: '3D Repository',
+      title: '3D Library',
       content: 'Browse, filter, and upload new industrial models.',
       position: 'bottom',
       view: 'home'
@@ -77,7 +77,7 @@ const App: React.FC = () => {
     },
     {
       targetId: 'nav-help',
-      title: 'Need Help?',
+      title: 'Support Center',
       content: 'Access tutorials, diagnostics, and support here anytime.',
       position: 'bottom',
       view: 'home'

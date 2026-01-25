@@ -30,7 +30,7 @@ This platform implements the 4 key intellectual outputs of the **ARVR4VET** proj
 
 ## 🚀 Key Features
 
-*   **3D Asset Repository**: Upload and manage `.glb`, `.gltf`, `.obj`, and `.stl` models.
+*   **3D Asset Library**: Upload and manage `.glb`, `.gltf`, `.obj`, and `.stl` models.
 *   **WebXR Viewer**: Interactive VR/AR visualization using A-Frame and Three.js.
 *   **Molecular Viewer**: Dedicated PDB viewer for chemistry and biology molecules.
 *   **CAD Support**: Dedicated kernel-based viewer for `.stp` / `.step` industrial files (powered by OpenCascade.js).
@@ -39,10 +39,10 @@ This platform implements the 4 key intellectual outputs of the **ARVR4VET** proj
 *   **Interactive Lessons**: Create and take guided 3D lessons with step-by-step instructions (Markdown) linked to specific CAD/VR models.
 *   **AI Mentor**: Voice-activated AI assistant (Gemini 2.0 Flash) for context-aware guidance.
 *   **Multi-User Workshops**: Shared virtual spaces with real-time position synchronization and collaborative interactions.
-*   **Dashboard**: Featured models, category-based filtering (sectors), and **My Models** personalized view.
+*   **Dashboard**: Featured models, global announcements, and category-based filtering (sectors).
 *   **Mixed Reality Mode**: Immersive AR experience with Passthrough, Hand Tracking, and Spatial UI controls.
-*   **User Management System**: Three-tier Role-Based Access Control (Admin, Teacher, Student) with profile customization.
-*   **Help Center**: Dedicated support page with interactive **System Diagnostics** (WebXR/HTTPS checks) and tutorials.
+*   **Admin Settings**: Comprehensive dashboard for User Management, Sector Management, System Logs, and Global Configuration (Maintenance Mode, Backups).
+*   **Support Center**: Dedicated support page with interactive **System Diagnostics** (WebXR/HTTPS checks) and tutorials.
 *   **Contextual Onboarding**: Interactive guided tour for new users and inline tooltips for complex forms.
 
 ## 📚 Interactive Lessons (New in v1.4)
@@ -93,17 +93,20 @@ The PDB Viewer now supports advanced WebXR capabilities on compatible devices (e
 
 The platform implements a strict Role-Based Access Control (RBAC) system:
 
-| Feature | Student | Teacher | Admin |
-| :--- | :---: | :---: | :---: |
-| **View Models** | ✅ | ✅ | ✅ |
-| **Enter VR/AR** | ✅ | ✅ | ✅ |
-| **Upload Models** | ✅ | ✅ | ✅ |
-| **Edit Own Models** | ✅ | ✅ | ✅ |
-| **Delete Own Models** | ✅ | ✅ | ✅ |
-| **Edit/Delete ANY Model** | ❌ | ❌ | ✅ |
-| **Feature Models** | ❌ | ❌ | ✅ |
-| **Manage Users** | ❌ | ❌ | ✅ |
-| **Create Workshops** | ✅ | ✅ | ✅ |
+|Feature|Student|Teacher|Admin|
+|:---|:---:|:---:|:---:|
+|**View Models**|✅|✅|✅|
+|**Enter VR/AR**|✅|✅|✅|
+|**Upload Models**|✅|✅|✅|
+|**Edit Own Models**|✅|✅|✅|
+|**Delete Own Models**|✅|✅|✅|
+|**Edit/Delete ANY Model**|❌|❌|✅|
+|**Feature Models**|❌|❌|✅|
+|**Manage Users**|❌|❌|✅|
+|**Manage Sectors**|❌|❌|✅|
+|**System Config & Logs**|❌|❌|✅|
+|**Database Backup**|❌|❌|✅|
+|**Create Workshops**|✅|✅|✅|
 
 ## 🛠 Tech Stack
 

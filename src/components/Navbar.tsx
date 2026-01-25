@@ -31,7 +31,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
           onClick={() => setView('gallery')}
           className={`text-sm font-medium transition-colors ${currentView === 'gallery' ? 'text-indigo-400' : 'text-slate-400 hover:text-white'}`}
         >
-          Repository
+          Library
         </button>
 
         <button
@@ -55,7 +55,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
           onClick={() => setView('help')}
           className={`text-sm font-medium transition-colors ${currentView === 'help' ? 'text-indigo-400' : 'text-slate-400 hover:text-white'}`}
         >
-          Help
+          Support
         </button>
 
 

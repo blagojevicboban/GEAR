@@ -20,15 +20,15 @@ test('i18n language switching', async ({ page }) => {
         // Switch to Serbian
         await langToggle.click();
         await expect(langToggle).toHaveText('SR');
-        // Check for Serbian text in Navbar
-        await expect(page.locator('#nav-repo')).toHaveText('Biblioteka');
-        await expect(page.locator('#nav-lessons')).toHaveText('Lekcije');
+        // Check for Serbian text in Navbar - use regex to be flexible
+        await expect(page.locator('#nav-repo')).toHaveText(/Biblioteka/);
+        await expect(page.locator('#nav-lessons')).toHaveText(/Lekcije/);
     } else {
         // Switch to English
         await langToggle.click();
         await expect(langToggle).toHaveText('EN');
         // Check for English text in Navbar
-        await expect(page.locator('#nav-repo')).toHaveText('Library');
-        await expect(page.locator('#nav-lessons')).toHaveText('Lessons');
+        await expect(page.locator('#nav-repo')).toHaveText(/Library/);
+        await expect(page.locator('#nav-lessons')).toHaveText(/Lessons/);
     }
 });

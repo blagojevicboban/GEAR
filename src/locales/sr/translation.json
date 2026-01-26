@@ -196,6 +196,8 @@
         "add": "Dodaj",
         "next": "Sledeće",
         "previous": "Prethodno",
+        "skip": "Preskoči",
+        "finish": "Završi",
         "loading": "Učitavanje..."
     },
     "builder": {

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { TourStep } from '../types';
+import { useTranslation } from 'react-i18next';
 
 interface TourOverlayProps {
     steps: TourStep[];
@@ -11,8 +12,10 @@ interface TourOverlayProps {
 }
 
 const TourOverlay: React.FC<TourOverlayProps> = ({ steps, currentStepIndex, isOpen, onNext, onPrev, onClose }) => {
+    const { t } = useTranslation();
     const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
     const currentStep = steps[currentStepIndex];
+    // @ts-ignore
     const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const updatePosition = () => {
@@ -178,7 +181,7 @@ const TourOverlay: React.FC<TourOverlayProps> = ({ steps, currentStepIndex, isOp
                         onClick={onClose}
                         className="text-slate-500 hover:text-white text-xs font-bold uppercase tracking-wider transition-colors"
                     >
-                        Skip
+                        {t('common.skip')}
                     </button>
 
                     <div className="flex gap-2">
@@ -187,14 +190,14 @@ const TourOverlay: React.FC<TourOverlayProps> = ({ steps, currentStepIndex, isOp
                                 onClick={onPrev}
                                 className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm font-bold transition-all"
                             >
-                                Back
+                                {t('common.back')}
                             </button>
                         )}
                         <button
                             onClick={onNext}
                             className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-bold shadow-lg shadow-indigo-500/20 transition-all"
                         >
-                            {currentStepIndex === steps.length - 1 ? 'Finish' : 'Next'}
+                            {currentStepIndex === steps.length - 1 ? t('common.finish') : t('common.next')}
                         </button>
                     </div>
                 </div>

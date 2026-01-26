@@ -1,4 +1,4 @@
-# THE GEAR - VET WebXR Hub
+# THE GEAR - VET WebXR Hub (v1.7.0)
 
 **THE GEAR** is an open-source WebXR platform designed for Vocational Education and Training (VET). It allows schools and students to upload, manage, and interact with 3D digital twins of industrial equipment directly in the browser, with support for VR headsets (Meta Quest), mobile devices, and desktops.
 
@@ -42,6 +42,8 @@ This platform implements the 4 key intellectual outputs of the **ARVR4VET** proj
 *   **Dashboard**: Featured models, global announcements, and category-based filtering (sectors).
 *   **Mixed Reality Mode**: Immersive AR experience with Passthrough, Hand Tracking, and Spatial UI controls.
 *   **Admin Settings**: Comprehensive dashboard for User Management, Sector Management, System Logs, and Global Configuration (Maintenance Mode, Backups & **Restore** in JSON/SQL).
+*   **Multi-language Support**: Full internationalization (i18n) for **English** and **Serbian** across all modules.
+*   **E2E Testing Suite**: Robust automated tests for critical flows, ensuring stability across both localized versions.
 *   **Support Center**: Dedicated support page with interactive **System Diagnostics** (WebXR/HTTPS checks) and tutorials.
 *   **Contextual Onboarding**: Interactive guided tour for new users and inline tooltips for complex forms.
 
@@ -71,7 +73,22 @@ THE GEAR is now a fully functional **Progressive Web App (PWA)**:
 *   **Offline Access**: The application shell and visited content (models, lessons) are automatically cached. You can continue learning even without an internet connection.
 *   **Performance**: Faster load times thanks to Service Worker caching strategies.
 
-## 🥽 Mixed Reality Features (v1.2 Update)
+## 🌍 Internationalization (New in v1.7)
+
+The platform now supports multiple languages to broaden its reach across European VET schools:
+*   **Native Support**: Switch instantly between **English** and **Serbian (Ćirilica/Latinica)**.
+*   **Exhaustive Coverage**: Dashboard, repository, lesson editor, teacher tools, and administrative panels are fully localized.
+*   **Scalability**: Built on `i18next`, making it easy to add new languages (e.g., German, Italian, Spanish) as the project grows.
+
+## 🧪 Automated Testing
+
+We maintain a high-quality codebase with an extensive **Playwright** E2E test suite:
+*   **Standard Flows**: Smoke tests for home, gallery, and model loading.
+*   **i18n Testing**: Automated validation of UI translations and language persistence.
+*   **Module Verification**: Specialized tests for **Auth**, **Academy**, and **Help Center** diagnostics.
+*   **Dilingual Matching**: Tests use flexible regex matching to support both English and Serbian UI states.
+ 
+ ## 🥽 Mixed Reality Features (v1.2 Update)
 
 The PDB Viewer now supports advanced WebXR capabilities on compatible devices (e.g., Meta Quest 2/3/Pro):
 

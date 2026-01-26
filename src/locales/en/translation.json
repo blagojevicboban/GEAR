@@ -196,6 +196,8 @@
         "add": "Add",
         "next": "Next",
         "previous": "Previous",
+        "skip": "Skip",
+        "finish": "Finish",
         "loading": "Loading..."
     },
     "builder": {

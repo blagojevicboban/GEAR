@@ -15,6 +15,7 @@ Thank you for your interest in contributing to THE GEAR! We welcome contribution
   - **`scripts/`**: Python/Shell scripts for data processing (e.g., CAD optimization).
 - **`deployment/`**: Deployment scripts and webhook logic.
 - **`tests/`**: End-to-end tests using Playwright.
+- **`src/locales/`**: JSON translation files for i18n.
 
 ## Getting Started
 
@@ -48,6 +49,10 @@ Thank you for your interest in contributing to THE GEAR! We welcome contribution
 - **TypeScript**: We use TypeScript for the frontend. Please ensure your code is typed correctly.
 - **TailwindCSS**: Use Tailwind utility classes for styling. Avoid custom CSS files where possible.
 - **Linting**: (TODO: Add linting script)
+- **Internationalization (i18n)**:
+  - All UI strings MUST be placed in `src/locales/en/translation.json` and `src/locales/sr/translation.json`.
+  - Use the `useTranslation` hook in React components.
+  - When adding a new key, ensure it exists in BOTH language files to avoid fallbacks.
 
 ## Testing
 
@@ -62,6 +67,7 @@ npm run test:e2e
 ```bash
 npx playwright test --ui
 ```
+- **Language Compatibility**: When writing new E2E tests, use regex-based text matching (e.g., `expect(page.getByText(/Save|Sačuvaj/i)).toBeVisible()`) to ensure tests pass in both English and Serbian.
 
 Before submitting a Pull Request, please ensure all tests pass.
 

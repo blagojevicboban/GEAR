@@ -156,6 +156,38 @@
                     "Pregledajte prethodno otvorene modele i lekcije.",
                     "Navigirajte kroz interfejs i kontrolnu tablu."
                 ]
+            },
+            "analytics": {
+                "title": "3D Analitika i Heatmape",
+                "note_teacher": "Napomena za nastavnike:",
+                "note_desc": "Sada možete pratiti angažovanje učenika direktno na 3D modelima.",
+                "how_works_title": "Kako radi",
+                "how_works_desc": "Kada učenici pregledaju model u VR-u ili 3D-u, sistem tiho prati gde gledaju. Ovi podaci se agregiraju u 3D Heatmapu.",
+                "viewing_title": "Pregled Heatmapa",
+                "viewing_desc": "Idite na Panel za nastavnike i kliknite na novu karticu \"Analitika\". Izaberite model da vidite prikaz oblaka tačaka koji pokazuje koncentraciju pažnje učenika."
+            },
+            "lti": {
+                "title": "Integracija sa LMS (Moodle/Canvas)",
+                "seamless_title": "Jednostavna prijava",
+                "seamless_desc": "THE GEAR podržava LTI 1.3, omogućavajući vam da pokrenete platformu direktno iz kurseva na Moodle-u ili Canvas-u.",
+                "no_accounts": "Nisu potrebni posebni nalozi",
+                "role_mapping": "Automatsko mapiranje uloga (Nastavnik/Učenik)",
+                "secure_access": "Siguran standardizovan pristup",
+                "admin_title": "Za administratore",
+                "admin_desc": "Da biste povezali svoj LMS, potrebno je da registrujete THE GEAR kao spoljni alat koristeći sledeće linkove:",
+                "login_url": "Login URL",
+                "launch_url": "Launch URL",
+                "keys_url": "Ključevi (JWKS)"
+            },
+            "builder": {
+                "title": "Workbook & Interaktivni Kvizovi",
+                "creation_title": "Kreiranje sadržaja",
+                "creation_desc": "Nastavnici mogu kreirati korake sa interaktivnim zadacima. Koristite Kreator Lekcija da priložite modele, dodate opise i podesite interakcije.",
+                "interaction_types": "Tipovi interakcija",
+                "read_desc": "Učenici čitaju tekst i pregledaju model.",
+                "find_part_desc": "Učenici moraju da kliknu na određeni 3D deo da bi nastavili.",
+                "quiz_desc": "Klasičan kviz sa jednim ili više tačnih odgovora, ili novi 'Identifikacija na modelu' (gamifikovan klik na deo) i 'Tačno/Netačno' provere.",
+                "image_tip": "Savet: Koristite Ctrl+V da brzo nalepite screenshot-ove ili dijagrame u svoje korake."
             }
         },
         "footer": {

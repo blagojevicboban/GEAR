@@ -156,6 +156,38 @@
                     "View previously opened models and lessons.",
                     "Navigate the interface and dashboard."
                 ]
+            },
+            "analytics": {
+                "title": "3D Analytics & Heatmaps",
+                "note_teacher": "Note for Teachers:",
+                "note_desc": "You can now track student engagement directly on the 3D models.",
+                "how_works_title": "How it works",
+                "how_works_desc": "When students view a model in VR or 3D, the system silently tracks where they are looking. This data is aggregated into a 3D Heatmap.",
+                "viewing_title": "Viewing Heatmaps",
+                "viewing_desc": "Go to your Teacher Dashboard and click the new \"Analytics\" tab. Select a model to see a point cloud overlay showing hotspots of student attention."
+            },
+            "lti": {
+                "title": "LMS Integration (Moodle/Canvas)",
+                "seamless_title": "Seamless Login",
+                "seamless_desc": "THE GEAR supports LTI 1.3, allowing you to launch the platform directly from your school's Moodle or Canvas courses.",
+                "no_accounts": "No separate accounts needed",
+                "role_mapping": "Automatic role mapping (Teacher/Student)",
+                "secure_access": "Secure standardized access",
+                "admin_title": "For Administrators",
+                "admin_desc": "To connect your LMS, you need to register THE GEAR as an external tool using the following endpoints:",
+                "login_url": "Login URL",
+                "launch_url": "Launch URL",
+                "keys_url": "Keys (JWKS)"
+            },
+            "builder": {
+                "title": "Workbook & Interactive Quizzes",
+                "creation_title": "Creating Content",
+                "creation_desc": "Teachers can create steps with interactive tasks. Use the Workbook Builder to attach models, add descriptions, and set interactions.",
+                "interaction_types": "Interaction Types",
+                "read_desc": "Students read text and view the model.",
+                "find_part_desc": "Students must click on a specific 3D part to proceed.",
+                "quiz_desc": "Classic single/multiple choice or the new 'Model Identification' (Gamified click-on-part) and 'True/False' checks.",
+                "image_tip": "Pro Tip: Use Ctrl+V to quickly paste screenshots or diagrams into your steps."
             }
         },
         "footer": {

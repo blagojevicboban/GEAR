@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
@@ -178,6 +179,71 @@ app.post('/api/models/:id/optimize', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Generate AI Lesson Plan
+app.post('/api/ai/generate-lesson', async (req, res) => {
+    const { modelName, modelDescription, level, topic, stepCount = 5 } = req.body;
+
+    if (!process.env.API_KEY) {
+        return res.status(503).json({ error: 'AI Service Unavailable (Missing Key)' });
+    }
+
+    try {
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+        const systemPrompt = `You are an expert vocational teacher creating a lesson for a 3D interactive workbook.
+        Create a ${stepCount}-step lesson plan for a 3D model of "${modelName}".
+        
+        Context/Description of model: ${modelDescription || 'Standard industrial component'}
+        Target Audience Level: ${level || 'Intermediate'}
+        Specific Topic Focus: ${topic || 'General Overview'}
+        
+        Return STRICT JSON array of objects. No markdown formatting outside the content field.
+        Schema:
+        [
+          {
+            "title": "Step Title",
+            "content": "Educational content in Markdown format. Keep it concise (2-3 sentences).",
+            "interaction_type": "read" | "find_part"
+          }
+        ]
+        
+        For 'find_part' interaction, only suggest it if the step asks the user to identify a specific component mentioned in the title.
+        Avoid 'quiz' type for now.
+        Start with an Introduction step. End with a Summary step.
+        `;
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.0-flash',
+            contents: systemPrompt,
+            config: {
+                responseMimeType: 'application/json',
+                temperature: 0.7
+            }
+        });
+
+        const text = response.text();
+        // Clean potential markdown blocks if the model ignores JSON mode (though 2.0 Flash is good at it)
+        const cleanJson = text.replace(/```json|```/g, '').trim();
+        const steps = JSON.parse(cleanJson);
+
+        // Post-process to ensure IDs and defaults
+        const processedSteps = steps.map((s, i) => ({
+            id: `step-ai-${Date.now()}-${i}`,
+            title: s.title,
+            content: s.content,
+            interaction_type: s.interaction_type || 'read',
+            step_order: i + 1,
+            model_id: '' // Filled by frontend
+        }));
+
+        res.json({ steps: processedSteps });
+
+    } catch (err) {
+        console.error("AI Lesson Gen Error:", err);
+        res.status(500).json({ error: 'Failed to generate lesson: ' + err.message });
     }
 });
 

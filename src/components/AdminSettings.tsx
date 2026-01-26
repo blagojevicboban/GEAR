@@ -93,14 +93,14 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ currentUser, models }) =>
 
 const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
     const { t } = useTranslation();
-    const [config, setConfig] = useState({ maintenance_mode: 'false', global_announcement: '' });
+    const [config, setConfig] = useState<any>({ maintenance_mode: 'false', global_announcement: '', gemini_api_key: '' });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetch('/api/admin/config', { headers: { 'X-User-Name': currentUser.username } })
             .then(res => res.json())
             .then(data => {
-                setConfig(prev => ({ ...prev, ...data }));
+                setConfig((prev: any) => ({ ...prev, ...data }));
                 setLoading(false);
             })
             .catch(e => console.error(e));
@@ -155,6 +155,26 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                 <div className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform ${config.maintenance_mode === 'true' ? 'translate-x-6' : ''}`}></div>
                             </div>
                         </label>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-bold text-slate-300 mb-2">Google Gemini API Key</label>
+                        <div className="relative">
+                            <input
+                                type="password"
+                                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                placeholder="AIzaSy..."
+                                value={config.gemini_api_key || ''}
+                                onChange={(e) => setConfig({ ...config, gemini_api_key: e.target.value })}
+                            />
+                            <div className="absolute right-4 top-3 text-xs text-slate-500 pointer-events-none">
+                                {config.gemini_api_key ? 'Encrypted (Client-Side)' : 'Not Set'}
+                            </div>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1">
+                            Required for AI Lesson Generation and Model Analysis.
+                            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-indigo-400 hover:text-indigo-300 ml-1">Get Key</a>
+                        </p>
                     </div>
 
                     <div>

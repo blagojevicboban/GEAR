@@ -2,10 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import RichTextEditor from './RichTextEditor';
 import VRViewer from './VRViewer';
+import AILessonGeneratorModal from './AILessonGeneratorModal';
 import { Lesson, LessonStep, VETModel, Hotspot } from '../types';
 import {
     Plus, Trash2, Save, ArrowLeft,
-    MapPin, Globe, Layout, MousePointer, Info
+    MapPin, Globe, Layout, MousePointer, Info, Sparkles
 } from 'lucide-react';
 
 interface WorkbookBuilderProps {
@@ -40,6 +41,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
     const [isPlacingHotspot, setIsPlacingHotspot] = useState(false);
     const [tempHotspotPos, setTempHotspotPos] = useState<{ pos: any, normal: any } | null>(null);
     const [showHotspotModal, setShowHotspotModal] = useState(false);
+    const [showAIModal, setShowAIModal] = useState(false);
 
     // New Hotspot Data Form
     const [newHotspotTitle, setNewHotspotTitle] = useState('');
@@ -106,6 +108,15 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
         if (activeStepIndex >= newSteps.length) setActiveStepIndex(newSteps.length - 1);
     };
 
+    const handleAIGeneratedSteps = (newSteps: LessonStep[]) => {
+        setSteps(newSteps);
+        setActiveStepIndex(0);
+        // Optionally update title if empty
+        if (!title && newSteps.length > 0) {
+            // Maybe guess title from first model?
+        }
+    };
+
     // --- Hotspot Logic ---
     const handleStartPlacingHotspot = () => {
         if (!currentModel) return alert(t('builder.errors.select_model'));
@@ -159,23 +170,11 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
             handleStepChange('hotspot_id', newHotspot.id);
 
             // 4. Force refresh of model in the parent app? 
-            // Ideally we should callback `onModelUpdated` but for now we rely on the Viewer reloading it or passed via availableModels refetch.
-            // Since `VRViewer` takes `model` object, we can pass the `updatedModel` locally.
-            // We need a local state override for the model being edited.
-            // But for now, let's just close modal.
-
-            // Hack: Trigger a "reload" or update the specific model in `availableModels` via a dirty force update?
-            // Better: We should tell the parent App that a model changed.
-            // For MVP: We accept that `availableModels` might be stale until refresh.
-            // However, we MUST pass the updated model to the `VRViewer` component RIGHT NOW so the user sees the hotspot.
-            // We'll use a local map of overridden models.
+            // Reuse logic
 
             // Reset UI
             setShowHotspotModal(false);
             setTempHotspotPos(null);
-
-            // Update the step to point to this hotspot
-            // We can also auto-set the step title/desc? Maybe.
 
         } catch (e) {
             console.error("Failed to save hotspot", e);
@@ -230,7 +229,15 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                     <button onClick={onCancel} className="p-2 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white">
                         <ArrowLeft size={20} />
                     </button>
-                    <span className="font-bold text-sm uppercase tracking-wider text-slate-500">{t('builder.title')}</span>
+                    {/* Add AI Button */}
+                    <button
+                        onClick={() => setShowAIModal(true)}
+                        className="flex items-center gap-2 bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border border-amber-500/30"
+                        title="Auto-Generate Lesson"
+                    >
+                        <Sparkles size={14} /> AI Draft
+                    </button>
+
                     <button onClick={handleSaveLesson} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow-lg shadow-indigo-500/20 transition-all">
                         <Save size={16} /> {t('common.save')}
                     </button>
@@ -455,6 +462,16 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* --- MODAL: AI Lesson Generator --- */}
+            {showAIModal && (
+                <AILessonGeneratorModal
+                    availableModels={availableModels}
+                    currentModelId={currentStep?.model_id}
+                    onClose={() => setShowAIModal(false)}
+                    onGenerate={handleAIGeneratedSteps}
+                />
             )}
 
         </div>

@@ -215,7 +215,7 @@ if (AFRAME && THREE) {
 
             resetAll: function () {
                 this.deselect();
-                this.originalTransforms.forEach((data, uuid) => {
+                this.originalTransforms.forEach((data: any, uuid: string) => {
                     // Find objects by UUID? Traversing scene is expensive.
                     // Better to store reference to object if possible, but weak ref.
                     // We rely on the fact that we can find them.
@@ -246,7 +246,7 @@ if (AFRAME && THREE) {
             },
 
             events: {
-                click: function (evt: any) {
+                click: function (this: any, evt: any) {
                     // Stop propagation if we handled it
                     if (!this.system.data.enabled) return;
 
@@ -263,7 +263,7 @@ if (AFRAME && THREE) {
                     if (intersection && intersection.object) {
                         // Only interact if it's a registered part (has original transform)
                         if (intersection.object.userData.isAssemblyPart) {
-                            this.system.onSelect(intersection.object);
+                            (this as any).system.onSelect(intersection.object);
                             evt.stopPropagation(); // Prevent hitting other things
                         }
                     }

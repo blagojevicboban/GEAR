@@ -1,8 +1,4 @@
 import { test, expect } from '@playwright/test';
-import path from 'path';
-
-// Note: Removed hardcoded artifactsDir to use local test results or default if needed.
-const artifactsDir = 'test-results';
 
 test('interactive navigation flow', async ({ page }) => {
     // 1. Go to Home

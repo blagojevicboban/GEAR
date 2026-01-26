@@ -1,7 +1,7 @@
 
 import React from 'react';
 import './index.css';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import './i18n'; // Initialize i18n
 import App from './App';
 
@@ -10,7 +10,7 @@ if (!rootElement) {
   throw new Error("Could not find root element to mount to");
 }
 
-const root = ReactDOM.createRoot(rootElement);
+const root = createRoot(rootElement);
 root.render(
   <React.StrictMode>
     <App />

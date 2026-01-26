@@ -4,7 +4,7 @@ import { fixAssetUrl } from '../utils/urlUtils';
 import RichTextEditor from './RichTextEditor';
 
 import { Lesson, LessonStep, VETModel } from '../types';
-import { Plus, Trash2, Save, ArrowLeft, MoveUp, MoveDown, Target, BrainCircuit } from 'lucide-react';
+import { Plus, Trash2, Save, ArrowLeft, MoveUp, MoveDown } from 'lucide-react';
 import VRViewer from './VRViewer';
 
 interface LessonEditorProps {

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import ReactMarkdown from 'react-markdown';
-import { Lesson, LessonStep, VETModel } from '../types';
+import { Lesson } from '../types';
 import VRViewer from './VRViewer';
 import CADViewer from './CADViewer';
 import PDBViewer from './PDBViewer';

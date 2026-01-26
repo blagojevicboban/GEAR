@@ -38,7 +38,7 @@ if (typeof window !== 'undefined' && (window as any).AFRAME) {
   if (!AFRAME.components['hotspot-trigger']) {
     AFRAME.registerComponent('hotspot-trigger', {
       init: function () {
-        this.el.addEventListener('click', (evt: any) => {
+        this.el.addEventListener('click', (_evt: any) => {
           this.el.emit('hotspot-activated', { id: this.el.getAttribute('data-id') }, true);
         });
       }
@@ -113,7 +113,7 @@ if (typeof window !== 'undefined' && (window as any).AFRAME) {
       init: function () {
         const loader = new STLLoader();
         const el = this.el;
-        loader.load(this.data.src, (geometry) => {
+        loader.load(this.data.src, (geometry: any) => {
           const material = new (window as any).THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.5, roughness: 0.5 });
           const mesh = new (window as any).THREE.Mesh(geometry, material);
           el.setObject3D('mesh', mesh);
@@ -176,9 +176,6 @@ async function decodeAudioData(
 import { fixAssetUrl } from '../utils/urlUtils';
 
 const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, workshopId, user, onObjectClick, isEditMode, onHotspotPlace }) => {
-  // Fix model URL for proxy
-  const fixedModel = { ...model, modelUrl: fixAssetUrl(model.modelUrl) };
-  // From here on use fixedModel instead of model for URL
 
   const [activeHotspot, setActiveHotspot] = useState<Hotspot | null>(null);
   const [trainingTasks, setTrainingTasks] = useState<any[]>([]);
@@ -190,7 +187,6 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
   const [activeTaskId, setActiveTaskId] = useState<number | null>(null);
   const [challengeFeedback, setChallengeFeedback] = useState<{ msg: string, type: 'success' | 'error' | 'info' } | null>(null);
 
-  // Assembly Mode State
   // Assembly Mode State
   const [isAssemblyMode, setIsAssemblyMode] = useState(false);
   const [assemblySystem, setAssemblySystem] = useState<any>(null);
@@ -301,7 +297,7 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
       el.removeEventListener('click', clickHandler);
       el.removeEventListener('model-loaded', loadHandler);
     };
-  }, [onObjectClick, model.id]);
+  }, [onObjectClick, model.id, isEditMode, onHotspotPlace, activeTaskId, isAssemblyMode, trainingTasks]);
 
   // Ref for the scene to access systems
   const bgSceneRef = useRef<any>(null);
@@ -380,7 +376,7 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
   const startVoiceSession = useCallback(async () => {
     try {
       setIsVoiceActive(true);
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
       inputAudioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
       outputAudioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
       const outCtx = outputAudioContextRef.current;
@@ -417,7 +413,8 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
             scriptProcessor.connect(inputAudioContextRef.current!.destination);
           },
           onmessage: async (message: LiveServerMessage) => {
-            const audioData = message.serverContent?.modelTurn?.parts[0]?.inlineData?.data;
+            const parts = message.serverContent?.modelTurn?.parts;
+            const audioData = parts && parts.length > 0 ? parts[0].inlineData?.data : null;
             if (audioData) {
               setIsAssistantSpeaking(true);
               nextStartTimeRef.current = Math.max(nextStartTimeRef.current, outCtx.currentTime);
@@ -489,10 +486,7 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
 
   // Keyword Extractor Helper
   const extractKeywords = (text: string) => {
-    // Simple noun extraction heuristic: words starting with Capital letters, or just split by common Delimiters?
-    // Since Gemini returns structured text, we might get technical terms.
-    // Let's just pick words > 3 chars that are likely nouns (Capitalized) and maybe the whole phrase.
-    // Better: Use the Task Name itself as the keyword source.
+    // Simple noun extraction heuristic
     const words = text.split(' ').filter(w => w.length > 3).map(w => w.replace(/[^a-zA-Z]/g, ''));
     return words;
   };
@@ -512,47 +506,47 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
 
   // Workshop Socket Setup
   useEffect(() => {
-    if (workshopMode && workshopId && user) {
-      const socket = io(window.location.origin.replace('5173', '3001')); // Handle Vite proxy
-      socketRef.current = socket;
+    if (!workshopMode || !workshopId || !user) return;
 
-      socket.on('connect', () => {
-        socket.emit('join-workshop', { workshopId, user });
-      });
+    const socket = io(window.location.origin.replace('5173', '3001')); // Handle Vite proxy
+    socketRef.current = socket;
 
-      socket.on('current-participants', (participants) => {
-        setRemoteParticipants(participants.filter((p: any) => p.socketId !== socket.id));
-      });
+    socket.on('connect', () => {
+      socket.emit('join-workshop', { workshopId, user });
+    });
 
-      socket.on('user-joined', ({ socketId, user }) => {
-        setRemoteParticipants(prev => [...prev, {
-          socketId,
-          ...user,
-          transforms: { head: { pos: { x: 0, y: 1.6, z: 0 }, rot: { x: 0, y: 0, z: 0 } } }
-        }]);
-      });
+    socket.on('current-participants', (participants) => {
+      setRemoteParticipants(participants.filter((p: any) => p.socketId !== socket.id));
+    });
 
-      socket.on('participant-moved', ({ socketId, transforms }) => {
-        setRemoteParticipants(prev => prev.map(p =>
-          p.socketId === socketId ? { ...p, transforms } : p
-        ));
-      });
+    socket.on('user-joined', ({ socketId, user }) => {
+      setRemoteParticipants(prev => [...prev, {
+        socketId,
+        ...user,
+        transforms: { head: { pos: { x: 0, y: 1.6, z: 0 }, rot: { x: 0, y: 0, z: 0 } } }
+      }]);
+    });
 
-      socket.on('user-left', (socketId) => {
-        setRemoteParticipants(prev => prev.filter(p => p.socketId !== socketId));
-      });
+    socket.on('participant-moved', ({ socketId, transforms }) => {
+      setRemoteParticipants(prev => prev.map(p =>
+        p.socketId === socketId ? { ...p, transforms } : p
+      ));
+    });
 
-      socket.on('workshop-event', ({ type, data }) => {
-        if (type === 'hotspot-activated') {
-          const hs = model.hotspots.find(h => h.id === data.id);
-          if (hs) setActiveHotspot(hs);
-        }
-      });
+    socket.on('user-left', (socketId) => {
+      setRemoteParticipants(prev => prev.filter(p => p.socketId !== socketId));
+    });
 
-      return () => {
-        socket.disconnect();
-      };
-    }
+    socket.on('workshop-event', ({ type, data }) => {
+      if (type === 'hotspot-activated') {
+        const hs = model.hotspots.find(h => h.id === data.id);
+        if (hs) setActiveHotspot(hs);
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, [workshopMode, workshopId, user, model.hotspots]);
 
   // Update position to server
@@ -568,8 +562,6 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
       if (camera) {
         const pos = camera.getWorldPosition(new (window as any).THREE.Vector3());
         const rot = camera.getWorldQuaternion(new (window as any).THREE.Quaternion());
-        // Quaternion to Euler conversion might be needed if A-Frame expects Euler, 
-        // but for now let's send Euler rotations as A-Frame usually deals with them.
         const euler = new (window as any).THREE.Euler().setFromQuaternion(rot, 'YXZ');
 
         transforms.head = {
@@ -578,10 +570,6 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
         };
       }
 
-      // Track Hands (Controllers)
-      // We need to access the entities. Since they are inside the camera rig usually?
-      // Wait, we haven't defined a rig yet. We relied on default camera.
-      // To get controllers, we need to query selecting them.
       const leftHand = document.querySelector('[oculus-touch-controls="hand: left"]');
       const rightHand = document.querySelector('[oculus-touch-controls="hand: right"]');
 
@@ -614,7 +602,7 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
         transforms
       });
 
-    }, 50); // 20 updates per second
+    }, 50);
 
     return () => clearInterval(interval);
   }, [workshopMode, workshopId]);
@@ -799,18 +787,16 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
                 <span className="inline-block px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-3 border border-indigo-500/20">
                   {activeHotspot.type} marker
                 </span>
-                <h3 className="text-2xl font-bold text-white mb-4 leading-tight">{activeHotspot.title}</h3>
-                <div className="h-1 w-12 bg-indigo-600 mb-6"></div>
-                <p className="text-slate-400 text-sm leading-relaxed mb-8">{activeHotspot.description}</p>
+                <h3 className="text-2xl font-bold text-white mb-4">{activeHotspot.title}</h3>
+                <div className="h-1 w-12 bg-indigo-500 rounded-full mb-6"></div>
+                <p className="text-slate-400 text-sm leading-relaxed">
+                  {activeHotspot.description}
+                </p>
               </div>
 
-              <button
-                onClick={handleCloseHotspot}
-                className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/30 active:scale-95 flex items-center justify-center gap-2"
-              >
-                <span>Return to Workshop</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
-              </button>
+              <div className="mt-auto pt-6 border-t border-slate-800">
+                <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">In-App Educational Guide</p>
+              </div>
             </div>
           </div>
         </div>
@@ -818,75 +804,91 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
 
       {/* A-Frame Scene */}
       <a-scene
-        ref={(ref: any) => { sceneRef.current = ref; bgSceneRef.current = ref; }}
+        ref={bgSceneRef}
         embedded
-        class="absolute inset-0 z-0"
-        renderer="colorManagement: true; antialias: true;"
-        cursor="rayOrigin: mouse"
-        raycaster="objects: .collidable, .interactable-model"
-        assembly-mode-system={`enabled: ${isAssemblyMode}`}
+        renderer="antialias: true; colorManagement: true; physicallyCorrectLights: true;"
+        xr-mode-ui="enabled: true"
+        className="w-full h-full"
       >
-        <a-assets><a-asset-item id="model-asset" src={activeModelUrl}></a-asset-item></a-assets>
-        <a-sky color="#050a14"></a-sky>
-        <a-grid-helper size="20" divisions="20" color="#1e293b"></a-grid-helper>
+        <a-assets>
+          {/* We don't use a-asset-item for dynamic URLs as easily, let's just pass src to model */}
+        </a-assets>
 
-        {isVoiceActive && (
-          <a-entity position={`${mentorPosRef.current.x} ${mentorPosRef.current.y} ${mentorPosRef.current.z}`}>
-            <a-sphere
-              radius="0.15"
-              color="#6366f1"
-              material={`emissive: #6366f1; emissiveIntensity: ${isAssistantSpeaking ? 5 : 1}; transparent: true; opacity: 0.8`}
-              animation={isAssistantSpeaking ? "property: scale; to: 1.2 1.2 1.2; dir: alternate; loop: true; dur: 200" : ""}
-            ></a-sphere>
-            <a-text value="AI MENTOR" align="center" position="0 0.3 0" scale="0.4 0.4 0.4" color="#818cf8"></a-text>
-            <a-entity light="type: point; intensity: 0.5; color: #6366f1; distance: 2"></a-entity>
+        {/* User Presence (Self - though locally invisible) */}
+        {!workshopMode && (
+          <a-entity id="rig">
+            <a-camera position="0 1.6 0" look-controls mouse-wheel-zoom="min: 0.5; max: 20">
+              <a-cursor color="indigo" fuse="false" raycaster="objects: .interactable"></a-cursor>
+            </a-camera>
           </a-entity>
         )}
 
-        {workshopMode && remoteParticipants.map(p => (
-          <Avatar key={p.socketId} username={p.username} role={p.role} transforms={p.transforms} />
+        {/* Mentor / Assistant Avatar (Virtual position) */}
+        {isVoiceActive && (
+          <a-entity
+            position={`${mentorPosRef.current.x} ${mentorPosRef.current.y} ${mentorPosRef.current.z}`}
+            rotation="0 -30 0"
+          >
+            <a-sphere radius="0.4" color="#6366f1" opacity="0.6" transparent="true">
+              <a-text value="Mentor Assistant" align="center" position="0 0.6 0" scale="0.5"></a-text>
+            </a-sphere>
+            {isAssistantSpeaking && (
+              <a-sphere radius="0.1" position="0 0 0.5" color="white">
+                <a-animation attribute="scale" from="1 1 1" to="1.5 1.5 1.5" dur="300" repeat="indefinite" direction="alternate"></a-animation>
+              </a-sphere>
+            )}
+          </a-entity>
+        )}
+
+        {/* Workshop Participants */}
+        {remoteParticipants.map(participant => (
+          <Avatar
+            key={participant.socketId}
+            username={participant.username}
+            role={participant.role}
+            transforms={participant.transforms}
+          />
         ))}
 
-        {/* Local Controller Rig for Tracking */}
-        <a-entity>
-          <a-camera look-controls wasd-controls position="0 1.6 0">
-            <a-cursor fuse="true" fuse-timeout="500" color="yellow"></a-cursor>
-          </a-camera>
-          <a-entity oculus-touch-controls="hand: left"></a-entity>
-          <a-entity oculus-touch-controls="hand: right"></a-entity>
-        </a-entity>
+        {/* Model and Environment */}
+        <a-sky color="#050505"></a-sky>
+        <a-grid-helper size="20" divisions="20" color="#1e293b" opacity="0.2"></a-grid-helper>
 
         <a-entity
-          drag-rotate="speed: 1"
-          ref={modelEntityRef}
-          class={onObjectClick ? "interactable-model" : ""}
+          position="0 0 -3"
+          drag-rotate
+          className="interactable-model"
+          assembly-mode-system={`enabled: ${isAssemblyMode}`}
         >
-          {activeModelUrl.toLowerCase().includes('stl') ? (
-            <a-entity stl-model={`src: ${activeModelUrl.replace('#stl', '')}`} position="0 0.5 0" interactive-part=""></a-entity>
-          ) : (
-            <a-gltf-model src="#model-asset" position="0 0.5 0" interactive-part=""></a-gltf-model>
-          )}
-          {model.hotspots.map(hs => (
+          <a-entity
+            ref={modelEntityRef}
+            class="interactable"
+            stl-model={activeModelUrl.toLowerCase().endsWith('.stl') ? `src: ${activeModelUrl}` : undefined}
+            gltf-model={!activeModelUrl.toLowerCase().endsWith('.stl') ? activeModelUrl : undefined}
+            scale="1 1 1"
+            rotation="0 0 0"
+            interactive-part
+            onClick={(e: any) => console.log('Model Clicked', e.detail.intersection)}
+          ></a-entity>
+
+          {/* Hotspots rendered in 3D space */}
+          {model.hotspots.map((hs) => (
             <a-entity
-              key={`hotspot-ent-${hs.id}`}
-              data-id={hs.id}
-              class="collidable"
-              geometry="primitive: sphere; radius: 0.08"
-              material="color: #6366f1; emissive: #6366f1; emissiveIntensity: 2"
+              key={hs.id}
               position={`${hs.position.x} ${hs.position.y} ${hs.position.z}`}
-              hotspot-trigger=""
+              hotspot-trigger
+              data-id={hs.id}
+              class="interactable"
             >
-              <a-text value={hs.title} align="center" position="0 0.15 0" scale="0.3 0.3 0.3"></a-text>
+              <a-sphere radius="0.05" color={hs.type === 'video' ? '#f43f5e' : '#6366f1'} opacity="0.8">
+                <a-text value={hs.title} align="center" position="0 0.15 0" scale="0.3" color="white"></a-text>
+              </a-sphere>
             </a-entity>
           ))}
         </a-entity>
 
-        <a-entity light="type: ambient; intensity: 0.6"></a-entity>
-        <a-entity light="type: directional; intensity: 0.8" position="-1 1 2"></a-entity>
-
-        <a-entity id="rig" position="0 1.6 3" mouse-wheel-zoom="min: 0.5; max: 12; step: 0.3">
-          <a-camera look-controls wasd-controls></a-camera>
-        </a-entity>
+        <a-entity light="type: ambient; intensity: 0.5; color: #ffffff"></a-entity>
+        <a-entity light="type: directional; intensity: 0.8; castShadow: true; position: -1 4 2"></a-entity>
       </a-scene>
     </div>
   );

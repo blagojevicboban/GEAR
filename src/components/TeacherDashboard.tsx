@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { fixAssetUrl } from '../utils/urlUtils';
-import { BarChart3, Clock, CheckCircle, AlertCircle, Search } from 'lucide-react';
+import { Clock, CheckCircle, Search } from 'lucide-react';
 
 interface AttemptStat {
     lessonId: string;

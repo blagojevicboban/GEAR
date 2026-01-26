@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { fixAssetUrl } from '../utils/urlUtils';
 import RichTextEditor from './RichTextEditor';
 import VRViewer from './VRViewer';
 import { Lesson, LessonStep, VETModel, Hotspot } from '../types';
 import {
-    Plus, Trash2, Save, ArrowLeft, MoveUp, MoveDown,
+    Plus, Trash2, Save, ArrowLeft,
     MapPin, Globe, Layout, MousePointer, Info
 } from 'lucide-react';
 
@@ -30,7 +29,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
     // --- State: Lesson Metadata ---
     const [title, setTitle] = useState(lessonToEdit?.title || '');
     const [description, setDescription] = useState(lessonToEdit?.description || '');
-    const [sector, setSector] = useState(lessonToEdit?.sector || (availableSectors[0] || 'Mechatronics'));
+    const [sector] = useState(lessonToEdit?.sector || (availableSectors[0] || 'Mechatronics'));
     const [imageUrl, setImageUrl] = useState(lessonToEdit?.image_url || '');
 
     // --- State: Steps ---
@@ -266,9 +265,8 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                         </div>
                     </div>
 
-                    {/* Steps List (Mini) */}
                     <div className="flex gap-2 overflow-x-auto pb-2 noscrollbar">
-                        {steps.map((s, i) => (
+                        {steps.map((_s, i) => (
                             <button
                                 key={i}
                                 onClick={() => setActiveStepIndex(i)}

@@ -150,8 +150,6 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
 
             if (intersections.length > 0) {
                 const intersection = intersections[0];
-                const object = intersection.object;
-
                 if (modeRef.current === 'annotate') {
                     // ANNOTATION MODE
                     // Find which atom was clicked.
@@ -284,7 +282,6 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             // Actually, PDBLoader modifies geometry in place, so we don't need to re-center.
 
             // --- SCALING ---
-            const offset = new THREE.Vector3();
             geometryAtoms.computeBoundingBox();
             // We only center once ideally, but here we work with what we have.
             // Let's re-measure to be safe for scale.
@@ -411,7 +408,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
 
             loader.load(
                 absolutePdbUrl,
-                (pdb) => {
+                (pdb: any) => {
                     console.log('PDB Loaded successfully');
 
                     // Center Geometry Initially
@@ -431,8 +428,8 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                     buildMolecule(pdb, visualStyle); // Initial Build
                     setLoading(false);
                 },
-                (xhr) => { },
-                (err) => {
+                () => { },
+                (err: any) => {
                     console.error('PDB Loader Error:', err);
                     setLoading(false);
                     setError('Error loading PDB: ' + (err instanceof Error ? err.message : 'Unknown error'));
@@ -505,7 +502,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             }
         }
 
-        const animate = (time: number, frame?: any) => {
+        const animate = (_time: number, frame?: any) => {
             controls.update();
 
             // AR Scaling/Rotation Logic
@@ -525,15 +522,15 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                     const currentAngle = Math.atan2(dz, dx);
                     const angleDiff = currentAngle - interactionState.initialAngle;
                     rootGroup.rotation.y = interactionState.initialRotationY - angleDiff;
-
                 } else {
                     // Fallback to Stick Scaling if not two-handed
                     const session = renderer.xr.getSession();
                     if (session) {
                         for (const source of session.inputSources) {
                             if (source.gamepad) {
+                                const gamepad = source.gamepad;
                                 const checkAxis = (axisIndex: number) => {
-                                    const value = source.gamepad.axes[axisIndex];
+                                    const value = gamepad.axes[axisIndex];
                                     if (Math.abs(value) > 0.1) {
                                         const scaleSpeed = 0.02;
                                         const newScale = rootGroup.scale.x - (value * scaleSpeed);

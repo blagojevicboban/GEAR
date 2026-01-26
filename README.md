@@ -1,4 +1,4 @@
-# THE GEAR - VET WebXR Hub (v1.7.0)
+# THE GEAR - VET WebXR Hub (v1.8.0)
 
 **THE GEAR** is an open-source WebXR platform designed for Vocational Education and Training (VET). It allows schools and students to upload, manage, and interact with 3D digital twins of industrial equipment directly in the browser, with support for VR headsets (Meta Quest), mobile devices, and desktops.
 
@@ -79,6 +79,12 @@ The platform now supports multiple languages to broaden its reach across Europea
 *   **Native Support**: Switch instantly between **English** and **Serbian (Ćirilica/Latinica)**.
 *   **Exhaustive Coverage**: Dashboard, repository, lesson editor, teacher tools, and administrative panels are fully localized.
 *   **Scalability**: Built on `i18next`, making it easy to add new languages (e.g., German, Italian, Spanish) as the project grows.
+## 🛡️ Technical Tightening (New in v1.8)
+
+The platform has undergone a significant technical overhaul to ensure enterprise-grade stability:
+*   **TypeScript Strict Mode**: Full enforcement of strict type-checking across the entire frontend.
+*   **0-Error Policy**: The codebase now passes `npx tsc` with zero types errors, significantly reducing runtime regressions.
+*   **Dependency Hardening**: Comprehensive type definitions for all core libraries (React, Three.js, etc.).
 
 ## 🧪 Automated Testing
 

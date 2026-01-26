@@ -11,7 +11,6 @@ import ModelEditForm from './components/ModelEditForm';
 import VRViewer from './components/VRViewer';
 import PDBViewer from './components/PDBViewer';
 import CADViewer from './components/CADViewer';
-import FileDownloadViewer from './components/FileDownloadViewer';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import HelpPage from './components/HelpPage';
@@ -308,37 +307,6 @@ const App: React.FC = () => {
     }
   };
 
-  const handleOptimizeModel = async (model: VETModel) => {
-    if (!confirm(`Start AI Optimization for ${model.name}? This will generate a low-poly version.`)) return;
-
-    // Optimistic UI update or Loading state could be here
-    try {
-      const res = await fetch(`/api/models/${model.id}/optimize`, {
-        method: 'POST',
-        headers: {
-          'X-User-Name': currentUser?.username || ''
-        }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        // Update local state
-        setModels(prev => prev.map(m => m.id === model.id ? {
-          ...m,
-          optimized: true,
-          optimizedUrl: data.stats.output_path,
-          optimizationStats: JSON.stringify(data.stats),
-          aiAnalysis: data.ai
-        } : m));
-        alert(`Optimization Complete!\nReduction: ${data.stats.reduction_percentage}%\nAI Verdict: ${typeof data.ai === 'string' ? data.ai.substring(0, 100) : 'Analyzed'}`);
-      } else {
-        const err = await res.json();
-        alert(`Optimization failed: ${err.error}`);
-      }
-    } catch (e) {
-      console.error(e);
-      alert("Network error starting optimization");
-    }
-  };
 
 
 

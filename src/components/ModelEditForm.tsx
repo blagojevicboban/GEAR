@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { EDUSector, EquipmentLevel, VETModel, Hotspot } from '../types';
-import { generateOptimizationSuggestions } from '../services/geminiService';
 
 interface ModelEditFormProps {
   model: VETModel;
@@ -31,7 +30,6 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
   });
   const [hotspots, setHotspots] = useState<Hotspot[]>(model.hotspots || []);
   const [thumbnailPreview, setThumbnailPreview] = useState<string>(model.thumbnailUrl);
-  const [optSuggestions, setOptSuggestions] = useState<string | null>(null);
   const [availableUsers, setAvailableUsers] = useState<string[]>([]);
 
 
@@ -149,8 +147,6 @@ const ModelEditForm: React.FC<ModelEditFormProps> = ({ model, onUpdateSuccess, u
         const uploadJson = await uploadRes.json();
         const uploadedUrl = uploadJson.url;
 
-        const tips = await generateOptimizationSuggestions(formData.modelFile.size, finalSector);
-        setOptSuggestions(tips);
 
         // Detect if pdb or step to append fragment
         const fileName = formData.modelFile.name.toLowerCase();

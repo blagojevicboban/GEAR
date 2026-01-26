@@ -46,7 +46,7 @@ Thank you for your interest in contributing to THE GEAR! We welcome contribution
 
 ## Code Quality
 
-- **TypeScript**: We use TypeScript for the frontend. Please ensure your code is typed correctly.
+- **TypeScript**: We use TypeScript for the frontend with **Strict Mode** enabled. Please ensure your code has no implicit `any` types and handles potential `null`/`undefined` values correctly. Run `npx tsc --noEmit` locally to verify before submitting.
 - **TailwindCSS**: Use Tailwind utility classes for styling. Avoid custom CSS files where possible.
 - **Linting**: (TODO: Add linting script)
 - **Internationalization (i18n)**:

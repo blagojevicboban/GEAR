@@ -37,23 +37,23 @@ const TourOverlay: React.FC<TourOverlayProps> = ({ steps, currentStepIndex, isOp
     };
 
     useEffect(() => {
-        if (isOpen) {
-            // Update immediately
-            updatePosition();
+        if (!isOpen) return;
 
-            // And keep updating on resize/scroll
-            window.addEventListener('resize', updatePosition);
-            window.addEventListener('scroll', updatePosition, true);
+        // Update immediately
+        updatePosition();
 
-            // Also set an interval to check for the element (useful during view transitions)
-            const interval = setInterval(updatePosition, 500);
+        // And keep updating on resize/scroll
+        window.addEventListener('resize', updatePosition);
+        window.addEventListener('scroll', updatePosition, true);
 
-            return () => {
-                window.removeEventListener('resize', updatePosition);
-                window.removeEventListener('scroll', updatePosition, true);
-                clearInterval(interval);
-            };
-        }
+        // Also set an interval to check for the element (useful during view transitions)
+        const interval = setInterval(updatePosition, 500);
+
+        return () => {
+            window.removeEventListener('resize', updatePosition);
+            window.removeEventListener('scroll', updatePosition, true);
+            clearInterval(interval);
+        };
     }, [isOpen, currentStepIndex, currentStep]);
 
 

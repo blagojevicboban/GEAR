@@ -20,7 +20,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
     // Interaction State
-    const [quizSelected, setQuizSelected] = useState<number | null>(null);
+    const [quizSelected, setQuizSelected] = useState<any>(null); // number or number[]
     const [quizSubmitted, setQuizSubmitted] = useState(false);
     const [findPartFeedback, setFindPartFeedback] = useState<{ type: 'success' | 'error', msg: string } | null>(null);
 
@@ -91,18 +91,32 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
     const currentStep = steps[currentStepIndex];
 
     const handleObjectClick = (meshName: string) => {
-        if (!currentStep || currentStep.interaction_type !== 'find_part') return;
+        if (!currentStep) return;
 
-        const data = currentStep.interaction_data ? JSON.parse(currentStep.interaction_data) : {};
-        const target = data.targetMesh;
+        // Mode 1: Find Part Step
+        if (currentStep.interaction_type === 'find_part') {
+            const data = currentStep.interaction_data ? JSON.parse(currentStep.interaction_data) : {};
+            const target = data.targetMesh;
+            if (!target) return;
 
-        if (!target) return;
+            if (meshName === target) {
+                setFindPartFeedback({ type: 'success', msg: t('lessons.viewer.find_success', { target }) });
+            } else {
+                setFindPartFeedback({ type: 'error', msg: t('lessons.viewer.find_error', { meshName }) });
+            }
+        }
 
-        if (meshName === target) {
-            setFindPartFeedback({ type: 'success', msg: t('lessons.viewer.find_success', { target }) });
-            // Optional: Auto-advance after delay?
-        } else {
-            setFindPartFeedback({ type: 'error', msg: t('lessons.viewer.find_error', { meshName }) });
+        // Mode 2: Model Click Quiz
+        if (currentStep.interaction_type === 'quiz' && !quizSubmitted) {
+            const data = currentStep.interaction_data ? JSON.parse(currentStep.interaction_data) : {};
+            if (data.type === 'model_click') {
+                const isCorrect = meshName === data.targetMesh;
+                setQuizSelected(meshName);
+                if (isCorrect) setQuizSubmitted(true);
+                else {
+                    setFindPartFeedback({ type: 'error', msg: t('lessons.viewer.find_error', { meshName }) });
+                }
+            }
         }
     };
 
@@ -224,48 +238,117 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
                             {/* Interaction Area */}
                             <div className="mt-8">
                                 {currentStep.interaction_type === 'quiz' && (() => {
-                                    const data = currentStep.interaction_data ? JSON.parse(currentStep.interaction_data) : { options: [], correctIndex: 0 };
-                                    const isCorrect = quizSelected === data.correctIndex;
+                                    const data = currentStep.interaction_data ? JSON.parse(currentStep.interaction_data) : { type: 'single', options: [], correctIndex: 0 };
+
+                                    // Single choice logic
+                                    let isCorrect = false;
+                                    if (data.type === 'single') isCorrect = quizSelected === data.correctIndex;
+                                    else if (data.type === 'multiple') {
+                                        const selected = quizSelected || [];
+                                        const correct = data.correctIndices || [data.correctIndex];
+                                        isCorrect = selected.length === correct.length && selected.every((v: number) => correct.includes(v));
+                                    } else if (data.type === 'model_click') {
+                                        isCorrect = quizSelected === data.targetMesh;
+                                    }
 
                                     return (
                                         <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
                                             <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
                                                 <HelpCircle size={16} className="text-indigo-400" />
                                                 {t('lessons.viewer.quiz')}
+                                                {data.type === 'multiple' && <span className="text-[10px] bg-indigo-500/20 px-2 py-0.5 rounded ml-auto">Multiple Selection</span>}
+                                                {data.type === 'model_click' && <span className="text-[10px] bg-amber-500/20 px-2 py-0.5 rounded ml-auto">3D Identification</span>}
+                                                {data.type === 'true_false' && <span className="text-[10px] bg-blue-500/20 px-2 py-0.5 rounded ml-auto">Tačno/Netačno</span>}
                                             </h4>
-                                            <div className="space-y-2">
-                                                {data.options.map((opt: string, i: number) => (
-                                                    <button
-                                                        key={i}
-                                                        onClick={() => !quizSubmitted && setQuizSelected(i)}
-                                                        disabled={quizSubmitted}
-                                                        className={`w-full text-left px-4 py-3 rounded-lg text-sm transition-all ${quizSelected === i
-                                                            ? 'bg-indigo-600/20 border-indigo-500 text-white border'
-                                                            : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-700'
-                                                            } ${quizSubmitted && i === data.correctIndex ? '!bg-emerald-500/20 !border-emerald-500 !text-emerald-400' : ''}
-                                                          ${quizSubmitted && quizSelected === i && !isCorrect ? '!bg-rose-500/20 !border-rose-500 !text-rose-400' : ''}
-                                                        `}
-                                                    >
-                                                        <span className="font-mono opacity-50 mr-2">{String.fromCharCode(65 + i)}.</span>
-                                                        {opt}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                            {!quizSubmitted && (
+
+                                            {data.type === 'model_click' ? (
+                                                <div className="text-center py-4 bg-slate-950/50 rounded-lg border border-slate-700/50">
+                                                    <p className="text-xs text-slate-400 mb-2">Use the 3D view to identify the target part.</p>
+                                                    <p className="text-sm font-bold text-white italic">"Click on the {data.targetMesh || 'correct component'}"</p>
+                                                    {quizSelected && !isCorrect && (
+                                                        <div className="mt-3 text-xs text-rose-400 font-bold">Try again! That was {quizSelected}.</div>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <div className="space-y-2">
+                                                    {data.type === 'true_false' ? (
+                                                        <div className="flex gap-4">
+                                                            {[0, 1].map((i) => (
+                                                                <button
+                                                                    key={i}
+                                                                    onClick={() => {
+                                                                        if (quizSubmitted) return;
+                                                                        setQuizSelected(i);
+                                                                        setQuizSubmitted(true);
+                                                                    }}
+                                                                    disabled={quizSubmitted}
+                                                                    className={`flex-1 py-4 rounded-xl border-2 font-bold transition-all ${quizSelected === i
+                                                                        ? (i === data.correctIndex ? 'bg-emerald-600/20 border-emerald-500 text-emerald-400' : 'bg-rose-600/20 border-rose-500 text-rose-400')
+                                                                        : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-600'
+                                                                        }`}
+                                                                >
+                                                                    {i === 0 ? 'TAČNO' : 'NETAČNO'}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    ) : data.options.map((opt: string, i: number) => {
+                                                        const isSelected = data.type === 'multiple'
+                                                            ? (quizSelected || []).includes(i)
+                                                            : quizSelected === i;
+
+                                                        const isIndividualCorrect = data.type === 'multiple'
+                                                            ? (data.correctIndices || []).includes(i)
+                                                            : data.correctIndex === i;
+
+                                                        return (
+                                                            <button
+                                                                key={i}
+                                                                onClick={() => {
+                                                                    if (quizSubmitted) return;
+                                                                    if (data.type === 'multiple') {
+                                                                        const current = quizSelected || [];
+                                                                        if (current.includes(i)) setQuizSelected(current.filter((idx: number) => idx !== i));
+                                                                        else setQuizSelected([...current, i]);
+                                                                    } else {
+                                                                        setQuizSelected(i);
+                                                                    }
+                                                                }}
+                                                                disabled={quizSubmitted}
+                                                                className={`w-full text-left px-4 py-3 rounded-lg text-sm transition-all ${isSelected
+                                                                    ? 'bg-indigo-600/20 border-indigo-500 text-white border'
+                                                                    : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-700'
+                                                                    } ${quizSubmitted && isIndividualCorrect ? '!bg-emerald-500/20 !border-emerald-500 !text-emerald-400' : ''}
+                                                                ${quizSubmitted && isSelected && !isIndividualCorrect ? '!bg-rose-500/20 !border-rose-500 !text-rose-400' : ''}
+                                                                `}
+                                                            >
+                                                                <div className="flex items-center gap-3">
+                                                                    <div className={`w-4 h-4 rounded border border-slate-600 flex items-center justify-center text-[10px] ${isSelected ? 'bg-indigo-500 border-indigo-400' : ''}`}>
+                                                                        {isSelected && (data.type === 'multiple' ? '✓' : '•')}
+                                                                    </div>
+                                                                    <span>{opt}</span>
+                                                                </div>
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+
+                                            {!quizSubmitted && data.type !== 'model_click' && data.type !== 'true_false' && (
                                                 <button
                                                     onClick={() => setQuizSubmitted(true)}
-                                                    disabled={quizSelected === null}
-                                                    className="mt-4 w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white py-2 rounded-lg font-bold text-xs"
+                                                    disabled={!quizSelected || (Array.isArray(quizSelected) && quizSelected.length === 0)}
+                                                    className="mt-4 w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white py-2 rounded-lg font-bold text-xs shadow-lg shadow-indigo-500/20 transition-all"
                                                 >
                                                     {t('lessons.viewer.submit_answer')}
                                                 </button>
                                             )}
+
                                             {quizSubmitted && (
                                                 <div className={`mt-4 p-3 rounded-lg flex items-center gap-2 text-sm font-bold ${isCorrect ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
                                                     {isCorrect ? <CheckCircle size={18} /> : <XCircle size={18} />}
                                                     {isCorrect ? t('lessons.viewer.correct_answer') : t('lessons.viewer.incorrect_answer')}
                                                     {!isCorrect && (
-                                                        <button onClick={() => { setQuizSubmitted(false); setQuizSelected(null); }} className="ml-auto underline opacity-80">{t('lessons.viewer.retry')}</button>
+                                                        <button onClick={() => { setQuizSubmitted(false); setQuizSelected(data.type === 'multiple' ? [] : null); }} className="ml-auto underline opacity-80">{t('lessons.viewer.retry')}</button>
                                                     )}
                                                 </div>
                                             )}

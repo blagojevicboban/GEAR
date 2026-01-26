@@ -616,6 +616,74 @@ const VRViewer: React.FC<VRViewerProps> = ({ model, onExit, workshopMode, worksh
     setActiveHotspot(null);
   };
 
+  // --- Telemetry / Analytics Tracker ---
+  const telemetryBuffer = useRef<any[]>([]);
+  const lastFlushTime = useRef<number>(Date.now());
+
+  const flushTelemetry = useCallback(async () => {
+    if (telemetryBuffer.current.length === 0) return;
+
+    const batch = [...telemetryBuffer.current];
+    telemetryBuffer.current = []; // Clear buffer immediately
+    lastFlushTime.current = Date.now();
+
+    try {
+      await fetch('/api/analytics/log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ logs: batch })
+      });
+    } catch (e) {
+      console.error("Telemetry Flush Error", e);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isEditMode) return; // Don't track edit sessions
+
+    const interval = setInterval(() => {
+      // 1. Get Scene and Raycaster
+      const scene = sceneRef.current;
+      const cursor = document.querySelector('a-cursor');
+      const modelEl = modelEntityRef.current;
+
+      if (!scene || !cursor || !modelEl) return;
+
+      // 2. Check Intersections
+      // @ts-ignore
+      const raycaster = (cursor as any).components.raycaster;
+      if (!raycaster) return;
+
+      const intersections = raycaster.getIntersection(modelEl.object3D); // Raycast against the model group
+
+      if (intersections) {
+        // Convert world point to model local space (so points stick to the model as it rotates)
+        const worldPoint = intersections.point; // THREE.Vector3
+        const localPoint = modelEl.object3D.worldToLocal(worldPoint.clone());
+
+        telemetryBuffer.current.push({
+          userId: user?.id,
+          lessonId: (window as any).currentLessonId || 'free-view',
+          modelId: model.id,
+          position: { x: 0, y: 0, z: 0 }, // Camera is static usually or relatively unimportant if we track target
+          target: { x: localPoint.x, y: localPoint.y, z: localPoint.z }, // The HIT point on the model
+          duration: 1000 // Sample rate is 1s
+        });
+      }
+
+      // Flush every 10s or if buffer big
+      if (telemetryBuffer.current.length > 10 || (Date.now() - lastFlushTime.current > 10000)) {
+        flushTelemetry();
+      }
+
+    }, 1000);
+
+    return () => {
+      clearInterval(interval);
+      flushTelemetry(); // Flush on exit
+    };
+  }, [model.id, user, isEditMode, flushTelemetry]);
+
   return (
     <div className="relative w-full h-full overflow-hidden bg-black text-slate-100">
       {/* UI Overlay */}

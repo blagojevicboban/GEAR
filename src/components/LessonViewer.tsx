@@ -256,17 +256,17 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
                                             <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
                                                 <HelpCircle size={16} className="text-indigo-400" />
                                                 {t('lessons.viewer.quiz')}
-                                                {data.type === 'multiple' && <span className="text-[10px] bg-indigo-500/20 px-2 py-0.5 rounded ml-auto">Multiple Selection</span>}
-                                                {data.type === 'model_click' && <span className="text-[10px] bg-amber-500/20 px-2 py-0.5 rounded ml-auto">3D Identification</span>}
-                                                {data.type === 'true_false' && <span className="text-[10px] bg-blue-500/20 px-2 py-0.5 rounded ml-auto">Tačno/Netačno</span>}
+                                                {data.type === 'multiple' && <span className="text-[10px] bg-indigo-500/20 px-2 py-0.5 rounded ml-auto">{t('lessons.viewer.multiple_choice')}</span>}
+                                                {data.type === 'model_click' && <span className="text-[10px] bg-amber-500/20 px-2 py-0.5 rounded ml-auto">{t('lessons.viewer.model_identification')}</span>}
+                                                {data.type === 'true_false' && <span className="text-[10px] bg-blue-500/20 px-2 py-0.5 rounded ml-auto">{t('lessons.viewer.true_false_title')}</span>}
                                             </h4>
 
                                             {data.type === 'model_click' ? (
                                                 <div className="text-center py-4 bg-slate-950/50 rounded-lg border border-slate-700/50">
-                                                    <p className="text-xs text-slate-400 mb-2">Use the 3D view to identify the target part.</p>
-                                                    <p className="text-sm font-bold text-white italic">"Click on the {data.targetMesh || 'correct component'}"</p>
+                                                    <p className="text-xs text-slate-400 mb-2">{t('lessons.viewer.click_instruction')}</p>
+                                                    <p className="text-sm font-bold text-white italic">{t('lessons.viewer.target_prompt', { target: data.targetMesh || 'correct component' })}</p>
                                                     {quizSelected && !isCorrect && (
-                                                        <div className="mt-3 text-xs text-rose-400 font-bold">Try again! That was {quizSelected}.</div>
+                                                        <div className="mt-3 text-xs text-rose-400 font-bold">{t('lessons.viewer.retry_mesh', { meshName: quizSelected })}</div>
                                                     )}
                                                 </div>
                                             ) : (
@@ -287,7 +287,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
                                                                         : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-600'
                                                                         }`}
                                                                 >
-                                                                    {i === 0 ? 'TAČNO' : 'NETAČNO'}
+                                                                    {i === 0 ? t('builder.true_false.true') : t('builder.true_false.false')}
                                                                 </button>
                                                             ))}
                                                         </div>

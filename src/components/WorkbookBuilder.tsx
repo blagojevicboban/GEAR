@@ -387,7 +387,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="block text-[10px] font-bold uppercase text-slate-600 mb-1">Step Visual (Image/URL)</label>
+                                    <label className="block text-[10px] font-bold uppercase text-slate-600 mb-1">{t('builder.step_image')}</label>
                                     <div
                                         className="bg-slate-900 border border-slate-700 rounded-lg p-2 focus-within:ring-1 focus-within:ring-indigo-500 outline-none transition-all"
                                         onPaste={(e) => handlePaste(e, 'image')}
@@ -406,7 +406,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                                 </div>
                                             ) : (
                                                 <div className="w-10 h-10 bg-slate-950 rounded flex items-center justify-center text-slate-700 shrink-0 border border-dashed border-slate-800">
-                                                    <span className="text-[8px] font-bold">NO IMG</span>
+                                                    <span className="text-[8px] font-bold">{t('builder.no_img')}</span>
                                                 </div>
                                             )}
                                             <div className="flex-1 space-y-1">
@@ -415,7 +415,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                                     value={currentStep.image_url || ''}
                                                     onChange={e => handleStepChange('image_url', e.target.value)}
                                                     className="w-full bg-transparent text-[10px] text-slate-300 outline-none placeholder:text-slate-700"
-                                                    placeholder="URL or Paste Image (Ctrl+V)"
+                                                    placeholder={t('builder.image_placeholder')}
                                                 />
                                                 <input
                                                     type="file"
@@ -428,7 +428,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                                     htmlFor="step-img-upload"
                                                     className="inline-block text-[9px] font-bold text-indigo-400 hover:text-indigo-300 cursor-pointer uppercase"
                                                 >
-                                                    [ Upload File ]
+                                                    [ {t('builder.upload_file')} ]
                                                 </label>
                                             </div>
                                         </div>
@@ -474,7 +474,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                         onClick={() => handleStepChange('interaction_type', 'quiz')}
                                         className={`flex-1 py-1.5 rounded text-[10px] font-bold border transition-all ${currentStep.interaction_type === 'quiz' ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-500'}`}
                                     >
-                                        Quiz
+                                        {t('builder.quiz')}
                                     </button>
                                 </div>
 
@@ -495,7 +495,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                                         onClick={() => updateQuiz({ type: qt })}
                                                         className={`flex-1 py-1 rounded text-[7px] font-bold uppercase transition-all ${quizData.type === qt ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-500'}`}
                                                     >
-                                                        {qt.replace('_', ' ')}
+                                                        {t(`builder.quiz_types.${qt}`)}
                                                     </button>
                                                 ))}
                                             </div>
@@ -512,13 +512,13 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                                 </div>
                                             ) : quizData.type === 'true_false' ? (
                                                 <div className="flex gap-2">
-                                                    {['True', 'False'].map((val, i) => (
+                                                    {['true', 'false'].map((val, i) => (
                                                         <button
                                                             key={val}
                                                             onClick={() => updateQuiz({ correctIndex: i })}
                                                             className={`flex-1 py-2 rounded border text-[10px] font-bold transition-all ${quizData.correctIndex === i ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-500'}`}
                                                         >
-                                                            {val === 'True' ? 'TAČNO' : 'NETAČNO'}
+                                                            {t(`builder.true_false.${val}`)}
                                                         </button>
                                                     ))}
                                                 </div>

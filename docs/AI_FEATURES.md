@@ -13,6 +13,7 @@ The **AI Lesson Generator** uses Google's Gemini 2.0 Flash model to automaticall
     *   **Level**: Beginner, Intermediate, Advanced.
     *   **Count**: Number of steps to generate (3-10).
 5.  **Review**: The AI will populate the timeline. You can edit any text before saving.
+    *   **Pro Tip**: The AI is now optimized to generate various interaction types, including **Model Identification** quizzes (where students must click parts in 3D) and **Multiple Choice** checks.
 
 ### Requirements
 *   A valid `GEMINI_API_KEY` must be configured in **Admin Settings > Configuration**.

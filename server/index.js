@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
 import { spawn } from 'child_process';
 import { GoogleGenAI } from '@google/genai';
+import setupLTI from './lti.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -1583,11 +1584,21 @@ app.put('/api/academy/:id', (req, res) => {
 });
 app.use(express.static(path.join(__dirname, '../dist')));
 
-// Handle React routing, return all requests to React app
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../dist/index.html'));
-});
+// Start Server
+setupLTI(app).then(() => {
+    // Handle React routing - fallback must be last
+    app.get('*', (req, res) => {
+        const ext = path.extname(req.path);
+        if (req.path.startsWith('/api') || (ext && ext !== '.html')) {
+            return res.status(404).send('Not Found');
+        }
+        res.sendFile(path.join(__dirname, '../dist/index.html'));
+    });
 
-httpServer.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on port ${PORT}`);
+    httpServer.listen(PORT, '0.0.0.0', () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}).catch(err => {
+    console.error('Failed to start server (LTI Error):', err);
+    process.exit(1);
 });

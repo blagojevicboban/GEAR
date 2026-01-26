@@ -230,6 +230,70 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                     </div>
                 </div>
 
+                {/* Section 6: 3D Analytics & Heatmaps */}
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
+                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <span className="w-8 h-8 rounded-lg bg-rose-600 flex items-center justify-center">📊</span>
+                        3D Analytics & Heatmaps
+                    </h2>
+                    <div className="space-y-6 text-slate-400">
+                        <p className="text-sm border-l-4 border-rose-500 pl-4 bg-slate-950/50 p-3 rounded-r-lg">
+                            <strong className="text-white">Note for Teachers:</strong> You can now track student engagement directly on the 3D models.
+                        </p>
+                        <div>
+                            <strong className="text-white block mb-1">How it works</strong>
+                            When students view a model in VR or 3D, the system silently tracks where they are looking. This data is aggregated into a <b>3D Heatmap</b>.
+                        </div>
+                        <div>
+                            <strong className="text-white block mb-1">Viewing Heatmaps</strong>
+                            Go to your <b>Teacher Dashboard</b> and click the new <b>"Analytics"</b> tab. Select a model to see a point cloud overlay showing hotspots of student attention.
+                        </div>
+                    </div>
+                </div>
+
+                {/* Section 7: LMS Integration (LTI 1.3) */}
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
+                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <span className="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center">🏫</span>
+                        LMS Integration (Moodle/Canvas)
+                    </h2>
+                    <div className="grid md:grid-cols-2 gap-8 text-slate-400">
+                        <div>
+                            <h3 className="font-bold text-white mb-2">Seamless Login</h3>
+                            <p className="text-sm mb-4">
+                                THE GEAR supports <b>LTI 1.3</b>, allowing you to launch the platform directly from your school's Moodle or Canvas courses.
+                            </p>
+                            <ul className="list-disc list-inside text-sm space-y-1">
+                                <li>No separate accounts needed</li>
+                                <li>Automatic role mapping (Teacher/Student)</li>
+                                <li>Secure standardized access</li>
+                            </ul>
+                        </div>
+                        <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                            <h3 className="font-bold text-white mb-2 text-xs uppercase tracking-widest">For Administrators</h3>
+                            <p className="text-xs mb-3">
+                                To connect your LMS, you need to register THE GEAR as an external tool using the following endpoints:
+                            </p>
+                            <div className="space-y-2 font-mono text-[10px] text-orange-400">
+                                <div className="flex justify-between bg-black/50 p-2 rounded">
+                                    <span>Login URL:</span>
+                                    <span className="select-all">/lti/login</span>
+                                </div>
+                                <div className="flex justify-between bg-black/50 p-2 rounded">
+                                    <span>Launch URL:</span>
+                                    <span className="select-all">/lti/launch</span>
+                                </div>
+                                <div className="flex justify-between bg-black/50 p-2 rounded">
+                                    <span>Keys (JWKS):</span>
+                                    <span className="select-all">/lti/keys</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
                 {/* Section 6: Offline & Installation */}
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
                     <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">

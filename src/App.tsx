@@ -199,6 +199,32 @@ const App: React.FC = () => {
   // Deep linking: check for modelId in URL on load
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+
+    // 1. LTI Login Handler
+    const ltiUser = params.get('lti_user');
+    const ltiRole = params.get('lti_role');
+
+    if (ltiUser) {
+      // Auto-login from LTI
+      const user: User = {
+        id: 'lti-' + ltiUser, // This matches what we'd expect or we can fetch profile
+        username: ltiUser.split('@')[0], // derived
+        email: ltiUser,
+        role: (ltiRole as any) || 'student',
+        institution: 'LTI Provider'
+      };
+
+      setCurrentUser(user);
+      localStorage.setItem('gear_user', JSON.stringify(user));
+
+      // Clean URL
+      params.delete('lti_user');
+      params.delete('lti_role');
+      const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+      window.history.replaceState({}, '', newUrl);
+    }
+
+    // 2. Deep Linking (Model)
     const modelId = params.get('modelId');
     if (modelId) {
       const foundModel = models.find(m => m.id === modelId);

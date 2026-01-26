@@ -1,4 +1,4 @@
-# THE GEAR - VET WebXR Hub (v1.8.0)
+# THE GEAR - VET WebXR Hub (v1.9.0)
 
 **THE GEAR** is an open-source WebXR platform designed for Vocational Education and Training (VET). It allows schools and students to upload, manage, and interact with 3D digital twins of industrial equipment directly in the browser, with support for VR headsets (Meta Quest), mobile devices, and desktops.
 
@@ -85,6 +85,27 @@ The platform has undergone a significant technical overhaul to ensure enterprise
 *   **TypeScript Strict Mode**: Full enforcement of strict type-checking across the entire frontend.
 *   **0-Error Policy**: The codebase now passes `npx tsc` with zero types errors, significantly reducing runtime regressions.
 *   **Dependency Hardening**: Comprehensive type definitions for all core libraries (React, Three.js, etc.).
+
+## 🤖 AI & Analytics (New in v1.9)
+
+### AI Lesson Generator
+Teachers can now instantly generate structured lesson plans for any 3D model using **Google Gemini 2.0 Agentic AI**. 
+*   **Context Aware**: The AI analyzes the model's name and description to create relevant content.
+*   **One-Click**: Just click "Generate with AI" in the Workbook Builder.
+*   **Interactive**: Automatically suggests step titles, educational content, and interaction types (Read/Find Part).
+
+### 3D Heatmaps & Analytics
+A powerful new way to visualize student engagement:
+*   **Telemetry Tracking**: The VR Viewer silently tracks student gaze and dwell time on specific parts of the 3D model.
+*   **Heatmap Visualization**: Teachers can view a **3D Heatmap** in the Dashboard, showing "hotspots" where students focused their attention.
+*   **Data-Driven**: Identify confusing parts (high dwell time) or neglected components.
+
+### 🏫 LMS Integration
+Seamlessly connect THE GEAR to your school's **Moodle**, **Canvas**, or **Sakai**.
+*   **LTI 1.3 Certified**: Compliant with the latest IMS learning standards.
+*   **SSO**: Automatic login and role mapping (Teachers/Students) when launching from a course.
+*   **Plug-and-Play**: Simple configuration via "External Tool" settings using provided JWKS endpoints.
+
 
 ## 🧪 Automated Testing
 

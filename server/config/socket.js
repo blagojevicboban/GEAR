@@ -1,4 +1,3 @@
-
 const workshopParticipants = new Map(); // workshopId -> Map(socketId -> userData)
 
 export const setupSocket = (io) => {
@@ -19,14 +18,19 @@ export const setupSocket = (io) => {
             participants.set(socket.id, {
                 ...user,
                 transforms: {
-                    head: { pos: { x: 0, y: 1.6, z: 0 }, rot: { x: 0, y: 0, z: 0 } },
+                    head: {
+                        pos: { x: 0, y: 1.6, z: 0 },
+                        rot: { x: 0, y: 0, z: 0 },
+                    },
                     leftHand: null, // Initial
-                    rightHand: null
-                }
+                    rightHand: null,
+                },
             });
 
             // Broadcast to others in the room
-            socket.to(roomName).emit('user-joined', { socketId: socket.id, user });
+            socket
+                .to(roomName)
+                .emit('user-joined', { socketId: socket.id, user });
 
             // Send existing participants to the joiner
             const others = Array.from(participants.entries())
@@ -49,7 +53,7 @@ export const setupSocket = (io) => {
             // Broadcast movement to everyone else in the room
             socket.to(`workshop_${workshopId}`).emit('participant-moved', {
                 socketId: socket.id,
-                transforms
+                transforms,
             });
         });
 
@@ -75,7 +79,9 @@ export const setupSocket = (io) => {
             workshopParticipants.forEach((participants, workshopId) => {
                 if (participants.has(socket.id)) {
                     participants.delete(socket.id);
-                    io.to(`workshop_${workshopId}`).emit('user-left', { socketId: socket.id });
+                    io.to(`workshop_${workshopId}`).emit('user-left', {
+                        socketId: socket.id,
+                    });
                     if (participants.size === 0) {
                         workshopParticipants.delete(workshopId);
                     }

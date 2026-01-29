@@ -10,7 +10,7 @@ test('has title and loads root element', async ({ page }) => {
     await expect(page.locator('#root')).toBeVisible();
 
     // Check for any console errors
-    page.on('console', msg => {
+    page.on('console', (msg) => {
         if (msg.type() === 'error') {
             console.log(`Error text: "${msg.text()}"`);
         }

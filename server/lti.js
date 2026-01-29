@@ -13,10 +13,11 @@ const lti = Provider;
 console.log('LTI DB Config:', {
     user: process.env.DB_USER,
     db: process.env.DB_NAME,
-    host: process.env.DB_HOST
+    host: process.env.DB_HOST,
 });
 
-lti.setup(process.env.LTI_KEY || 'GEAR_LTI_KEY',
+lti.setup(
+    process.env.LTI_KEY || 'GEAR_LTI_KEY',
     {
         // Database Configuration: Use Sequelize Plugin
         plugin: new Database(
@@ -26,9 +27,9 @@ lti.setup(process.env.LTI_KEY || 'GEAR_LTI_KEY',
             {
                 host: process.env.DB_HOST || 'localhost',
                 dialect: 'mysql',
-                logging: console.log
+                logging: console.log,
             }
-        )
+        ),
     },
     {
         // Options
@@ -37,9 +38,9 @@ lti.setup(process.env.LTI_KEY || 'GEAR_LTI_KEY',
         logger: true,
         cookies: {
             secure: false, // Set true in production with HTTPS
-            sameSite: 'None'
+            sameSite: 'None',
         },
-        devMode: true // Allow localhost
+        devMode: true, // Allow localhost
     }
 );
 
@@ -57,17 +58,24 @@ const setupLTI = async (app) => {
         console.log(`LTI Launch: ${userEmail} with roles: ${roles}`);
 
         // Mapping LTI Roles to GEAR Roles
-        // Standard LTI Roles: 
+        // Standard LTI Roles:
         // http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor
         // http://purl.imsglobal.org/vocab/lis/v2/membership#Learner
         let gearRole = 'student';
-        if (roles.some(r => r.includes('Instructor') || r.includes('Administrator'))) {
+        if (
+            roles.some(
+                (r) => r.includes('Instructor') || r.includes('Administrator')
+            )
+        ) {
             gearRole = 'teacher'; // Map Instructor to Teacher. Admin integration is risky without explicit trust.
         }
 
         try {
             // Find or Create User
-            const [users] = await pool.query('SELECT * FROM users WHERE email = ?', [userEmail]);
+            const [users] = await pool.query(
+                'SELECT * FROM users WHERE email = ?',
+                [userEmail]
+            );
 
             let userId;
             if (users.length === 0) {
@@ -75,7 +83,14 @@ const setupLTI = async (app) => {
                 userId = 'user-lti-' + Date.now();
                 await pool.query(
                     'INSERT INTO users (id, username, email, institution, password, role) VALUES (?, ?, ?, ?, ?, ?)',
-                    [userId, token.user.name || 'LTI User', userEmail, 'LTI Provider', 'lti-provisioned', gearRole]
+                    [
+                        userId,
+                        token.user.name || 'LTI User',
+                        userEmail,
+                        'LTI Provider',
+                        'lti-provisioned',
+                        gearRole,
+                    ]
                 );
                 console.log('Provisioned new LTI user:', userId);
             } else {
@@ -89,11 +104,12 @@ const setupLTI = async (app) => {
             // Better: Issue a JWT here.
 
             // Actually, ltijs sets a session cookie. We can verify it on separate endpoints if we use lti.app.
-            // But our existing API uses custom logic. 
+            // But our existing API uses custom logic.
             // Let's redirect to a special frontend route `/lti-callback` that handles the "login".
 
-            return res.redirect(`/?lti_user=${encodeURIComponent(userEmail)}&lti_role=${gearRole}`);
-
+            return res.redirect(
+                `/?lti_user=${encodeURIComponent(userEmail)}&lti_role=${gearRole}`
+            );
         } catch (err) {
             console.error(err);
             return res.status(500).send('LTI Provisioning Error');

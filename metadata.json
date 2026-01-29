@@ -1,8 +1,5 @@
 {
-  "name": "THE GEAR - VET WebXR Hub",
-  "description": "An open-source repository for VET education featuring 3D model optimization for Meta Quest and multi-user collaborative XR workshops.",
-  "requestFramePermissions": [
-    "camera",
-    "microphone"
-  ]
+    "name": "THE GEAR - VET WebXR Hub",
+    "description": "An open-source repository for VET education featuring 3D model optimization for Meta Quest and multi-user collaborative XR workshops.",
+    "requestFramePermissions": ["camera", "microphone"]
 }

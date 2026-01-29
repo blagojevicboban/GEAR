@@ -1,179 +1,231 @@
-
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppView, User } from '../types';
 import { fixAssetUrl } from '../utils/urlUtils';
 
 interface NavbarProps {
-  currentView: AppView;
-  setView: (view: AppView) => void;
-  currentUser: User | null;
-  onLogout: () => void;
+    currentView: AppView;
+    setView: (view: AppView) => void;
+    currentUser: User | null;
+    onLogout: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLogout }) => {
-  const { t, i18n } = useTranslation();
-  const [showDropdown, setShowDropdown] = useState(false);
+const Navbar: React.FC<NavbarProps> = ({
+    currentView,
+    setView,
+    currentUser,
+    onLogout,
+}) => {
+    const { t, i18n } = useTranslation();
+    const [showDropdown, setShowDropdown] = useState(false);
 
-  const toggleLanguage = () => {
-    const newLang = i18n.language === 'sr' ? 'en' : 'sr';
-    i18n.changeLanguage(newLang);
-  };
+    const toggleLanguage = () => {
+        const newLang = i18n.language === 'sr' ? 'en' : 'sr';
+        i18n.changeLanguage(newLang);
+    };
 
-  return (
-    <nav className="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-6 py-4 flex items-center justify-between">
-      <div id="nav-logo" className="flex items-center gap-2 cursor-pointer" onClick={() => setView('home')}>
-        <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center font-black text-xl italic text-white shadow-lg shadow-indigo-500/20">
-          G
-        </div>
-        <div className="hidden sm:block">
-          <span className="text-xl font-bold tracking-tight text-white block leading-none">THE GEAR</span>
-          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Global Educational AR/VR Hub</span>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-4 sm:gap-8">
-        <button
-          id="nav-repo"
-          onClick={() => setView('gallery')}
-          className={`text-sm font-medium transition-colors ${currentView === 'gallery' ? 'text-indigo-400' : 'text-slate-400 hover:text-white'}`}
-        >
-          {t('nav.library')}
-        </button>
-
-        <button
-          id="nav-lessons"
-          onClick={() => setView('lessons')}
-          className={`text-sm font-medium transition-colors ${currentView === 'lessons' ? 'text-indigo-400' : 'text-slate-400 hover:text-white'}`}
-        >
-          {t('nav.lessons')}
-        </button>
-
-        <button
-          id="nav-academy"
-          onClick={() => setView('academy')}
-          className={`text-sm font-medium transition-colors ${currentView === 'academy' ? 'text-indigo-400' : 'text-slate-400 hover:text-white'}`}
-        >
-          {t('nav.academy')}
-        </button>
-
-        <button
-          id="nav-help"
-          onClick={() => setView('help')}
-          className={`text-sm font-medium transition-colors ${currentView === 'help' ? 'text-indigo-400' : 'text-slate-400 hover:text-white'}`}
-        >
-          {t('nav.help')}
-        </button>
-
-        {/* Language Toggle */}
-        <button
-          onClick={toggleLanguage}
-          className="text-xs font-bold bg-slate-800 text-slate-300 px-2 py-1 rounded border border-slate-700 hover:border-slate-500 transition-colors uppercase"
-          title={t('nav.language')}
-        >
-          {i18n.language === 'sr' ? 'SR' : 'EN'}
-        </button>
-
-
-
-
-
-
-
-        {currentUser ? (
-          <div className="relative">
-            <button
-              id="nav-profile"
-              onClick={() => setShowDropdown(!showDropdown)}
-              className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-full border border-slate-700 transition-all"
+    return (
+        <nav className="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-6 py-4 flex items-center justify-between">
+            <div
+                id="nav-logo"
+                className="flex items-center gap-2 cursor-pointer"
+                onClick={() => setView('home')}
             >
-              <div className="w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white uppercase overflow-hidden">
-                {currentUser.profilePicUrl ? (
-                  <img src={fixAssetUrl(currentUser.profilePicUrl)} alt={currentUser.username} className="w-full h-full object-cover" />
-                ) : (
-                  currentUser.username.charAt(0)
-                )}
-              </div>
-              <span className="text-sm font-medium text-slate-200 hidden md:block">{currentUser.username}</span>
-              <svg className={`w-4 h-4 text-slate-500 transition-transform ${showDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-            {showDropdown && (
-              <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl py-2 overflow-hidden animate-in fade-in slide-in-from-top-2">
-                <div className="px-4 py-2 border-b border-slate-800 mb-1">
-                  <div className="flex justify-between items-center">
-                    <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">{t('nav.user_menu.institution')}</p>
-                    <span className="text-[10px] bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded uppercase font-bold">{t(`auth.roles.${currentUser.role}`)}</span>
-                  </div>
-                  <p className="text-sm text-slate-300 truncate">{currentUser.institution || t('nav.user_menu.independent')}</p>
+                <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center font-black text-xl italic text-white shadow-lg shadow-indigo-500/20">
+                    G
                 </div>
+                <div className="hidden sm:block">
+                    <span className="text-xl font-bold tracking-tight text-white block leading-none">
+                        THE GEAR
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                        Global Educational AR/VR Hub
+                    </span>
+                </div>
+            </div>
+
+            <div className="flex items-center gap-4 sm:gap-8">
+                <button
+                    id="nav-repo"
+                    onClick={() => setView('gallery')}
+                    className={`text-sm font-medium transition-colors ${currentView === 'gallery' ? 'text-indigo-400' : 'text-slate-400 hover:text-white'}`}
+                >
+                    {t('nav.library')}
+                </button>
 
                 <button
-                  onClick={() => { setView('my-projects'); setShowDropdown(false); }}
-                  className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-indigo-600/10 hover:text-indigo-400 transition-colors"
+                    id="nav-lessons"
+                    onClick={() => setView('lessons')}
+                    className={`text-sm font-medium transition-colors ${currentView === 'lessons' ? 'text-indigo-400' : 'text-slate-400 hover:text-white'}`}
                 >
-                  {t('nav.user_menu.my_models')}
+                    {t('nav.lessons')}
                 </button>
+
                 <button
-                  onClick={() => { setView('my-lessons'); setShowDropdown(false); }}
-                  className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-indigo-600/10 hover:text-indigo-400 transition-colors"
+                    id="nav-academy"
+                    onClick={() => setView('academy')}
+                    className={`text-sm font-medium transition-colors ${currentView === 'academy' ? 'text-indigo-400' : 'text-slate-400 hover:text-white'}`}
                 >
-                  {t('nav.user_menu.my_lessons')}
+                    {t('nav.academy')}
                 </button>
+
                 <button
-                  onClick={() => { setView('profile'); setShowDropdown(false); }}
-                  className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-indigo-600/10 hover:text-indigo-400 transition-colors"
+                    id="nav-help"
+                    onClick={() => setView('help')}
+                    className={`text-sm font-medium transition-colors ${currentView === 'help' ? 'text-indigo-400' : 'text-slate-400 hover:text-white'}`}
                 >
-                  {t('nav.user_menu.edit_profile')}
+                    {t('nav.help')}
                 </button>
-                {(currentUser.role === 'admin' || currentUser.role === 'teacher') && (
-                  <button
-                    onClick={() => { setView('teacher-dashboard'); setShowDropdown(false); }}
-                    className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-indigo-600/10 hover:text-indigo-400 transition-colors"
-                  >
-                    {t('nav.user_menu.teacher_dashboard')}
-                  </button>
+
+                {/* Language Toggle */}
+                <button
+                    onClick={toggleLanguage}
+                    className="text-xs font-bold bg-slate-800 text-slate-300 px-2 py-1 rounded border border-slate-700 hover:border-slate-500 transition-colors uppercase"
+                    title={t('nav.language')}
+                >
+                    {i18n.language === 'sr' ? 'SR' : 'EN'}
+                </button>
+
+                {currentUser ? (
+                    <div className="relative">
+                        <button
+                            id="nav-profile"
+                            onClick={() => setShowDropdown(!showDropdown)}
+                            className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-full border border-slate-700 transition-all"
+                        >
+                            <div className="w-6 h-6 bg-indigo-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white uppercase overflow-hidden">
+                                {currentUser.profilePicUrl ? (
+                                    <img
+                                        src={fixAssetUrl(
+                                            currentUser.profilePicUrl
+                                        )}
+                                        alt={currentUser.username}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    currentUser.username.charAt(0)
+                                )}
+                            </div>
+                            <span className="text-sm font-medium text-slate-200 hidden md:block">
+                                {currentUser.username}
+                            </span>
+                            <svg
+                                className={`w-4 h-4 text-slate-500 transition-transform ${showDropdown ? 'rotate-180' : ''}`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M19 9l-7 7-7-7"
+                                />
+                            </svg>
+                        </button>
+
+                        {showDropdown && (
+                            <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl py-2 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                                <div className="px-4 py-2 border-b border-slate-800 mb-1">
+                                    <div className="flex justify-between items-center">
+                                        <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">
+                                            {t('nav.user_menu.institution')}
+                                        </p>
+                                        <span className="text-[10px] bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded uppercase font-bold">
+                                            {t(
+                                                `auth.roles.${currentUser.role}`
+                                            )}
+                                        </span>
+                                    </div>
+                                    <p className="text-sm text-slate-300 truncate">
+                                        {currentUser.institution ||
+                                            t('nav.user_menu.independent')}
+                                    </p>
+                                </div>
+
+                                <button
+                                    onClick={() => {
+                                        setView('my-projects');
+                                        setShowDropdown(false);
+                                    }}
+                                    className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-indigo-600/10 hover:text-indigo-400 transition-colors"
+                                >
+                                    {t('nav.user_menu.my_models')}
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setView('my-lessons');
+                                        setShowDropdown(false);
+                                    }}
+                                    className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-indigo-600/10 hover:text-indigo-400 transition-colors"
+                                >
+                                    {t('nav.user_menu.my_lessons')}
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setView('profile');
+                                        setShowDropdown(false);
+                                    }}
+                                    className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-indigo-600/10 hover:text-indigo-400 transition-colors"
+                                >
+                                    {t('nav.user_menu.edit_profile')}
+                                </button>
+                                {(currentUser.role === 'admin' ||
+                                    currentUser.role === 'teacher') && (
+                                    <button
+                                        onClick={() => {
+                                            setView('teacher-dashboard');
+                                            setShowDropdown(false);
+                                        }}
+                                        className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-indigo-600/10 hover:text-indigo-400 transition-colors"
+                                    >
+                                        {t('nav.user_menu.teacher_dashboard')}
+                                    </button>
+                                )}
+                                {currentUser.role === 'admin' && (
+                                    <button
+                                        onClick={() => {
+                                            setView('admin-settings');
+                                            setShowDropdown(false);
+                                        }}
+                                        className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-indigo-600/10 hover:text-indigo-400 transition-colors"
+                                    >
+                                        {t('nav.user_menu.admin_settings')}
+                                    </button>
+                                )}
+                                <button
+                                    onClick={() => {
+                                        onLogout();
+                                        setShowDropdown(false);
+                                    }}
+                                    className="w-full text-left px-4 py-2 text-sm text-rose-400 hover:bg-rose-500/10 transition-colors"
+                                >
+                                    {t('nav.user_menu.logout')}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-2">
+                        <button
+                            id="nav-login"
+                            onClick={() => setView('login')}
+                            className="text-sm font-semibold text-slate-400 hover:text-white px-3 py-2"
+                        >
+                            {t('nav.login')}
+                        </button>
+                        <button
+                            id="nav-register"
+                            onClick={() => setView('register')}
+                            className="text-sm font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 px-4 py-2 rounded-xl hover:bg-indigo-600 hover:text-white transition-all"
+                        >
+                            {t('nav.register')}
+                        </button>
+                    </div>
                 )}
-                {currentUser.role === 'admin' && (
-                  <button
-                    onClick={() => { setView('admin-settings'); setShowDropdown(false); }}
-                    className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-indigo-600/10 hover:text-indigo-400 transition-colors"
-                  >
-                    {t('nav.user_menu.admin_settings')}
-                  </button>
-                )}
-                <button
-                  onClick={() => { onLogout(); setShowDropdown(false); }}
-                  className="w-full text-left px-4 py-2 text-sm text-rose-400 hover:bg-rose-500/10 transition-colors"
-                >
-                  {t('nav.user_menu.logout')}
-                </button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="flex items-center gap-2">
-            <button
-              id="nav-login"
-              onClick={() => setView('login')}
-              className="text-sm font-semibold text-slate-400 hover:text-white px-3 py-2"
-            >
-              {t('nav.login')}
-            </button>
-            <button
-              id="nav-register"
-              onClick={() => setView('register')}
-              className="text-sm font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 px-4 py-2 rounded-xl hover:bg-indigo-600 hover:text-white transition-all"
-            >
-              {t('nav.register')}
-            </button>
-          </div>
-        )}
-      </div>
-    </nav>
-  );
+            </div>
+        </nav>
+    );
 };
 
 export default Navbar;

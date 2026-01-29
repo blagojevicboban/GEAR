@@ -5,7 +5,10 @@ import path from 'path'; // Needed for logging? No, fileService handles file ops
 
 const getUserRole = async (username) => {
     if (!username) return null;
-    const [users] = await pool.query('SELECT role FROM users WHERE username = ?', [username]);
+    const [users] = await pool.query(
+        'SELECT role FROM users WHERE username = ?',
+        [username]
+    );
     return users.length > 0 ? users[0].role : null;
 };
 
@@ -18,13 +21,18 @@ export const getModels = async (req, res) => {
         `);
         const [hotspots] = await pool.query('SELECT * FROM hotspots');
 
-        const modelsWithHotspots = models.map(model => ({
+        const modelsWithHotspots = models.map((model) => ({
             ...model,
             optimized: !!model.optimized,
-            hotspots: hotspots.filter(h => h.model_id === model.id).map(h => ({
-                ...h,
-                position: typeof h.position === 'string' ? JSON.parse(h.position) : h.position
-            }))
+            hotspots: hotspots
+                .filter((h) => h.model_id === model.id)
+                .map((h) => ({
+                    ...h,
+                    position:
+                        typeof h.position === 'string'
+                            ? JSON.parse(h.position)
+                            : h.position,
+                })),
         }));
 
         res.json(modelsWithHotspots);
@@ -41,7 +49,9 @@ export const createModel = async (req, res) => {
     try {
         const role = await getUserRole(requestor);
         if (!role) {
-            return res.status(401).json({ error: 'Unauthorized: Unknown user' });
+            return res
+                .status(401)
+                .json({ error: 'Unauthorized: Unknown user' });
         }
 
         if (role !== 'admin') {
@@ -51,10 +61,14 @@ export const createModel = async (req, res) => {
         }
 
         if (model.sector) {
-            const [sectors] = await pool.query('SELECT id FROM sectors WHERE id = ?', [model.sector]);
+            const [sectors] = await pool.query(
+                'SELECT id FROM sectors WHERE id = ?',
+                [model.sector]
+            );
             if (sectors.length === 0) {
                 console.log(`Auto-creating new sector: ${model.sector}`);
-                await pool.query('INSERT INTO sectors (id, name, description) VALUES (?, ?, ?)',
+                await pool.query(
+                    'INSERT INTO sectors (id, name, description) VALUES (?, ?, ?)',
                     [model.sector, model.sector, 'Custom User Sector']
                 );
             }
@@ -62,11 +76,25 @@ export const createModel = async (req, res) => {
 
         await pool.query(
             'INSERT INTO models (id, name, description, sector, equipmentType, level, modelUrl, thumbnailUrl, optimized, fileSize, uploadedBy, createdAt, isFeatured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [model.id, model.name, model.description, model.sector, model.equipmentType, model.level, model.modelUrl, model.thumbnailUrl, model.optimized, model.fileSize, model.uploadedBy, model.createdAt, model.isFeatured || false]
+            [
+                model.id,
+                model.name,
+                model.description,
+                model.sector,
+                model.equipmentType,
+                model.level,
+                model.modelUrl,
+                model.thumbnailUrl,
+                model.optimized,
+                model.fileSize,
+                model.uploadedBy,
+                model.createdAt,
+                model.isFeatured || false,
+            ]
         );
         res.json(model);
     } catch (err) {
-        console.error("Model Upload Error:", err);
+        console.error('Model Upload Error:', err);
         res.status(500).json({ error: 'Failed to add model: ' + err.message });
     }
 };
@@ -83,25 +111,48 @@ export const updateModel = async (req, res) => {
         }
 
         if (role !== 'admin') {
-            const [existing] = await pool.query('SELECT uploadedBy FROM models WHERE id = ?', [id]);
-            if (existing.length === 0) return res.status(404).json({ error: 'Model not found' });
+            const [existing] = await pool.query(
+                'SELECT uploadedBy FROM models WHERE id = ?',
+                [id]
+            );
+            if (existing.length === 0)
+                return res.status(404).json({ error: 'Model not found' });
 
             if (existing[0].uploadedBy !== requestor) {
-                return res.status(403).json({ error: 'Forbidden: You can only edit your own models' });
+                return res.status(403).json({
+                    error: 'Forbidden: You can only edit your own models',
+                });
             }
             model.uploadedBy = requestor;
         }
 
         await pool.query(
             'UPDATE models SET name=?, description=?, sector=?, equipmentType=?, level=?, modelUrl=?, thumbnailUrl=?, uploadedBy=?, isFeatured=? WHERE id=?',
-            [model.name, model.description, model.sector, model.equipmentType, model.level, model.modelUrl, model.thumbnailUrl, model.uploadedBy, model.isFeatured || false, id]
+            [
+                model.name,
+                model.description,
+                model.sector,
+                model.equipmentType,
+                model.level,
+                model.modelUrl,
+                model.thumbnailUrl,
+                model.uploadedBy,
+                model.isFeatured || false,
+                id,
+            ]
         );
 
         await pool.query('DELETE FROM hotspots WHERE model_id = ?', [id]);
 
         if (model.hotspots && model.hotspots.length > 0) {
-            const hotspotValues = model.hotspots.map(h => [
-                h.id, id, JSON.stringify(h.position), h.title, h.description, h.mediaUrl || null, h.type
+            const hotspotValues = model.hotspots.map((h) => [
+                h.id,
+                id,
+                JSON.stringify(h.position),
+                h.title,
+                h.description,
+                h.mediaUrl || null,
+                h.type,
             ]);
 
             await pool.query(
@@ -112,7 +163,7 @@ export const updateModel = async (req, res) => {
 
         res.json(model);
     } catch (err) {
-        console.error("Update error:", err);
+        console.error('Update error:', err);
         res.status(500).json({ error: 'Failed to update model' });
     }
 };
@@ -128,15 +179,24 @@ export const deleteModel = async (req, res) => {
         }
 
         if (role !== 'admin') {
-            const [existing] = await pool.query('SELECT uploadedBy FROM models WHERE id = ?', [id]);
-            if (existing.length === 0) return res.status(404).json({ error: 'Model not found' });
+            const [existing] = await pool.query(
+                'SELECT uploadedBy FROM models WHERE id = ?',
+                [id]
+            );
+            if (existing.length === 0)
+                return res.status(404).json({ error: 'Model not found' });
 
             if (existing[0].uploadedBy !== requestor) {
-                return res.status(403).json({ error: 'Forbidden: You can only delete your own models' });
+                return res.status(403).json({
+                    error: 'Forbidden: You can only delete your own models',
+                });
             }
         }
 
-        const [rows] = await pool.query('SELECT modelUrl FROM models WHERE id = ?', [id]);
+        const [rows] = await pool.query(
+            'SELECT modelUrl FROM models WHERE id = ?',
+            [id]
+        );
         if (rows.length > 0) {
             const fileUrl = rows[0].modelUrl;
             if (fileUrl && fileUrl.startsWith('/api/uploads/')) {
@@ -160,7 +220,8 @@ export const optimize = async (req, res) => {
         res.json({ success: true, ...result });
     } catch (err) {
         console.error(err);
-        if (err.message === 'Model not found') return res.status(404).json({ error: err.message });
+        if (err.message === 'Model not found')
+            return res.status(404).json({ error: err.message });
         res.status(500).json({ error: err.message });
     }
 };
@@ -170,7 +231,9 @@ export const generateLesson = async (req, res) => {
         const steps = await aiService.generateLesson(req.body);
         res.json({ steps });
     } catch (err) {
-        console.error("AI Lesson Gen Error:", err);
-        res.status(500).json({ error: 'Failed to generate lesson: ' + err.message });
+        console.error('AI Lesson Gen Error:', err);
+        res.status(500).json({
+            error: 'Failed to generate lesson: ' + err.message,
+        });
     }
 };

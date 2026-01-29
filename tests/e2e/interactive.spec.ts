@@ -7,13 +7,17 @@ test('interactive navigation flow', async ({ page }) => {
 
     // 2. Click "Get Started" (used to be Explore Hub)
     // We use regex for flexibility between EN/SR
-    const exploreBtn = page.getByRole('button', { name: /Get Started|Započni/i });
+    const exploreBtn = page.getByRole('button', {
+        name: /Get Started|Započni/i,
+    });
     await expect(exploreBtn).toBeVisible();
     await exploreBtn.click();
 
     // 3. Verify Gallery Load
     // Expect "VET Equipment Repository" or Serbian translation
-    await expect(page.getByText(/VET Equipment Repository|Repozitorijum VET opreme/i)).toBeVisible();
+    await expect(
+        page.getByText(/VET Equipment Repository|Repozitorijum VET opreme/i)
+    ).toBeVisible();
 
     // 4. Click a model (e.g., the first one in the gallery)
     // The gallery items likely have a "Quick View" or "Explore" button.
@@ -21,6 +25,8 @@ test('interactive navigation flow', async ({ page }) => {
     if (await quickViewBtn.isVisible()) {
         await quickViewBtn.click();
         // Look for model name or "Back" button
-        await expect(page.getByRole('button', { name: /Back|Nazad/i })).toBeVisible();
+        await expect(
+            page.getByRole('button', { name: /Back|Nazad/i })
+        ).toBeVisible();
     }
 });

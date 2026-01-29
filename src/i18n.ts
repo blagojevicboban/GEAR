@@ -5,26 +5,25 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import enTranslation from './locales/en/translation.json';
 import srTranslation from './locales/sr/translation.json';
 
-i18n
-    .use(LanguageDetector)
+i18n.use(LanguageDetector)
     .use(initReactI18next)
     .init({
         resources: {
             en: {
-                translation: enTranslation
+                translation: enTranslation,
             },
             sr: {
-                translation: srTranslation
-            }
+                translation: srTranslation,
+            },
         },
         fallbackLng: 'en',
         interpolation: {
-            escapeValue: false // React already safes from xss
+            escapeValue: false, // React already safes from xss
         },
         detection: {
             order: ['localStorage', 'navigator'],
-            caches: ['localStorage']
-        }
+            caches: ['localStorage'],
+        },
     });
 
 export default i18n;

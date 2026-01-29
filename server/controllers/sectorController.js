@@ -2,17 +2,22 @@ import pool from '../db.js';
 
 const getUserRole = async (username) => {
     if (!username) return null;
-    const [users] = await pool.query('SELECT role FROM users WHERE username = ?', [username]);
+    const [users] = await pool.query(
+        'SELECT role FROM users WHERE username = ?',
+        [username]
+    );
     return users.length > 0 ? users[0].role : null;
 };
 
 export const getAllSectors = async (req, res) => {
     try {
-        const [sectors] = await pool.query('SELECT DISTINCT name FROM sectors ORDER BY name ASC');
+        const [sectors] = await pool.query(
+            'SELECT DISTINCT name FROM sectors ORDER BY name ASC'
+        );
         // Return simple array of strings: ['Chemistry', 'Construction', ...]
-        res.json(sectors.map(s => s.name));
+        res.json(sectors.map((s) => s.name));
     } catch (err) {
-        console.error("Failed to fetch sectors:", err);
+        console.error('Failed to fetch sectors:', err);
         res.status(500).json({ error: 'Failed to fetch sectors' });
     }
 };
@@ -30,12 +35,18 @@ export const createSector = async (req, res) => {
         if (!name) return res.status(400).json({ error: 'Name required' });
 
         // Check if exists
-        const [exists] = await pool.query('SELECT * FROM sectors WHERE name = ?', [name]);
+        const [exists] = await pool.query(
+            'SELECT * FROM sectors WHERE name = ?',
+            [name]
+        );
         if (exists.length > 0) {
             return res.status(400).json({ error: 'Sector already exists' });
         }
 
-        await pool.query('INSERT INTO sectors (id, name, description) VALUES (?, ?, ?)', [name, name, 'Manual Entry']);
+        await pool.query(
+            'INSERT INTO sectors (id, name, description) VALUES (?, ?, ?)',
+            [name, name, 'Manual Entry']
+        );
         res.json({ success: true, name });
     } catch (err) {
         console.error(err);
@@ -54,9 +65,14 @@ export const deleteSector = async (req, res) => {
         }
 
         // Check if in use
-        const [models] = await pool.query('SELECT id FROM models WHERE sector = ?', [name]);
+        const [models] = await pool.query(
+            'SELECT id FROM models WHERE sector = ?',
+            [name]
+        );
         if (models.length > 0) {
-            return res.status(400).json({ error: 'Sector is in use by models. Cannot delete.' });
+            return res
+                .status(400)
+                .json({ error: 'Sector is in use by models. Cannot delete.' });
         }
 
         await pool.query('DELETE FROM sectors WHERE name = ?', [name]);
@@ -78,16 +94,26 @@ export const renameSector = async (req, res) => {
             return res.status(403).json({ error: 'Forbidden' });
         }
 
-        if (!newName) return res.status(400).json({ error: 'New name required' });
+        if (!newName)
+            return res.status(400).json({ error: 'New name required' });
 
         // 1. Create new sector if not exists
-        const [exists] = await pool.query('SELECT * FROM sectors WHERE id = ?', [newName]);
+        const [exists] = await pool.query(
+            'SELECT * FROM sectors WHERE id = ?',
+            [newName]
+        );
         if (exists.length === 0) {
-            await pool.query('INSERT INTO sectors (id, name, description) VALUES (?, ?, ?)', [newName, newName, 'Renamed Sector']);
+            await pool.query(
+                'INSERT INTO sectors (id, name, description) VALUES (?, ?, ?)',
+                [newName, newName, 'Renamed Sector']
+            );
         }
 
         // 2. Migrate all models
-        await pool.query('UPDATE models SET sector = ? WHERE sector = ?', [newName, name]);
+        await pool.query('UPDATE models SET sector = ? WHERE sector = ?', [
+            newName,
+            name,
+        ]);
 
         // 3. Delete old sector
         await pool.query('DELETE FROM sectors WHERE id = ?', [name]);

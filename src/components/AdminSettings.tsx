@@ -8,50 +8,61 @@ interface AdminSettingsProps {
     models: VETModel[];
 }
 
-const AdminSettings: React.FC<AdminSettingsProps> = ({ currentUser, models }) => {
+const AdminSettings: React.FC<AdminSettingsProps> = ({
+    currentUser,
+    models,
+}) => {
     const { t } = useTranslation();
-    const [activeTab, setActiveTab] = useState<'users' | 'sectors' | 'logs' | 'config'>('users');
+    const [activeTab, setActiveTab] = useState<
+        'users' | 'sectors' | 'logs' | 'config'
+    >('users');
 
     return (
         <div className="min-h-screen bg-slate-950 pb-20">
             {/* Header / Tabs */}
             <div className="bg-slate-900 border-b border-slate-800 pt-8 pb-0 px-6 sticky top-0 z-30">
                 <div className="max-w-7xl mx-auto">
-                    <h1 className="text-3xl font-bold text-white mb-6">{t('admin.settings.title')}</h1>
+                    <h1 className="text-3xl font-bold text-white mb-6">
+                        {t('admin.settings.title')}
+                    </h1>
                     <div className="flex gap-8 overflow-x-auto">
                         <button
                             onClick={() => setActiveTab('users')}
-                            className={`pb-4 px-2 font-medium text-sm transition-all border-b-2 ${activeTab === 'users'
-                                ? 'border-indigo-500 text-indigo-400'
-                                : 'border-transparent text-slate-400 hover:text-white hover:border-slate-700'
-                                }`}
+                            className={`pb-4 px-2 font-medium text-sm transition-all border-b-2 ${
+                                activeTab === 'users'
+                                    ? 'border-indigo-500 text-indigo-400'
+                                    : 'border-transparent text-slate-400 hover:text-white hover:border-slate-700'
+                            }`}
                         >
                             {t('admin.settings.tabs.users')}
                         </button>
                         <button
                             onClick={() => setActiveTab('sectors')}
-                            className={`pb-4 px-2 font-medium text-sm transition-all border-b-2 ${activeTab === 'sectors'
-                                ? 'border-indigo-500 text-indigo-400'
-                                : 'border-transparent text-slate-400 hover:text-white hover:border-slate-700'
-                                }`}
+                            className={`pb-4 px-2 font-medium text-sm transition-all border-b-2 ${
+                                activeTab === 'sectors'
+                                    ? 'border-indigo-500 text-indigo-400'
+                                    : 'border-transparent text-slate-400 hover:text-white hover:border-slate-700'
+                            }`}
                         >
                             {t('admin.settings.tabs.sectors')}
                         </button>
                         <button
                             onClick={() => setActiveTab('config')}
-                            className={`pb-4 px-2 font-medium text-sm transition-all border-b-2 ${activeTab === 'config'
-                                ? 'border-indigo-500 text-indigo-400'
-                                : 'border-transparent text-slate-400 hover:text-white hover:border-slate-700'
-                                }`}
+                            className={`pb-4 px-2 font-medium text-sm transition-all border-b-2 ${
+                                activeTab === 'config'
+                                    ? 'border-indigo-500 text-indigo-400'
+                                    : 'border-transparent text-slate-400 hover:text-white hover:border-slate-700'
+                            }`}
                         >
                             {t('admin.settings.tabs.config')}
                         </button>
                         <button
                             onClick={() => setActiveTab('logs')}
-                            className={`pb-4 px-2 font-medium text-sm transition-all border-b-2 ${activeTab === 'logs'
-                                ? 'border-indigo-500 text-indigo-400'
-                                : 'border-transparent text-slate-400 hover:text-white hover:border-slate-700'
-                                }`}
+                            className={`pb-4 px-2 font-medium text-sm transition-all border-b-2 ${
+                                activeTab === 'logs'
+                                    ? 'border-indigo-500 text-indigo-400'
+                                    : 'border-transparent text-slate-400 hover:text-white hover:border-slate-700'
+                            }`}
                         >
                             {t('admin.settings.tabs.logs')}
                         </button>
@@ -63,7 +74,10 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ currentUser, models }) =>
             <div className="max-w-7xl mx-auto px-6 py-8">
                 {activeTab === 'users' && (
                     <div className="animate-in fade-in slide-in-from-bottom-4">
-                        <UserManagement currentUser={currentUser} models={models} />
+                        <UserManagement
+                            currentUser={currentUser}
+                            models={models}
+                        />
                     </div>
                 )}
 
@@ -93,17 +107,23 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ currentUser, models }) =>
 
 const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
     const { t } = useTranslation();
-    const [config, setConfig] = useState<any>({ maintenance_mode: 'false', global_announcement: '', gemini_api_key: '' });
+    const [config, setConfig] = useState<any>({
+        maintenance_mode: 'false',
+        global_announcement: '',
+        gemini_api_key: '',
+    });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch('/api/admin/config', { headers: { 'X-User-Name': currentUser.username } })
-            .then(res => res.json())
-            .then(data => {
+        fetch('/api/admin/config', {
+            headers: { 'X-User-Name': currentUser.username },
+        })
+            .then((res) => res.json())
+            .then((data) => {
                 setConfig((prev: any) => ({ ...prev, ...data }));
                 setLoading(false);
             })
-            .catch(e => console.error(e));
+            .catch((e) => console.error(e));
     }, []);
 
     const handleSave = async () => {
@@ -112,9 +132,9 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-User-Name': currentUser.username
+                    'X-User-Name': currentUser.username,
                 },
-                body: JSON.stringify(config)
+                body: JSON.stringify(config),
             });
             alert(t('admin.config.alerts.saved'));
         } catch (e) {
@@ -125,65 +145,115 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
     const handleBackup = (format: 'json' | 'sql' = 'json') => {
         const ext = format === 'json' ? 'json' : 'sql';
 
-        fetch(`/api/admin/backup?format=${format}`, { headers: { 'X-User-Name': currentUser.username } })
-            .then(res => res.blob())
-            .then(blob => {
+        fetch(`/api/admin/backup?format=${format}`, {
+            headers: { 'X-User-Name': currentUser.username },
+        })
+            .then((res) => res.blob())
+            .then((blob) => {
                 const url = window.URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
                 link.download = `gear_backup_${new Date().toISOString().split('T')[0]}.${ext}`;
                 link.click();
             })
-            .catch(e => alert("Backup failed: " + e));
+            .catch((e) => alert('Backup failed: ' + e));
     };
 
-    if (loading) return <div className="text-slate-400">{t('admin.config.loading')}</div>;
+    if (loading)
+        return (
+            <div className="text-slate-400">{t('admin.config.loading')}</div>
+        );
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-xl">
-                <h2 className="text-2xl font-bold text-white mb-6">{t('admin.config.title')}</h2>
+                <h2 className="text-2xl font-bold text-white mb-6">
+                    {t('admin.config.title')}
+                </h2>
 
                 <div className="space-y-6">
                     <div>
                         <label className="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl border border-slate-700 cursor-pointer hover:bg-slate-800 transition-colors">
                             <div>
-                                <span className="block font-bold text-white">{t('admin.config.maintenance.label')}</span>
-                                <span className="text-xs text-slate-400">{t('admin.config.maintenance.desc')}</span>
+                                <span className="block font-bold text-white">
+                                    {t('admin.config.maintenance.label')}
+                                </span>
+                                <span className="text-xs text-slate-400">
+                                    {t('admin.config.maintenance.desc')}
+                                </span>
                             </div>
-                            <div className={`w-12 h-6 rounded-full p-1 transition-colors ${config.maintenance_mode === 'true' ? 'bg-indigo-600' : 'bg-slate-600'}`} onClick={() => setConfig({ ...config, maintenance_mode: config.maintenance_mode === 'true' ? 'false' : 'true' })}>
-                                <div className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform ${config.maintenance_mode === 'true' ? 'translate-x-6' : ''}`}></div>
+                            <div
+                                className={`w-12 h-6 rounded-full p-1 transition-colors ${config.maintenance_mode === 'true' ? 'bg-indigo-600' : 'bg-slate-600'}`}
+                                onClick={() =>
+                                    setConfig({
+                                        ...config,
+                                        maintenance_mode:
+                                            config.maintenance_mode === 'true'
+                                                ? 'false'
+                                                : 'true',
+                                    })
+                                }
+                            >
+                                <div
+                                    className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform ${config.maintenance_mode === 'true' ? 'translate-x-6' : ''}`}
+                                ></div>
                             </div>
                         </label>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-slate-300 mb-2">Google Gemini API Key</label>
+                        <label className="block text-sm font-bold text-slate-300 mb-2">
+                            Google Gemini API Key
+                        </label>
                         <div className="relative">
                             <input
                                 type="password"
                                 className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                                 placeholder="AIzaSy..."
                                 value={config.gemini_api_key || ''}
-                                onChange={(e) => setConfig({ ...config, gemini_api_key: e.target.value })}
+                                onChange={(e) =>
+                                    setConfig({
+                                        ...config,
+                                        gemini_api_key: e.target.value,
+                                    })
+                                }
                             />
                             <div className="absolute right-4 top-3 text-xs text-slate-500 pointer-events-none">
-                                {config.gemini_api_key ? 'Encrypted (Client-Side)' : 'Not Set'}
+                                {config.gemini_api_key
+                                    ? 'Encrypted (Client-Side)'
+                                    : 'Not Set'}
                             </div>
                         </div>
                         <p className="text-xs text-slate-500 mt-1">
-                            Required for AI Lesson Generation and Model Analysis.
-                            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-indigo-400 hover:text-indigo-300 ml-1">Get Key</a>
+                            Required for AI Lesson Generation and Model
+                            Analysis.
+                            <a
+                                href="https://aistudio.google.com/app/apikey"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-indigo-400 hover:text-indigo-300 ml-1"
+                            >
+                                Get Key
+                            </a>
                         </p>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-slate-300 mb-2">{t('admin.config.announcement.label')}</label>
+                        <label className="block text-sm font-bold text-slate-300 mb-2">
+                            {t('admin.config.announcement.label')}
+                        </label>
                         <textarea
                             className="w-full bg-slate-950 border border-slate-700 rounded-xl padding-4 text-white p-3 h-24 focus:ring-2 focus:ring-indigo-500 outline-none"
-                            placeholder={t('admin.config.announcement.placeholder')}
+                            placeholder={t(
+                                'admin.config.announcement.placeholder'
+                            )}
                             value={config.global_announcement}
-                            onChange={(e) => setConfig({ ...config, global_announcement: e.target.value })}
+                            onChange={(e) =>
+                                setConfig({
+                                    ...config,
+                                    global_announcement: e.target.value,
+                                })
+                            }
                         />
                     </div>
 
@@ -197,28 +267,52 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
             </div>
 
             <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-xl h-fit">
-                <h2 className="text-2xl font-bold text-white mb-2">{t('admin.config.data_mgmt.title')}</h2>
-                <p className="text-slate-400 mb-6">{t('admin.config.data_mgmt.desc')}</p>
+                <h2 className="text-2xl font-bold text-white mb-2">
+                    {t('admin.config.data_mgmt.title')}
+                </h2>
+                <p className="text-slate-400 mb-6">
+                    {t('admin.config.data_mgmt.desc')}
+                </p>
 
                 <div className="bg-slate-800/30 border border-slate-800 rounded-xl p-6 flex flex-col items-center text-center">
                     <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4 text-slate-400">
-                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        <svg
+                            className="w-8 h-8"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                            />
+                        </svg>
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-1">{t('admin.config.data_mgmt.export_title')}</h3>
-                    <p className="text-sm text-slate-500 mb-6">{t('admin.config.data_mgmt.export_desc')}</p>
+                    <h3 className="text-lg font-bold text-white mb-1">
+                        {t('admin.config.data_mgmt.export_title')}
+                    </h3>
+                    <p className="text-sm text-slate-500 mb-6">
+                        {t('admin.config.data_mgmt.export_desc')}
+                    </p>
                     <div className="flex gap-4 items-center">
                         <button
                             onClick={() => handleBackup('json')}
                             className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-6 rounded-lg transition-colors border border-slate-600 flex items-center gap-2"
                         >
-                            <span className="text-xs uppercase bg-slate-800 px-1.5 py-0.5 rounded text-amber-400">JSON</span>
+                            <span className="text-xs uppercase bg-slate-800 px-1.5 py-0.5 rounded text-amber-400">
+                                JSON
+                            </span>
                             {t('admin.config.data_mgmt.download')}
                         </button>
                         <button
                             onClick={() => handleBackup('sql')}
                             className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-6 rounded-lg transition-colors border border-slate-600 flex items-center gap-2"
                         >
-                            <span className="text-xs uppercase bg-slate-800 px-1.5 py-0.5 rounded text-blue-400">SQL</span>
+                            <span className="text-xs uppercase bg-slate-800 px-1.5 py-0.5 rounded text-blue-400">
+                                SQL
+                            </span>
                             {t('admin.config.data_mgmt.download')}
                         </button>
                     </div>
@@ -226,10 +320,26 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
 
                 <div className="bg-slate-800/30 border border-slate-800 rounded-xl p-6 mt-6 flex flex-col items-center text-center">
                     <div className="w-16 h-16 bg-red-900/30 rounded-full flex items-center justify-center mb-4 text-red-500">
-                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                        <svg
+                            className="w-8 h-8"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                            />
+                        </svg>
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-1">{t('admin.config.data_mgmt.restore_title')}</h3>
-                    <p className="text-sm text-slate-500 mb-6 max-w-xs">{t('admin.config.data_mgmt.restore_desc')}</p>
+                    <h3 className="text-lg font-bold text-white mb-1">
+                        {t('admin.config.data_mgmt.restore_title')}
+                    </h3>
+                    <p className="text-sm text-slate-500 mb-6 max-w-xs">
+                        {t('admin.config.data_mgmt.restore_desc')}
+                    </p>
 
                     <div className="relative">
                         <input
@@ -240,7 +350,14 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                             onChange={async (e) => {
                                 const file = e.target.files?.[0];
                                 if (!file) return;
-                                if (!confirm(t('admin.config.data_mgmt.restore_confirm', { filename: file.name }))) {
+                                if (
+                                    !confirm(
+                                        t(
+                                            'admin.config.data_mgmt.restore_confirm',
+                                            { filename: file.name }
+                                        )
+                                    )
+                                ) {
                                     e.target.value = '';
                                     return;
                                 }
@@ -249,20 +366,26 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                 formData.append('file', file);
 
                                 try {
-                                    const res = await fetch('/api/admin/restore', {
-                                        method: 'POST',
-                                        headers: { 'X-User-Name': currentUser.username },
-                                        body: formData
-                                    });
+                                    const res = await fetch(
+                                        '/api/admin/restore',
+                                        {
+                                            method: 'POST',
+                                            headers: {
+                                                'X-User-Name':
+                                                    currentUser.username,
+                                            },
+                                            body: formData,
+                                        }
+                                    );
                                     const data = await res.json();
                                     if (res.ok) {
                                         alert(data.message);
                                         window.location.reload();
                                     } else {
-                                        alert("Restore Failed: " + data.error);
+                                        alert('Restore Failed: ' + data.error);
                                     }
                                 } catch (err) {
-                                    alert("Network Error");
+                                    alert('Network Error');
                                 }
                                 e.target.value = '';
                             }}
@@ -314,9 +437,9 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-User-Name': currentUser.username
+                    'X-User-Name': currentUser.username,
                 },
-                body: JSON.stringify({ name: addSectorName.trim() })
+                body: JSON.stringify({ name: addSectorName.trim() }),
             });
             if (res.ok) {
                 setAddSectorName('');
@@ -327,7 +450,7 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
             }
         } catch (e) {
             console.error(e);
-            alert("Network error");
+            alert('Network error');
         }
     };
 
@@ -335,19 +458,22 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
         if (!confirm(t('admin.sectors.confirm_delete', { sectorName }))) return;
 
         try {
-            const res = await fetch(`/api/sectors/${encodeURIComponent(sectorName)}`, {
-                method: 'DELETE',
-                headers: { 'X-User-Name': currentUser.username }
-            });
+            const res = await fetch(
+                `/api/sectors/${encodeURIComponent(sectorName)}`,
+                {
+                    method: 'DELETE',
+                    headers: { 'X-User-Name': currentUser.username },
+                }
+            );
             if (res.ok) {
-                setSectors(prev => prev.filter(s => s !== sectorName));
+                setSectors((prev) => prev.filter((s) => s !== sectorName));
             } else {
                 const err = await res.json();
                 alert(`Cannot delete: ${err.error}`);
             }
         } catch (e) {
             console.error(e);
-            alert("Network error");
+            alert('Network error');
         }
     };
 
@@ -358,17 +484,28 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
             return;
         }
 
-        if (!confirm(t('admin.sectors.confirm_rename', { editingSector, newSectorName }))) return;
+        if (
+            !confirm(
+                t('admin.sectors.confirm_rename', {
+                    editingSector,
+                    newSectorName,
+                })
+            )
+        )
+            return;
 
         try {
-            const res = await fetch(`/api/sectors/${encodeURIComponent(editingSector)}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-User-Name': currentUser.username
-                },
-                body: JSON.stringify({ newName: newSectorName })
-            });
+            const res = await fetch(
+                `/api/sectors/${encodeURIComponent(editingSector)}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-User-Name': currentUser.username,
+                    },
+                    body: JSON.stringify({ newName: newSectorName }),
+                }
+            );
 
             if (res.ok) {
                 // Refresh list or optimistic update
@@ -384,11 +521,16 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
         }
     };
 
-    if (loading) return <div className="text-slate-400">{t('admin.sectors.loading')}</div>;
+    if (loading)
+        return (
+            <div className="text-slate-400">{t('admin.sectors.loading')}</div>
+        );
 
     return (
         <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-xl">
-            <h2 className="text-2xl font-bold text-white mb-4">{t('admin.sectors.title')}</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">
+                {t('admin.sectors.title')}
+            </h2>
             <p className="text-slate-400 mb-6">{t('admin.sectors.desc')}</p>
 
             <div className="flex gap-4 mb-6">
@@ -413,13 +555,20 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                 <table className="w-full text-left text-slate-300">
                     <thead className="bg-slate-800 text-slate-400 text-xs uppercase">
                         <tr>
-                            <th className="px-6 py-4">{t('admin.sectors.table.header_name')}</th>
-                            <th className="px-6 py-4 text-right">{t('admin.sectors.table.header_actions')}</th>
+                            <th className="px-6 py-4">
+                                {t('admin.sectors.table.header_name')}
+                            </th>
+                            <th className="px-6 py-4 text-right">
+                                {t('admin.sectors.table.header_actions')}
+                            </th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800">
                         {sectors.map((sector, index) => (
-                            <tr key={`${sector}-${index}`} className="hover:bg-slate-800/50 transition-colors">
+                            <tr
+                                key={`${sector}-${index}`}
+                                className="hover:bg-slate-800/50 transition-colors"
+                            >
                                 <td className="px-6 py-4 font-medium text-white">
                                     {editingSector === sector ? (
                                         <div className="flex gap-2">
@@ -428,10 +577,16 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                                 type="text"
                                                 className="bg-slate-950 border border-slate-600 rounded px-2 py-1 text-white text-sm w-full max-w-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                                                 value={newSectorName}
-                                                onChange={e => setNewSectorName(e.target.value)}
-                                                onKeyDown={e => {
-                                                    if (e.key === 'Enter') handleUpdate();
-                                                    if (e.key === 'Escape') setEditingSector(null);
+                                                onChange={(e) =>
+                                                    setNewSectorName(
+                                                        e.target.value
+                                                    )
+                                                }
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter')
+                                                        handleUpdate();
+                                                    if (e.key === 'Escape')
+                                                        setEditingSector(null);
                                                 }}
                                             />
                                         </div>
@@ -442,19 +597,36 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                 <td className="px-6 py-4 text-right flex justify-end gap-3">
                                     {editingSector === sector ? (
                                         <>
-                                            <button onClick={handleUpdate} className="text-green-400 hover:text-green-300 text-sm font-bold">{t('common.save')}</button>
-                                            <button onClick={() => setEditingSector(null)} className="text-slate-500 hover:text-slate-400 text-sm">{t('common.cancel')}</button>
+                                            <button
+                                                onClick={handleUpdate}
+                                                className="text-green-400 hover:text-green-300 text-sm font-bold"
+                                            >
+                                                {t('common.save')}
+                                            </button>
+                                            <button
+                                                onClick={() =>
+                                                    setEditingSector(null)
+                                                }
+                                                className="text-slate-500 hover:text-slate-400 text-sm"
+                                            >
+                                                {t('common.cancel')}
+                                            </button>
                                         </>
                                     ) : (
                                         <>
                                             <button
-                                                onClick={() => { setEditingSector(sector); setNewSectorName(sector); }}
+                                                onClick={() => {
+                                                    setEditingSector(sector);
+                                                    setNewSectorName(sector);
+                                                }}
                                                 className="text-blue-400 hover:text-blue-300 text-sm font-medium"
                                             >
                                                 {t('common.edit')}
                                             </button>
                                             <button
-                                                onClick={() => handleDelete(sector)}
+                                                onClick={() =>
+                                                    handleDelete(sector)
+                                                }
                                                 className="text-red-400 hover:text-red-300 text-sm font-medium"
                                             >
                                                 {t('common.delete')}
@@ -466,7 +638,12 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                         ))}
                         {sectors.length === 0 && (
                             <tr>
-                                <td colSpan={2} className="px-6 py-8 text-center text-slate-500">{t('admin.sectors.table.no_sectors')}</td>
+                                <td
+                                    colSpan={2}
+                                    className="px-6 py-8 text-center text-slate-500"
+                                >
+                                    {t('admin.sectors.table.no_sectors')}
+                                </td>
                             </tr>
                         )}
                     </tbody>
@@ -488,7 +665,7 @@ const SystemLogs: React.FC<{ currentUser: User }> = ({ currentUser }) => {
         setLoading(true);
         try {
             const res = await fetch('/api/admin/logs', {
-                headers: { 'X-User-Name': currentUser.username }
+                headers: { 'X-User-Name': currentUser.username },
             });
             if (res.ok) {
                 const text = await res.text();
@@ -511,7 +688,9 @@ const SystemLogs: React.FC<{ currentUser: User }> = ({ currentUser }) => {
         <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-xl">
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h2 className="text-2xl font-bold text-white mb-1">{t('admin.logs.title')}</h2>
+                    <h2 className="text-2xl font-bold text-white mb-1">
+                        {t('admin.logs.title')}
+                    </h2>
                     <p className="text-slate-400">{t('admin.logs.desc')}</p>
                 </div>
                 <button
@@ -519,14 +698,26 @@ const SystemLogs: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                     className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 transition-colors"
                     title={t('admin.logs.refresh_tooltip')}
                 >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                        />
                     </svg>
                 </button>
             </div>
 
             <div className="bg-black/50 rounded-xl border border-slate-800 p-4 font-mono text-xs text-green-400 h-[600px] overflow-auto whitespace-pre-wrap">
-                {loading ? t('admin.logs.loading') : (logs || t('admin.logs.no_logs'))}
+                {loading
+                    ? t('admin.logs.loading')
+                    : logs || t('admin.logs.no_logs')}
             </div>
         </div>
     );

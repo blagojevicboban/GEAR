@@ -14,7 +14,10 @@ export const optimizeModel = async (id) => {
 
     let localPath;
     if (model.modelUrl.startsWith('/api/uploads/')) {
-        localPath = path.join(uploadDir, model.modelUrl.replace('/api/uploads/', ''));
+        localPath = path.join(
+            uploadDir,
+            model.modelUrl.replace('/api/uploads/', '')
+        );
     } else {
         localPath = path.join(uploadDir, path.basename(model.modelUrl));
     }
@@ -24,30 +27,40 @@ export const optimizeModel = async (id) => {
     }
 
     return new Promise((resolve, reject) => {
-        const pythonProcess = spawn('python3', ['server/scripts/optimize.py', localPath]);
+        const pythonProcess = spawn('python3', [
+            'server/scripts/optimize.py',
+            localPath,
+        ]);
         let dataString = '';
 
-        pythonProcess.stdout.on('data', (data) => { dataString += data.toString(); });
+        pythonProcess.stdout.on('data', (data) => {
+            dataString += data.toString();
+        });
 
         pythonProcess.on('close', async (code) => {
-            if (code !== 0) return reject(new Error('Optimization script failed'));
+            if (code !== 0)
+                return reject(new Error('Optimization script failed'));
 
             try {
                 const result = JSON.parse(dataString);
-                let aiVerdict = "AI Verification Skipped";
+                let aiVerdict = 'AI Verification Skipped';
 
                 if (process.env.API_KEY) {
                     try {
-                        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+                        const ai = new GoogleGenAI({
+                            apiKey: process.env.API_KEY,
+                        });
                         const prompt = `CAD Optimization Audit:\nStats: ${JSON.stringify(result)}\nContext: Is this safe for training? Returns JSON {status, reason}`;
 
                         const aiRes = await ai.models.generateContent({
                             model: 'gemini-2.0-flash-exp',
                             contents: prompt,
-                            config: { responseMimeType: 'application/json' }
+                            config: { responseMimeType: 'application/json' },
                         });
                         aiVerdict = aiRes.text;
-                    } catch (e) { console.error("AI Error", e); }
+                    } catch (e) {
+                        console.error('AI Error', e);
+                    }
                 }
 
                 await pool.query(
@@ -63,7 +76,13 @@ export const optimizeModel = async (id) => {
     });
 };
 
-export const generateLesson = async ({ modelName, modelDescription, level, topic, stepCount = 5 }) => {
+export const generateLesson = async ({
+    modelName,
+    modelDescription,
+    level,
+    topic,
+    stepCount = 5,
+}) => {
     if (!process.env.API_KEY) {
         throw new Error('AI Service Unavailable (Missing Key)');
     }
@@ -97,8 +116,8 @@ export const generateLesson = async ({ modelName, modelDescription, level, topic
         contents: systemPrompt,
         config: {
             responseMimeType: 'application/json',
-            temperature: 0.7
-        }
+            temperature: 0.7,
+        },
     });
 
     const text = response.text();
@@ -111,6 +130,6 @@ export const generateLesson = async ({ modelName, modelDescription, level, topic
         content: s.content,
         interaction_type: s.interaction_type || 'read',
         step_order: i + 1,
-        model_id: ''
+        model_id: '',
     }));
 };

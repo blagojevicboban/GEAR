@@ -13,18 +13,22 @@ const AILessonGeneratorModal: React.FC<AILessonGeneratorModalProps> = ({
     availableModels,
     currentModelId,
     onClose,
-    onGenerate
+    onGenerate,
 }) => {
     // const { t } = useTranslation(); // translations todo
-    const [selectedModelId, setSelectedModelId] = useState(currentModelId || (availableModels[0]?.id || ''));
-    const [level, setLevel] = useState<EquipmentLevel>(EquipmentLevel.INTERMEDIATE);
+    const [selectedModelId, setSelectedModelId] = useState(
+        currentModelId || availableModels[0]?.id || ''
+    );
+    const [level, setLevel] = useState<EquipmentLevel>(
+        EquipmentLevel.INTERMEDIATE
+    );
     const [topic, setTopic] = useState('');
     const [stepCount, setStepCount] = useState(5);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
     const handleGenerate = async () => {
-        const model = availableModels.find(m => m.id === selectedModelId);
+        const model = availableModels.find((m) => m.id === selectedModelId);
         if (!model) return;
 
         setLoading(true);
@@ -39,8 +43,8 @@ const AILessonGeneratorModal: React.FC<AILessonGeneratorModalProps> = ({
                     modelDescription: model.description,
                     level: level,
                     topic: topic,
-                    stepCount: stepCount
-                })
+                    stepCount: stepCount,
+                }),
             });
 
             if (!res.ok) {
@@ -53,12 +57,11 @@ const AILessonGeneratorModal: React.FC<AILessonGeneratorModalProps> = ({
             // Attach the model_id to every step since the API doesn't know our DB IDs
             const stepsWithModel = data.steps.map((s: any) => ({
                 ...s,
-                model_id: selectedModelId
+                model_id: selectedModelId,
             }));
 
             onGenerate(stepsWithModel);
             onClose();
-
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -75,7 +78,10 @@ const AILessonGeneratorModal: React.FC<AILessonGeneratorModalProps> = ({
                         <Sparkles className="text-amber-400" />
                         AI Lesson Generator
                     </h2>
-                    <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors">
+                    <button
+                        onClick={onClose}
+                        className="text-slate-400 hover:text-white transition-colors"
+                    >
                         <X size={20} />
                     </button>
                 </div>
@@ -90,14 +96,18 @@ const AILessonGeneratorModal: React.FC<AILessonGeneratorModalProps> = ({
 
                     {/* Model Selection */}
                     <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Target Model</label>
+                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
+                            Target Model
+                        </label>
                         <select
                             value={selectedModelId}
                             onChange={(e) => setSelectedModelId(e.target.value)}
                             className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                         >
-                            {availableModels.map(m => (
-                                <option key={m.id} value={m.id}>{m.name} ({m.equipmentType})</option>
+                            {availableModels.map((m) => (
+                                <option key={m.id} value={m.id}>
+                                    {m.name} ({m.equipmentType})
+                                </option>
                             ))}
                         </select>
                     </div>
@@ -105,24 +115,39 @@ const AILessonGeneratorModal: React.FC<AILessonGeneratorModalProps> = ({
                     {/* Level & Steps Row */}
                     <div className="flex gap-4">
                         <div className="flex-1">
-                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Difficulty Level</label>
+                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
+                                Difficulty Level
+                            </label>
                             <select
                                 value={level}
-                                onChange={(e) => setLevel(e.target.value as EquipmentLevel)}
+                                onChange={(e) =>
+                                    setLevel(e.target.value as EquipmentLevel)
+                                }
                                 className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                             >
-                                <option value={EquipmentLevel.BASIC}>Basic / Beginner</option>
-                                <option value={EquipmentLevel.INTERMEDIATE}>Intermediate</option>
-                                <option value={EquipmentLevel.ADVANCED}>Advanced / Expert</option>
+                                <option value={EquipmentLevel.BASIC}>
+                                    Basic / Beginner
+                                </option>
+                                <option value={EquipmentLevel.INTERMEDIATE}>
+                                    Intermediate
+                                </option>
+                                <option value={EquipmentLevel.ADVANCED}>
+                                    Advanced / Expert
+                                </option>
                             </select>
                         </div>
                         <div className="w-1/3">
-                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Num Steps</label>
+                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
+                                Num Steps
+                            </label>
                             <input
                                 type="number"
-                                min={3} max={10}
+                                min={3}
+                                max={10}
                                 value={stepCount}
-                                onChange={(e) => setStepCount(Number(e.target.value))}
+                                onChange={(e) =>
+                                    setStepCount(Number(e.target.value))
+                                }
                                 className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                             />
                         </div>
@@ -130,7 +155,9 @@ const AILessonGeneratorModal: React.FC<AILessonGeneratorModalProps> = ({
 
                     {/* Topic Focus */}
                     <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Topic Focus (Optional)</label>
+                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
+                            Topic Focus (Optional)
+                        </label>
                         <input
                             type="text"
                             value={topic}
@@ -142,9 +169,14 @@ const AILessonGeneratorModal: React.FC<AILessonGeneratorModalProps> = ({
 
                     {/* Pedagogy Note */}
                     <div className="flex gap-3 p-3 bg-indigo-500/10 rounded-lg">
-                        <BookOpen size={16} className="text-indigo-400 shrink-0 mt-0.5" />
+                        <BookOpen
+                            size={16}
+                            className="text-indigo-400 shrink-0 mt-0.5"
+                        />
                         <p className="text-xs text-indigo-300/80">
-                            The AI will generate structured steps with educational content and suggested interaction points based on the model's geometry.
+                            The AI will generate structured steps with
+                            educational content and suggested interaction points
+                            based on the model's geometry.
                         </p>
                     </div>
 
@@ -155,11 +187,13 @@ const AILessonGeneratorModal: React.FC<AILessonGeneratorModalProps> = ({
                     >
                         {loading ? (
                             <>
-                                <Loader2 className="animate-spin" /> Generating Plan...
+                                <Loader2 className="animate-spin" /> Generating
+                                Plan...
                             </>
                         ) : (
                             <>
-                                <Sparkles className="fill-white/20" /> Generate Lesson
+                                <Sparkles className="fill-white/20" /> Generate
+                                Lesson
                             </>
                         )}
                     </button>

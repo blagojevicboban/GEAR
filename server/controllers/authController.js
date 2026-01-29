@@ -5,7 +5,7 @@ export const register = async (req, res) => {
     const { username, email, institution, password, role } = req.body;
     try {
         const id = 'user-' + Date.now();
-        const userRole = (role === 'admin') ? 'student' : (role || 'student');
+        const userRole = role === 'admin' ? 'student' : role || 'student';
         const hashedPassword = await bcrypt.hash(password, 10);
 
         await pool.query(
@@ -22,7 +22,10 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
     const { username, password } = req.body;
     try {
-        const [users] = await pool.query('SELECT * FROM users WHERE email = ?', [username]);
+        const [users] = await pool.query(
+            'SELECT * FROM users WHERE email = ?',
+            [username]
+        );
 
         if (users.length > 0) {
             const user = users[0];
@@ -31,7 +34,10 @@ export const login = async (req, res) => {
             if (!valid && password === user.password) {
                 console.log(`Migrating user ${user.email} to hashed password`);
                 const newHash = await bcrypt.hash(password, 10);
-                await pool.query('UPDATE users SET password = ? WHERE id = ?', [newHash, user.id]);
+                await pool.query('UPDATE users SET password = ? WHERE id = ?', [
+                    newHash,
+                    user.id,
+                ]);
                 valid = true;
             }
 

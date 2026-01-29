@@ -3,7 +3,6 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF, Float, Environment, Center } from '@react-three/drei';
 import * as THREE from 'three';
 
-
 interface Hero3DProps {
     targetPosition?: { x: number; y: number } | null;
 }
@@ -60,7 +59,9 @@ export default function Hero3D({ targetPosition }: Hero3DProps) {
                 dpr={[1, 2]}
                 camera={{ position: [0, 0, 5], fov: 45 }}
                 style={{ pointerEvents: 'none' }}
-                eventSource={typeof document !== 'undefined' ? document.body : undefined}
+                eventSource={
+                    typeof document !== 'undefined' ? document.body : undefined
+                }
             >
                 <ambientLight intensity={0.5} />
                 <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />

@@ -19,25 +19,32 @@ export const getAllLessons = async (req, res) => {
 export const getLessonById = async (req, res) => {
     const { id } = req.params;
     try {
-        const [lessons] = await pool.query(`
+        const [lessons] = await pool.query(
+            `
             SELECT l.*, s.name as sectorName, u.username as authorName 
             FROM lessons l
             LEFT JOIN sectors s ON l.sector_id = s.id
             LEFT JOIN users u ON l.author_id = u.id
             WHERE l.id = ?
-        `, [id]);
+        `,
+            [id]
+        );
 
-        if (lessons.length === 0) return res.status(404).json({ error: 'Lesson not found' });
+        if (lessons.length === 0)
+            return res.status(404).json({ error: 'Lesson not found' });
 
         const lesson = lessons[0];
 
-        const [steps] = await pool.query(`
+        const [steps] = await pool.query(
+            `
             SELECT ls.*, m.modelUrl, m.name as modelName 
             FROM lesson_steps ls 
             LEFT JOIN models m ON ls.model_id = m.id 
             WHERE ls.lesson_id = ? 
             ORDER BY ls.step_order ASC
-        `, [id]);
+        `,
+            [id]
+        );
 
         lesson.steps = steps;
         res.json(lesson);
@@ -53,12 +60,18 @@ export const createLesson = async (req, res) => {
 
     try {
         // Get User ID from Username
-        const [users] = await pool.query('SELECT id, role FROM users WHERE username = ?', [requestor]);
-        if (users.length === 0) return res.status(401).json({ error: 'User not found' });
+        const [users] = await pool.query(
+            'SELECT id, role FROM users WHERE username = ?',
+            [requestor]
+        );
+        if (users.length === 0)
+            return res.status(401).json({ error: 'User not found' });
 
         const user = users[0];
         if (user.role !== 'admin' && user.role !== 'teacher') {
-            return res.status(403).json({ error: 'Only teachers and admins can create lessons' });
+            return res
+                .status(403)
+                .json({ error: 'Only teachers and admins can create lessons' });
         }
 
         const id = 'lesson-' + Date.now();
@@ -75,11 +88,11 @@ export const createLesson = async (req, res) => {
                 index + 1, // step_order
                 s.title,
                 s.content,
-                s.model_id || null,  // Ensure empty string becomes null
+                s.model_id || null, // Ensure empty string becomes null
                 s.hotspot_id || null,
                 s.image_url || null,
                 s.interaction_type || 'read',
-                s.interaction_data || null
+                s.interaction_data || null,
             ]);
 
             await pool.query(
@@ -88,7 +101,14 @@ export const createLesson = async (req, res) => {
             );
         }
 
-        res.json({ id, title, description, sector_id, author_id: user.id, steps });
+        res.json({
+            id,
+            title,
+            description,
+            sector_id,
+            author_id: user.id,
+            steps,
+        });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to create lesson' });
@@ -102,16 +122,26 @@ export const updateLesson = async (req, res) => {
 
     try {
         // Auth check
-        const [users] = await pool.query('SELECT id, role FROM users WHERE username = ?', [requestor]);
-        if (users.length === 0) return res.status(401).json({ error: 'User not found' });
+        const [users] = await pool.query(
+            'SELECT id, role FROM users WHERE username = ?',
+            [requestor]
+        );
+        if (users.length === 0)
+            return res.status(401).json({ error: 'User not found' });
         const user = users[0];
 
         // Ownership check
-        const [existing] = await pool.query('SELECT author_id FROM lessons WHERE id = ?', [id]);
-        if (existing.length === 0) return res.status(404).json({ error: 'Lesson not found' });
+        const [existing] = await pool.query(
+            'SELECT author_id FROM lessons WHERE id = ?',
+            [id]
+        );
+        if (existing.length === 0)
+            return res.status(404).json({ error: 'Lesson not found' });
 
         if (user.role !== 'admin' && existing[0].author_id !== user.id) {
-            return res.status(403).json({ error: 'You can only edit your own lessons' });
+            return res
+                .status(403)
+                .json({ error: 'You can only edit your own lessons' });
         }
 
         // Update Metadata
@@ -122,7 +152,9 @@ export const updateLesson = async (req, res) => {
 
         // Update Steps (Delete all and insert)
         if (steps && Array.isArray(steps)) {
-            await pool.query('DELETE FROM lesson_steps WHERE lesson_id = ?', [id]);
+            await pool.query('DELETE FROM lesson_steps WHERE lesson_id = ?', [
+                id,
+            ]);
 
             if (steps.length > 0) {
                 const stepValues = steps.map((s, index) => [
@@ -135,7 +167,7 @@ export const updateLesson = async (req, res) => {
                     s.hotspot_id || null,
                     s.image_url || null,
                     s.interaction_type || 'read',
-                    s.interaction_data || null
+                    s.interaction_data || null,
                 ]);
 
                 await pool.query(
@@ -157,15 +189,25 @@ export const deleteLesson = async (req, res) => {
     const requestor = req.headers['x-user-name'];
 
     try {
-        const [users] = await pool.query('SELECT id, role FROM users WHERE username = ?', [requestor]);
-        if (users.length === 0) return res.status(401).json({ error: 'User not found' });
+        const [users] = await pool.query(
+            'SELECT id, role FROM users WHERE username = ?',
+            [requestor]
+        );
+        if (users.length === 0)
+            return res.status(401).json({ error: 'User not found' });
         const user = users[0];
 
-        const [existing] = await pool.query('SELECT author_id FROM lessons WHERE id = ?', [id]);
-        if (existing.length === 0) return res.status(404).json({ error: 'Lesson not found' });
+        const [existing] = await pool.query(
+            'SELECT author_id FROM lessons WHERE id = ?',
+            [id]
+        );
+        if (existing.length === 0)
+            return res.status(404).json({ error: 'Lesson not found' });
 
         if (user.role !== 'admin' && existing[0].author_id !== user.id) {
-            return res.status(403).json({ error: 'You can only delete your own lessons' });
+            return res
+                .status(403)
+                .json({ error: 'You can only delete your own lessons' });
         }
 
         await pool.query('DELETE FROM lessons WHERE id = ?', [id]); // Cascades to steps
@@ -182,8 +224,12 @@ export const recordAttempt = async (req, res) => {
     const requestor = req.headers['x-user-name'];
 
     try {
-        const [users] = await pool.query('SELECT id FROM users WHERE username = ?', [requestor]);
-        if (users.length === 0) return res.status(401).json({ error: 'User not found' });
+        const [users] = await pool.query(
+            'SELECT id FROM users WHERE username = ?',
+            [requestor]
+        );
+        if (users.length === 0)
+            return res.status(401).json({ error: 'User not found' });
         const userId = users[0].id;
 
         // Check if attempt exists
@@ -220,7 +266,14 @@ export const recordAttempt = async (req, res) => {
             const attemptId = 'att-' + Date.now();
             await pool.query(
                 'INSERT INTO lesson_attempts (id, user_id, lesson_id, status, score, last_step) VALUES (?, ?, ?, ?, ?, ?)',
-                [attemptId, userId, lessonId, status || 'started', score || 0, last_step || 0]
+                [
+                    attemptId,
+                    userId,
+                    lessonId,
+                    status || 'started',
+                    score || 0,
+                    last_step || 0,
+                ]
             );
             res.json({ success: true, id: attemptId });
         }
@@ -234,8 +287,12 @@ export const getTeacherStats = async (req, res) => {
     const requestor = req.headers['x-user-name'];
 
     try {
-        const [users] = await pool.query('SELECT id, role FROM users WHERE username = ?', [requestor]);
-        if (users.length === 0) return res.status(401).json({ error: 'User not found' });
+        const [users] = await pool.query(
+            'SELECT id, role FROM users WHERE username = ?',
+            [requestor]
+        );
+        if (users.length === 0)
+            return res.status(401).json({ error: 'User not found' });
 
         const user = users[0];
         // Allow admin to see everything? Or just their own? Let's stick to their own + admin see all if needed.

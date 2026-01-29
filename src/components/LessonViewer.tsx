@@ -4,7 +4,15 @@ import { Lesson } from '../types';
 import VRViewer from './VRViewer';
 import CADViewer from './CADViewer';
 import PDBViewer from './PDBViewer';
-import { ChevronLeft, ChevronRight, X, Menu, CheckCircle, XCircle, HelpCircle } from 'lucide-react';
+import {
+    ChevronLeft,
+    ChevronRight,
+    X,
+    Menu,
+    CheckCircle,
+    XCircle,
+    HelpCircle,
+} from 'lucide-react';
 
 interface LessonViewerProps {
     lessonId: string;
@@ -12,7 +20,11 @@ interface LessonViewerProps {
     currentUser: any;
 }
 
-const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUser }) => {
+const LessonViewer: React.FC<LessonViewerProps> = ({
+    lessonId,
+    onExit,
+    currentUser,
+}) => {
     const { t } = useTranslation();
     const [lesson, setLesson] = useState<Lesson | null>(null);
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -22,7 +34,10 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
     // Interaction State
     const [quizSelected, setQuizSelected] = useState<any>(null); // number or number[]
     const [quizSubmitted, setQuizSubmitted] = useState(false);
-    const [findPartFeedback, setFindPartFeedback] = useState<{ type: 'success' | 'error', msg: string } | null>(null);
+    const [findPartFeedback, setFindPartFeedback] = useState<{
+        type: 'success' | 'error';
+        msg: string;
+    } | null>(null);
 
     // Reset interaction state on step change
     useEffect(() => {
@@ -33,35 +48,38 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
 
     useEffect(() => {
         fetch(`/api/lessons/${lessonId}`)
-            .then(res => res.json())
-            .then(data => {
+            .then((res) => res.json())
+            .then((data) => {
                 setLesson(data);
                 setLoading(false);
             })
-            .catch(err => {
+            .catch((err) => {
                 console.error(err);
                 setLoading(false);
             });
     }, [lessonId]);
 
     // Progress Tracking
-    const recordProgress = async (status?: 'started' | 'completed', score?: number) => {
+    const recordProgress = async (
+        status?: 'started' | 'completed',
+        score?: number
+    ) => {
         if (!currentUser || !lessonId) return;
         try {
             await fetch(`/api/lessons/${lessonId}/attempt`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-User-Name': currentUser.username
+                    'X-User-Name': currentUser.username,
                 },
                 body: JSON.stringify({
                     status,
                     score,
-                    last_step: currentStepIndex
-                })
+                    last_step: currentStepIndex,
+                }),
             });
         } catch (e) {
-            console.error("Progress save failed", e);
+            console.error('Progress save failed', e);
         }
     };
 
@@ -79,13 +97,23 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
         }
     }, [currentStepIndex]);
 
-    if (loading) return <div className="h-screen bg-black text-white flex items-center justify-center">{t('lessons.viewer.loading')}</div>;
-    if (!lesson) return <div className="h-screen bg-black text-white flex items-center justify-center">{t('lessons.viewer.not_found')}</div>;
+    if (loading)
+        return (
+            <div className="h-screen bg-black text-white flex items-center justify-center">
+                {t('lessons.viewer.loading')}
+            </div>
+        );
+    if (!lesson)
+        return (
+            <div className="h-screen bg-black text-white flex items-center justify-center">
+                {t('lessons.viewer.not_found')}
+            </div>
+        );
 
     const steps = lesson.steps || [];
     const totalSteps = steps.length;
     // Step 0 is the "Intro" effectively if we want? Or just start with Step 1?
-    // Let's assume steps are the content. 
+    // Let's assume steps are the content.
     // If steps is empty, show lesson description.
 
     const currentStep = steps[currentStepIndex];
@@ -95,26 +123,39 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
 
         // Mode 1: Find Part Step
         if (currentStep.interaction_type === 'find_part') {
-            const data = currentStep.interaction_data ? JSON.parse(currentStep.interaction_data) : {};
+            const data = currentStep.interaction_data
+                ? JSON.parse(currentStep.interaction_data)
+                : {};
             const target = data.targetMesh;
             if (!target) return;
 
             if (meshName === target) {
-                setFindPartFeedback({ type: 'success', msg: t('lessons.viewer.find_success', { target }) });
+                setFindPartFeedback({
+                    type: 'success',
+                    msg: t('lessons.viewer.find_success', { target }),
+                });
             } else {
-                setFindPartFeedback({ type: 'error', msg: t('lessons.viewer.find_error', { meshName }) });
+                setFindPartFeedback({
+                    type: 'error',
+                    msg: t('lessons.viewer.find_error', { meshName }),
+                });
             }
         }
 
         // Mode 2: Model Click Quiz
         if (currentStep.interaction_type === 'quiz' && !quizSubmitted) {
-            const data = currentStep.interaction_data ? JSON.parse(currentStep.interaction_data) : {};
+            const data = currentStep.interaction_data
+                ? JSON.parse(currentStep.interaction_data)
+                : {};
             if (data.type === 'model_click') {
                 const isCorrect = meshName === data.targetMesh;
                 setQuizSelected(meshName);
                 if (isCorrect) setQuizSubmitted(true);
                 else {
-                    setFindPartFeedback({ type: 'error', msg: t('lessons.viewer.find_error', { meshName }) });
+                    setFindPartFeedback({
+                        type: 'error',
+                        msg: t('lessons.viewer.find_error', { meshName }),
+                    });
                 }
             }
         }
@@ -129,7 +170,11 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
             if (currentStep.image_url) {
                 return (
                     <div className="w-full h-full bg-black flex items-center justify-center">
-                        <img src={currentStep.image_url} alt="Step" className="max-w-full max-h-full object-contain" />
+                        <img
+                            src={currentStep.image_url}
+                            alt="Step"
+                            className="max-w-full max-h-full object-contain"
+                        />
                     </div>
                 );
             }
@@ -157,14 +202,35 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
         const url = modelStub.modelUrl?.toLowerCase() || '';
 
         if (url.endsWith('.pdb') || url.includes('#pdb')) {
-            return <PDBViewer pdbUrl={url.replace('#pdb', '')} onExit={() => !isSidebarOpen ? setIsSidebarOpen(true) : onExit()} />;
-        } else if (url.endsWith('.stp') || url.endsWith('.step') || url.includes('#step')) {
-            return <CADViewer fileUrl={url.replace('#step', '')} onExit={() => !isSidebarOpen ? setIsSidebarOpen(true) : onExit()} fileName={modelStub.name} />;
+            return (
+                <PDBViewer
+                    pdbUrl={url.replace('#pdb', '')}
+                    onExit={() =>
+                        !isSidebarOpen ? setIsSidebarOpen(true) : onExit()
+                    }
+                />
+            );
+        } else if (
+            url.endsWith('.stp') ||
+            url.endsWith('.step') ||
+            url.includes('#step')
+        ) {
+            return (
+                <CADViewer
+                    fileUrl={url.replace('#step', '')}
+                    onExit={() =>
+                        !isSidebarOpen ? setIsSidebarOpen(true) : onExit()
+                    }
+                    fileName={modelStub.name}
+                />
+            );
         } else {
             return (
                 <VRViewer
                     model={modelStub}
-                    onExit={() => !isSidebarOpen ? setIsSidebarOpen(true) : onExit()}
+                    onExit={() =>
+                        !isSidebarOpen ? setIsSidebarOpen(true) : onExit()
+                    }
                     workshopMode={false}
                     user={currentUser}
                     onObjectClick={handleObjectClick}
@@ -175,7 +241,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
 
     const handleNext = () => {
         if (currentStepIndex < totalSteps - 1) {
-            setCurrentStepIndex(prev => prev + 1);
+            setCurrentStepIndex((prev) => prev + 1);
         } else {
             // Finish
             recordProgress('completed', 100); // Score 100 for completion? Or calculate.
@@ -184,29 +250,39 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
     };
 
     const handlePrev = () => {
-        if (currentStepIndex > 0) setCurrentStepIndex(prev => prev - 1);
+        if (currentStepIndex > 0) setCurrentStepIndex((prev) => prev - 1);
     };
 
     return (
         <div className="flex h-screen w-screen bg-slate-950 overflow-hidden relative">
-
             {/* Sidebar (Content) */}
             <div
-                className={`absolute inset-y-0 left-0 z-20 w-full md:w-[400px] bg-slate-900 border-r border-slate-800 transform transition-transform duration-300 flex flex-col shadow-2xl ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-                    }`}
+                className={`absolute inset-y-0 left-0 z-20 w-full md:w-[400px] bg-slate-900 border-r border-slate-800 transform transition-transform duration-300 flex flex-col shadow-2xl ${
+                    isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                }`}
             >
                 {/* Header */}
                 <div className="p-6 border-b border-slate-800 flex justify-between items-start">
                     <div>
-                        <h2 className="text-sm font-bold text-indigo-400 uppercase tracking-widest mb-1">{t('lessons.viewer.interactive_lesson')}</h2>
-                        <h1 className="text-xl font-bold text-white leading-tight">{lesson.title}</h1>
+                        <h2 className="text-sm font-bold text-indigo-400 uppercase tracking-widest mb-1">
+                            {t('lessons.viewer.interactive_lesson')}
+                        </h2>
+                        <h1 className="text-xl font-bold text-white leading-tight">
+                            {lesson.title}
+                        </h1>
                     </div>
                     <div className="flex items-center gap-2">
                         {/* Toggle Sidebar (Mobile/Desktop) */}
-                        <button onClick={() => setIsSidebarOpen(false)} className="md:hidden p-2 text-slate-500 hover:text-white transition-colors bg-slate-800 rounded-lg">
+                        <button
+                            onClick={() => setIsSidebarOpen(false)}
+                            className="md:hidden p-2 text-slate-500 hover:text-white transition-colors bg-slate-800 rounded-lg"
+                        >
                             <ChevronLeft size={20} />
                         </button>
-                        <button onClick={onExit} className="text-slate-500 hover:text-white transition-colors p-2">
+                        <button
+                            onClick={onExit}
+                            className="text-slate-500 hover:text-white transition-colors p-2"
+                        >
                             <X size={24} />
                         </button>
                     </div>
@@ -218,171 +294,428 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
                         <div className="animate-in fade-in slide-in-from-right-4 duration-300">
                             <div className="flex items-center gap-2 mb-4">
                                 <span className="bg-indigo-600 text-white text-xs font-bold px-2 py-1 rounded">
-                                    {t('lessons.viewer.step_x_of_y', { current: currentStepIndex + 1, total: totalSteps })}
+                                    {t('lessons.viewer.step_x_of_y', {
+                                        current: currentStepIndex + 1,
+                                        total: totalSteps,
+                                    })}
                                 </span>
-                                <h3 className="text-lg font-semibold text-slate-200">{currentStep.title}</h3>
+                                <h3 className="text-lg font-semibold text-slate-200">
+                                    {currentStep.title}
+                                </h3>
                             </div>
 
                             {/* Show image in sidebar if we have a model (since main view shows model) */}
                             {currentStep.model_id && currentStep.image_url && (
                                 <div className="mb-6 rounded-lg overflow-hidden border border-slate-700">
-                                    <img src={currentStep.image_url} alt="Step Visual" className="w-full h-auto object-cover" />
+                                    <img
+                                        src={currentStep.image_url}
+                                        alt="Step Visual"
+                                        className="w-full h-auto object-cover"
+                                    />
                                 </div>
                             )}
 
                             <div
                                 className="prose prose-invert prose-sm max-w-none text-slate-300"
-                                dangerouslySetInnerHTML={{ __html: currentStep.content }}
+                                dangerouslySetInnerHTML={{
+                                    __html: currentStep.content,
+                                }}
                             />
 
                             {/* Interaction Area */}
                             <div className="mt-8">
-                                {currentStep.interaction_type === 'quiz' && (() => {
-                                    const data = currentStep.interaction_data ? JSON.parse(currentStep.interaction_data) : { type: 'single', options: [], correctIndex: 0 };
+                                {currentStep.interaction_type === 'quiz' &&
+                                    (() => {
+                                        const data =
+                                            currentStep.interaction_data
+                                                ? JSON.parse(
+                                                      currentStep.interaction_data
+                                                  )
+                                                : {
+                                                      type: 'single',
+                                                      options: [],
+                                                      correctIndex: 0,
+                                                  };
 
-                                    // Single choice logic
-                                    let isCorrect = false;
-                                    if (data.type === 'single') isCorrect = quizSelected === data.correctIndex;
-                                    else if (data.type === 'multiple') {
-                                        const selected = quizSelected || [];
-                                        const correct = data.correctIndices || [data.correctIndex];
-                                        isCorrect = selected.length === correct.length && selected.every((v: number) => correct.includes(v));
-                                    } else if (data.type === 'model_click') {
-                                        isCorrect = quizSelected === data.targetMesh;
-                                    }
+                                        // Single choice logic
+                                        let isCorrect = false;
+                                        if (data.type === 'single')
+                                            isCorrect =
+                                                quizSelected ===
+                                                data.correctIndex;
+                                        else if (data.type === 'multiple') {
+                                            const selected = quizSelected || [];
+                                            const correct =
+                                                data.correctIndices || [
+                                                    data.correctIndex,
+                                                ];
+                                            isCorrect =
+                                                selected.length ===
+                                                    correct.length &&
+                                                selected.every((v: number) =>
+                                                    correct.includes(v)
+                                                );
+                                        } else if (
+                                            data.type === 'model_click'
+                                        ) {
+                                            isCorrect =
+                                                quizSelected ===
+                                                data.targetMesh;
+                                        }
 
-                                    return (
-                                        <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
-                                            <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-                                                <HelpCircle size={16} className="text-indigo-400" />
-                                                {t('lessons.viewer.quiz')}
-                                                {data.type === 'multiple' && <span className="text-[10px] bg-indigo-500/20 px-2 py-0.5 rounded ml-auto">{t('lessons.viewer.multiple_choice')}</span>}
-                                                {data.type === 'model_click' && <span className="text-[10px] bg-amber-500/20 px-2 py-0.5 rounded ml-auto">{t('lessons.viewer.model_identification')}</span>}
-                                                {data.type === 'true_false' && <span className="text-[10px] bg-blue-500/20 px-2 py-0.5 rounded ml-auto">{t('lessons.viewer.true_false_title')}</span>}
-                                            </h4>
-
-                                            {data.type === 'model_click' ? (
-                                                <div className="text-center py-4 bg-slate-950/50 rounded-lg border border-slate-700/50">
-                                                    <p className="text-xs text-slate-400 mb-2">{t('lessons.viewer.click_instruction')}</p>
-                                                    <p className="text-sm font-bold text-white italic">{t('lessons.viewer.target_prompt', { target: data.targetMesh || 'correct component' })}</p>
-                                                    {quizSelected && !isCorrect && (
-                                                        <div className="mt-3 text-xs text-rose-400 font-bold">{t('lessons.viewer.retry_mesh', { meshName: quizSelected })}</div>
+                                        return (
+                                            <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                                                <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                                                    <HelpCircle
+                                                        size={16}
+                                                        className="text-indigo-400"
+                                                    />
+                                                    {t('lessons.viewer.quiz')}
+                                                    {data.type ===
+                                                        'multiple' && (
+                                                        <span className="text-[10px] bg-indigo-500/20 px-2 py-0.5 rounded ml-auto">
+                                                            {t(
+                                                                'lessons.viewer.multiple_choice'
+                                                            )}
+                                                        </span>
                                                     )}
-                                                </div>
-                                            ) : (
-                                                <div className="space-y-2">
-                                                    {data.type === 'true_false' ? (
-                                                        <div className="flex gap-4">
-                                                            {[0, 1].map((i) => (
-                                                                <button
-                                                                    key={i}
-                                                                    onClick={() => {
-                                                                        if (quizSubmitted) return;
-                                                                        setQuizSelected(i);
-                                                                        setQuizSubmitted(true);
-                                                                    }}
-                                                                    disabled={quizSubmitted}
-                                                                    className={`flex-1 py-4 rounded-xl border-2 font-bold transition-all ${quizSelected === i
-                                                                        ? (i === data.correctIndex ? 'bg-emerald-600/20 border-emerald-500 text-emerald-400' : 'bg-rose-600/20 border-rose-500 text-rose-400')
-                                                                        : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-600'
-                                                                        }`}
-                                                                >
-                                                                    {i === 0 ? t('builder.true_false.true') : t('builder.true_false.false')}
-                                                                </button>
-                                                            ))}
-                                                        </div>
-                                                    ) : data.options.map((opt: string, i: number) => {
-                                                        const isSelected = data.type === 'multiple'
-                                                            ? (quizSelected || []).includes(i)
-                                                            : quizSelected === i;
+                                                    {data.type ===
+                                                        'model_click' && (
+                                                        <span className="text-[10px] bg-amber-500/20 px-2 py-0.5 rounded ml-auto">
+                                                            {t(
+                                                                'lessons.viewer.model_identification'
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                    {data.type ===
+                                                        'true_false' && (
+                                                        <span className="text-[10px] bg-blue-500/20 px-2 py-0.5 rounded ml-auto">
+                                                            {t(
+                                                                'lessons.viewer.true_false_title'
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </h4>
 
-                                                        const isIndividualCorrect = data.type === 'multiple'
-                                                            ? (data.correctIndices || []).includes(i)
-                                                            : data.correctIndex === i;
+                                                {data.type === 'model_click' ? (
+                                                    <div className="text-center py-4 bg-slate-950/50 rounded-lg border border-slate-700/50">
+                                                        <p className="text-xs text-slate-400 mb-2">
+                                                            {t(
+                                                                'lessons.viewer.click_instruction'
+                                                            )}
+                                                        </p>
+                                                        <p className="text-sm font-bold text-white italic">
+                                                            {t(
+                                                                'lessons.viewer.target_prompt',
+                                                                {
+                                                                    target:
+                                                                        data.targetMesh ||
+                                                                        'correct component',
+                                                                }
+                                                            )}
+                                                        </p>
+                                                        {quizSelected &&
+                                                            !isCorrect && (
+                                                                <div className="mt-3 text-xs text-rose-400 font-bold">
+                                                                    {t(
+                                                                        'lessons.viewer.retry_mesh',
+                                                                        {
+                                                                            meshName:
+                                                                                quizSelected,
+                                                                        }
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                    </div>
+                                                ) : (
+                                                    <div className="space-y-2">
+                                                        {data.type ===
+                                                        'true_false' ? (
+                                                            <div className="flex gap-4">
+                                                                {[0, 1].map(
+                                                                    (i) => (
+                                                                        <button
+                                                                            key={
+                                                                                i
+                                                                            }
+                                                                            onClick={() => {
+                                                                                if (
+                                                                                    quizSubmitted
+                                                                                )
+                                                                                    return;
+                                                                                setQuizSelected(
+                                                                                    i
+                                                                                );
+                                                                                setQuizSubmitted(
+                                                                                    true
+                                                                                );
+                                                                            }}
+                                                                            disabled={
+                                                                                quizSubmitted
+                                                                            }
+                                                                            className={`flex-1 py-4 rounded-xl border-2 font-bold transition-all ${
+                                                                                quizSelected ===
+                                                                                i
+                                                                                    ? i ===
+                                                                                      data.correctIndex
+                                                                                        ? 'bg-emerald-600/20 border-emerald-500 text-emerald-400'
+                                                                                        : 'bg-rose-600/20 border-rose-500 text-rose-400'
+                                                                                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-600'
+                                                                            }`}
+                                                                        >
+                                                                            {i ===
+                                                                            0
+                                                                                ? t(
+                                                                                      'builder.true_false.true'
+                                                                                  )
+                                                                                : t(
+                                                                                      'builder.true_false.false'
+                                                                                  )}
+                                                                        </button>
+                                                                    )
+                                                                )}
+                                                            </div>
+                                                        ) : (
+                                                            data.options.map(
+                                                                (
+                                                                    opt: string,
+                                                                    i: number
+                                                                ) => {
+                                                                    const isSelected =
+                                                                        data.type ===
+                                                                        'multiple'
+                                                                            ? (
+                                                                                  quizSelected ||
+                                                                                  []
+                                                                              ).includes(
+                                                                                  i
+                                                                              )
+                                                                            : quizSelected ===
+                                                                              i;
 
-                                                        return (
-                                                            <button
-                                                                key={i}
-                                                                onClick={() => {
-                                                                    if (quizSubmitted) return;
-                                                                    if (data.type === 'multiple') {
-                                                                        const current = quizSelected || [];
-                                                                        if (current.includes(i)) setQuizSelected(current.filter((idx: number) => idx !== i));
-                                                                        else setQuizSelected([...current, i]);
-                                                                    } else {
-                                                                        setQuizSelected(i);
-                                                                    }
-                                                                }}
-                                                                disabled={quizSubmitted}
-                                                                className={`w-full text-left px-4 py-3 rounded-lg text-sm transition-all ${isSelected
-                                                                    ? 'bg-indigo-600/20 border-indigo-500 text-white border'
-                                                                    : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-700'
-                                                                    } ${quizSubmitted && isIndividualCorrect ? '!bg-emerald-500/20 !border-emerald-500 !text-emerald-400' : ''}
+                                                                    const isIndividualCorrect =
+                                                                        data.type ===
+                                                                        'multiple'
+                                                                            ? (
+                                                                                  data.correctIndices ||
+                                                                                  []
+                                                                              ).includes(
+                                                                                  i
+                                                                              )
+                                                                            : data.correctIndex ===
+                                                                              i;
+
+                                                                    return (
+                                                                        <button
+                                                                            key={
+                                                                                i
+                                                                            }
+                                                                            onClick={() => {
+                                                                                if (
+                                                                                    quizSubmitted
+                                                                                )
+                                                                                    return;
+                                                                                if (
+                                                                                    data.type ===
+                                                                                    'multiple'
+                                                                                ) {
+                                                                                    const current =
+                                                                                        quizSelected ||
+                                                                                        [];
+                                                                                    if (
+                                                                                        current.includes(
+                                                                                            i
+                                                                                        )
+                                                                                    )
+                                                                                        setQuizSelected(
+                                                                                            current.filter(
+                                                                                                (
+                                                                                                    idx: number
+                                                                                                ) =>
+                                                                                                    idx !==
+                                                                                                    i
+                                                                                            )
+                                                                                        );
+                                                                                    else
+                                                                                        setQuizSelected(
+                                                                                            [
+                                                                                                ...current,
+                                                                                                i,
+                                                                                            ]
+                                                                                        );
+                                                                                } else {
+                                                                                    setQuizSelected(
+                                                                                        i
+                                                                                    );
+                                                                                }
+                                                                            }}
+                                                                            disabled={
+                                                                                quizSubmitted
+                                                                            }
+                                                                            className={`w-full text-left px-4 py-3 rounded-lg text-sm transition-all ${
+                                                                                isSelected
+                                                                                    ? 'bg-indigo-600/20 border-indigo-500 text-white border'
+                                                                                    : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-700'
+                                                                            } ${quizSubmitted && isIndividualCorrect ? '!bg-emerald-500/20 !border-emerald-500 !text-emerald-400' : ''}
                                                                 ${quizSubmitted && isSelected && !isIndividualCorrect ? '!bg-rose-500/20 !border-rose-500 !text-rose-400' : ''}
                                                                 `}
-                                                            >
-                                                                <div className="flex items-center gap-3">
-                                                                    <div className={`w-4 h-4 rounded border border-slate-600 flex items-center justify-center text-[10px] ${isSelected ? 'bg-indigo-500 border-indigo-400' : ''}`}>
-                                                                        {isSelected && (data.type === 'multiple' ? '✓' : '•')}
-                                                                    </div>
-                                                                    <span>{opt}</span>
-                                                                </div>
-                                                            </button>
-                                                        );
-                                                    })}
-                                                </div>
-                                            )}
+                                                                        >
+                                                                            <div className="flex items-center gap-3">
+                                                                                <div
+                                                                                    className={`w-4 h-4 rounded border border-slate-600 flex items-center justify-center text-[10px] ${isSelected ? 'bg-indigo-500 border-indigo-400' : ''}`}
+                                                                                >
+                                                                                    {isSelected &&
+                                                                                        (data.type ===
+                                                                                        'multiple'
+                                                                                            ? '✓'
+                                                                                            : '•')}
+                                                                                </div>
+                                                                                <span>
+                                                                                    {
+                                                                                        opt
+                                                                                    }
+                                                                                </span>
+                                                                            </div>
+                                                                        </button>
+                                                                    );
+                                                                }
+                                                            )
+                                                        )}
+                                                    </div>
+                                                )}
 
-                                            {!quizSubmitted && data.type !== 'model_click' && data.type !== 'true_false' && (
-                                                <button
-                                                    onClick={() => setQuizSubmitted(true)}
-                                                    disabled={!quizSelected || (Array.isArray(quizSelected) && quizSelected.length === 0)}
-                                                    className="mt-4 w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white py-2 rounded-lg font-bold text-xs shadow-lg shadow-indigo-500/20 transition-all"
-                                                >
-                                                    {t('lessons.viewer.submit_answer')}
-                                                </button>
-                                            )}
-
-                                            {quizSubmitted && (
-                                                <div className={`mt-4 p-3 rounded-lg flex items-center gap-2 text-sm font-bold ${isCorrect ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
-                                                    {isCorrect ? <CheckCircle size={18} /> : <XCircle size={18} />}
-                                                    {isCorrect ? t('lessons.viewer.correct_answer') : t('lessons.viewer.incorrect_answer')}
-                                                    {!isCorrect && (
-                                                        <button onClick={() => { setQuizSubmitted(false); setQuizSelected(data.type === 'multiple' ? [] : null); }} className="ml-auto underline opacity-80">{t('lessons.viewer.retry')}</button>
+                                                {!quizSubmitted &&
+                                                    data.type !==
+                                                        'model_click' &&
+                                                    data.type !==
+                                                        'true_false' && (
+                                                        <button
+                                                            onClick={() =>
+                                                                setQuizSubmitted(
+                                                                    true
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                !quizSelected ||
+                                                                (Array.isArray(
+                                                                    quizSelected
+                                                                ) &&
+                                                                    quizSelected.length ===
+                                                                        0)
+                                                            }
+                                                            className="mt-4 w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white py-2 rounded-lg font-bold text-xs shadow-lg shadow-indigo-500/20 transition-all"
+                                                        >
+                                                            {t(
+                                                                'lessons.viewer.submit_answer'
+                                                            )}
+                                                        </button>
                                                     )}
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
-                                })()}
 
-                                {currentStep.interaction_type === 'find_part' && (() => {
-                                    const data = currentStep.interaction_data ? JSON.parse(currentStep.interaction_data) : { targetMesh: '...' };
-                                    return (
-                                        <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
-                                            <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-                                                <CheckCircle size={16} className="text-indigo-400" />
-                                                {t('lessons.viewer.find_task')}
-                                            </h4>
-                                            <p className="text-sm text-slate-300 mb-4">
-                                                {t('lessons.viewer.find_instruction', { target: data.targetMesh })}
-                                            </p>
+                                                {quizSubmitted && (
+                                                    <div
+                                                        className={`mt-4 p-3 rounded-lg flex items-center gap-2 text-sm font-bold ${isCorrect ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}
+                                                    >
+                                                        {isCorrect ? (
+                                                            <CheckCircle
+                                                                size={18}
+                                                            />
+                                                        ) : (
+                                                            <XCircle
+                                                                size={18}
+                                                            />
+                                                        )}
+                                                        {isCorrect
+                                                            ? t(
+                                                                  'lessons.viewer.correct_answer'
+                                                              )
+                                                            : t(
+                                                                  'lessons.viewer.incorrect_answer'
+                                                              )}
+                                                        {!isCorrect && (
+                                                            <button
+                                                                onClick={() => {
+                                                                    setQuizSubmitted(
+                                                                        false
+                                                                    );
+                                                                    setQuizSelected(
+                                                                        data.type ===
+                                                                            'multiple'
+                                                                            ? []
+                                                                            : null
+                                                                    );
+                                                                }}
+                                                                className="ml-auto underline opacity-80"
+                                                            >
+                                                                {t(
+                                                                    'lessons.viewer.retry'
+                                                                )}
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })()}
 
-                                            {findPartFeedback && (
-                                                <div className={`p-3 rounded-lg flex items-center gap-2 text-xs font-bold animate-in fade-in slide-in-from-bottom-2 ${findPartFeedback.type === 'success' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
-                                                    {findPartFeedback.type === 'success' ? <CheckCircle size={16} /> : <XCircle size={16} />}
-                                                    {findPartFeedback.msg}
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
-                                })()}
+                                {currentStep.interaction_type === 'find_part' &&
+                                    (() => {
+                                        const data =
+                                            currentStep.interaction_data
+                                                ? JSON.parse(
+                                                      currentStep.interaction_data
+                                                  )
+                                                : { targetMesh: '...' };
+                                        return (
+                                            <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                                                <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                                                    <CheckCircle
+                                                        size={16}
+                                                        className="text-indigo-400"
+                                                    />
+                                                    {t(
+                                                        'lessons.viewer.find_task'
+                                                    )}
+                                                </h4>
+                                                <p className="text-sm text-slate-300 mb-4">
+                                                    {t(
+                                                        'lessons.viewer.find_instruction',
+                                                        {
+                                                            target: data.targetMesh,
+                                                        }
+                                                    )}
+                                                </p>
+
+                                                {findPartFeedback && (
+                                                    <div
+                                                        className={`p-3 rounded-lg flex items-center gap-2 text-xs font-bold animate-in fade-in slide-in-from-bottom-2 ${findPartFeedback.type === 'success' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}
+                                                    >
+                                                        {findPartFeedback.type ===
+                                                        'success' ? (
+                                                            <CheckCircle
+                                                                size={16}
+                                                            />
+                                                        ) : (
+                                                            <XCircle
+                                                                size={16}
+                                                            />
+                                                        )}
+                                                        {findPartFeedback.msg}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })()}
                             </div>
                         </div>
                     ) : (
                         <div className="text-slate-400">
                             <p className="mb-4">{lesson.description}</p>
-                            <button onClick={() => setCurrentStepIndex(0)} className="text-indigo-400 underline">{t('lessons.viewer.start_first')}</button>
+                            <button
+                                onClick={() => setCurrentStepIndex(0)}
+                                className="text-indigo-400 underline"
+                            >
+                                {t('lessons.viewer.start_first')}
+                            </button>
                         </div>
                     )}
                 </div>
@@ -408,15 +741,22 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
 
                     <button
                         onClick={handleNext}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white transition-colors ${currentStepIndex === totalSteps - 1
-                            ? 'bg-emerald-600 hover:bg-emerald-500'
-                            : 'bg-indigo-600 hover:bg-indigo-500'
-                            }`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-white transition-colors ${
+                            currentStepIndex === totalSteps - 1
+                                ? 'bg-emerald-600 hover:bg-emerald-500'
+                                : 'bg-indigo-600 hover:bg-indigo-500'
+                        }`}
                     >
                         {currentStepIndex === totalSteps - 1 ? (
-                            <>{t('lessons.viewer.finish')} <CheckCircle size={16} /></>
+                            <>
+                                {t('lessons.viewer.finish')}{' '}
+                                <CheckCircle size={16} />
+                            </>
                         ) : (
-                            <>{t('lessons.viewer.next')} <ChevronRight size={16} /></>
+                            <>
+                                {t('lessons.viewer.next')}{' '}
+                                <ChevronRight size={16} />
+                            </>
                         )}
                     </button>
                 </div>
@@ -433,11 +773,8 @@ const LessonViewer: React.FC<LessonViewerProps> = ({ lessonId, onExit, currentUs
                 </button>
 
                 {/* Viewer */}
-                <div className="w-full h-full">
-                    {renderViewer()}
-                </div>
+                <div className="w-full h-full">{renderViewer()}</div>
             </div>
-
         </div>
     );
 };

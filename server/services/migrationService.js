@@ -2,27 +2,41 @@ import pool from '../db.js';
 
 export const runMigrations = async () => {
     try {
-        await pool.query('SELECT optimizedUrl FROM models LIMIT 1').catch(async () => {
-            console.log("Migrating DB: Adding optimization columns...");
-            await pool.query('ALTER TABLE models ADD COLUMN optimizedUrl VARCHAR(255)');
-            await pool.query('ALTER TABLE models ADD COLUMN aiAnalysis TEXT');
-            await pool.query('ALTER TABLE models ADD COLUMN optimizationStats TEXT');
-        });
+        await pool
+            .query('SELECT optimizedUrl FROM models LIMIT 1')
+            .catch(async () => {
+                console.log('Migrating DB: Adding optimization columns...');
+                await pool.query(
+                    'ALTER TABLE models ADD COLUMN optimizedUrl VARCHAR(255)'
+                );
+                await pool.query(
+                    'ALTER TABLE models ADD COLUMN aiAnalysis TEXT'
+                );
+                await pool.query(
+                    'ALTER TABLE models ADD COLUMN optimizationStats TEXT'
+                );
+            });
 
-        await pool.query('SELECT * FROM system_settings LIMIT 1').catch(async () => {
-            console.log("Migrating DB: Creating system_settings table...");
-            await pool.query(`
+        await pool
+            .query('SELECT * FROM system_settings LIMIT 1')
+            .catch(async () => {
+                console.log('Migrating DB: Creating system_settings table...');
+                await pool.query(`
                 CREATE TABLE IF NOT EXISTS system_settings (
                     setting_key VARCHAR(255) PRIMARY KEY,
                     setting_value TEXT
                 )
             `);
-            await pool.query("INSERT IGNORE INTO system_settings (setting_key, setting_value) VALUES ('maintenance_mode', 'false'), ('global_announcement', '')");
-        });
+                await pool.query(
+                    "INSERT IGNORE INTO system_settings (setting_key, setting_value) VALUES ('maintenance_mode', 'false'), ('global_announcement', '')"
+                );
+            });
 
-        await pool.query('SELECT 1 FROM analytics_logs LIMIT 1').catch(async () => {
-            console.log("Migrating DB: Creating analytics_logs table...");
-            await pool.query(`
+        await pool
+            .query('SELECT 1 FROM analytics_logs LIMIT 1')
+            .catch(async () => {
+                console.log('Migrating DB: Creating analytics_logs table...');
+                await pool.query(`
                 CREATE TABLE IF NOT EXISTS analytics_logs (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     user_id VARCHAR(255),
@@ -34,11 +48,13 @@ export const runMigrations = async () => {
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             `);
-        });
+            });
 
-        await pool.query('SELECT 1 FROM academy_videos LIMIT 1').catch(async () => {
-            console.log("Migrating DB: Creating academy_videos table...");
-            await pool.query(`
+        await pool
+            .query('SELECT 1 FROM academy_videos LIMIT 1')
+            .catch(async () => {
+                console.log('Migrating DB: Creating academy_videos table...');
+                await pool.query(`
                 CREATE TABLE IF NOT EXISTS academy_videos (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     category VARCHAR(50) NOT NULL,
@@ -50,29 +66,73 @@ export const runMigrations = async () => {
                 )
             `);
 
-            // Seed data if empty
-            const [rows] = await pool.query('SELECT COUNT(*) as count FROM academy_videos');
-            if (rows[0].count === 0) {
-                console.log("Seeding Academy Videos...");
-                const seedData = [
-                    { category: 'basics', title: 'Installing GEAR Locally', duration: '5:20', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', description: 'Deploying Docker containers in schools.' },
-                    { category: 'basics', title: 'Navigating the 3D Repo', duration: '3:15', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', description: 'Finding and filtering VET models.' },
-                    { category: 'creation', title: 'Creating Your First Lesson', duration: '8:45', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', description: 'Using the Workbook Editor.' },
-                    { category: 'creation', title: 'Adding Interactive Hotspots', duration: '4:30', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', description: 'Attaching media to 3D parts.' },
-                    { category: 'pedagogy', title: 'Bloom\'s Taxonomy in VR', duration: '12:00', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', description: 'Structuring learning outcomes.' },
-                    { category: 'pedagogy', title: 'Flipped Classroom with GEAR', duration: '9:10', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', description: 'Assigning VR homework.' }
-                ];
+                // Seed data if empty
+                const [rows] = await pool.query(
+                    'SELECT COUNT(*) as count FROM academy_videos'
+                );
+                if (rows[0].count === 0) {
+                    console.log('Seeding Academy Videos...');
+                    const seedData = [
+                        {
+                            category: 'basics',
+                            title: 'Installing GEAR Locally',
+                            duration: '5:20',
+                            url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+                            description:
+                                'Deploying Docker containers in schools.',
+                        },
+                        {
+                            category: 'basics',
+                            title: 'Navigating the 3D Repo',
+                            duration: '3:15',
+                            url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+                            description: 'Finding and filtering VET models.',
+                        },
+                        {
+                            category: 'creation',
+                            title: 'Creating Your First Lesson',
+                            duration: '8:45',
+                            url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+                            description: 'Using the Workbook Editor.',
+                        },
+                        {
+                            category: 'creation',
+                            title: 'Adding Interactive Hotspots',
+                            duration: '4:30',
+                            url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+                            description: 'Attaching media to 3D parts.',
+                        },
+                        {
+                            category: 'pedagogy',
+                            title: "Bloom's Taxonomy in VR",
+                            duration: '12:00',
+                            url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+                            description: 'Structuring learning outcomes.',
+                        },
+                        {
+                            category: 'pedagogy',
+                            title: 'Flipped Classroom with GEAR',
+                            duration: '9:10',
+                            url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+                            description: 'Assigning VR homework.',
+                        },
+                    ];
 
-                for (const video of seedData) {
-                    await pool.query(
-                        'INSERT INTO academy_videos (category, title, duration, url, description) VALUES (?, ?, ?, ?, ?)',
-                        [video.category, video.title, video.duration, video.url, video.description]
-                    );
+                    for (const video of seedData) {
+                        await pool.query(
+                            'INSERT INTO academy_videos (category, title, duration, url, description) VALUES (?, ?, ?, ?, ?)',
+                            [
+                                video.category,
+                                video.title,
+                                video.duration,
+                                video.url,
+                                video.description,
+                            ]
+                        );
+                    }
                 }
-            }
-        });
-
+            });
     } catch (e) {
-        console.error("Migration check failed:", e);
+        console.error('Migration check failed:', e);
     }
 };

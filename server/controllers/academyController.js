@@ -2,7 +2,9 @@ import pool from '../db.js';
 
 export const getVideos = async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT * FROM academy_videos ORDER BY created_at DESC');
+        const [rows] = await pool.query(
+            'SELECT * FROM academy_videos ORDER BY created_at DESC'
+        );
 
         // Group by category to match previous JSON structure
         const grouped = rows.reduce((acc, video) => {
@@ -12,7 +14,7 @@ export const getVideos = async (req, res) => {
                 title: video.title,
                 duration: video.duration,
                 url: video.url,
-                desc: video.description, // Mapping DB 'description' to frontend expected 'desc' if needed, or keeping both? Check usage. 
+                desc: video.description, // Mapping DB 'description' to frontend expected 'desc' if needed, or keeping both? Check usage.
                 // Previous file used 'desc'. DB has 'description'. Let's alias it to be safe.
                 // Actually, let's look at the original code: "desc: '...'"
             });
@@ -20,20 +22,20 @@ export const getVideos = async (req, res) => {
         }, {});
 
         // Ensure keys exist even if empty, matching defaults if possible, or just return what we have.
-        // The original code had specific keys: basics, creation, pedagogy. 
+        // The original code had specific keys: basics, creation, pedagogy.
         // If they are empty in DB, they won't appear here. This might break frontend if it expects them.
         // Let's ensure default keys exist.
         const structure = {
             basics: grouped.basics || [],
             creation: grouped.creation || [],
             pedagogy: grouped.pedagogy || [],
-            ...grouped // Include any others that might be added dynamically
+            ...grouped, // Include any others that might be added dynamically
         };
 
         res.json(structure);
     } catch (e) {
-        console.error("Failed to fetch videos:", e);
-        res.status(500).json({ error: "Failed to fetch videos" });
+        console.error('Failed to fetch videos:', e);
+        res.status(500).json({ error: 'Failed to fetch videos' });
     }
 };
 
@@ -56,28 +58,31 @@ export const addVideo = async (req, res) => {
         const newVideo = {
             id: result.insertId,
             ...video,
-            desc: description
+            desc: description,
         };
 
         res.json(newVideo);
     } catch (e) {
-        console.error("Failed to save video:", e);
-        res.status(500).json({ error: "Failed to save video" });
+        console.error('Failed to save video:', e);
+        res.status(500).json({ error: 'Failed to save video' });
     }
 };
 
 export const deleteVideo = async (req, res) => {
     const id = parseInt(req.params.id);
     try {
-        const [result] = await pool.query('DELETE FROM academy_videos WHERE id = ?', [id]);
+        const [result] = await pool.query(
+            'DELETE FROM academy_videos WHERE id = ?',
+            [id]
+        );
         if (result.affectedRows > 0) {
             res.json({ success: true });
         } else {
-            res.status(404).json({ error: "Video not found" });
+            res.status(404).json({ error: 'Video not found' });
         }
     } catch (e) {
-        console.error("Failed to delete video:", e);
-        res.status(500).json({ error: "Failed to delete video" });
+        console.error('Failed to delete video:', e);
+        res.status(500).json({ error: 'Failed to delete video' });
     }
 };
 
@@ -86,7 +91,7 @@ export const updateVideo = async (req, res) => {
     const { video } = req.body;
     try {
         // Construct dynamic update query
-        // Incoming video object might have partial fields? 
+        // Incoming video object might have partial fields?
         // Original logic was: data[cat][idx] = { ...data[cat][idx], ...video };
 
         // We need to fetch existing to know what to update? Or just update what is passed.
@@ -96,29 +101,44 @@ export const updateVideo = async (req, res) => {
         const fields = [];
         const values = [];
 
-        if (video.title) { fields.push('title = ?'); values.push(video.title); }
-        if (video.duration) { fields.push('duration = ?'); values.push(video.duration); }
-        if (video.url) { fields.push('url = ?'); values.push(video.url); }
+        if (video.title) {
+            fields.push('title = ?');
+            values.push(video.title);
+        }
+        if (video.duration) {
+            fields.push('duration = ?');
+            values.push(video.duration);
+        }
+        if (video.url) {
+            fields.push('url = ?');
+            values.push(video.url);
+        }
         if (video.desc || video.description) {
             fields.push('description = ?');
             values.push(video.desc || video.description);
         }
-        if (video.category) { fields.push('category = ?'); values.push(video.category); }
-        // Note: category change might be tricky if frontend logic relies on simple ID lookup within category but API structure suggests ID is global. 
+        if (video.category) {
+            fields.push('category = ?');
+            values.push(video.category);
+        }
+        // Note: category change might be tricky if frontend logic relies on simple ID lookup within category but API structure suggests ID is global.
 
         if (fields.length === 0) return res.json({ success: true }); // Nothing to update
 
         values.push(id);
 
-        const [result] = await pool.query(`UPDATE academy_videos SET ${fields.join(', ')} WHERE id = ?`, values);
+        const [result] = await pool.query(
+            `UPDATE academy_videos SET ${fields.join(', ')} WHERE id = ?`,
+            values
+        );
 
         if (result.affectedRows > 0) {
             res.json({ success: true });
         } else {
-            res.status(404).json({ error: "Video not found" });
+            res.status(404).json({ error: 'Video not found' });
         }
     } catch (e) {
-        console.error("Failed to update video:", e);
-        res.status(500).json({ error: "Failed to update video" });
+        console.error('Failed to update video:', e);
+        res.status(500).json({ error: 'Failed to update video' });
     }
 };

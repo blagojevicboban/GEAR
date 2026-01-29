@@ -5,18 +5,18 @@ Thank you for your interest in contributing to THE GEAR! We welcome contribution
 ## Project Structure
 
 - **`src/`**: React Frontend.
-  - **`components/`**: Reusable UI components.
-  - **`pages/`**: Main application routes.
-  - **`services/`**: API client methods.
+    - **`components/`**: Reusable UI components.
+    - **`pages/`**: Main application routes.
+    - **`services/`**: API client methods.
 - **`server/`**: Node.js/Express Backend.
-  - **`index.js`**: Main entry point (App wiring and middleware).
-  - **`controllers/`**: Request handlers (Auth, User, Model, etc.).
-  - **`routes/`**: API Route definitions.
-  - **`services/`**: Shared logic (File, AI, Migrations).
-  - **`config/`**: Configuration files (Socket.io).
-  - **`db.js`**: Database connection pool.
-  - **`uploads/`**: Directory for storing uploaded assets.
-  - **`scripts/`**: Python/Shell scripts for data processing (e.g., CAD optimization).
+    - **`index.js`**: Main entry point (App wiring and middleware).
+    - **`controllers/`**: Request handlers (Auth, User, Model, etc.).
+    - **`routes/`**: API Route definitions.
+    - **`services/`**: Shared logic (File, AI, Migrations).
+    - **`config/`**: Configuration files (Socket.io).
+    - **`db.js`**: Database connection pool.
+    - **`uploads/`**: Directory for storing uploaded assets.
+    - **`scripts/`**: Python/Shell scripts for data processing (e.g., CAD optimization).
 - **`deployment/`**: Deployment scripts and webhook logic.
 - **`tests/`**: End-to-end tests using Playwright.
 - **`src/locales/`**: JSON translation files for i18n.
@@ -24,18 +24,21 @@ Thank you for your interest in contributing to THE GEAR! We welcome contribution
 ## Getting Started
 
 1.  **Clone the repository**:
+
     ```bash
     git clone https://github.com/blagojevicboban/GEAR.git
     cd GEAR
     ```
 
 2.  **Install dependencies**:
+
     ```bash
     npm install
     ```
 
 3.  **Setup Database**:
     Ensure you have MariaDB/MySQL running.
+
     ```bash
     # Reset and seed database (Development only)
     npm run seed
@@ -45,6 +48,7 @@ Thank you for your interest in contributing to THE GEAR! We welcome contribution
     ```bash
     npm run dev
     ```
+
     - Frontend: http://localhost:3000
     - Backend: http://localhost:3001
 
@@ -52,25 +56,31 @@ Thank you for your interest in contributing to THE GEAR! We welcome contribution
 
 - **TypeScript**: We use TypeScript for the frontend with **Strict Mode** enabled. Please ensure your code has no implicit `any` types and handles potential `null`/`undefined` values correctly. Run `npx tsc --noEmit` locally to verify before submitting.
 - **TailwindCSS**: Use Tailwind utility classes for styling. Avoid custom CSS files where possible.
-- **Linting**: (TODO: Add linting script)
+- **Linting**:
+    - Run `npm run lint` to check for issues.
+    - Run `npm run lint:fix` to auto-fix issues where possible.
+    - Run `npm run format` to format code with Prettier.
 - **Internationalization (i18n)**:
-  - All UI strings MUST be placed in `src/locales/en/translation.json` and `src/locales/sr/translation.json`.
-  - Use the `useTranslation` hook in React components.
-  - When adding a new key, ensure it exists in BOTH language files to avoid fallbacks.
+    - All UI strings MUST be placed in `src/locales/en/translation.json` and `src/locales/sr/translation.json`.
+    - Use the `useTranslation` hook in React components.
+    - When adding a new key, ensure it exists in BOTH language files to avoid fallbacks.
 
 ## Testing
 
 We use [Playwright](https://playwright.dev/) for End-to-End (E2E) testing.
 
 **Run all tests:**
+
 ```bash
 npm run test:e2e
 ```
 
 **Run interactive UI mode:**
+
 ```bash
 npx playwright test --ui
 ```
+
 - **Language Compatibility**: When writing new E2E tests, use regex-based text matching (e.g., `expect(page.getByText(/Save|Sačuvaj/i)).toBeVisible()`) to ensure tests pass in both English and Serbian.
 
 Before submitting a Pull Request, please ensure all tests pass.

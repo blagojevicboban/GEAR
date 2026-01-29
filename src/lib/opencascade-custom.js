@@ -7,6 +7,6 @@ export default function init() {
                 return '/opencascade.wasm';
             }
             return path;
-        }
+        },
     });
 }

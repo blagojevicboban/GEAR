@@ -1,15 +1,16 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import type * as THREE_TYPES from 'three';
 const THREE = (window as any).THREE as typeof THREE_TYPES;
-
 
 // @ts-ignore
 import { TrackballControls } from '../lib/three-examples/controls/TrackballControls.js';
 // @ts-ignore
 import { PDBLoader } from '../lib/three-examples/loaders/PDBLoader.js';
 // @ts-ignore
-import { CSS2DRenderer, CSS2DObject } from '../lib/three-examples/renderers/CSS2DRenderer.js';
+import {
+    CSS2DRenderer,
+    CSS2DObject,
+} from '../lib/three-examples/renderers/CSS2DRenderer.js';
 // @ts-ignore
 import { ARButton } from '../lib/three-examples/webxr/ARButton.js';
 // @ts-ignore
@@ -29,16 +30,23 @@ interface PDBViewerProps {
 
 import { fixAssetUrl } from '../utils/urlUtils';
 
-const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffeine.pdb', onExit }) => {
+const PDBViewer: React.FC<PDBViewerProps> = ({
+    pdbUrl = '/models/molecules/caffeine.pdb',
+    onExit,
+}) => {
     // Apply proxy fix immediately
     const fixedPdbUrl = fixAssetUrl(pdbUrl);
     const containerRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [atomCount, setAtomCount] = useState(0);
-    const [visualStyle, setVisualStyle] = useState<'ball-stick' | 'spacefill' | 'backbone'>('ball-stick');
+    const [visualStyle, setVisualStyle] = useState<
+        'ball-stick' | 'spacefill' | 'backbone'
+    >('ball-stick');
     const [arSessionActive, setArSessionActive] = useState(false);
-    const [interactionMode, setInteractionMode] = useState<'manipulate' | 'annotate'>('manipulate');
+    const [interactionMode, setInteractionMode] = useState<
+        'manipulate' | 'annotate'
+    >('manipulate');
     const [voiceStatus, setVoiceStatus] = useState<string>(''); // Voice feedback text
     const pdbDataRef = useRef<any>(null); // Store parsed PDB data for style switching
     const socketRef = useRef<Socket | null>(null); // Socket Logic
@@ -47,7 +55,9 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
     // We need a ref for interaction mode to use inside the event listener (which is created inside useEffect)
     const modeRef = useRef('manipulate');
     // Update ref when state changes
-    useEffect(() => { modeRef.current = interactionMode; }, [interactionMode]);
+    useEffect(() => {
+        modeRef.current = interactionMode;
+    }, [interactionMode]);
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -56,9 +66,14 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         let lastBroadcast = 0;
 
         // Camera - Meters Scale
-        const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 50);
+        const camera = new THREE.PerspectiveCamera(
+            70,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            50
+        );
         camera.position.z = 1.0; // 1 meter away for desktop (closer since object is small)
-        camera.position.y = 0;   // Eye height centered
+        camera.position.y = 0; // Eye height centered
 
         // Scene
         const scene = new THREE.Scene();
@@ -83,7 +98,10 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         scene.add(rootGroup);
 
         // Renderer
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        const renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            alpha: true,
+        });
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.shadowMap.enabled = true;
@@ -121,11 +139,19 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
 
             // Controller Grips
             const controllerGrip1 = renderer.xr.getControllerGrip(0);
-            controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1) as any);
+            controllerGrip1.add(
+                controllerModelFactory.createControllerModel(
+                    controllerGrip1
+                ) as any
+            );
             scene.add(controllerGrip1);
 
             const controllerGrip2 = renderer.xr.getControllerGrip(1);
-            controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2) as any);
+            controllerGrip2.add(
+                controllerModelFactory.createControllerModel(
+                    controllerGrip2
+                ) as any
+            );
             scene.add(controllerGrip2);
 
             // Hand Models
@@ -137,7 +163,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             hand2.add(handModelFactory.createHandModel(hand2) as any);
             scene.add(hand2);
         } catch (e) {
-            console.warn("Failed to initialize XR Models:", e);
+            console.warn('Failed to initialize XR Models:', e);
         }
 
         // Raycaster for interaction
@@ -171,7 +197,6 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                     label.position.copy(intersection.point);
                     label.lookAt(camera.position); // Look at user
                     rootGroup.add(label as any);
-
                 } else {
                     // MANIPULATION MODE
                     // For grabbing, we grab the whole molecule
@@ -181,8 +206,6 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                 }
             }
         }
-
-
 
         function onSelectEnd(event: any) {
             const controller = event.target;
@@ -201,13 +224,19 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
 
         // Interaction State for Two-Handed Manipulation
         const interactionState = {
-            controller1: { selected: null as any, position: new THREE.Vector3() },
-            controller2: { selected: null as any, position: new THREE.Vector3() },
+            controller1: {
+                selected: null as any,
+                position: new THREE.Vector3(),
+            },
+            controller2: {
+                selected: null as any,
+                position: new THREE.Vector3(),
+            },
             initialDistance: 0,
             initialScale: 1,
             initialAngle: 0,
             initialRotationY: 0,
-            isTwoHanded: false
+            isTwoHanded: false,
         };
 
         function updateInteractionState() {
@@ -218,7 +247,8 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                 // Start Two-Handed Interaction
                 if (!interactionState.isTwoHanded) {
                     interactionState.isTwoHanded = true;
-                    interactionState.initialDistance = controller1.position.distanceTo(controller2.position);
+                    interactionState.initialDistance =
+                        controller1.position.distanceTo(controller2.position);
                     interactionState.initialScale = rootGroup.scale.x;
 
                     const dx = controller2.position.x - controller1.position.x;
@@ -231,9 +261,11 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             }
         }
 
-
         // Visual Ray
-        const geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
+        const geometry = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(0, 0, 0),
+            new THREE.Vector3(0, 0, -1),
+        ]);
         const line = new THREE.Line(geometry);
         line.name = 'line';
         line.scale.z = 5;
@@ -249,7 +281,6 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             // Intersect with rootGroup children (atoms/bonds)
             return raycaster.intersectObjects(rootGroup.children, true);
         }
-
 
         // Label Renderer
         const labelRenderer = new CSS2DRenderer();
@@ -307,7 +338,11 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                 color.b = colors.getZ(i);
 
                 // Use MeshStandardMaterial
-                const material = new THREE.MeshStandardMaterial({ color: color, roughness: 0.5, metalness: 0.5 });
+                const material = new THREE.MeshStandardMaterial({
+                    color: color,
+                    roughness: 0.5,
+                    metalness: 0.5,
+                });
 
                 const object = new THREE.Mesh(sphereGeometry, material);
                 object.position.copy(position);
@@ -318,7 +353,8 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                     object.scale.setScalar(1.2 * scaleFactor); // Large touching spheres
                 } else if (style === 'backbone') {
                     object.scale.setScalar(0.15 * scaleFactor); // Tiny spheres
-                } else { // ball-stick
+                } else {
+                    // ball-stick
                     object.scale.setScalar(0.4 * scaleFactor); // Standard size
                 }
 
@@ -331,7 +367,14 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                     const atom = json.atoms[i];
                     const text = document.createElement('div');
                     text.className = 'label';
-                    text.style.color = 'rgb(' + atom[3][0] + ',' + atom[3][1] + ',' + atom[3][2] + ')';
+                    text.style.color =
+                        'rgb(' +
+                        atom[3][0] +
+                        ',' +
+                        atom[3][1] +
+                        ',' +
+                        atom[3][2] +
+                        ')';
                     text.textContent = atom[4];
                     text.style.fontFamily = 'sans-serif';
                     text.style.textShadow = '-1px 1px 1px rgb(0,0,0)';
@@ -361,17 +404,32 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                     start.multiplyScalar(scaleFactor);
                     end.multiplyScalar(scaleFactor);
 
-                    const object = new THREE.Mesh(boxGeometry, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5, metalness: 0.5 }));
+                    const object = new THREE.Mesh(
+                        boxGeometry,
+                        new THREE.MeshStandardMaterial({
+                            color: 0xffffff,
+                            roughness: 0.5,
+                            metalness: 0.5,
+                        })
+                    );
                     object.position.copy(start);
                     object.lookAt(end);
 
                     // Style Logic for Bonds
                     const distance = start.distanceTo(end);
                     if (style === 'backbone') {
-                        object.scale.set(0.05 * scaleFactor, 0.05 * scaleFactor, distance); // Very thin
+                        object.scale.set(
+                            0.05 * scaleFactor,
+                            0.05 * scaleFactor,
+                            distance
+                        ); // Very thin
                     } else {
                         // Ball-Stick
-                        object.scale.set(0.1 * scaleFactor, 0.1 * scaleFactor, distance);
+                        object.scale.set(
+                            0.1 * scaleFactor,
+                            0.1 * scaleFactor,
+                            distance
+                        );
                     }
 
                     // Center bond
@@ -399,7 +457,9 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         if (!pdbDataRef.current) {
             const loader = new PDBLoader();
             const baseUrl = window.location.origin;
-            const cleanPdbUrl = fixedPdbUrl.startsWith('/') ? fixedPdbUrl.substring(1) : fixedPdbUrl;
+            const cleanPdbUrl = fixedPdbUrl.startsWith('/')
+                ? fixedPdbUrl.substring(1)
+                : fixedPdbUrl;
             const absolutePdbUrl = `${baseUrl}/${cleanPdbUrl}`;
 
             console.log('Starting PDB Load:', absolutePdbUrl);
@@ -428,11 +488,16 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                     buildMolecule(pdb, visualStyle); // Initial Build
                     setLoading(false);
                 },
-                () => { },
+                () => {},
                 (err: any) => {
                     console.error('PDB Loader Error:', err);
                     setLoading(false);
-                    setError('Error loading PDB: ' + (err instanceof Error ? err.message : 'Unknown error'));
+                    setError(
+                        'Error loading PDB: ' +
+                            (err instanceof Error
+                                ? err.message
+                                : 'Unknown error')
+                    );
                 }
             );
         } else {
@@ -478,13 +543,16 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             }
 
             const btnStyleBS = document.getElementById('btn-style-bs');
-            if (btnStyleBS) btnStyleBS.onclick = () => setVisualStyle('ball-stick');
+            if (btnStyleBS)
+                btnStyleBS.onclick = () => setVisualStyle('ball-stick');
 
             const btnStyleSF = document.getElementById('btn-style-sf');
-            if (btnStyleSF) btnStyleSF.onclick = () => setVisualStyle('spacefill');
+            if (btnStyleSF)
+                btnStyleSF.onclick = () => setVisualStyle('spacefill');
 
             const btnStyleBB = document.getElementById('btn-style-bb');
-            if (btnStyleBB) btnStyleBB.onclick = () => setVisualStyle('backbone');
+            if (btnStyleBB)
+                btnStyleBB.onclick = () => setVisualStyle('backbone');
 
             const btnMode = document.getElementById('btn-mode-toggle');
             if (btnMode) {
@@ -492,7 +560,10 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                 btnMode.textContent = `Mode: ${modeRef.current === 'manipulate' ? 'Manipulate' : 'Annotate'}`;
 
                 btnMode.onclick = () => {
-                    const newMode = modeRef.current === 'manipulate' ? 'annotate' : 'manipulate';
+                    const newMode =
+                        modeRef.current === 'manipulate'
+                            ? 'annotate'
+                            : 'manipulate';
                     setInteractionMode(newMode);
                     btnMode.textContent = `Mode: ${newMode === 'manipulate' ? 'Manipulate' : 'Annotate'}`;
                     // Visual feedback
@@ -511,17 +582,22 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
 
                 if (interactionState.isTwoHanded) {
                     // Two-Handed Manipulation
-                    const dist = controller1.position.distanceTo(controller2.position);
+                    const dist = controller1.position.distanceTo(
+                        controller2.position
+                    );
                     const scaleFactor = dist / interactionState.initialDistance;
-                    const newScale = interactionState.initialScale * scaleFactor;
+                    const newScale =
+                        interactionState.initialScale * scaleFactor;
                     const clampedScale = Math.max(0.1, Math.min(newScale, 5.0));
                     rootGroup.scale.setScalar(clampedScale);
 
                     const dx = controller2.position.x - controller1.position.x;
                     const dz = controller2.position.z - controller1.position.z;
                     const currentAngle = Math.atan2(dz, dx);
-                    const angleDiff = currentAngle - interactionState.initialAngle;
-                    rootGroup.rotation.y = interactionState.initialRotationY - angleDiff;
+                    const angleDiff =
+                        currentAngle - interactionState.initialAngle;
+                    rootGroup.rotation.y =
+                        interactionState.initialRotationY - angleDiff;
                 } else {
                     // Fallback to Stick Scaling if not two-handed
                     const session = renderer.xr.getSession();
@@ -533,12 +609,18 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                                     const value = gamepad.axes[axisIndex];
                                     if (Math.abs(value) > 0.1) {
                                         const scaleSpeed = 0.02;
-                                        const newScale = rootGroup.scale.x - (value * scaleSpeed);
-                                        const clampedScale = Math.max(0.1, Math.min(newScale, 5.0));
+                                        const newScale =
+                                            rootGroup.scale.x -
+                                            value * scaleSpeed;
+                                        const clampedScale = Math.max(
+                                            0.1,
+                                            Math.min(newScale, 5.0)
+                                        );
                                         rootGroup.scale.setScalar(clampedScale);
                                     }
                                 };
-                                if (source.gamepad.axes.length > 3) checkAxis(3);
+                                if (source.gamepad.axes.length > 3)
+                                    checkAxis(3);
                             }
                         }
                     }
@@ -575,16 +657,23 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
                 menuMesh.rotateX(-Math.PI / 2);
             }
 
-
             // Broadcast Transform
             const now = performance.now();
             if (now - lastBroadcast > 100 && socketRef.current) {
                 // Check if WE are manipulating (to avoid echo loops, though we can just blindly emit state)
                 // Better: Emit generally.
                 const transform = {
-                    position: { x: rootGroup.position.x, y: rootGroup.position.y, z: rootGroup.position.z },
-                    rotation: { x: rootGroup.rotation.x, y: rootGroup.rotation.y, z: rootGroup.rotation.z },
-                    scale: rootGroup.scale.x
+                    position: {
+                        x: rootGroup.position.x,
+                        y: rootGroup.position.y,
+                        z: rootGroup.position.z,
+                    },
+                    rotation: {
+                        x: rootGroup.rotation.x,
+                        y: rootGroup.rotation.y,
+                        z: rootGroup.rotation.z,
+                    },
+                    scale: rootGroup.scale.x,
                 };
                 socketRef.current.emit('update-molecule', transform);
                 lastBroadcast = now;
@@ -613,24 +702,40 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             const data = e.detail;
             if (data.position && data.rotation && data.scale) {
                 // Apply transforms
-                rootGroup.position.set(data.position.x, data.position.y, data.position.z);
-                rootGroup.rotation.set(data.rotation.x, data.rotation.y, data.rotation.z);
+                rootGroup.position.set(
+                    data.position.x,
+                    data.position.y,
+                    data.position.z
+                );
+                rootGroup.rotation.set(
+                    data.rotation.x,
+                    data.rotation.y,
+                    data.rotation.z
+                );
                 rootGroup.scale.setScalar(data.scale);
             }
         };
         window.addEventListener('gear-remote-update', handleRemoteUpdate);
 
-
         // Add to existing animate loop? Or just run check inside animate.
         // We can add it to the 'animate' function defined above.
 
         return () => {
-            window.removeEventListener('gear-remote-update', handleRemoteUpdate);
-            window.removeEventListener('gear-voice-command', handleVoiceCommand);
+            window.removeEventListener(
+                'gear-remote-update',
+                handleRemoteUpdate
+            );
+            window.removeEventListener(
+                'gear-voice-command',
+                handleVoiceCommand
+            );
             window.removeEventListener('resize', onWindowResize);
-            if (container.contains(renderer.domElement)) container.removeChild(renderer.domElement);
-            if (container.contains(labelRenderer.domElement)) container.removeChild(labelRenderer.domElement);
-            if (document.body.contains(arButton)) document.body.removeChild(arButton); // Remove AR Button
+            if (container.contains(renderer.domElement))
+                container.removeChild(renderer.domElement);
+            if (container.contains(labelRenderer.domElement))
+                container.removeChild(labelRenderer.domElement);
+            if (document.body.contains(arButton))
+                document.body.removeChild(arButton); // Remove AR Button
             renderer.dispose();
 
             // Disconnect Socket
@@ -658,7 +763,9 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             // We need to access rootGroup.
             // Limitation: rootGroup is inside the main Effect.
             // We can use the custom event trick again to pass data into the effect!
-            window.dispatchEvent(new CustomEvent('gear-remote-update', { detail: data }));
+            window.dispatchEvent(
+                new CustomEvent('gear-remote-update', { detail: data })
+            );
         });
 
         // Listen: Style Updates
@@ -687,9 +794,10 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
     // --- Voice Control Logic ---
     useEffect(() => {
         // @ts-ignore
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const SpeechRecognition =
+            window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
-            console.warn("Speech Recognition not supported in this browser.");
+            console.warn('Speech Recognition not supported in this browser.');
             return;
         }
 
@@ -700,13 +808,15 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
         recognition.maxAlternatives = 1;
 
         recognition.onstart = () => {
-            console.log("Voice Control Active");
+            console.log('Voice Control Active');
         };
 
         recognition.onresult = (event: any) => {
             const last = event.results.length - 1;
-            const command = event.results[last][0].transcript.trim().toLowerCase();
-            console.log("Voice Command:", command);
+            const command = event.results[last][0].transcript
+                .trim()
+                .toLowerCase();
+            console.log('Voice Command:', command);
 
             // Visual Feedback
             setVoiceStatus(`" ${command} "`);
@@ -716,26 +826,43 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             if (command.includes('reset')) {
                 const btnReset = document.getElementById('btn-reset');
                 if (btnReset) btnReset.click();
-            }
-            else if (command.includes('ball') || command.includes('stick')) {
+            } else if (command.includes('ball') || command.includes('stick')) {
                 setVisualStyle('ball-stick');
-            }
-            else if (command.includes('space') || command.includes('sphere') || command.includes('atom')) {
+            } else if (
+                command.includes('space') ||
+                command.includes('sphere') ||
+                command.includes('atom')
+            ) {
                 setVisualStyle('spacefill');
-            }
-            else if (command.includes('backbone') || command.includes('wire')) {
+            } else if (
+                command.includes('backbone') ||
+                command.includes('wire')
+            ) {
                 setVisualStyle('backbone');
-            }
-            else if (command.includes('zoom in') || command.includes('bigger') || command.includes('enhance')) {
-                window.dispatchEvent(new CustomEvent('gear-voice-command', { detail: { action: 'scale-up' } }));
-            }
-            else if (command.includes('zoom out') || command.includes('smaller')) {
-                window.dispatchEvent(new CustomEvent('gear-voice-command', { detail: { action: 'scale-down' } }));
+            } else if (
+                command.includes('zoom in') ||
+                command.includes('bigger') ||
+                command.includes('enhance')
+            ) {
+                window.dispatchEvent(
+                    new CustomEvent('gear-voice-command', {
+                        detail: { action: 'scale-up' },
+                    })
+                );
+            } else if (
+                command.includes('zoom out') ||
+                command.includes('smaller')
+            ) {
+                window.dispatchEvent(
+                    new CustomEvent('gear-voice-command', {
+                        detail: { action: 'scale-down' },
+                    })
+                );
             }
         };
 
         recognition.onerror = (event: any) => {
-            console.error("Speech Recognition Error:", event.error);
+            console.error('Speech Recognition Error:', event.error);
         };
 
         // Start listening only if AR is active or always? Let's do always for testing on desktop too.
@@ -778,42 +905,86 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             </div>
 
             {/* Spatial UI Container (Hidden in 2D, used for texture) */}
-            <div id="ar-menu" className="absolute top-0 left-0 -z-50 opacity-0 pointer-events-none">
+            <div
+                id="ar-menu"
+                className="absolute top-0 left-0 -z-50 opacity-0 pointer-events-none"
+            >
                 <div className="w-64 p-4 bg-slate-800/90 text-white rounded-xl border border-blue-500/50 flex flex-col gap-2">
-                    <h3 className="text-lg font-bold text-center border-b border-white/10 pb-2 mb-2">Controls</h3>
-                    <button id="btn-reset" className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-center font-medium transition active:scale-95">
+                    <h3 className="text-lg font-bold text-center border-b border-white/10 pb-2 mb-2">
+                        Controls
+                    </h3>
+                    <button
+                        id="btn-reset"
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-center font-medium transition active:scale-95"
+                    >
                         Reset View
                     </button>
 
                     <div className="grid grid-cols-3 gap-1 mt-2">
-                        <button id="btn-style-bs" className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded transition">B&S</button>
-                        <button id="btn-style-sf" className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded transition">Space</button>
-                        <button id="btn-style-bb" className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded transition">Bone</button>
+                        <button
+                            id="btn-style-bs"
+                            className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded transition"
+                        >
+                            B&S
+                        </button>
+                        <button
+                            id="btn-style-sf"
+                            className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded transition"
+                        >
+                            Space
+                        </button>
+                        <button
+                            id="btn-style-bb"
+                            className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded transition"
+                        >
+                            Bone
+                        </button>
                     </div>
 
                     <div className="mt-2 border-t border-white/10 pt-2">
-                        <button id="btn-mode-toggle" className="w-full px-2 py-1 bg-emerald-600 hover:bg-emerald-500 rounded text-sm font-medium transition">
+                        <button
+                            id="btn-mode-toggle"
+                            className="w-full px-2 py-1 bg-emerald-600 hover:bg-emerald-500 rounded text-sm font-medium transition"
+                        >
                             Mode: Manipulate
                         </button>
                     </div>
 
                     <div className="text-xs text-slate-400 text-center mt-1">
-                        Grab/Pinch to Move<br />Stick to Zoom
+                        Grab/Pinch to Move
+                        <br />
+                        Stick to Zoom
                     </div>
                 </div>
             </div>
 
             {loading && (
                 <div className="absolute inset-0 z-20 flex items-center justify-center text-white bg-black/50">
-                    <div className="text-xl font-bold animate-pulse">Loading Molecule...</div>
+                    <div className="text-xl font-bold animate-pulse">
+                        Loading Molecule...
+                    </div>
                 </div>
             )}
 
             {error && (
                 <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
                     <div className="bg-red-900/80 text-white px-8 py-6 rounded-xl border border-red-500 shadow-2xl max-w-md text-center">
-                        <svg className="w-12 h-12 mx-auto mb-4 text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                        <h3 className="text-xl font-bold mb-2">Failed to Load Molecule</h3>
+                        <svg
+                            className="w-12 h-12 mx-auto mb-4 text-red-300"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                            />
+                        </svg>
+                        <h3 className="text-xl font-bold mb-2">
+                            Failed to Load Molecule
+                        </h3>
                         <p className="opacity-90">{error}</p>
                     </div>
                 </div>
@@ -822,8 +993,18 @@ const PDBViewer: React.FC<PDBViewerProps> = ({ pdbUrl = '/models/molecules/caffe
             <div className="absolute bottom-4 left-4 z-10 text-slate-400 text-sm pointer-events-none bg-slate-900/50 p-2 rounded">
                 <p>Model: {pdbUrl.split('/').pop()}</p>
                 <p>Atoms: {atomCount}</p>
-                <p>Style: {visualStyle === 'ball-stick' ? 'Ball & Stick' : visualStyle === 'spacefill' ? 'Spacefill' : 'Backbone'}</p>
-                <p>Controls: Desktop (Mouse) | AR (Grab/Pinch & Move, Stick Up/Down to Scale)</p>
+                <p>
+                    Style:{' '}
+                    {visualStyle === 'ball-stick'
+                        ? 'Ball & Stick'
+                        : visualStyle === 'spacefill'
+                          ? 'Spacefill'
+                          : 'Backbone'}
+                </p>
+                <p>
+                    Controls: Desktop (Mouse) | AR (Grab/Pinch & Move, Stick
+                    Up/Down to Scale)
+                </p>
                 <p>Renderer: WebGL + WebXR (AR) + Hand Tracking</p>
             </div>
         </div>

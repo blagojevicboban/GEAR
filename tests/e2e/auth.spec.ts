@@ -9,10 +9,14 @@ test('authentication flow - switching and failed login', async ({ page }) => {
     await loginLink.click();
 
     // Verify Login Form - Check for title
-    await expect(page.getByText(/Welcome Back|Dobrodošli nazad/i).first()).toBeVisible();
+    await expect(
+        page.getByText(/Welcome Back|Dobrodošli nazad/i).first()
+    ).toBeVisible();
 
     // Switch to Register
-    const signUpBtn = page.getByRole('button', { name: /Sign Up|Registrujte se/i });
+    const signUpBtn = page.getByRole('button', {
+        name: /Sign Up|Registrujte se/i,
+    });
     await expect(signUpBtn).toBeVisible();
     await signUpBtn.click();
 
@@ -20,7 +24,9 @@ test('authentication flow - switching and failed login', async ({ page }) => {
     await expect(page.getByText(/Create Account|Kreiraj nalog/i)).toBeVisible();
 
     // Switch back to Login
-    const signInBtn = page.getByRole('button', { name: /Sign In|Prijavite se/i });
+    const signInBtn = page.getByRole('button', {
+        name: /Sign In|Prijavite se/i,
+    });
     await expect(signInBtn).toBeVisible();
     await signInBtn.click();
 
@@ -33,7 +39,7 @@ test('authentication flow - switching and failed login', async ({ page }) => {
     await expect(passwordInput).toBeVisible();
     await passwordInput.fill('wrongpassword');
 
-    page.on('dialog', async dialog => {
+    page.on('dialog', async (dialog) => {
         await dialog.dismiss();
     });
 

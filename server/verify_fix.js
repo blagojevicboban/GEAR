@@ -14,11 +14,17 @@ async function verifyFix() {
 
         // 2. Insert dummy data to test Join
         // We need an existing user and model.
-        const [users] = await connection.query('SELECT username FROM users LIMIT 1');
-        const [models] = await connection.query('SELECT id FROM models LIMIT 1');
+        const [users] = await connection.query(
+            'SELECT username FROM users LIMIT 1'
+        );
+        const [models] = await connection.query(
+            'SELECT id FROM models LIMIT 1'
+        );
 
         if (users.length === 0 || models.length === 0) {
-            console.log('WARN: Cannot test full query because users or models are missing. Skipping data verification.');
+            console.log(
+                'WARN: Cannot test full query because users or models are missing. Skipping data verification.'
+            );
             process.exit(0);
         }
 
@@ -26,17 +32,22 @@ async function verifyFix() {
         const modelId = models[0].id;
         const wsId = 'test-ws-' + Date.now();
 
-        await connection.query('INSERT INTO workshops (id, modelId, createdBy, status) VALUES (?, ?, ?, ?)',
-            [wsId, modelId, username, 'active']);
+        await connection.query(
+            'INSERT INTO workshops (id, modelId, createdBy, status) VALUES (?, ?, ?, ?)',
+            [wsId, modelId, username, 'active']
+        );
 
         // 3. Extract the query logic from server/index.js and test it
-        const [results] = await connection.query(`
+        const [results] = await connection.query(
+            `
             SELECT w.*, m.name as modelName, u.username as creatorName 
             FROM workshops w
             JOIN models m ON w.modelId = m.id
             JOIN users u ON w.createdBy = u.username
             WHERE w.status = 'active' AND w.id = ?
-        `, [wsId]);
+        `,
+            [wsId]
+        );
 
         if (results.length > 0 && results[0].id === wsId) {
             console.log('PASS: Successfully queried active workshops.');
@@ -51,7 +62,6 @@ async function verifyFix() {
 
         connection.release();
         process.exit(0);
-
     } catch (err) {
         console.error('FAIL: Verification script errored:', err);
         process.exit(1);

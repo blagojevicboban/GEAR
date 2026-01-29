@@ -14,11 +14,15 @@ export const uploadFile = async (req, res) => {
         try {
             const result = await extractZip(filePath, req.file.originalname);
             if (result) {
-                return res.json({ url: result.url, originalName: req.file.originalname, isAssembly: true });
+                return res.json({
+                    url: result.url,
+                    originalName: req.file.originalname,
+                    isAssembly: true,
+                });
             }
             // If no result (no main file found), fall through to default returns
         } catch (zipErr) {
-            console.error("ZIP extraction failed:", zipErr);
+            console.error('ZIP extraction failed:', zipErr);
         }
     }
 

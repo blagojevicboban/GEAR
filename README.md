@@ -6,180 +6,199 @@
 
 ### 🌐 [Live Demo: gear.tsp.edu.rs](https://gear.tsp.edu.rs)
 
-
 This platform implements the 4 key intellectual outputs of the **ARVR4VET** project:
 
 ### ✅ Result 1: Multi-User WebXR Ecosystem
-*   **Room-Based Collaboration**: Users join isolated workshop rooms (`workshopId`) for privacy.
-*   **Avatar System**: Real-time synchronization of **Head and Hands (Controllers)** using Inverse Kinematics principles.
-*   **Visual Roles**: Distinct avatars for Teachers (Red) and Students (Green).
+
+- **Room-Based Collaboration**: Users join isolated workshop rooms (`workshopId`) for privacy.
+- **Avatar System**: Real-time synchronization of **Head and Hands (Controllers)** using Inverse Kinematics principles.
+- **Visual Roles**: Distinct avatars for Teachers (Red) and Students (Green).
 
 ### ✅ Result 2: AI-Driven CAD Engine
-*   **Automated Optimization**: Server-side pipeline converts huge industrial STEP files into optimized low-poly GLB models for VR.
-*   **AI Verdict**: Google Gemini 1.5 Pro analyzes the model geometry and metadata to provide technical summaries.
-*   **Performance Toggle**: Instantly switch between "Original (High-Poly)" and "Optimized (AI)" versions in the viewer.
+
+- **Automated Optimization**: Server-side pipeline converts huge industrial STEP files into optimized low-poly GLB models for VR.
+- **AI Verdict**: Google Gemini 1.5 Pro analyzes the model geometry and metadata to provide technical summaries.
+- **Performance Toggle**: Instantly switch between "Original (High-Poly)" and "Optimized (AI)" versions in the viewer.
 
 ### ✅ Result 3: Interactive Workbook
-*   **Teacher Tools**: A drag-and-drop **Workbook Builder** allows educators to create step-by-step 3D lessons.
-*   **Hotspot Editor**: Place spatial information markers directly on 3D models.
-*   **Pedagogical Interactions**: Support for "Find the Part" gamification logic.
+
+- **Teacher Tools**: A drag-and-drop **Workbook Builder** allows educators to create step-by-step 3D lessons.
+- **Hotspot Editor**: Place spatial information markers directly on 3D models.
+- **Pedagogical Interactions**: Support for "Find the Part" gamification logic.
 
 ### ✅ Result 4: GEAR MOOC Suite
-*   **GEAR Academy**: Built-in video portal (`/academy`) for training teachers.
-*   **Methodological Support**: "Bloom's Taxonomy" tips integrated into the lesson editor to ensure didactic quality.
+
+- **GEAR Academy**: Built-in video portal (`/academy`) for training teachers.
+- **Methodological Support**: "Bloom's Taxonomy" tips integrated into the lesson editor to ensure didactic quality.
 
 ## 🚀 Key Features
 
-*   **3D Asset Library**: Upload and manage `.glb`, `.gltf`, `.obj`, and `.stl` models.
-*   **WebXR Viewer**: Interactive VR/AR visualization using A-Frame and Three.js.
-*   **Molecular Viewer**: Dedicated PDB viewer for chemistry and biology molecules.
-*   **CAD Support**: Dedicated kernel-based viewer for `.stp` / `.step` industrial files (powered by OpenCascade.js).
-*   **Smart Uploads**: Support for **.ZIP** archives with automatic extraction and detection of main CAD assembly files (`.step`, `.sldasm`, etc.).
-*   **Dynamic Sectors**: Flexible categorization system that adapts as users upload content from different fields.
-*   **Interactive Lessons**: Create and take guided 3D lessons with step-by-step instructions (Markdown) linked to specific CAD/VR models.
-*   **AI Mentor**: Voice-activated AI assistant (Gemini 2.0 Flash) for context-aware guidance.
-*   **Multi-User Workshops**: Shared virtual spaces with real-time position synchronization and collaborative interactions.
-*   **Dashboard**: Featured models, global announcements, and category-based filtering (sectors).
-*   **Mixed Reality Mode**: Immersive AR experience with Passthrough, Hand Tracking, and Spatial UI controls.
-*   **Admin Settings**: Comprehensive dashboard for User Management, Sector Management, System Logs, and Global Configuration (Maintenance Mode, Backups & **Restore** in JSON/SQL).
-*   **Multi-language Support**: Full internationalization (i18n) for **English** and **Serbian** across all modules.
-*   **E2E Testing Suite**: Robust automated tests for critical flows, ensuring stability across both localized versions.
-*   **Support Center**: Dedicated support page with interactive **System Diagnostics** (WebXR/HTTPS checks) and tutorials.
-*   **Contextual Onboarding**: Interactive guided tour for new users and inline tooltips for complex forms.
+- **3D Asset Library**: Upload and manage `.glb`, `.gltf`, `.obj`, and `.stl` models.
+- **WebXR Viewer**: Interactive VR/AR visualization using A-Frame and Three.js.
+- **Molecular Viewer**: Dedicated PDB viewer for chemistry and biology molecules.
+- **CAD Support**: Dedicated kernel-based viewer for `.stp` / `.step` industrial files (powered by OpenCascade.js).
+- **Smart Uploads**: Support for **.ZIP** archives with automatic extraction and detection of main CAD assembly files (`.step`, `.sldasm`, etc.).
+- **Dynamic Sectors**: Flexible categorization system that adapts as users upload content from different fields.
+- **Interactive Lessons**: Create and take guided 3D lessons with step-by-step instructions (Markdown) linked to specific CAD/VR models.
+- **AI Mentor**: Voice-activated AI assistant (Gemini 2.0 Flash) for context-aware guidance.
+- **Multi-User Workshops**: Shared virtual spaces with real-time position synchronization and collaborative interactions.
+- **Dashboard**: Featured models, global announcements, and category-based filtering (sectors).
+- **Mixed Reality Mode**: Immersive AR experience with Passthrough, Hand Tracking, and Spatial UI controls.
+- **Admin Settings**: Comprehensive dashboard for User Management, Sector Management, System Logs, and Global Configuration (Maintenance Mode, Backups & **Restore** in JSON/SQL).
+- **Multi-language Support**: Full internationalization (i18n) for **English** and **Serbian** across all modules.
+- **E2E Testing Suite**: Robust automated tests for critical flows, ensuring stability across both localized versions.
+- **Support Center**: Dedicated support page with interactive **System Diagnostics** (WebXR/HTTPS checks) and tutorials.
+- **Contextual Onboarding**: Interactive guided tour for new users and inline tooltips for complex forms.
 
 ## 📚 Interactive Lessons (New in v1.4)
- 
- Teachers can now create structured educational content directly within the platform:
- *   **Split-Screen Interface**: Instructions on the left, interactive 3D model on the right.
- *   **Rich Text Editor (WYSIWYG)**: Format content easily with Bold, Italic, Headers, Lists, and Code blocks without knowing Markdown.
- *   **Step Media**: Add specific images to each step (displayed in sidebar or fullscreen if no model is present).
- *   **Smart Paste**: Paste images (`Ctrl+V`) directly into the editor to automatically upload and insert them.
- *   **Model Linking**: Associate different 3D models with specific steps (e.g., show the whole engine in Step 1, piston in Step 2).
- *   **Responsive Viewer**: Optimized experience for mobile devices with collapsible sidebar.
- *   **My Lessons**: Personal dashboard for managing created content.
+
+Teachers can now create structured educational content directly within the platform:
+
+- **Split-Screen Interface**: Instructions on the left, interactive 3D model on the right.
+- **Rich Text Editor (WYSIWYG)**: Format content easily with Bold, Italic, Headers, Lists, and Code blocks without knowing Markdown.
+- **Step Media**: Add specific images to each step (displayed in sidebar or fullscreen if no model is present).
+- **Smart Paste**: Paste images (`Ctrl+V`) directly into the editor to automatically upload and insert them.
+- **Model Linking**: Associate different 3D models with specific steps (e.g., show the whole engine in Step 1, piston in Step 2).
+- **Responsive Viewer**: Optimized experience for mobile devices with collapsible sidebar.
+- **My Lessons**: Personal dashboard for managing created content.
 
 ## 🎓 Gamification & Progress Tracking (New in v1.5)
 
 To increase student engagement, lessons now support interactive challenges:
-*   **Quizzes**: Embed multiple-choice questions within regular lesson flow. Instant feedback validates understanding.
-*   **Find-the-Part**: Task students with locating specific components on the 3D model (e.g., "Find the Safety Valve"). Requires clicking the correct mesh to proceed.
-*   **Teacher Dashboard**: Dedicated analytics view for teachers to monitor who has started or completed their lessons.
-*   **Progress Tracking**: Automatic recording of lesson attempts, including last step reached and completion timestamps.
+
+- **Quizzes**: Embed multiple-choice questions within regular lesson flow. Instant feedback validates understanding.
+- **Find-the-Part**: Task students with locating specific components on the 3D model (e.g., "Find the Safety Valve"). Requires clicking the correct mesh to proceed.
+- **Teacher Dashboard**: Dedicated analytics view for teachers to monitor who has started or completed their lessons.
+- **Progress Tracking**: Automatic recording of lesson attempts, including last step reached and completion timestamps.
 
 ## 📱 PWA & Offline Support (New in v1.6)
 
 THE GEAR is now a fully functional **Progressive Web App (PWA)**:
-*   **Installable**: Add to Home Screen on iOS/Android or install as a desktop app via Chrome/Edge for a native-like experience.
-*   **Offline Access**: The application shell and visited content (models, lessons) are automatically cached. You can continue learning even without an internet connection.
-*   **Performance**: Faster load times thanks to Service Worker caching strategies.
+
+- **Installable**: Add to Home Screen on iOS/Android or install as a desktop app via Chrome/Edge for a native-like experience.
+- **Offline Access**: The application shell and visited content (models, lessons) are automatically cached. You can continue learning even without an internet connection.
+- **Performance**: Faster load times thanks to Service Worker caching strategies.
 
 ## 🌍 Internationalization (New in v1.7)
 
 The platform now supports multiple languages to broaden its reach across European VET schools:
-*   **Native Support**: Switch instantly between **English** and **Serbian (Ćirilica/Latinica)**.
-*   **Exhaustive Coverage**: Dashboard, repository, lesson editor, teacher tools, and administrative panels are fully localized.
-*   **Scalability**: Built on `i18next`, making it easy to add new languages (e.g., German, Italian, Spanish) as the project grows.
+
+- **Native Support**: Switch instantly between **English** and **Serbian (Ćirilica/Latinica)**.
+- **Exhaustive Coverage**: Dashboard, repository, lesson editor, teacher tools, and administrative panels are fully localized.
+- **Scalability**: Built on `i18next`, making it easy to add new languages (e.g., German, Italian, Spanish) as the project grows.
+
 ## 🛡️ Technical Tightening (New in v1.8)
 
 The platform has undergone a significant technical overhaul to ensure enterprise-grade stability:
-*   **TypeScript Strict Mode**: Full enforcement of strict type-checking across the entire frontend.
-*   **0-Error Policy**: The codebase now passes `npx tsc` with zero types errors, significantly reducing runtime regressions.
-*   **Dependency Hardening**: Comprehensive type definitions for all core libraries (React, Three.js, etc.).
+
+- **TypeScript Strict Mode**: Full enforcement of strict type-checking across the entire frontend.
+- **0-Error Policy**: The codebase now passes `npx tsc` with zero types errors, significantly reducing runtime regressions.
+- **Dependency Hardening**: Comprehensive type definitions for all core libraries (React, Three.js, etc.).
 
 ## 🤖 AI & Analytics (New in v1.9)
 
 ### AI Lesson Generator
-Teachers can now instantly generate structured lesson plans for any 3D model using **Google Gemini 2.0 Agentic AI**. 
-*   **Context Aware**: The AI analyzes the model's name and description to create relevant content.
-*   **One-Click**: Just click "Generate with AI" in the Workbook Builder.
-*   **Interactive**: Automatically suggests step titles, educational content, and interaction types (Read/Find Part).
+
+Teachers can now instantly generate structured lesson plans for any 3D model using **Google Gemini 2.0 Agentic AI**.
+
+- **Context Aware**: The AI analyzes the model's name and description to create relevant content.
+- **One-Click**: Just click "Generate with AI" in the Workbook Builder.
+- **Interactive**: Automatically suggests step titles, educational content, and interaction types (Read/Find Part).
 
 ### 3D Heatmaps & Analytics
+
 A powerful new way to visualize student engagement:
-*   **Telemetry Tracking**: The VR Viewer silently tracks student gaze and dwell time on specific parts of the 3D model.
-*   **Heatmap Visualization**: Teachers can view a **3D Heatmap** in the Dashboard, showing "hotspots" where students focused their attention.
-*   **Data-Driven**: Identify confusing parts (high dwell time) or neglected components.
+
+- **Telemetry Tracking**: The VR Viewer silently tracks student gaze and dwell time on specific parts of the 3D model.
+- **Heatmap Visualization**: Teachers can view a **3D Heatmap** in the Dashboard, showing "hotspots" where students focused their attention.
+- **Data-Driven**: Identify confusing parts (high dwell time) or neglected components.
 
 ### 🏫 LMS Integration
-Seamlessly connect THE GEAR to your school's **Moodle**, **Canvas**, or **Sakai**.
-*   **LTI 1.3 Certified**: Compliant with the latest IMS learning standards.
-*   **SSO**: Automatic login and role mapping (Teachers/Students) when launching from a course.
-*   **Plug-and-Play**: Simple configuration via "External Tool" settings using provided JWKS endpoints.
 
+Seamlessly connect THE GEAR to your school's **Moodle**, **Canvas**, or **Sakai**.
+
+- **LTI 1.3 Certified**: Compliant with the latest IMS learning standards.
+- **SSO**: Automatic login and role mapping (Teachers/Students) when launching from a course.
+- **Plug-and-Play**: Simple configuration via "External Tool" settings using provided JWKS endpoints.
 
 ## 🧪 Automated Testing
 
 We maintain a high-quality codebase with an extensive **Playwright** E2E test suite:
-*   **Standard Flows**: Smoke tests for home, gallery, and model loading.
-*   **i18n Testing**: Automated validation of UI translations and language persistence.
-*   **Module Verification**: Specialized tests for **Auth**, **Academy**, and **Help Center** diagnostics.
-*   **Dilingual Matching**: Tests use flexible regex matching to support both English and Serbian UI states.
- 
- ## 🥽 Mixed Reality Features (v1.2 Update)
+
+- **Standard Flows**: Smoke tests for home, gallery, and model loading.
+- **i18n Testing**: Automated validation of UI translations and language persistence.
+- **Module Verification**: Specialized tests for **Auth**, **Academy**, and **Help Center** diagnostics.
+- **Dilingual Matching**: Tests use flexible regex matching to support both English and Serbian UI states.
+
+## 🥽 Mixed Reality Features (v1.2 Update)
 
 The PDB Viewer now supports advanced WebXR capabilities on compatible devices (e.g., Meta Quest 2/3/Pro):
 
-*   **AR Passthrough**: See the real world behind the molecule.
-*   **Hand Tracking**: Put down your controllers to use your bare hands.
-    *   **Pinch** to **Grab & Move** the molecule.
-    *   **Pinch** to Click buttons on the 3D Menu.
-*   **Controller Support**:
-    *   **Grab (Trigger/Grip)**: Move and rotate the molecule.
-    *   **Thumbstick Up/Down**: Scale the molecule (Zoom In/Out).
-*   **Spatial UI**: A floating 3D menu anchored in the real world.
-*   **Visualization Styles**: Switch instantly between **Ball & Stick**, **Spacefill**, and **Backbone** views.
-*   **Realism**: Dynamic shadows ground the virtual molecule in your physical space.
-*   **Two-Handed Interaction (v1.2.1)**:
-    *   **Pinch-to-Zoom**: Use both hands to intuitively scale the molecule.
-    *   **Two-Handed Rotation**: Rotate the molecule by moving your hands relative to each other.
+- **AR Passthrough**: See the real world behind the molecule.
+- **Hand Tracking**: Put down your controllers to use your bare hands.
+    - **Pinch** to **Grab & Move** the molecule.
+    - **Pinch** to Click buttons on the 3D Menu.
+- **Controller Support**:
+    - **Grab (Trigger/Grip)**: Move and rotate the molecule.
+    - **Thumbstick Up/Down**: Scale the molecule (Zoom In/Out).
+- **Spatial UI**: A floating 3D menu anchored in the real world.
+- **Visualization Styles**: Switch instantly between **Ball & Stick**, **Spacefill**, and **Backbone** views.
+- **Realism**: Dynamic shadows ground the virtual molecule in your physical space.
+- **Two-Handed Interaction (v1.2.1)**:
+    - **Pinch-to-Zoom**: Use both hands to intuitively scale the molecule.
+    - **Two-Handed Rotation**: Rotate the molecule by moving your hands relative to each other.
 
 ## 👥 Roles & Permissions
 
 The platform implements a strict Role-Based Access Control (RBAC) system:
 
-|Feature|Student|Teacher|Admin|
-|:---|:---:|:---:|:---:|
-|**View Models**|✅|✅|✅|
-|**Enter VR/AR**|✅|✅|✅|
-|**Upload Models**|✅|✅|✅|
-|**Edit Own Models**|✅|✅|✅|
-|**Delete Own Models**|✅|✅|✅|
-|**Edit/Delete ANY Model**|❌|❌|✅|
-|**Feature Models**|❌|❌|✅|
-|**Manage Users**|❌|❌|✅|
-|**Manage Sectors**|❌|❌|✅|
-|**System Config & Logs**|❌|❌|✅|
-|**Database Backup**|❌|❌|✅|
-|**Create Workshops**|✅|✅|✅|
+| Feature                   | Student | Teacher | Admin |
+| :------------------------ | :-----: | :-----: | :---: |
+| **View Models**           |   ✅    |   ✅    |  ✅   |
+| **Enter VR/AR**           |   ✅    |   ✅    |  ✅   |
+| **Upload Models**         |   ✅    |   ✅    |  ✅   |
+| **Edit Own Models**       |   ✅    |   ✅    |  ✅   |
+| **Delete Own Models**     |   ✅    |   ✅    |  ✅   |
+| **Edit/Delete ANY Model** |   ❌    |   ❌    |  ✅   |
+| **Feature Models**        |   ❌    |   ❌    |  ✅   |
+| **Manage Users**          |   ❌    |   ❌    |  ✅   |
+| **Manage Sectors**        |   ❌    |   ❌    |  ✅   |
+| **System Config & Logs**  |   ❌    |   ❌    |  ✅   |
+| **Database Backup**       |   ❌    |   ❌    |  ✅   |
+| **Create Workshops**      |   ✅    |   ✅    |  ✅   |
 
 ## 🛠 Tech Stack
 
 ### Frontend
-*   **React 19** (Vite)
-*   **TypeScript**
-*   **TailwindCSS** (Styling)
-*   **A-Frame** (WebXR Framework)
-*   **Three.js** (3D Rendering)
-*   **OpenCascade.js** (CAD Kernel)
-*   **Socket.io-client** (Real-time)
+
+- **React 19** (Vite)
+- **TypeScript**
+- **TailwindCSS** (Styling)
+- **A-Frame** (WebXR Framework)
+- **Three.js** (3D Rendering)
+- **OpenCascade.js** (CAD Kernel)
+- **Socket.io-client** (Real-time)
 
 ### Backend
-*   **Node.js / Express**
-*   **MariaDB / MySQL** (Database)
-*   **Socket.io** (WebSocket Server)
-*   **Multer** (File Uploads)
-*   **Adm-Zip** (Archive Processing)
-*   **Google Gemini API** (AI Features)
+
+- **Node.js / Express**
+- **MariaDB / MySQL** (Database)
+- **Socket.io** (WebSocket Server)
+- **Multer** (File Uploads)
+- **Adm-Zip** (Archive Processing)
+- **Google Gemini API** (AI Features)
 
 ---
 
 ## 💻 Local Initialization
 
 ### 1. Prerequisites
-*   Node.js (v20+)
-*   MariaDB or MySQL Server
+
+- Node.js (v20+)
+- MariaDB or MySQL Server
 
 ### 2. Installation
+
 ```bash
 # Clone the repository
 git clone https://github.com/blagojevicboban/GEAR.git
@@ -190,27 +209,32 @@ npm install
 ```
 
 ### 3. Database Setup
+
 1.  Create a MySQL/MariaDB database named `gear`.
 2.  **Option A: Developer Quick Start (Recommended)**
     Reset and seed the database with standard tables and sample data:
+
     ```bash
     npm run seed
     ```
-    *Note: This command clears existing data in the `gear` database.*
+
+    _Note: This command clears existing data in the `gear` database._
 
 3.  **Option B: Manual / Production Setup**
-    *   **Initialize Schema**:
+    - **Initialize Schema**:
         ```bash
         mysql -u gear -p gear < scripts/gear_full_dump.sql
         ```
-    *   **Apply Migrations** (Critical for updates):
+    - **Apply Migrations** (Critical for updates):
         ```bash
         mysql -u gear -p gear < scripts/migration_add_featured.sql
         mysql -u gear -p gear < scripts/migration_add_workshops.sql
         ```
 
 ### 4. Environment Configuration
+
 Create a `.env` file in the root directory:
+
 ```env
 DB_HOST=localhost
 DB_USER=gear
@@ -220,43 +244,52 @@ API_KEY=your_google_gemini_api_key
 ```
 
 ### 5. Running Locally
+
 ```bash
 # Start Development Server (Frontend + Backend concurrently)
 npm run dev
 ```
-*   **Vite Frontend (Proxy)**: `http://localhost:3000`
-*   **Backend API**: `http://localhost:3001`
+
+- **Vite Frontend (Proxy)**: `http://localhost:3000`
+- **Backend API**: `http://localhost:3001`
 
 ### Default Admin Credentials
+
 If you used `npm run seed`, a default admin account is available:
-*   **Email**: `boban@example.com`
-*   **Password**: `admin123`
+
+- **Email**: `boban@example.com`
+- **Password**: `admin123`
 
 To run in production mode (serving built files):
+
 ```bash
 npm run build
 npm run start
 ```
-*   **App**: `http://localhost:3001`
+
+- **App**: `http://localhost:3001`
 
 ---
 
 ## 🌍 Deployment (Production)
 
 ### Server Requirements
-*   Linux Server (Ubuntu/Debian recommended)
-*   Node.js & NPM
-*   PM2 (Process Manager)
-*   Nginx (Web Server / Proxy)
-*   MariaDB/MySQL
 
+- Linux Server (Ubuntu/Debian recommended)
+- Node.js & NPM
+- PM2 (Process Manager)
+- Nginx (Web Server / Proxy)
+- MariaDB/MySQL
 
 ### Deployment Scripts
-*   `deployment/deploy.sh`: Basic script used by the webhook for local build and restart.
-*   `scripts/deploy_full.sh`: Full automated deployment utility (Database Sync + Uploads + SSH Trigger).
+
+- `deployment/deploy.sh`: Basic script used by the webhook for local build and restart.
+- `scripts/deploy_full.sh`: Full automated deployment utility (Database Sync + Uploads + SSH Trigger).
 
 ### Manual Deployment Steps
+
 1.  **Pull Code**:
+
     ```bash
     cd /path/to/app
     git pull origin main
@@ -266,6 +299,7 @@ npm run start
 
 2.  **Database Migration**:
     Ensure valid database structure.
+
     ```bash
     mariadb -u gear -p gear < scripts/migration_add_featured.sql
     mariadb -u gear -p gear < scripts/migration_add_workshops.sql
@@ -279,18 +313,22 @@ npm run start
     ```
 
 ### 🔄 Automated Deployment (CI/CD)
-The project includes a built-in Webhook listener (`deployment/webhook.js`) running on port `9000`. 
+
+The project includes a built-in Webhook listener (`deployment/webhook.js`) running on port `9000`.
 When a `push` event is received from GitHub/GitLab:
+
 1.  The webhook triggers `deployment/deploy.sh`.
 2.  It pulls the latest code (`git pull`).
 3.  Installs dependencies and rebuilds the frontend.
 4.  **Restarts the Backend** (`pm2 restart gear-backend`) to apply changes.
 
 **To enable this:**
+
 1.  Configure a Webhook in your GitHub Repo Settings pointing to `http://your-server-ip:9000`.
 2.  Ensure `gear-webhook` is running via PM2.
 
 ### 🔧 Nginx Configuration (Critical)
+
 The application assumes it is running behind a proxy. Ensure your Nginx config proxies `/api` requests to the Node.js backend (default port 3001).
 
 **Important**: The application uses `/api/uploads` to serve static assets on production to avoid Nginx 404 errors for direct file access.
@@ -316,6 +354,7 @@ location /socket.io/ {
 ```
 
 ### Option B: Apache / Virtualmin Configuration
+
 If you are using Apache (common with Virtualmin), use `ProxyPass` and `RewriteRule` for WebSocket support.
 
 ```apache
@@ -357,27 +396,33 @@ If you are using Apache (common with Virtualmin), use `ProxyPass` and `RewriteRu
 ## 🐛 Troubleshooting
 
 ### "Failed to load resource" (Images/Models 404)
-*   **Cause**: Nginx is trying to serve `/uploads/...` from the React `dist` folder instead of the backend.
-*   **Fix**: The code automatically rewrites URLs to `/api/uploads/...`. Ensure your backend is running and Nginx is correctly proxying `/api` to `localhost:3001`.
+
+- **Cause**: Nginx is trying to serve `/uploads/...` from the React `dist` folder instead of the backend.
+- **Fix**: The code automatically rewrites URLs to `/api/uploads/...`. Ensure your backend is running and Nginx is correctly proxying `/api` to `localhost:3001`.
 
 ### Database Connection Error
-*   Check `.env` file credentials.
-*   Ensure MariaDB service is running (`systemctl status mariadb`).
+
+- Check `.env` file credentials.
+- Ensure MariaDB service is running (`systemctl status mariadb`).
 
 ### Socket.io / Workshop Connection Issues
-*   **Symptoms**: Cannot join workshops or see other users.
-*   **Fix**: Ensure Nginx is proxying `/socket.io/` with the correct `Upgrade` and `Connection` headers as shown in the Nginx Configuration section.
+
+- **Symptoms**: Cannot join workshops or see other users.
+- **Fix**: Ensure Nginx is proxying `/socket.io/` with the correct `Upgrade` and `Connection` headers as shown in the Nginx Configuration section.
 
 ### 500 Error on Upload
-*   **Cause**: Missing database columns.
-*   **Fix**: Run `scripts/migration_add_featured.sql` to add `isFeatured` column.
+
+- **Cause**: Missing database columns.
+- **Fix**: Run `scripts/migration_add_featured.sql` to add `isFeatured` column.
 
 ### Server Errors (500)
-*   The backend logs detailed errors to `server_error.log` in the project root. Check this file for stack traces if API requests fail.
+
+- The backend logs detailed errors to `server_error.log` in the project root. Check this file for stack traces if API requests fail.
 
 ---
 
 ## 🤝 Contributing
+
 1.  Fork the Project
 2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
 3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
@@ -388,5 +433,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## 📖 Documentation
 
-*   [API Reference](docs/API.md): Detailed documentation of backend endpoints.
-*   [Developer Guide](CONTRIBUTING.md): Setup, testing, and architecture.
+- [API Reference](docs/API.md): Detailed documentation of backend endpoints.
+- [Developer Guide](CONTRIBUTING.md): Setup, testing, and architecture.

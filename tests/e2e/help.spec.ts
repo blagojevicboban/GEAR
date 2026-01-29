@@ -9,11 +9,17 @@ test('help page content and diagnostics', async ({ page }) => {
     await helpBtn.click();
 
     // Verify Title
-    await expect(page.getByText(/How to use THE GEAR|Kako koristiti THE GEAR/i)).toBeVisible();
+    await expect(
+        page.getByText(/How to use THE GEAR|Kako koristiti THE GEAR/i)
+    ).toBeVisible();
 
     // Check system diagnostics
-    await expect(page.getByText(/System Diagnostics|Sistemska dijagnostika/i)).toBeVisible();
+    await expect(
+        page.getByText(/System Diagnostics|Sistemska dijagnostika/i)
+    ).toBeVisible();
 
     // Check VR Quick Start section
-    await expect(page.getByText(/VR Mode Quick Start|Uputstvo za VR režim/i)).toBeVisible();
+    await expect(
+        page.getByText(/VR Mode Quick Start|Uputstvo za VR režim/i)
+    ).toBeVisible();
 });

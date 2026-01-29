@@ -11,7 +11,9 @@ test('i18n language switching', async ({ page }) => {
 
     // Find language toggle button. In Navbar it has title=t('nav.language')
     // and displays 'EN' or 'SR'.
-    const langToggle = page.locator('button:has-text("EN"), button:has-text("SR")');
+    const langToggle = page.locator(
+        'button:has-text("EN"), button:has-text("SR")'
+    );
     await expect(langToggle).toBeVisible();
 
     const currentLang = await langToggle.innerText();

@@ -5,9 +5,13 @@ async function addStepImageColumn() {
         const connection = await pool.getConnection();
         console.log('Adding image_url column to lesson_steps table...');
 
-        const [columns] = await connection.query("SHOW COLUMNS FROM lesson_steps LIKE 'image_url'");
+        const [columns] = await connection.query(
+            "SHOW COLUMNS FROM lesson_steps LIKE 'image_url'"
+        );
         if (columns.length === 0) {
-            await connection.query('ALTER TABLE lesson_steps ADD COLUMN image_url VARCHAR(500) DEFAULT NULL');
+            await connection.query(
+                'ALTER TABLE lesson_steps ADD COLUMN image_url VARCHAR(500) DEFAULT NULL'
+            );
             console.log('Column image_url added.');
         } else {
             console.log('Column image_url already exists.');

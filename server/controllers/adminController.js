@@ -4,7 +4,10 @@ import path from 'path';
 
 const getUserRole = async (username) => {
     if (!username) return null;
-    const [users] = await pool.query('SELECT role FROM users WHERE username = ?', [username]);
+    const [users] = await pool.query(
+        'SELECT role FROM users WHERE username = ?',
+        [username]
+    );
     return users.length > 0 ? users[0].role : null;
 };
 
@@ -36,7 +39,7 @@ export const getConfig = async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM system_settings');
         const config = {};
-        rows.forEach(r => config[r.setting_key] = r.setting_value);
+        rows.forEach((r) => (config[r.setting_key] = r.setting_value));
         res.json(config);
     } catch (err) {
         console.error(err);
@@ -50,7 +53,8 @@ export const updateConfig = async (req, res) => {
 
     try {
         const role = await getUserRole(requestor);
-        if (role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
+        if (role !== 'admin')
+            return res.status(403).json({ error: 'Forbidden' });
 
         for (const [key, value] of Object.entries(settings)) {
             await pool.query(
@@ -71,9 +75,18 @@ export const getBackup = async (req, res) => {
 
     try {
         const role = await getUserRole(requestor);
-        if (role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
+        if (role !== 'admin')
+            return res.status(403).json({ error: 'Forbidden' });
 
-        const tables = ['users', 'models', 'workshops', 'sectors', 'lessons', 'hotspots', 'system_settings'];
+        const tables = [
+            'users',
+            'models',
+            'workshops',
+            'sectors',
+            'lessons',
+            'hotspots',
+            'system_settings',
+        ];
 
         if (format === 'sql') {
             let sqlDump = `-- GEAR Database Backup\n-- Generated: ${new Date().toISOString()}\n\n`;
@@ -86,34 +99,42 @@ export const getBackup = async (req, res) => {
                         sqlDump += `LOCK TABLES \`${table}\` WRITE;\n`;
                         sqlDump += `/*!40000 ALTER TABLE \`${table}\` DISABLE KEYS */;\n`;
 
-                        const insertStatements = rows.map(row => {
-                            const values = Object.values(row).map(val => {
-                                if (val === null) return 'NULL';
-                                if (typeof val === 'number') return val;
-                                // Escape single quotes and backslashes
-                                return `'${String(val).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
-                            }).join(', ');
-                            return `INSERT INTO \`${table}\` VALUES (${values});`;
-                        }).join('\n');
+                        const insertStatements = rows
+                            .map((row) => {
+                                const values = Object.values(row)
+                                    .map((val) => {
+                                        if (val === null) return 'NULL';
+                                        if (typeof val === 'number') return val;
+                                        // Escape single quotes and backslashes
+                                        return `'${String(val).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+                                    })
+                                    .join(', ');
+                                return `INSERT INTO \`${table}\` VALUES (${values});`;
+                            })
+                            .join('\n');
 
                         sqlDump += insertStatements + '\n';
                         sqlDump += `/*!40000 ALTER TABLE \`${table}\` ENABLE KEYS */;\n`;
                         sqlDump += `UNLOCK TABLES;\n`;
                     }
                 } catch (e) {
-                    console.warn(`Skipping table ${table} in backup: ${e.message}`);
+                    console.warn(
+                        `Skipping table ${table} in backup: ${e.message}`
+                    );
                 }
             }
 
-            res.setHeader('Content-Disposition', `attachment; filename="gear_backup_${Date.now()}.sql"`);
+            res.setHeader(
+                'Content-Disposition',
+                `attachment; filename="gear_backup_${Date.now()}.sql"`
+            );
             res.setHeader('Content-Type', 'application/sql');
             res.send(sqlDump);
-
         } else {
             // Default JSON
             const backupData = {
                 timestamp: new Date().toISOString(),
-                tables: {}
+                tables: {},
             };
 
             for (const table of tables) {
@@ -121,15 +142,19 @@ export const getBackup = async (req, res) => {
                     const [rows] = await pool.query(`SELECT * FROM ${table}`);
                     backupData.tables[table] = rows;
                 } catch (e) {
-                    console.warn(`Skipping table ${table} in backup: ${e.message}`);
+                    console.warn(
+                        `Skipping table ${table} in backup: ${e.message}`
+                    );
                 }
             }
 
-            res.setHeader('Content-Disposition', `attachment; filename="gear_backup_${Date.now()}.json"`);
+            res.setHeader(
+                'Content-Disposition',
+                `attachment; filename="gear_backup_${Date.now()}.json"`
+            );
             res.setHeader('Content-Type', 'application/json');
             res.send(JSON.stringify(backupData, null, 2));
         }
-
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Backup failed' });
@@ -156,12 +181,16 @@ export const restoreBackup = async (req, res) => {
             const sqlContent = fs.readFileSync(req.file.path, 'utf8');
             try {
                 await pool.query(sqlContent);
-                res.json({ success: true, message: 'Database restored successfully (SQL).' });
+                res.json({
+                    success: true,
+                    message: 'Database restored successfully (SQL).',
+                });
             } catch (sqlErr) {
-                console.error("SQL Restore Error:", sqlErr);
-                res.status(500).json({ error: 'SQL Execution Failed: ' + sqlErr.message });
+                console.error('SQL Restore Error:', sqlErr);
+                res.status(500).json({
+                    error: 'SQL Execution Failed: ' + sqlErr.message,
+                });
             }
-
         } else if (ext === '.json') {
             const jsonContent = fs.readFileSync(req.file.path, 'utf8');
             const data = JSON.parse(jsonContent);
@@ -171,28 +200,47 @@ export const restoreBackup = async (req, res) => {
                 for (const table of tables) {
                     const rows = data.tables[table];
                     if (rows.length > 0) {
-                        const columns = Object.keys(rows[0]).map(c => `\`${c}\``).join(', ');
-                        const values = rows.map(row => {
-                            return '(' + Object.values(row).map(val => pool.escape(val)).join(', ') + ')';
-                        }).join(', ');
-                        await pool.query(`REPLACE INTO \`${table}\` (${columns}) VALUES ${values}`);
+                        const columns = Object.keys(rows[0])
+                            .map((c) => `\`${c}\``)
+                            .join(', ');
+                        const values = rows
+                            .map((row) => {
+                                return (
+                                    '(' +
+                                    Object.values(row)
+                                        .map((val) => pool.escape(val))
+                                        .join(', ') +
+                                    ')'
+                                );
+                            })
+                            .join(', ');
+                        await pool.query(
+                            `REPLACE INTO \`${table}\` (${columns}) VALUES ${values}`
+                        );
                     }
                 }
-                res.json({ success: true, message: 'Database restored successfully (JSON Upsert).' });
+                res.json({
+                    success: true,
+                    message: 'Database restored successfully (JSON Upsert).',
+                });
             } catch (jsonErr) {
-                console.error("JSON Restore Error:", jsonErr);
-                res.status(500).json({ error: 'JSON Import Failed: ' + jsonErr.message });
+                console.error('JSON Restore Error:', jsonErr);
+                res.status(500).json({
+                    error: 'JSON Import Failed: ' + jsonErr.message,
+                });
             }
-
         } else {
-            res.status(400).json({ error: 'Unsupported file format. Use .sql or .json' });
+            res.status(400).json({
+                error: 'Unsupported file format. Use .sql or .json',
+            });
         }
 
-        if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-
+        if (req.file && fs.existsSync(req.file.path))
+            fs.unlinkSync(req.file.path);
     } catch (err) {
         console.error(err);
-        if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+        if (req.file && fs.existsSync(req.file.path))
+            fs.unlinkSync(req.file.path);
         res.status(500).json({ error: 'Restore failed' });
     }
 };

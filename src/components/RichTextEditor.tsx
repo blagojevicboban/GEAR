@@ -1,5 +1,16 @@
 import React, { useRef, useEffect } from 'react';
-import { Bold, Italic, List, ListOrdered, Heading1, Heading2, Quote, Code, Undo, Redo } from 'lucide-react';
+import {
+    Bold,
+    Italic,
+    List,
+    ListOrdered,
+    Heading1,
+    Heading2,
+    Quote,
+    Code,
+    Undo,
+    Redo,
+} from 'lucide-react';
 
 interface RichTextEditorProps {
     value: string;
@@ -8,7 +19,12 @@ interface RichTextEditorProps {
     onPaste?: (e: React.ClipboardEvent) => void;
 }
 
-const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeholder, onPaste }) => {
+const RichTextEditor: React.FC<RichTextEditorProps> = ({
+    value,
+    onChange,
+    placeholder,
+    onPaste,
+}) => {
     const editorRef = useRef<HTMLDivElement>(null);
 
     // Initial render sync
@@ -41,20 +57,60 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
         <div className="flex flex-col bg-slate-950/50 border border-slate-700 rounded-lg overflow-hidden focus-within:ring-1 focus-within:ring-indigo-500 transition-all">
             {/* Toolbar */}
             <div className="flex items-center gap-1 p-2 bg-slate-900 border-b border-slate-700">
-                <ToolbarButton onClick={() => execCmd('undo')} icon={<Undo size={16} />} title="Undo" />
-                <ToolbarButton onClick={() => execCmd('redo')} icon={<Redo size={16} />} title="Redo" />
+                <ToolbarButton
+                    onClick={() => execCmd('undo')}
+                    icon={<Undo size={16} />}
+                    title="Undo"
+                />
+                <ToolbarButton
+                    onClick={() => execCmd('redo')}
+                    icon={<Redo size={16} />}
+                    title="Redo"
+                />
                 <div className="w-px h-4 bg-slate-700 mx-1" />
-                <ToolbarButton onClick={() => execCmd('bold')} icon={<Bold size={16} />} title="Bold" />
-                <ToolbarButton onClick={() => execCmd('italic')} icon={<Italic size={16} />} title="Italic" />
+                <ToolbarButton
+                    onClick={() => execCmd('bold')}
+                    icon={<Bold size={16} />}
+                    title="Bold"
+                />
+                <ToolbarButton
+                    onClick={() => execCmd('italic')}
+                    icon={<Italic size={16} />}
+                    title="Italic"
+                />
                 <div className="w-px h-4 bg-slate-700 mx-1" />
-                <ToolbarButton onClick={() => execCmd('formatBlock', 'H2')} icon={<Heading1 size={16} />} title="Header 1" />
-                <ToolbarButton onClick={() => execCmd('formatBlock', 'H3')} icon={<Heading2 size={16} />} title="Header 2" />
+                <ToolbarButton
+                    onClick={() => execCmd('formatBlock', 'H2')}
+                    icon={<Heading1 size={16} />}
+                    title="Header 1"
+                />
+                <ToolbarButton
+                    onClick={() => execCmd('formatBlock', 'H3')}
+                    icon={<Heading2 size={16} />}
+                    title="Header 2"
+                />
                 <div className="w-px h-4 bg-slate-700 mx-1" />
-                <ToolbarButton onClick={() => execCmd('insertUnorderedList')} icon={<List size={16} />} title="Bullet List" />
-                <ToolbarButton onClick={() => execCmd('insertOrderedList')} icon={<ListOrdered size={16} />} title="Numbered List" />
+                <ToolbarButton
+                    onClick={() => execCmd('insertUnorderedList')}
+                    icon={<List size={16} />}
+                    title="Bullet List"
+                />
+                <ToolbarButton
+                    onClick={() => execCmd('insertOrderedList')}
+                    icon={<ListOrdered size={16} />}
+                    title="Numbered List"
+                />
                 <div className="w-px h-4 bg-slate-700 mx-1" />
-                <ToolbarButton onClick={() => execCmd('formatBlock', 'BLOCKQUOTE')} icon={<Quote size={16} />} title="Quote" />
-                <ToolbarButton onClick={() => execCmd('formatBlock', 'PRE')} icon={<Code size={16} />} title="Code Block" />
+                <ToolbarButton
+                    onClick={() => execCmd('formatBlock', 'BLOCKQUOTE')}
+                    icon={<Quote size={16} />}
+                    title="Quote"
+                />
+                <ToolbarButton
+                    onClick={() => execCmd('formatBlock', 'PRE')}
+                    icon={<Code size={16} />}
+                    title="Code Block"
+                />
             </div>
 
             {/* Editable Area */}
@@ -79,7 +135,11 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
     );
 };
 
-const ToolbarButton: React.FC<{ onClick: () => void; icon: React.ReactNode; title: string }> = ({ onClick, icon, title }) => (
+const ToolbarButton: React.FC<{
+    onClick: () => void;
+    icon: React.ReactNode;
+    title: string;
+}> = ({ onClick, icon, title }) => (
     <button
         onMouseDown={(e) => {
             e.preventDefault(); // Prevent focus loss

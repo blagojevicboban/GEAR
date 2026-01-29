@@ -44,21 +44,40 @@ export const extractZip = async (filePath, originalName) => {
         };
 
         const allFiles = getFiles(extractDir);
-        const extensions = ['.step', '.stp', '.sldasm', '.catproduct', '.iam', '.asm'];
-        const candidates = allFiles.filter(f => extensions.includes(path.extname(f).toLowerCase()));
+        const extensions = [
+            '.step',
+            '.stp',
+            '.sldasm',
+            '.catproduct',
+            '.iam',
+            '.asm',
+        ];
+        const candidates = allFiles.filter((f) =>
+            extensions.includes(path.extname(f).toLowerCase())
+        );
 
         let mainFile;
-        const rootFiles = candidates.filter(f => path.dirname(f) === extractDir);
+        const rootFiles = candidates.filter(
+            (f) => path.dirname(f) === extractDir
+        );
 
         if (rootFiles.length > 0) {
-            mainFile = rootFiles.sort((a, b) => fs.statSync(b).size - fs.statSync(a).size)[0];
+            mainFile = rootFiles.sort(
+                (a, b) => fs.statSync(b).size - fs.statSync(a).size
+            )[0];
         } else if (candidates.length > 0) {
-            mainFile = candidates.sort((a, b) => fs.statSync(b).size - fs.statSync(a).size)[0];
+            mainFile = candidates.sort(
+                (a, b) => fs.statSync(b).size - fs.statSync(a).size
+            )[0];
         }
 
         // Fallback to parts
         if (!mainFile) {
-            const parts = allFiles.filter(f => ['.sldprt', '.ipt', '.prt', '.catpart'].includes(path.extname(f).toLowerCase()));
+            const parts = allFiles.filter((f) =>
+                ['.sldprt', '.ipt', '.prt', '.catpart'].includes(
+                    path.extname(f).toLowerCase()
+                )
+            );
             if (parts.length > 0) mainFile = parts[0];
         }
 
@@ -69,9 +88,8 @@ export const extractZip = async (filePath, originalName) => {
         }
 
         return null; // Extraction worked but no main file found
-
     } catch (zipErr) {
-        console.error("ZIP extraction failed:", zipErr);
+        console.error('ZIP extraction failed:', zipErr);
         throw zipErr;
     }
 };

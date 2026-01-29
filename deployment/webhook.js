@@ -16,7 +16,7 @@ const DEPLOY_SCRIPT = './deployment/deploy.sh';
 const server = http.createServer((req, res) => {
     if (req.method === 'POST') {
         let body = '';
-        req.on('data', chunk => {
+        req.on('data', (chunk) => {
             body += chunk.toString();
         });
 
@@ -31,7 +31,7 @@ const server = http.createServer((req, res) => {
                 }
 
                 // Import crypto dynamically
-                import('crypto').then(crypto => {
+                import('crypto').then((crypto) => {
                     const hmac = crypto.createHmac('sha256', SECRET);
                     const digest = 'sha256=' + hmac.update(body).digest('hex');
 
@@ -73,7 +73,9 @@ function triggerDeploy(res) {
 
         child.on('close', (code) => {
             if (code === 0) {
-                console.log('Deployment script execution finished successfully.');
+                console.log(
+                    'Deployment script execution finished successfully.'
+                );
                 if (!res.writableEnded) {
                     res.writeHead(200);
                     res.end('Deployment Triggered & Script Finished');

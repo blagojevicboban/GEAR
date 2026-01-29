@@ -22,13 +22,17 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
     onSaveSuccess,
     onCancel,
     availableModels,
-    availableSectors
+    availableSectors,
 }) => {
     const { t } = useTranslation();
     // Lesson Metadata State
     const [title, setTitle] = useState(lessonToEdit?.title || '');
-    const [description, setDescription] = useState(lessonToEdit?.description || '');
-    const [sector, setSector] = useState(lessonToEdit?.sector || (availableSectors[0] || 'Mechatronics'));
+    const [description, setDescription] = useState(
+        lessonToEdit?.description || ''
+    );
+    const [sector, setSector] = useState(
+        lessonToEdit?.sector || availableSectors[0] || 'Mechatronics'
+    );
     const [imageUrl, setImageUrl] = useState(lessonToEdit?.image_url || '');
     const [isUploading, setIsUploading] = useState(false);
 
@@ -36,7 +40,9 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
     const [steps, setSteps] = useState<LessonStep[]>([]);
 
     // Picker Modal State
-    const [pickingStepIndex, setPickingStepIndex] = useState<number | null>(null);
+    const [pickingStepIndex, setPickingStepIndex] = useState<number | null>(
+        null
+    );
     const [pickerModel, setPickerModel] = useState<VETModel | null>(null);
 
     useEffect(() => {
@@ -45,26 +51,28 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
             if (lessonToEdit.image_url) setImageUrl(lessonToEdit.image_url);
         } else if (lessonToEdit) {
             fetch(`/api/lessons/${lessonToEdit.id}`)
-                .then(res => res.json())
-                .then(data => {
+                .then((res) => res.json())
+                .then((data) => {
                     if (data.steps) setSteps(data.steps);
                     if (data.image_url) setImageUrl(data.image_url);
                 });
         } else {
             // New lesson, start with one empty step
-            setSteps([{
-                id: '', // new
-                lesson_id: '',
-                step_order: 1,
-                title: t('lessons.editor.intro_title'),
-                content: t('lessons.editor.intro_content'),
-                model_id: ''
-            }]);
+            setSteps([
+                {
+                    id: '', // new
+                    lesson_id: '',
+                    step_order: 1,
+                    title: t('lessons.editor.intro_title'),
+                    content: t('lessons.editor.intro_content'),
+                    model_id: '',
+                },
+            ]);
         }
     }, [lessonToEdit]);
 
     const handleAddStep = () => {
-        setSteps(prev => [
+        setSteps((prev) => [
             ...prev,
             {
                 id: '',
@@ -72,8 +80,8 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                 step_order: prev.length + 1,
                 title: `${t('lessons.editor.add_step').split(' ')[1]} ${prev.length + 1}`,
                 content: '',
-                model_id: ''
-            }
+                model_id: '',
+            },
         ]);
     };
 
@@ -84,7 +92,11 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
         setSteps(newSteps.map((s, i) => ({ ...s, step_order: i + 1 })));
     };
 
-    const handleStepChange = (index: number, field: keyof LessonStep, value: any) => {
+    const handleStepChange = (
+        index: number,
+        field: keyof LessonStep,
+        value: any
+    ) => {
         const newSteps = [...steps];
         newSteps[index] = { ...newSteps[index], [field]: value };
         setSteps(newSteps);
@@ -96,13 +108,18 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
 
         const newSteps = [...steps];
         const swapIndex = direction === 'up' ? index - 1 : index + 1;
-        [newSteps[index], newSteps[swapIndex]] = [newSteps[swapIndex], newSteps[index]];
+        [newSteps[index], newSteps[swapIndex]] = [
+            newSteps[swapIndex],
+            newSteps[index],
+        ];
 
         // Reassign order
         setSteps(newSteps.map((s, i) => ({ ...s, step_order: i + 1 })));
     };
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageUpload = async (
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
@@ -113,7 +130,7 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
         try {
             const res = await fetch('/api/upload', {
                 method: 'POST',
-                body: formData
+                body: formData,
             });
             const data = await res.json();
             if (res.ok) {
@@ -136,7 +153,7 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
         try {
             const res = await fetch('/api/upload', {
                 method: 'POST',
-                body: formData
+                body: formData,
             });
             const data = await res.json();
             if (res.ok) {
@@ -152,7 +169,10 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
         }
     };
 
-    const handleStepImageUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleStepImageUpload = async (
+        index: number,
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
@@ -162,7 +182,11 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
         }
     };
 
-    const handlePaste = async (index: number, e: React.ClipboardEvent, target: 'content' | 'image') => {
+    const handlePaste = async (
+        index: number,
+        e: React.ClipboardEvent,
+        target: 'content' | 'image'
+    ) => {
         const items = e.clipboardData.items;
         let file = null;
 
@@ -200,7 +224,11 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
 
     const handleObjectClick = (meshName: string) => {
         if (pickingStepIndex !== null) {
-            handleStepChange(pickingStepIndex, 'interaction_data', JSON.stringify({ targetMesh: meshName }));
+            handleStepChange(
+                pickingStepIndex,
+                'interaction_data',
+                JSON.stringify({ targetMesh: meshName })
+            );
             setPickingStepIndex(null);
             setPickerModel(null);
         }
@@ -214,7 +242,7 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
             description,
             sector_id: sector,
             image_url: imageUrl,
-            steps: steps
+            steps: steps,
         };
 
         try {
@@ -230,9 +258,9 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                 method,
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-User-Name': currentUser.username
+                    'X-User-Name': currentUser.username,
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
             });
 
             if (res.ok) {
@@ -253,11 +281,16 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
             {/* Header */}
             <div className="flex items-center justify-between mb-8 pb-6 border-b border-slate-800">
                 <div className="flex items-center gap-4">
-                    <button onClick={onCancel} className="p-2 hover:bg-slate-800 rounded-full transition-colors">
+                    <button
+                        onClick={onCancel}
+                        className="p-2 hover:bg-slate-800 rounded-full transition-colors"
+                    >
                         <ArrowLeft />
                     </button>
                     <h1 className="text-2xl font-bold text-white">
-                        {lessonToEdit ? t('lessons.editor.edit_title') : t('lessons.editor.create_title')}
+                        {lessonToEdit
+                            ? t('lessons.editor.edit_title')
+                            : t('lessons.editor.create_title')}
                     </h1>
                 </div>
                 <button
@@ -273,32 +306,44 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-1">{t('lessons.editor.lesson_title')}</label>
+                        <label className="block text-sm font-medium text-slate-400 mb-1">
+                            {t('lessons.editor.lesson_title')}
+                        </label>
                         <input
                             type="text"
                             value={title}
-                            onChange={e => setTitle(e.target.value)}
+                            onChange={(e) => setTitle(e.target.value)}
                             className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                             placeholder={t('lessons.editor.title_placeholder')}
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-1">{t('lessons.editor.sector')}</label>
+                        <label className="block text-sm font-medium text-slate-400 mb-1">
+                            {t('lessons.editor.sector')}
+                        </label>
                         <select
                             value={sector}
-                            onChange={e => setSector(e.target.value)}
+                            onChange={(e) => setSector(e.target.value)}
                             className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                         >
-                            {availableSectors.map(s => (
-                                <option key={s} value={s}>{s}</option>
+                            {availableSectors.map((s) => (
+                                <option key={s} value={s}>
+                                    {s}
+                                </option>
                             ))}
                         </select>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-1">{t('lessons.editor.image')}</label>
+                        <label className="block text-sm font-medium text-slate-400 mb-1">
+                            {t('lessons.editor.image')}
+                        </label>
                         <div className="flex items-center gap-4">
                             {imageUrl && (
-                                <img src={imageUrl} alt="Preview" className="w-16 h-16 object-cover rounded-lg border border-slate-700" />
+                                <img
+                                    src={imageUrl}
+                                    alt="Preview"
+                                    className="w-16 h-16 object-cover rounded-lg border border-slate-700"
+                                />
                             )}
                             <input
                                 type="file"
@@ -307,14 +352,20 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                                 className="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-500/10 file:text-indigo-400 hover:file:bg-indigo-500/20"
                             />
                         </div>
-                        {isUploading && <p className="text-xs text-indigo-400 mt-1">{t('lessons.editor.uploading')}</p>}
+                        {isUploading && (
+                            <p className="text-xs text-indigo-400 mt-1">
+                                {t('lessons.editor.uploading')}
+                            </p>
+                        )}
                     </div>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-1">{t('lessons.editor.description')}</label>
+                    <label className="block text-sm font-medium text-slate-400 mb-1">
+                        {t('lessons.editor.description')}
+                    </label>
                     <textarea
                         value={description}
-                        onChange={e => setDescription(e.target.value)}
+                        onChange={(e) => setDescription(e.target.value)}
                         className="w-full h-[180px] bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
                         placeholder={t('lessons.editor.desc_placeholder')}
                     ></textarea>
@@ -324,7 +375,9 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
             {/* Steps Editor */}
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-white">{t('lessons.editor.steps_title')}</h2>
+                    <h2 className="text-xl font-bold text-white">
+                        {t('lessons.editor.steps_title')}
+                    </h2>
                     <button
                         onClick={handleAddStep}
                         className="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center gap-1"
@@ -335,15 +388,31 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
 
                 <div className="space-y-4">
                     {steps.map((step, index) => (
-                        <div key={index} className="bg-slate-800 rounded-xl p-6 border border-slate-700 relative group">
+                        <div
+                            key={index}
+                            className="bg-slate-800 rounded-xl p-6 border border-slate-700 relative group"
+                        >
                             <div className="absolute top-4 right-4 flex items-center gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button onClick={() => handleMoveStep(index, 'up')} disabled={index === 0} className="p-1 hover:bg-slate-700 rounded text-slate-400 disabled:opacity-30">
+                                <button
+                                    onClick={() => handleMoveStep(index, 'up')}
+                                    disabled={index === 0}
+                                    className="p-1 hover:bg-slate-700 rounded text-slate-400 disabled:opacity-30"
+                                >
                                     <MoveUp size={16} />
                                 </button>
-                                <button onClick={() => handleMoveStep(index, 'down')} disabled={index === steps.length - 1} className="p-1 hover:bg-slate-700 rounded text-slate-400 disabled:opacity-30">
+                                <button
+                                    onClick={() =>
+                                        handleMoveStep(index, 'down')
+                                    }
+                                    disabled={index === steps.length - 1}
+                                    className="p-1 hover:bg-slate-700 rounded text-slate-400 disabled:opacity-30"
+                                >
                                     <MoveDown size={16} />
                                 </button>
-                                <button onClick={() => handleRemoveStep(index)} className="p-1 hover:bg-rose-900/30 text-rose-500 rounded ml-2">
+                                <button
+                                    onClick={() => handleRemoveStep(index)}
+                                    className="p-1 hover:bg-rose-900/30 text-rose-500 rounded ml-2"
+                                >
                                     <Trash2 size={16} />
                                 </button>
                             </div>
@@ -355,73 +424,183 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                                 <input
                                     type="text"
                                     value={step.title}
-                                    onChange={(e) => handleStepChange(index, 'title', e.target.value)}
+                                    onChange={(e) =>
+                                        handleStepChange(
+                                            index,
+                                            'title',
+                                            e.target.value
+                                        )
+                                    }
                                     className="bg-transparent border-b border-transparent hover:border-slate-600 focus:border-indigo-500 outline-none text-lg font-bold text-indigo-300 w-full max-w-md px-2"
-                                    placeholder={t('lessons.editor.step_title_placeholder')}
+                                    placeholder={t(
+                                        'lessons.editor.step_title_placeholder'
+                                    )}
                                 />
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">{t('lessons.editor.step_type')}</label>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+                                        {t('lessons.editor.step_type')}
+                                    </label>
                                     <div className="flex gap-2 mb-4">
-                                        {(['read', 'quiz', 'find_part'] as const).map(type => (
+                                        {(
+                                            [
+                                                'read',
+                                                'quiz',
+                                                'find_part',
+                                            ] as const
+                                        ).map((type) => (
                                             <button
                                                 key={type}
-                                                onClick={() => handleStepChange(index, 'interaction_type', type)}
-                                                className={`flex-1 py-2 rounded-lg text-sm font-bold capitalize border transition-all ${(step.interaction_type || 'read') === type
-                                                    ? 'bg-indigo-600 border-indigo-500 text-white'
-                                                    : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-600'
-                                                    }`}
+                                                onClick={() =>
+                                                    handleStepChange(
+                                                        index,
+                                                        'interaction_type',
+                                                        type
+                                                    )
+                                                }
+                                                className={`flex-1 py-2 rounded-lg text-sm font-bold capitalize border transition-all ${
+                                                    (step.interaction_type ||
+                                                        'read') === type
+                                                        ? 'bg-indigo-600 border-indigo-500 text-white'
+                                                        : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-600'
+                                                }`}
                                             >
-                                                {type === 'read' && t('lessons.editor.read')}
-                                                {type === 'quiz' && t('lessons.editor.quiz')}
-                                                {type === 'find_part' && t('lessons.editor.find_part')}
+                                                {type === 'read' &&
+                                                    t('lessons.editor.read')}
+                                                {type === 'quiz' &&
+                                                    t('lessons.editor.quiz')}
+                                                {type === 'find_part' &&
+                                                    t(
+                                                        'lessons.editor.find_part'
+                                                    )}
                                             </button>
                                         ))}
                                     </div>
 
                                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
-                                        {step.interaction_type === 'quiz' ? t('lessons.editor.question') : t('lessons.editor.content_rich')}
+                                        {step.interaction_type === 'quiz'
+                                            ? t('lessons.editor.question')
+                                            : t('lessons.editor.content_rich')}
                                     </label>
                                     <RichTextEditor
                                         value={step.content}
-                                        onChange={(html) => handleStepChange(index, 'content', html)}
-                                        placeholder={step.interaction_type === 'quiz' ? t('lessons.editor.question_placeholder') : t('lessons.editor.content_placeholder')}
-                                        onPaste={(e) => handlePaste(index, e, 'content')}
+                                        onChange={(html) =>
+                                            handleStepChange(
+                                                index,
+                                                'content',
+                                                html
+                                            )
+                                        }
+                                        placeholder={
+                                            step.interaction_type === 'quiz'
+                                                ? t(
+                                                      'lessons.editor.question_placeholder'
+                                                  )
+                                                : t(
+                                                      'lessons.editor.content_placeholder'
+                                                  )
+                                        }
+                                        onPaste={(e) =>
+                                            handlePaste(index, e, 'content')
+                                        }
                                     />
 
                                     {/* Quiz Editor */}
                                     {step.interaction_type === 'quiz' && (
                                         <div className="mt-4 p-4 bg-slate-900 rounded-lg border border-slate-700">
-                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">{t('lessons.editor.answers')}</label>
+                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+                                                {t('lessons.editor.answers')}
+                                            </label>
                                             <div className="space-y-2">
                                                 {(() => {
-                                                    const data = step.interaction_data ? JSON.parse(step.interaction_data) : { options: ['', '', '', ''], correctIndex: 0 };
-                                                    const updateQuiz = (newData: any) => handleStepChange(index, 'interaction_data', JSON.stringify({ ...data, ...newData }));
+                                                    const data =
+                                                        step.interaction_data
+                                                            ? JSON.parse(
+                                                                  step.interaction_data
+                                                              )
+                                                            : {
+                                                                  options: [
+                                                                      '',
+                                                                      '',
+                                                                      '',
+                                                                      '',
+                                                                  ],
+                                                                  correctIndex: 0,
+                                                              };
+                                                    const updateQuiz = (
+                                                        newData: any
+                                                    ) =>
+                                                        handleStepChange(
+                                                            index,
+                                                            'interaction_data',
+                                                            JSON.stringify({
+                                                                ...data,
+                                                                ...newData,
+                                                            })
+                                                        );
 
-                                                    return data.options.map((opt: string, i: number) => (
-                                                        <div key={i} className="flex gap-2 items-center">
-                                                            <input
-                                                                type="radio"
-                                                                name={`correct-${index}`}
-                                                                checked={data.correctIndex === i}
-                                                                onChange={() => updateQuiz({ correctIndex: i })}
-                                                                className="accent-indigo-500"
-                                                            />
-                                                            <input
-                                                                type="text"
-                                                                value={opt}
-                                                                onChange={(e) => {
-                                                                    const newOpts = [...data.options];
-                                                                    newOpts[i] = e.target.value;
-                                                                    updateQuiz({ options: newOpts });
-                                                                }}
-                                                                placeholder={t('lessons.editor.option', { number: i + 1 })}
-                                                                className="flex-1 bg-slate-950 border border-slate-700 rounded px-2 py-1 text-sm text-white"
-                                                            />
-                                                        </div>
-                                                    ));
+                                                    return data.options.map(
+                                                        (
+                                                            opt: string,
+                                                            i: number
+                                                        ) => (
+                                                            <div
+                                                                key={i}
+                                                                className="flex gap-2 items-center"
+                                                            >
+                                                                <input
+                                                                    type="radio"
+                                                                    name={`correct-${index}`}
+                                                                    checked={
+                                                                        data.correctIndex ===
+                                                                        i
+                                                                    }
+                                                                    onChange={() =>
+                                                                        updateQuiz(
+                                                                            {
+                                                                                correctIndex:
+                                                                                    i,
+                                                                            }
+                                                                        )
+                                                                    }
+                                                                    className="accent-indigo-500"
+                                                                />
+                                                                <input
+                                                                    type="text"
+                                                                    value={opt}
+                                                                    onChange={(
+                                                                        e
+                                                                    ) => {
+                                                                        const newOpts =
+                                                                            [
+                                                                                ...data.options,
+                                                                            ];
+                                                                        newOpts[
+                                                                            i
+                                                                        ] =
+                                                                            e.target.value;
+                                                                        updateQuiz(
+                                                                            {
+                                                                                options:
+                                                                                    newOpts,
+                                                                            }
+                                                                        );
+                                                                    }}
+                                                                    placeholder={t(
+                                                                        'lessons.editor.option',
+                                                                        {
+                                                                            number:
+                                                                                i +
+                                                                                1,
+                                                                        }
+                                                                    )}
+                                                                    className="flex-1 bg-slate-950 border border-slate-700 rounded px-2 py-1 text-sm text-white"
+                                                                />
+                                                            </div>
+                                                        )
+                                                    );
                                                 })()}
                                             </div>
                                         </div>
@@ -430,32 +609,66 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                                     {/* Find Part Editor */}
                                     {step.interaction_type === 'find_part' && (
                                         <div className="mt-4 p-4 bg-slate-900 rounded-lg border border-slate-700">
-                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">{t('lessons.editor.target_part')}</label>
+                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+                                                {t(
+                                                    'lessons.editor.target_part'
+                                                )}
+                                            </label>
 
                                             {(() => {
-                                                const data = step.interaction_data ? JSON.parse(step.interaction_data) : { targetMesh: '' };
+                                                const data =
+                                                    step.interaction_data
+                                                        ? JSON.parse(
+                                                              step.interaction_data
+                                                          )
+                                                        : { targetMesh: '' };
                                                 return (
                                                     <div>
                                                         <div className="flex gap-2 items-center mb-2">
                                                             <div className="flex-1 bg-slate-950 border border-slate-700 rounded px-3 py-2 text-sm font-mono text-indigo-300 truncate">
-                                                                {data.targetMesh || t('lessons.editor.no_part')}
+                                                                {data.targetMesh ||
+                                                                    t(
+                                                                        'lessons.editor.no_part'
+                                                                    )}
                                                             </div>
                                                             <button
                                                                 onClick={() => {
-                                                                    if (!step.model_id) return alert(t('lessons.editor.errors.link_model_first'));
-                                                                    const m = availableModels.find(mod => mod.id === step.model_id);
+                                                                    if (
+                                                                        !step.model_id
+                                                                    )
+                                                                        return alert(
+                                                                            t(
+                                                                                'lessons.editor.errors.link_model_first'
+                                                                            )
+                                                                        );
+                                                                    const m =
+                                                                        availableModels.find(
+                                                                            (
+                                                                                mod
+                                                                            ) =>
+                                                                                mod.id ===
+                                                                                step.model_id
+                                                                        );
                                                                     if (m) {
-                                                                        setPickerModel(m);
-                                                                        setPickingStepIndex(index);
+                                                                        setPickerModel(
+                                                                            m
+                                                                        );
+                                                                        setPickingStepIndex(
+                                                                            index
+                                                                        );
                                                                     }
                                                                 }}
                                                                 className="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-xs font-bold whitespace-nowrap"
                                                             >
-                                                                {t('lessons.editor.pointer')}
+                                                                {t(
+                                                                    'lessons.editor.pointer'
+                                                                )}
                                                             </button>
                                                         </div>
                                                         <p className="text-[10px] text-slate-500">
-                                                            {t('lessons.editor.pointer_tip')}
+                                                            {t(
+                                                                'lessons.editor.pointer_tip'
+                                                            )}
                                                         </p>
                                                     </div>
                                                 );
@@ -464,18 +677,32 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                                     )}
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">{t('lessons.editor.step_image')}</label>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+                                        {t('lessons.editor.step_image')}
+                                    </label>
                                     <div
                                         className="bg-slate-950/50 border border-slate-700 rounded-lg p-3 mb-4 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-                                        onPaste={(e) => handlePaste(index, e, 'image')}
+                                        onPaste={(e) =>
+                                            handlePaste(index, e, 'image')
+                                        }
                                         tabIndex={0}
                                     >
                                         <div className="flex items-center gap-3">
                                             {step.image_url ? (
                                                 <div className="relative w-16 h-16 rounded overflow-hidden group/img shrink-0">
-                                                    <img src={step.image_url} alt="Step" className="w-full h-full object-cover" />
+                                                    <img
+                                                        src={step.image_url}
+                                                        alt="Step"
+                                                        className="w-full h-full object-cover"
+                                                    />
                                                     <button
-                                                        onClick={() => handleStepChange(index, 'image_url', '')}
+                                                        onClick={() =>
+                                                            handleStepChange(
+                                                                index,
+                                                                'image_url',
+                                                                ''
+                                                            )
+                                                        }
                                                         className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover/img:opacity-100 text-rose-500 transition-opacity"
                                                     >
                                                         <Trash2 size={16} />
@@ -483,31 +710,52 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                                                 </div>
                                             ) : (
                                                 <div className="w-16 h-16 bg-slate-800 rounded flex items-center justify-center text-slate-600 shrink-0">
-                                                    <span className="text-xs">{t('lessons.editor.no_img')}</span>
+                                                    <span className="text-xs">
+                                                        {t(
+                                                            'lessons.editor.no_img'
+                                                        )}
+                                                    </span>
                                                 </div>
                                             )}
                                             <div className="flex-1">
                                                 <input
                                                     type="file"
                                                     accept="image/*"
-                                                    onChange={(e) => handleStepImageUpload(index, e)}
+                                                    onChange={(e) =>
+                                                        handleStepImageUpload(
+                                                            index,
+                                                            e
+                                                        )
+                                                    }
                                                     className="block w-full text-xs text-slate-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-500/10 file:text-indigo-400 hover:file:bg-indigo-500/20"
                                                 />
                                                 <p className="text-[10px] text-slate-500 mt-1 ml-1">
-                                                    {t('lessons.editor.paste_img_tip')}
+                                                    {t(
+                                                        'lessons.editor.paste_img_tip'
+                                                    )}
                                                 </p>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">{t('lessons.editor.linked_model')}</label>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+                                        {t('lessons.editor.linked_model')}
+                                    </label>
                                     <select
                                         value={step.model_id || ''}
-                                        onChange={(e) => handleStepChange(index, 'model_id', e.target.value)}
+                                        onChange={(e) =>
+                                            handleStepChange(
+                                                index,
+                                                'model_id',
+                                                e.target.value
+                                            )
+                                        }
                                         className="w-full bg-slate-950/50 border border-slate-700 rounded-lg p-3 text-sm text-slate-300 focus:ring-1 focus:ring-indigo-500 outline-none mb-4"
                                     >
-                                        <option value="">{t('lessons.editor.no_model_text')}</option>
-                                        {availableModels.map(m => (
+                                        <option value="">
+                                            {t('lessons.editor.no_model_text')}
+                                        </option>
+                                        {availableModels.map((m) => (
                                             <option key={m.id} value={m.id}>
                                                 {m.name} ({m.sector})
                                             </option>
@@ -519,15 +767,31 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                                         <div className="w-full h-32 bg-black rounded-lg border border-slate-800 overflow-hidden flex items-center justify-center relative">
                                             {/* Just a static preview image or text for now */}
                                             {(() => {
-                                                const m = availableModels.find(mod => mod.id === step.model_id);
+                                                const m = availableModels.find(
+                                                    (mod) =>
+                                                        mod.id === step.model_id
+                                                );
                                                 return m ? (
                                                     <>
-                                                        <img src={fixAssetUrl(m.thumbnailUrl)} className="w-full h-full object-cover opacity-50" />
+                                                        <img
+                                                            src={fixAssetUrl(
+                                                                m.thumbnailUrl
+                                                            )}
+                                                            className="w-full h-full object-cover opacity-50"
+                                                        />
                                                         <div className="absolute inset-0 flex items-center justify-center">
-                                                            <span className="bg-black/70 px-2 py-1 rounded text-xs text-white">{m.name}</span>
+                                                            <span className="bg-black/70 px-2 py-1 rounded text-xs text-white">
+                                                                {m.name}
+                                                            </span>
                                                         </div>
                                                     </>
-                                                ) : <span className="text-xs text-red-500">{t('lessons.editor.model_not_found')}</span>
+                                                ) : (
+                                                    <span className="text-xs text-red-500">
+                                                        {t(
+                                                            'lessons.editor.model_not_found'
+                                                        )}
+                                                    </span>
+                                                );
                                             })()}
                                         </div>
                                     )}
@@ -565,10 +829,17 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
             {pickingStepIndex !== null && pickerModel && (
                 <div className="fixed inset-0 z-50 bg-black flex flex-col">
                     <div className="absolute top-4 left-4 z-20 bg-slate-900/90 p-4 rounded-xl border border-slate-700">
-                        <h3 className="text-white font-bold mb-2">{t('lessons.editor.select_target')}</h3>
-                        <p className="text-xs text-slate-400 mb-4">{t('lessons.editor.select_target_tip')}</p>
+                        <h3 className="text-white font-bold mb-2">
+                            {t('lessons.editor.select_target')}
+                        </h3>
+                        <p className="text-xs text-slate-400 mb-4">
+                            {t('lessons.editor.select_target_tip')}
+                        </p>
                         <button
-                            onClick={() => { setPickingStepIndex(null); setPickerModel(null); }}
+                            onClick={() => {
+                                setPickingStepIndex(null);
+                                setPickerModel(null);
+                            }}
                             className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded text-xs font-bold"
                         >
                             {t('common.cancel')}
@@ -576,7 +847,10 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                     </div>
                     <VRViewer
                         model={pickerModel}
-                        onExit={() => { setPickingStepIndex(null); setPickerModel(null); }}
+                        onExit={() => {
+                            setPickingStepIndex(null);
+                            setPickerModel(null);
+                        }}
                         onObjectClick={handleObjectClick}
                         workshopMode={false}
                     />

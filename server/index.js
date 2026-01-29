@@ -36,7 +36,10 @@ const app = express();
 const httpServer = createServer(app);
 
 // CORS Config
-const allowedOrigins = [process.env.CLIENT_URL || 'http://localhost:3000', 'http://localhost:3001'];
+const allowedOrigins = [
+    process.env.CLIENT_URL || 'http://localhost:3000',
+    'http://localhost:3001',
+];
 const corsOptions = {
     origin: function (origin, callback) {
         // Allow requests with no origin (like mobile apps or curl requests)
@@ -47,33 +50,40 @@ const corsOptions = {
             callback(new Error('Not allowed by CORS'));
         }
     },
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
 };
 
 const io = new Server(httpServer, {
     cors: {
         origin: allowedOrigins, // Match Express CORS
-        methods: ["GET", "POST"]
-    }
+        methods: ['GET', 'POST'],
+    },
 });
 
 const PORT = process.env.PORT || 3001;
 
 // Security Middleware
-app.use(helmet({
-    contentSecurityPolicy: {
-        directives: {
-            "default-src": ["'self'"],
-            "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // Needed for some 3D libs / React dev
-            "img-src": ["'self'", "data:", "blob:", "https://*"],
-            "connect-src": ["'self'", "ws:", "wss:", "https://generativelanguage.googleapis.com"],
-            "frame-src": ["'self'", "https://www.youtube.com"], // Academy Videos
-            "media-src": ["'self'", "data:", "blob:"],
-        }
-    },
-    crossOriginEmbedderPolicy: false // Often breaks loading 3D assets from other domains or blob/workers
-}));
+app.use(
+    helmet({
+        contentSecurityPolicy: {
+            directives: {
+                'default-src': ["'self'"],
+                'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // Needed for some 3D libs / React dev
+                'img-src': ["'self'", 'data:', 'blob:', 'https://*'],
+                'connect-src': [
+                    "'self'",
+                    'ws:',
+                    'wss:',
+                    'https://generativelanguage.googleapis.com',
+                ],
+                'frame-src': ["'self'", 'https://www.youtube.com'], // Academy Videos
+                'media-src': ["'self'", 'data:', 'blob:'],
+            },
+        },
+        crossOriginEmbedderPolicy: false, // Often breaks loading 3D assets from other domains or blob/workers
+    })
+);
 
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
@@ -90,11 +100,10 @@ app.use('/api', apiLimiter);
 const authLimiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hour
     max: 10, // Limit each IP to 10 login attempts per hour
-    message: "Too many login attempts, please try again after an hour"
+    message: 'Too many login attempts, please try again after an hour',
 });
 app.use('/api/login', authLimiter);
 app.use('/api/register', authLimiter);
-
 
 // Ensure uploads directory exists
 if (!fs.existsSync(uploadDir)) {
@@ -131,21 +140,23 @@ app.use(express.static(path.join(__dirname, '../dist')));
 
 // Start Server
 runMigrations().then(() => {
-    setupLTI(app).then(() => {
-        // Handle React routing - fallback must be last
-        app.get('*', (req, res) => {
-            const ext = path.extname(req.path);
-            if (req.path.startsWith('/api') || (ext && ext !== '.html')) {
-                return res.status(404).send('Not Found');
-            }
-            res.sendFile(path.join(__dirname, '../dist/index.html'));
-        });
+    setupLTI(app)
+        .then(() => {
+            // Handle React routing - fallback must be last
+            app.get('*', (req, res) => {
+                const ext = path.extname(req.path);
+                if (req.path.startsWith('/api') || (ext && ext !== '.html')) {
+                    return res.status(404).send('Not Found');
+                }
+                res.sendFile(path.join(__dirname, '../dist/index.html'));
+            });
 
-        httpServer.listen(PORT, '0.0.0.0', () => {
-            console.log(`Server running on port ${PORT}`);
+            httpServer.listen(PORT, '0.0.0.0', () => {
+                console.log(`Server running on port ${PORT}`);
+            });
+        })
+        .catch((err) => {
+            console.error('Failed to start server (LTI Error):', err);
+            process.exit(1);
         });
-    }).catch(err => {
-        console.error('Failed to start server (LTI Error):', err);
-        process.exit(1);
-    });
 });

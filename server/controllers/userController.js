@@ -3,7 +3,10 @@ import bcrypt from 'bcryptjs';
 
 const getUserRole = async (username) => {
     if (!username) return null;
-    const [users] = await pool.query('SELECT role FROM users WHERE username = ?', [username]);
+    const [users] = await pool.query(
+        'SELECT role FROM users WHERE username = ?',
+        [username]
+    );
     return users.length > 0 ? users[0].role : null;
 };
 
@@ -29,9 +32,13 @@ export const getAllUsers = async (req, res) => {
     try {
         const role = await getUserRole(requestor);
         if (role !== 'admin') {
-            return res.status(403).json({ error: 'Forbidden: Admin access only' });
+            return res
+                .status(403)
+                .json({ error: 'Forbidden: Admin access only' });
         }
-        const [users] = await pool.query('SELECT id, username, email, institution, role, profilePicUrl, createdAt FROM users');
+        const [users] = await pool.query(
+            'SELECT id, username, email, institution, role, profilePicUrl, createdAt FROM users'
+        );
         res.json(users);
     } catch (err) {
         console.error(err);
@@ -46,7 +53,9 @@ export const createUser = async (req, res) => {
     try {
         const requestorRole = await getUserRole(requestor);
         if (requestorRole !== 'admin') {
-            return res.status(403).json({ error: 'Forbidden: Admin access only' });
+            return res
+                .status(403)
+                .json({ error: 'Forbidden: Admin access only' });
         }
 
         const id = 'user-' + Date.now();
@@ -54,13 +63,22 @@ export const createUser = async (req, res) => {
 
         await pool.query(
             'INSERT INTO users (id, username, email, institution, password, role) VALUES (?, ?, ?, ?, ?, ?)',
-            [id, username, email, institution, hashedPassword, role || 'student']
+            [
+                id,
+                username,
+                email,
+                institution,
+                hashedPassword,
+                role || 'student',
+            ]
         );
         res.json({ id, username, email, institution, role });
     } catch (err) {
         console.error(err);
         if (err.code === 'ER_DUP_ENTRY') {
-            return res.status(400).json({ error: 'Username or email already exists' });
+            return res
+                .status(400)
+                .json({ error: 'Username or email already exists' });
         }
         res.status(500).json({ error: 'Failed to create user' });
     }
@@ -74,7 +92,9 @@ export const updateUser = async (req, res) => {
     try {
         const requestorRole = await getUserRole(requestor);
         if (requestorRole !== 'admin') {
-            return res.status(403).json({ error: 'Forbidden: Admin access only' });
+            return res
+                .status(403)
+                .json({ error: 'Forbidden: Admin access only' });
         }
 
         await pool.query(
@@ -111,13 +131,20 @@ export const deleteUser = async (req, res) => {
     try {
         const requestorRole = await getUserRole(requestor);
         if (requestorRole !== 'admin') {
-            return res.status(403).json({ error: 'Forbidden: Admin access only' });
+            return res
+                .status(403)
+                .json({ error: 'Forbidden: Admin access only' });
         }
 
         if (requestor === id) {
-            const [users] = await pool.query('SELECT id FROM users WHERE username = ?', [requestor]);
+            const [users] = await pool.query(
+                'SELECT id FROM users WHERE username = ?',
+                [requestor]
+            );
             if (users.length > 0 && users[0].id === id) {
-                return res.status(400).json({ error: 'Cannot delete yourself' });
+                return res
+                    .status(400)
+                    .json({ error: 'Cannot delete yourself' });
             }
         }
 

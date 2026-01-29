@@ -13,8 +13,12 @@ test('academy page functionality', async ({ page }) => {
 
     // Check Categories are visible
     const basicsBtn = page.getByRole('button', { name: /Basics|Osnove/i });
-    const creationBtn = page.getByRole('button', { name: /Creation|Kreiranje/i });
-    const pedagogyBtn = page.getByRole('button', { name: /Pedagogy|Pedagogija/i });
+    const creationBtn = page.getByRole('button', {
+        name: /Creation|Kreiranje/i,
+    });
+    const pedagogyBtn = page.getByRole('button', {
+        name: /Pedagogy|Pedagogija/i,
+    });
 
     await expect(basicsBtn).toBeVisible();
     await expect(creationBtn).toBeVisible();

@@ -1,4 +1,3 @@
-
 // @ts-ignore
 import { TransformControls } from '../lib/TransformControls.js';
 
@@ -11,17 +10,19 @@ declare global {
 }
 
 const AFRAME = typeof window !== 'undefined' ? window.AFRAME : null;
-const THREE = typeof window !== 'undefined' ? (window.THREE || (AFRAME ? AFRAME.THREE : null)) : null;
+const THREE =
+    typeof window !== 'undefined'
+        ? window.THREE || (AFRAME ? AFRAME.THREE : null)
+        : null;
 
 if (AFRAME && THREE) {
-
     // --- System: Assembly Mode Manager ---
     if (!AFRAME.systems['assembly-mode-system']) {
         AFRAME.registerSystem('assembly-mode-system', {
             schema: {
                 enabled: { default: false },
                 snapThreshold: { default: 0.15 }, // Distance in meters to snap
-                snapAngleThreshold: { default: 0.2 } // Radians (approx 11 degrees)
+                snapAngleThreshold: { default: 0.2 }, // Radians (approx 11 degrees)
             },
 
             init: function () {
@@ -50,17 +51,28 @@ if (AFRAME && THREE) {
                     return;
                 }
 
-                this.transformControls = new TransformControls(camera, renderer.domElement);
-                this.transformControls.addEventListener('change', this.onTransformChange);
-                this.transformControls.addEventListener('dragging-changed', (event: any) => {
-                    // Disable orbit controls while dragging
-                    const orbitControls = this.el.sceneEl.querySelector('[look-controls]')?.components['look-controls'];
-                    if (orbitControls) orbitControls.enabled = !event.value;
+                this.transformControls = new TransformControls(
+                    camera,
+                    renderer.domElement
+                );
+                this.transformControls.addEventListener(
+                    'change',
+                    this.onTransformChange
+                );
+                this.transformControls.addEventListener(
+                    'dragging-changed',
+                    (event: any) => {
+                        // Disable orbit controls while dragging
+                        const orbitControls =
+                            this.el.sceneEl.querySelector('[look-controls]')
+                                ?.components['look-controls'];
+                        if (orbitControls) orbitControls.enabled = !event.value;
 
-                    if (!event.value) {
-                        this.onMouseUp();
+                        if (!event.value) {
+                            this.onMouseUp();
+                        }
                     }
-                });
+                );
 
                 scene.add(this.transformControls);
                 this.transformControls.visible = false;
@@ -89,7 +101,7 @@ if (AFRAME && THREE) {
                     this.originalTransforms.set(mesh.uuid, {
                         position: mesh.position.clone(),
                         quaternion: mesh.quaternion.clone(),
-                        scale: mesh.scale.clone()
+                        scale: mesh.scale.clone(),
                     });
 
                     // Mark as interactable for raycaster
@@ -128,7 +140,8 @@ if (AFRAME && THREE) {
 
                 // Restore highlight
                 if (obj.material && obj.material.emissive) {
-                    if (obj.currentHex !== undefined) obj.material.emissive.setHex(obj.currentHex);
+                    if (obj.currentHex !== undefined)
+                        obj.material.emissive.setHex(obj.currentHex);
                     else obj.material.emissive.setHex(0x000000);
                 }
 
@@ -154,7 +167,7 @@ if (AFRAME && THREE) {
                     color: 0x00ff00,
                     transparent: true,
                     opacity: 0.3,
-                    wireframe: true
+                    wireframe: true,
                 });
 
                 this.ghostObject = new THREE.Mesh(ghostGeo, ghostMat);
@@ -171,7 +184,8 @@ if (AFRAME && THREE) {
 
             removeGhost: function () {
                 if (this.ghostObject) {
-                    if (this.ghostObject.parent) this.ghostObject.parent.remove(this.ghostObject);
+                    if (this.ghostObject.parent)
+                        this.ghostObject.parent.remove(this.ghostObject);
                     this.ghostObject.geometry.dispose();
                     this.ghostObject.material.dispose();
                     this.ghostObject = null;
@@ -182,7 +196,9 @@ if (AFRAME && THREE) {
                 // Check snap distance
                 if (!this.selectedObject || !this.ghostObject) return;
 
-                const posDist = this.selectedObject.position.distanceTo(this.ghostObject.position);
+                const posDist = this.selectedObject.position.distanceTo(
+                    this.ghostObject.position
+                );
 
                 // Visual feedback if close (e.g. Ghost turns solid green)
                 if (posDist < this.data.snapThreshold) {
@@ -197,14 +213,20 @@ if (AFRAME && THREE) {
             onMouseUp: function () {
                 if (!this.selectedObject || !this.ghostObject) return;
 
-                const posDist = this.selectedObject.position.distanceTo(this.ghostObject.position);
+                const posDist = this.selectedObject.position.distanceTo(
+                    this.ghostObject.position
+                );
 
                 if (posDist < this.data.snapThreshold) {
                     // SNAP!
-                    const original = this.originalTransforms.get(this.selectedObject.uuid);
+                    const original = this.originalTransforms.get(
+                        this.selectedObject.uuid
+                    );
                     if (original) {
                         this.selectedObject.position.copy(original.position);
-                        this.selectedObject.quaternion.copy(original.quaternion);
+                        this.selectedObject.quaternion.copy(
+                            original.quaternion
+                        );
                         this.selectedObject.scale.copy(original.scale);
 
                         // Flash confirmation?
@@ -220,10 +242,12 @@ if (AFRAME && THREE) {
                     // Better to store reference to object if possible, but weak ref.
                     // We rely on the fact that we can find them.
 
-                    // We need to find the object again. 
+                    // We need to find the object again.
                     // Optimization: We can store the object ref in originalTransforms if we are careful about memory.
                     // For now, let's traverse the model entity.
-                    const modelEl = document.querySelector('.interactable-model');
+                    const modelEl = document.querySelector(
+                        '.interactable-model'
+                    );
                     if (modelEl) {
                         (modelEl as any).object3D.traverse((node: any) => {
                             if (node.isMesh && node.uuid === uuid) {
@@ -234,7 +258,7 @@ if (AFRAME && THREE) {
                         });
                     }
                 });
-            }
+            },
         });
     }
 
@@ -267,8 +291,8 @@ if (AFRAME && THREE) {
                             evt.stopPropagation(); // Prevent hitting other things
                         }
                     }
-                }
-            }
+                },
+            },
         });
     }
 }

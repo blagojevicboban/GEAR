@@ -2,7 +2,9 @@ import pool from './server/db.js';
 
 async function checkLessons() {
     try {
-        const [lessons] = await pool.query('SELECT id, title, image_url FROM lessons');
+        const [lessons] = await pool.query(
+            'SELECT id, title, image_url FROM lessons'
+        );
         console.log('--- Lessons in DB ---');
         console.table(lessons);
         process.exit(0);

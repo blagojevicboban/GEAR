@@ -8,12 +8,21 @@ interface UserManagementProps {
     models: VETModel[];
 }
 
-const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) => {
+const UserManagement: React.FC<UserManagementProps> = ({
+    currentUser,
+    models,
+}) => {
     const { t } = useTranslation();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [showCreateForm, setShowCreateForm] = useState(false);
-    const [newUser, setNewUser] = useState({ username: '', email: '', password: '', institution: '', role: 'student' });
+    const [newUser, setNewUser] = useState({
+        username: '',
+        email: '',
+        password: '',
+        institution: '',
+        role: 'student',
+    });
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const [viewingUser, setViewingUser] = useState<User | null>(null);
 
@@ -25,8 +34,8 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
         try {
             const res = await fetch('/api/users', {
                 headers: {
-                    'X-User-Name': currentUser.username
-                }
+                    'X-User-Name': currentUser.username,
+                },
             });
             if (res.ok) {
                 const data = await res.json();
@@ -47,11 +56,11 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
             const res = await fetch(`/api/users/${userId}`, {
                 method: 'DELETE',
                 headers: {
-                    'X-User-Name': currentUser.username
-                }
+                    'X-User-Name': currentUser.username,
+                },
             });
             if (res.ok) {
-                setUsers(prev => prev.filter(u => u.id !== userId));
+                setUsers((prev) => prev.filter((u) => u.id !== userId));
             } else {
                 alert(t('admin.users.alerts.delete_failed'));
             }
@@ -69,16 +78,18 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-User-Name': currentUser.username
+                    'X-User-Name': currentUser.username,
                 },
                 body: JSON.stringify({
                     role: editingUser.role,
-                    institution: editingUser.institution
-                })
+                    institution: editingUser.institution,
+                }),
             });
 
             if (res.ok) {
-                setUsers(prev => prev.map(u => u.id === editingUser.id ? editingUser : u));
+                setUsers((prev) =>
+                    prev.map((u) => (u.id === editingUser.id ? editingUser : u))
+                );
                 setEditingUser(null);
             } else {
                 alert(t('admin.users.alerts.update_failed'));
@@ -95,19 +106,27 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-User-Name': currentUser.username
+                    'X-User-Name': currentUser.username,
                 },
-                body: JSON.stringify(newUser)
+                body: JSON.stringify(newUser),
             });
 
             if (res.ok) {
                 const createdUser = await res.json();
                 setUsers([...users, createdUser]);
                 setShowCreateForm(false);
-                setNewUser({ username: '', email: '', password: '', institution: '', role: 'student' });
+                setNewUser({
+                    username: '',
+                    email: '',
+                    password: '',
+                    institution: '',
+                    role: 'student',
+                });
             } else {
                 const err = await res.json();
-                alert(t('admin.users.alerts.create_failed', { error: err.error }));
+                alert(
+                    t('admin.users.alerts.create_failed', { error: err.error })
+                );
             }
         } catch (err) {
             console.error(err);
@@ -115,18 +134,27 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
     };
 
     const getUserModels = (username: string) => {
-        return models.filter(m => m.uploadedBy === username);
+        return models.filter((m) => m.uploadedBy === username);
     };
 
-    if (loading) return <div className="text-white text-center py-10">{t('admin.users.loading')}</div>;
+    if (loading)
+        return (
+            <div className="text-white text-center py-10">
+                {t('admin.users.loading')}
+            </div>
+        );
 
     return (
         <div className="max-w-6xl mx-auto px-6 py-12">
             <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl">
                 <div className="flex justify-between items-center mb-6">
                     <div>
-                        <h2 className="text-3xl font-bold text-white mb-2">{t('admin.users.title')}</h2>
-                        <p className="text-slate-400">{t('admin.users.subtitle')}</p>
+                        <h2 className="text-3xl font-bold text-white mb-2">
+                            {t('admin.users.title')}
+                        </h2>
+                        <p className="text-slate-400">
+                            {t('admin.users.subtitle')}
+                        </p>
                     </div>
                     <button
                         onClick={() => setShowCreateForm(true)}
@@ -138,15 +166,27 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
 
                 {showCreateForm && (
                     <div className="mb-8 bg-slate-800/50 p-6 rounded-2xl border border-slate-700 animate-in fade-in slide-in-from-top-4">
-                        <h3 className="text-xl font-bold text-white mb-4">{t('admin.users.create_form.title')}</h3>
-                        <form onSubmit={handleCreateUser} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <h3 className="text-xl font-bold text-white mb-4">
+                            {t('admin.users.create_form.title')}
+                        </h3>
+                        <form
+                            onSubmit={handleCreateUser}
+                            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                        >
                             <input
                                 required
                                 type="text"
-                                placeholder={t('admin.users.create_form.username')}
+                                placeholder={t(
+                                    'admin.users.create_form.username'
+                                )}
                                 className="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white"
                                 value={newUser.username}
-                                onChange={e => setNewUser({ ...newUser, username: e.target.value })}
+                                onChange={(e) =>
+                                    setNewUser({
+                                        ...newUser,
+                                        username: e.target.value,
+                                    })
+                                }
                             />
                             <input
                                 required
@@ -154,35 +194,76 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                                 placeholder={t('admin.users.create_form.email')}
                                 className="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white"
                                 value={newUser.email}
-                                onChange={e => setNewUser({ ...newUser, email: e.target.value })}
+                                onChange={(e) =>
+                                    setNewUser({
+                                        ...newUser,
+                                        email: e.target.value,
+                                    })
+                                }
                             />
                             <input
                                 required
                                 type="password"
-                                placeholder={t('admin.users.create_form.password')}
+                                placeholder={t(
+                                    'admin.users.create_form.password'
+                                )}
                                 className="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white"
                                 value={newUser.password}
-                                onChange={e => setNewUser({ ...newUser, password: e.target.value })}
+                                onChange={(e) =>
+                                    setNewUser({
+                                        ...newUser,
+                                        password: e.target.value,
+                                    })
+                                }
                             />
                             <input
                                 type="text"
-                                placeholder={t('admin.users.create_form.institution')}
+                                placeholder={t(
+                                    'admin.users.create_form.institution'
+                                )}
                                 className="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white"
                                 value={newUser.institution}
-                                onChange={e => setNewUser({ ...newUser, institution: e.target.value })}
+                                onChange={(e) =>
+                                    setNewUser({
+                                        ...newUser,
+                                        institution: e.target.value,
+                                    })
+                                }
                             />
                             <select
                                 className="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white"
                                 value={newUser.role}
-                                onChange={e => setNewUser({ ...newUser, role: e.target.value })}
+                                onChange={(e) =>
+                                    setNewUser({
+                                        ...newUser,
+                                        role: e.target.value,
+                                    })
+                                }
                             >
-                                <option value="student">{t('auth.roles.student')}</option>
-                                <option value="teacher">{t('auth.roles.teacher')}</option>
-                                <option value="admin">{t('auth.roles.admin')}</option>
+                                <option value="student">
+                                    {t('auth.roles.student')}
+                                </option>
+                                <option value="teacher">
+                                    {t('auth.roles.teacher')}
+                                </option>
+                                <option value="admin">
+                                    {t('auth.roles.admin')}
+                                </option>
                             </select>
                             <div className="flex gap-2">
-                                <button type="submit" className="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-xl">{t('admin.users.create_form.create_btn')}</button>
-                                <button type="button" onClick={() => setShowCreateForm(false)} className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-xl">{t('common.cancel')}</button>
+                                <button
+                                    type="submit"
+                                    className="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded-xl"
+                                >
+                                    {t('admin.users.create_form.create_btn')}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowCreateForm(false)}
+                                    className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-xl"
+                                >
+                                    {t('common.cancel')}
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -192,21 +273,40 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                     <table className="w-full text-left text-slate-300">
                         <thead className="text-xs uppercase bg-slate-800 text-slate-400">
                             <tr>
-                                <th className="px-6 py-3">{t('admin.users.table.username')}</th>
-                                <th className="px-6 py-3">{t('admin.users.table.email')}</th>
-                                <th className="px-6 py-3">{t('admin.users.table.institution')}</th>
-                                <th className="px-6 py-3">{t('admin.users.table.role')}</th>
-                                <th className="px-6 py-3">{t('admin.users.table.actions')}</th>
+                                <th className="px-6 py-3">
+                                    {t('admin.users.table.username')}
+                                </th>
+                                <th className="px-6 py-3">
+                                    {t('admin.users.table.email')}
+                                </th>
+                                <th className="px-6 py-3">
+                                    {t('admin.users.table.institution')}
+                                </th>
+                                <th className="px-6 py-3">
+                                    {t('admin.users.table.role')}
+                                </th>
+                                <th className="px-6 py-3">
+                                    {t('admin.users.table.actions')}
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
-                            {users.map(user => (
-                                <tr key={user.id} className="border-b border-slate-800 hover:bg-slate-800/50">
+                            {users.map((user) => (
+                                <tr
+                                    key={user.id}
+                                    className="border-b border-slate-800 hover:bg-slate-800/50"
+                                >
                                     <td className="px-6 py-4 font-medium text-white">
                                         <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold text-white uppercase overflow-hidden shrink-0">
                                                 {user.profilePicUrl ? (
-                                                    <img src={fixAssetUrl(user.profilePicUrl)} alt={user.username} className="w-full h-full object-cover" />
+                                                    <img
+                                                        src={fixAssetUrl(
+                                                            user.profilePicUrl
+                                                        )}
+                                                        alt={user.username}
+                                                        className="w-full h-full object-cover"
+                                                    />
                                                 ) : (
                                                     user.username.charAt(0)
                                                 )}
@@ -219,27 +319,56 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                                         {editingUser?.id === user.id ? (
                                             <input
                                                 className="bg-slate-950 border border-slate-700 rounded px-2 py-1 w-full"
-                                                value={editingUser.institution || ''}
-                                                onChange={e => setEditingUser({ ...editingUser, institution: e.target.value })}
+                                                value={
+                                                    editingUser.institution ||
+                                                    ''
+                                                }
+                                                onChange={(e) =>
+                                                    setEditingUser({
+                                                        ...editingUser,
+                                                        institution:
+                                                            e.target.value,
+                                                    })
+                                                }
                                             />
-                                        ) : user.institution || '-'}
+                                        ) : (
+                                            user.institution || '-'
+                                        )}
                                     </td>
                                     <td className="px-6 py-4">
                                         {editingUser?.id === user.id ? (
                                             <select
                                                 className="bg-slate-950 border border-slate-700 rounded px-2 py-1"
                                                 value={editingUser.role}
-                                                onChange={e => setEditingUser({ ...editingUser, role: e.target.value as any })}
+                                                onChange={(e) =>
+                                                    setEditingUser({
+                                                        ...editingUser,
+                                                        role: e.target
+                                                            .value as any,
+                                                    })
+                                                }
                                             >
-                                                <option value="student">{t('auth.roles.student')}</option>
-                                                <option value="teacher">{t('auth.roles.teacher')}</option>
-                                                <option value="admin">{t('auth.roles.admin')}</option>
+                                                <option value="student">
+                                                    {t('auth.roles.student')}
+                                                </option>
+                                                <option value="teacher">
+                                                    {t('auth.roles.teacher')}
+                                                </option>
+                                                <option value="admin">
+                                                    {t('auth.roles.admin')}
+                                                </option>
                                             </select>
                                         ) : (
-                                            <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${user.role === 'admin' ? 'bg-red-500/10 text-red-400' :
-                                                user.role === 'teacher' ? 'bg-green-500/10 text-green-400' :
-                                                    'bg-blue-500/10 text-blue-400'
-                                                }`}>
+                                            <span
+                                                className={`px-2 py-1 rounded text-xs font-bold uppercase ${
+                                                    user.role === 'admin'
+                                                        ? 'bg-red-500/10 text-red-400'
+                                                        : user.role ===
+                                                            'teacher'
+                                                          ? 'bg-green-500/10 text-green-400'
+                                                          : 'bg-blue-500/10 text-blue-400'
+                                                }`}
+                                            >
                                                 {user.role}
                                             </span>
                                         )}
@@ -247,14 +376,53 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                                     <td className="px-6 py-4 flex gap-2">
                                         {editingUser?.id === user.id ? (
                                             <>
-                                                <button onClick={handleUpdate} className="text-green-400 hover:text-green-300 font-bold text-sm">{t('common.save')}</button>
-                                                <button onClick={() => setEditingUser(null)} className="text-slate-400 hover:text-slate-300 text-sm">{t('common.cancel')}</button>
+                                                <button
+                                                    onClick={handleUpdate}
+                                                    className="text-green-400 hover:text-green-300 font-bold text-sm"
+                                                >
+                                                    {t('common.save')}
+                                                </button>
+                                                <button
+                                                    onClick={() =>
+                                                        setEditingUser(null)
+                                                    }
+                                                    className="text-slate-400 hover:text-slate-300 text-sm"
+                                                >
+                                                    {t('common.cancel')}
+                                                </button>
                                             </>
                                         ) : (
                                             <>
-                                                <button onClick={() => setViewingUser(user)} className="text-indigo-400 hover:text-indigo-300 font-bold text-sm">{t('admin.users.actions.view')}</button>
-                                                <button onClick={() => setEditingUser(user)} className="text-blue-400 hover:text-blue-300 font-bold text-sm">{t('admin.users.actions.edit')}</button>
-                                                <button onClick={() => handleDelete(user.id)} className="text-red-400 hover:text-red-300 text-sm">{t('admin.users.actions.delete')}</button>
+                                                <button
+                                                    onClick={() =>
+                                                        setViewingUser(user)
+                                                    }
+                                                    className="text-indigo-400 hover:text-indigo-300 font-bold text-sm"
+                                                >
+                                                    {t(
+                                                        'admin.users.actions.view'
+                                                    )}
+                                                </button>
+                                                <button
+                                                    onClick={() =>
+                                                        setEditingUser(user)
+                                                    }
+                                                    className="text-blue-400 hover:text-blue-300 font-bold text-sm"
+                                                >
+                                                    {t(
+                                                        'admin.users.actions.edit'
+                                                    )}
+                                                </button>
+                                                <button
+                                                    onClick={() =>
+                                                        handleDelete(user.id)
+                                                    }
+                                                    className="text-red-400 hover:text-red-300 text-sm"
+                                                >
+                                                    {t(
+                                                        'admin.users.actions.delete'
+                                                    )}
+                                                </button>
                                             </>
                                         )}
                                     </td>
@@ -270,9 +438,26 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
                     <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95">
                         <div className="sticky top-0 bg-slate-900/95 backdrop-blur z-10 border-b border-slate-800 p-6 flex justify-between items-center">
-                            <h3 className="text-2xl font-bold text-white">{t('profile.modal.title')}</h3>
-                            <button onClick={() => setViewingUser(null)} className="text-slate-400 hover:text-white transition-colors">
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                            <h3 className="text-2xl font-bold text-white">
+                                {t('profile.modal.title')}
+                            </h3>
+                            <button
+                                onClick={() => setViewingUser(null)}
+                                className="text-slate-400 hover:text-white transition-colors"
+                            >
+                                <svg
+                                    className="w-6 h-6"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M6 18L18 6M6 6l12 12"
+                                    />
+                                </svg>
                             </button>
                         </div>
 
@@ -280,34 +465,64 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                             <div className="flex flex-col md:flex-row gap-8 items-start mb-10">
                                 <div className="w-32 h-32 rounded-full bg-indigo-600 flex items-center justify-center text-4xl font-bold text-white shadow-lg shrink-0 overflow-hidden">
                                     {viewingUser.profilePicUrl ? (
-                                        <img src={fixAssetUrl(viewingUser.profilePicUrl)} alt={viewingUser.username} className="w-full h-full object-cover" />
+                                        <img
+                                            src={fixAssetUrl(
+                                                viewingUser.profilePicUrl
+                                            )}
+                                            alt={viewingUser.username}
+                                            className="w-full h-full object-cover"
+                                        />
                                     ) : (
-                                        viewingUser.username.charAt(0).toUpperCase()
+                                        viewingUser.username
+                                            .charAt(0)
+                                            .toUpperCase()
                                     )}
                                 </div>
                                 <div className="space-y-4 flex-1">
                                     <div>
-                                        <h4 className="text-3xl font-bold text-white mb-1">{viewingUser.username}</h4>
-                                        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${viewingUser.role === 'admin' ? 'bg-red-500/20 text-red-400' :
-                                            viewingUser.role === 'teacher' ? 'bg-green-500/20 text-green-400' :
-                                                'bg-blue-500/20 text-blue-400'
-                                            }`}>
+                                        <h4 className="text-3xl font-bold text-white mb-1">
+                                            {viewingUser.username}
+                                        </h4>
+                                        <span
+                                            className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                                                viewingUser.role === 'admin'
+                                                    ? 'bg-red-500/20 text-red-400'
+                                                    : viewingUser.role ===
+                                                        'teacher'
+                                                      ? 'bg-green-500/20 text-green-400'
+                                                      : 'bg-blue-500/20 text-blue-400'
+                                            }`}
+                                        >
                                             {viewingUser.role}
                                         </span>
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-300">
                                         <div className="bg-slate-800/50 p-3 rounded-lg">
-                                            <p className="text-xs text-slate-500 uppercase font-bold mb-1">{t('profile.modal.email')}</p>
+                                            <p className="text-xs text-slate-500 uppercase font-bold mb-1">
+                                                {t('profile.modal.email')}
+                                            </p>
                                             <p>{viewingUser.email}</p>
                                         </div>
                                         <div className="bg-slate-800/50 p-3 rounded-lg">
-                                            <p className="text-xs text-slate-500 uppercase font-bold mb-1">{t('profile.modal.institution')}</p>
-                                            <p>{viewingUser.institution || t('profile.modal.not_specified')}</p>
+                                            <p className="text-xs text-slate-500 uppercase font-bold mb-1">
+                                                {t('profile.modal.institution')}
+                                            </p>
+                                            <p>
+                                                {viewingUser.institution ||
+                                                    t(
+                                                        'profile.modal.not_specified'
+                                                    )}
+                                            </p>
                                         </div>
                                         <div className="bg-slate-800/50 p-3 rounded-lg col-span-1 md:col-span-2">
-                                            <p className="text-xs text-slate-500 uppercase font-bold mb-1">{t('profile.modal.bio')}</p>
-                                            <p>{viewingUser.bio || t('profile.modal.no_bio')}</p>
+                                            <p className="text-xs text-slate-500 uppercase font-bold mb-1">
+                                                {t('profile.modal.bio')}
+                                            </p>
+                                            <p>
+                                                {viewingUser.bio ||
+                                                    t('profile.modal.no_bio')}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -317,20 +532,41 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                                 <h4 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
                                     {t('profile.modal.uploaded_models')}
                                     <span className="bg-slate-800 text-slate-400 text-xs px-2 py-1 rounded-full">
-                                        {getUserModels(viewingUser.username).length}
+                                        {
+                                            getUserModels(viewingUser.username)
+                                                .length
+                                        }
                                     </span>
                                 </h4>
 
-                                {getUserModels(viewingUser.username).length > 0 ? (
+                                {getUserModels(viewingUser.username).length >
+                                0 ? (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {getUserModels(viewingUser.username).map(model => (
-                                            <div key={model.id} className="group bg-slate-800 border border-slate-700 rounded-xl overflow-hidden hover:border-indigo-500/50 transition-all">
+                                        {getUserModels(
+                                            viewingUser.username
+                                        ).map((model) => (
+                                            <div
+                                                key={model.id}
+                                                className="group bg-slate-800 border border-slate-700 rounded-xl overflow-hidden hover:border-indigo-500/50 transition-all"
+                                            >
                                                 <div className="aspect-video bg-slate-900 relative">
-                                                    <img src={fixAssetUrl(model.thumbnailUrl)} alt={model.name} className="w-full h-full object-cover" />
+                                                    <img
+                                                        src={fixAssetUrl(
+                                                            model.thumbnailUrl
+                                                        )}
+                                                        alt={model.name}
+                                                        className="w-full h-full object-cover"
+                                                    />
                                                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 to-transparent"></div>
                                                     <div className="absolute bottom-3 left-3 right-3 text-white">
-                                                        <h5 className="font-bold truncate">{model.name}</h5>
-                                                        <p className="text-xs text-slate-400 truncate">{model.equipmentType}</p>
+                                                        <h5 className="font-bold truncate">
+                                                            {model.name}
+                                                        </h5>
+                                                        <p className="text-xs text-slate-400 truncate">
+                                                            {
+                                                                model.equipmentType
+                                                            }
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -338,7 +574,9 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentUser, models }) 
                                     </div>
                                 ) : (
                                     <div className="text-center py-12 bg-slate-800/30 rounded-2xl border border-slate-800 border-dashed">
-                                        <p className="text-slate-500">{t('profile.modal.no_models')}</p>
+                                        <p className="text-slate-500">
+                                            {t('profile.modal.no_models')}
+                                        </p>
                                     </div>
                                 )}
                             </div>

@@ -2,16 +2,17 @@ import pool from '../db.js';
 
 export const logAnalytics = async (req, res) => {
     const { logs } = req.body; // Array of { userId, lessonId, modelId, position, target, duration }
-    if (!logs || !Array.isArray(logs)) return res.status(400).json({ error: 'Invalid payload' });
+    if (!logs || !Array.isArray(logs))
+        return res.status(400).json({ error: 'Invalid payload' });
 
     try {
-        const values = logs.map(l => [
+        const values = logs.map((l) => [
             l.userId || 'anonymous',
             l.lessonId,
             l.modelId,
             JSON.stringify(l.position),
             JSON.stringify(l.target),
-            l.duration || 0
+            l.duration || 0,
         ]);
 
         if (values.length > 0) {
@@ -22,7 +23,7 @@ export const logAnalytics = async (req, res) => {
         }
         res.json({ success: true, count: values.length });
     } catch (err) {
-        console.error("Analytics Log Error:", err);
+        console.error('Analytics Log Error:', err);
         res.status(500).json({ error: 'Failed to log analytics' });
     }
 };
@@ -36,14 +37,15 @@ export const getHeatmap = async (req, res) => {
             [modelId]
         );
 
-        const points = rows.map(r => {
-            const t = typeof r.target === 'string' ? JSON.parse(r.target) : r.target;
+        const points = rows.map((r) => {
+            const t =
+                typeof r.target === 'string' ? JSON.parse(r.target) : r.target;
             return { ...t, weight: r.duration }; // {x, y, z, weight}
         });
 
         res.json(points);
     } catch (err) {
-        console.error("Heatmap Fetch Error:", err);
+        console.error('Heatmap Fetch Error:', err);
         res.status(500).json({ error: 'Failed to fetch heatmap' });
     }
 };

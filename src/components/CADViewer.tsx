@@ -18,7 +18,9 @@ const CADViewer: React.FC<CADViewerProps> = ({ fileUrl, onExit, fileName }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isMeasuring, setIsMeasuring] = useState(false);
-    const [measurePoints, setMeasurePoints] = useState<THREE_TYPES.Vector3[]>([]);
+    const [measurePoints, setMeasurePoints] = useState<THREE_TYPES.Vector3[]>(
+        []
+    );
     const [distance, setDistance] = useState<number | null>(null);
 
     const sceneRef = useRef<THREE_TYPES.Scene | null>(null);
@@ -43,7 +45,12 @@ const CADViewer: React.FC<CADViewerProps> = ({ fileUrl, onExit, fileName }) => {
                 scene.background = new THREE.Color(0x050a14);
                 sceneRef.current = scene;
 
-                camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 2000);
+                camera = new THREE.PerspectiveCamera(
+                    45,
+                    window.innerWidth / window.innerHeight,
+                    0.1,
+                    2000
+                );
                 camera.position.set(50, 50, 50);
                 cameraRef.current = camera;
 
@@ -64,19 +71,26 @@ const CADViewer: React.FC<CADViewerProps> = ({ fileUrl, onExit, fileName }) => {
                 // Lights
                 const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
                 scene.add(ambientLight);
-                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                const directionalLight = new THREE.DirectionalLight(
+                    0xffffff,
+                    0.8
+                );
                 directionalLight.position.set(1, 1, 2);
                 scene.add(directionalLight);
 
                 // Fetch STEP file
                 const response = await fetch(fileUrl);
                 if (!response.ok) {
-                    throw new Error(`Failed to download model: Server responded with ${response.status} ${response.statusText}`);
+                    throw new Error(
+                        `Failed to download model: Server responded with ${response.status} ${response.statusText}`
+                    );
                 }
 
                 const contentType = response.headers.get('content-type');
                 if (contentType && contentType.includes('text/html')) {
-                    throw new Error("Invalid model URL: Server returned HTML instead of a CAD file. This model entry might be corrupted.");
+                    throw new Error(
+                        'Invalid model URL: Server returned HTML instead of a CAD file. This model entry might be corrupted.'
+                    );
                 }
 
                 const buffer = await response.arrayBuffer();
@@ -91,44 +105,67 @@ const CADViewer: React.FC<CADViewerProps> = ({ fileUrl, onExit, fileName }) => {
 
                 // Helper to check status success (handles integer or object case)
                 const isSuccess = (s: any) => {
-                    if (s === oc.IFSelect_ReturnStatus.IFSelect_RetDone) return true;
+                    if (s === oc.IFSelect_ReturnStatus.IFSelect_RetDone)
+                        return true;
                     // Handle potential object wrapper (e.g. Emscripten enum object)
-                    if (typeof s === 'object' && s !== null && s.value === oc.IFSelect_ReturnStatus.IFSelect_RetDone.value) return true;
+                    if (
+                        typeof s === 'object' &&
+                        s !== null &&
+                        s.value ===
+                            oc.IFSelect_ReturnStatus.IFSelect_RetDone.value
+                    )
+                        return true;
                     return false;
                 };
 
                 // Debug log status
-                console.log("Initial Reader Status:", status);
+                console.log('Initial Reader Status:', status);
 
                 if (!isSuccess(status)) {
-                    console.warn(`Initial STEP read failed or returned warning. Status:`, status);
+                    console.warn(
+                        `Initial STEP read failed or returned warning. Status:`,
+                        status
+                    );
 
                     try {
                         const decoder = new TextDecoder('iso-8859-1');
                         const fileText = decoder.decode(uint8Array);
 
                         // Check for AP214 or other critical markers
-                        if (fileText.includes('AUTOMOTIVE_DESIGN') || fileText.includes('AP214')) {
-                            console.log("AP214 detected. Patching header to AP203...");
+                        if (
+                            fileText.includes('AUTOMOTIVE_DESIGN') ||
+                            fileText.includes('AP214')
+                        ) {
+                            console.log(
+                                'AP214 detected. Patching header to AP203...'
+                            );
 
-                            let patchedText = fileText
-                                .replace(/['"]?AUTOMOTIVE_DESIGN['"]?/gi, "'CONFIG_CONTROL_DESIGN'")
-                                .replace(/['"]?STEP AP214['"]?/gi, "'STEP AP203'");
+                            const patchedText = fileText
+                                .replace(
+                                    /['"]?AUTOMOTIVE_DESIGN['"]?/gi,
+                                    "'CONFIG_CONTROL_DESIGN'"
+                                )
+                                .replace(
+                                    /['"]?STEP AP214['"]?/gi,
+                                    "'STEP AP203'"
+                                );
 
-                            const patchedData = new TextEncoder().encode(patchedText);
+                            const patchedData = new TextEncoder().encode(
+                                patchedText
+                            );
                             oc.FS.writeFile('/model_patched.step', patchedData);
 
                             // Retry with patched file
                             reader = new oc.STEPControl_Reader_1();
                             status = reader.ReadFile('/model_patched.step');
-                            console.log("Patched Reader Status:", status);
+                            console.log('Patched Reader Status:', status);
 
                             if (isSuccess(status)) {
-                                console.log("Success: Patched file loaded.");
+                                console.log('Success: Patched file loaded.');
                             }
                         }
                     } catch (err) {
-                        console.error("Patching failed:", err);
+                        console.error('Patching failed:', err);
                     }
                 }
 
@@ -136,27 +173,44 @@ const CADViewer: React.FC<CADViewerProps> = ({ fileUrl, onExit, fileName }) => {
                 try {
                     reader.TransferRoots();
                 } catch (transferErr) {
-                    console.error("TransferRoots failed:", transferErr);
+                    console.error('TransferRoots failed:', transferErr);
                     // Only throw if we truly have nothing
                     if (!isSuccess(status)) {
-                        const statusCode = (typeof status === 'object' && status !== null) ? JSON.stringify(status) : status;
-                        throw new Error(`Failed to process STEP file (Status: ${statusCode}). The file might be corrupted or use an unsupported schema.`);
+                        const statusCode =
+                            typeof status === 'object' && status !== null
+                                ? JSON.stringify(status)
+                                : status;
+                        throw new Error(
+                            `Failed to process STEP file (Status: ${statusCode}). The file might be corrupted or use an unsupported schema.`
+                        );
                     }
                 }
 
                 const shape = reader.OneShape();
                 if (shape.IsNull()) {
-                    throw new Error("STEP file contains no valid geometry (Shape is Null). It might be an empty assembly structure.");
+                    throw new Error(
+                        'STEP file contains no valid geometry (Shape is Null). It might be an empty assembly structure.'
+                    );
                 }
 
                 // Tessellate
-                new oc.BRepMesh_IncrementalMesh_2(shape, 0.1, false, 0.5, false);
+                new oc.BRepMesh_IncrementalMesh_2(
+                    shape,
+                    0.1,
+                    false,
+                    0.5,
+                    false
+                );
 
                 // Convert to Three.js BufferGeometry
                 const geometry = new THREE.BufferGeometry();
                 const vertices: number[] = [];
 
-                const explorer = new oc.TopExp_Explorer_2(shape, oc.TopAbs_ShapeEnum.TopAbs_FACE, oc.TopAbs_ShapeEnum.TopAbs_SHAPE);
+                const explorer = new oc.TopExp_Explorer_2(
+                    shape,
+                    oc.TopAbs_ShapeEnum.TopAbs_FACE,
+                    oc.TopAbs_ShapeEnum.TopAbs_SHAPE
+                );
                 while (explorer.More()) {
                     const face = oc.TopoDS.Face_1(explorer.Current());
                     const location = new oc.TopLoc_Location_1();
@@ -179,14 +233,17 @@ const CADViewer: React.FC<CADViewerProps> = ({ fileUrl, onExit, fileName }) => {
                     explorer.Next();
                 }
 
-                geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+                geometry.setAttribute(
+                    'position',
+                    new THREE.Float32BufferAttribute(vertices, 3)
+                );
                 geometry.computeVertexNormals();
 
                 const material = new THREE.MeshStandardMaterial({
                     color: 0x818cf8,
                     metalness: 0.7,
                     roughness: 0.3,
-                    side: THREE.DoubleSide
+                    side: THREE.DoubleSide,
                 });
                 const mesh = new THREE.Mesh(geometry, material);
 
@@ -227,10 +284,11 @@ const CADViewer: React.FC<CADViewerProps> = ({ fileUrl, onExit, fileName }) => {
                     }
                 };
                 animate();
-
             } catch (err: any) {
                 console.error(err);
-                setError(err.message || "An error occurred during CAD rendering.");
+                setError(
+                    err.message || 'An error occurred during CAD rendering.'
+                );
                 setIsLoading(false);
             }
         };
@@ -254,7 +312,13 @@ const CADViewer: React.FC<CADViewerProps> = ({ fileUrl, onExit, fileName }) => {
     }, [fileUrl]);
 
     const handleMouseClick = (event: React.MouseEvent) => {
-        if (!isMeasuring || !meshRef.current || !cameraRef.current || !sceneRef.current) return;
+        if (
+            !isMeasuring ||
+            !meshRef.current ||
+            !cameraRef.current ||
+            !sceneRef.current
+        )
+            return;
 
         const rect = containerRef.current?.getBoundingClientRect();
         if (!rect) return;
@@ -274,15 +338,22 @@ const CADViewer: React.FC<CADViewerProps> = ({ fileUrl, onExit, fileName }) => {
             if (newPoints.length > 2) {
                 setMeasurePoints([point]);
                 setDistance(null);
-                if (measurementLinesRef.current) measurementLinesRef.current.clear();
+                if (measurementLinesRef.current)
+                    measurementLinesRef.current.clear();
 
-                const dot = new THREE.Mesh(new THREE.SphereGeometry(0.5), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+                const dot = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.5),
+                    new THREE.MeshBasicMaterial({ color: 0xff0000 })
+                );
                 dot.position.copy(point);
                 measurementLinesRef.current?.add(dot);
             } else {
                 setMeasurePoints(newPoints);
 
-                const dot = new THREE.Mesh(new THREE.SphereGeometry(0.5), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+                const dot = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.5),
+                    new THREE.MeshBasicMaterial({ color: 0xff0000 })
+                );
                 dot.position.copy(point);
                 measurementLinesRef.current?.add(dot);
 
@@ -290,8 +361,15 @@ const CADViewer: React.FC<CADViewerProps> = ({ fileUrl, onExit, fileName }) => {
                     const dist = newPoints[0].distanceTo(newPoints[1]);
                     setDistance(dist);
 
-                    const lineGeometry = new THREE.BufferGeometry().setFromPoints([newPoints[0], newPoints[1]]);
-                    const line = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({ color: 0xff0000 }));
+                    const lineGeometry =
+                        new THREE.BufferGeometry().setFromPoints([
+                            newPoints[0],
+                            newPoints[1],
+                        ]);
+                    const line = new THREE.Line(
+                        lineGeometry,
+                        new THREE.LineBasicMaterial({ color: 0xff0000 })
+                    );
                     measurementLinesRef.current?.add(line);
                 }
             }
@@ -308,21 +386,33 @@ const CADViewer: React.FC<CADViewerProps> = ({ fileUrl, onExit, fileName }) => {
         <div className="absolute inset-0 z-50 bg-slate-950 flex flex-col overflow-hidden">
             <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10 bg-gradient-to-b from-slate-900/90 to-transparent">
                 <div className="flex items-center gap-4">
-                    <button onClick={onExit} className="bg-slate-800/80 backdrop-blur-md text-white px-6 py-2 rounded-full font-bold hover:bg-slate-700 transition-all border border-slate-600 shadow-lg">
+                    <button
+                        onClick={onExit}
+                        className="bg-slate-800/80 backdrop-blur-md text-white px-6 py-2 rounded-full font-bold hover:bg-slate-700 transition-all border border-slate-600 shadow-lg"
+                    >
                         ← Exit
                     </button>
                     <div className="flex flex-col">
-                        <span className="text-white font-bold text-sm">{fileName}</span>
-                        <span className="text-slate-400 text-[10px] uppercase tracking-widest font-mono">Precision CAD Mode</span>
+                        <span className="text-white font-bold text-sm">
+                            {fileName}
+                        </span>
+                        <span className="text-slate-400 text-[10px] uppercase tracking-widest font-mono">
+                            Precision CAD Mode
+                        </span>
                     </div>
                 </div>
 
                 <div className="flex gap-3">
                     <button
-                        onClick={() => { setIsMeasuring(!isMeasuring); if (!isMeasuring) clearMeasurements(); }}
+                        onClick={() => {
+                            setIsMeasuring(!isMeasuring);
+                            if (!isMeasuring) clearMeasurements();
+                        }}
                         className={`px-6 py-2 rounded-full font-bold transition-all border shadow-lg ${isMeasuring ? 'bg-indigo-600 text-white border-indigo-400' : 'bg-slate-800/80 text-slate-300 border-slate-600 hover:bg-slate-700'}`}
                     >
-                        {isMeasuring ? '📏 Measuring Interface' : '📐 Measure Tool'}
+                        {isMeasuring
+                            ? '📏 Measuring Interface'
+                            : '📐 Measure Tool'}
                     </button>
                     <div className="hidden md:flex px-4 py-2 bg-indigo-500/10 text-indigo-400 text-[10px] items-center font-bold uppercase tracking-widest rounded-full border border-indigo-500/30">
                         OpenCascade WASM v7.x
@@ -338,25 +428,35 @@ const CADViewer: React.FC<CADViewerProps> = ({ fileUrl, onExit, fileName }) => {
 
             {isMeasuring && distance !== null && (
                 <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 bg-indigo-600 text-white px-8 py-4 rounded-2xl shadow-[0_0_50px_rgba(79,70,229,0.4)] border border-indigo-400 animate-in zoom-in slide-in-from-bottom-5">
-                    <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-1">Calculated Precision Distance</div>
+                    <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-1">
+                        Calculated Precision Distance
+                    </div>
                     <div className="text-3xl font-black font-mono flex items-baseline gap-2">
                         {distance.toFixed(3)}
-                        <span className="text-xs opacity-80 decoration-indigo-300 underline underline-offset-4">mm</span>
+                        <span className="text-xs opacity-80 decoration-indigo-300 underline underline-offset-4">
+                            mm
+                        </span>
                     </div>
                 </div>
             )}
 
             {isMeasuring && distance === null && (
                 <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 bg-slate-900/90 backdrop-blur-md text-slate-300 px-6 py-3 rounded-full border border-slate-700 pointer-events-none">
-                    {measurePoints.length === 0 ? "Click any surface to start measuring" : "Select target point for distance calculation"}
+                    {measurePoints.length === 0
+                        ? 'Click any surface to start measuring'
+                        : 'Select target point for distance calculation'}
                 </div>
             )}
 
             {isLoading && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-md z-20">
                     <div className="w-16 h-16 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin mb-6"></div>
-                    <h3 className="text-xl font-bold text-white mb-2">Analyzing Industrial Geometry</h3>
-                    <p className="text-slate-400 text-sm">Tessellating BREP surfaces via OpenCascade WASM...</p>
+                    <h3 className="text-xl font-bold text-white mb-2">
+                        Analyzing Industrial Geometry
+                    </h3>
+                    <p className="text-slate-400 text-sm">
+                        Tessellating BREP surfaces via OpenCascade WASM...
+                    </p>
                 </div>
             )}
 
@@ -364,11 +464,28 @@ const CADViewer: React.FC<CADViewerProps> = ({ fileUrl, onExit, fileName }) => {
                 <div className="absolute inset-0 flex items-center justify-center p-8 bg-slate-950 z-30">
                     <div className="max-w-md w-full bg-slate-900 border border-rose-500/30 p-8 rounded-3xl text-center">
                         <div className="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-6 text-rose-500">
-                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                            <svg
+                                className="w-8 h-8"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                                />
+                            </svg>
                         </div>
-                        <h2 className="text-2xl font-bold text-white mb-4">CAD Load Failed</h2>
+                        <h2 className="text-2xl font-bold text-white mb-4">
+                            CAD Load Failed
+                        </h2>
                         <p className="text-slate-400 mb-8">{error}</p>
-                        <button onClick={onExit} className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-all">
+                        <button
+                            onClick={onExit}
+                            className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-all"
+                        >
                             Back to Gallery
                         </button>
                     </div>

@@ -1,100 +1,124 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import pool from '../db.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-// Assuming we want to keep academy_data.json in server root or config??
-// Original path was __dirname + 'academy_data.json', where __dirname was server/
-// Now we are in server/controllers. So we need ../academy_data.json
-const ACADEMY_FILE = path.resolve(__dirname, '../academy_data.json');
+export const getVideos = async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM academy_videos ORDER BY created_at DESC');
 
-const getAcademyVideos = () => {
-    if (!fs.existsSync(ACADEMY_FILE)) {
-        // Default seed data
-        const defaults = {
-            basics: [
-                { id: 1, title: 'Installing GEAR Locally', duration: '5:20', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', desc: 'Deploying Docker containers in schools.' },
-                { id: 2, title: 'Navigating the 3D Repo', duration: '3:15', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', desc: 'Finding and filtering VET models.' },
-            ],
-            creation: [
-                { id: 3, title: 'Creating Your First Lesson', duration: '8:45', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', desc: 'Using the Workbook Editor.' },
-                { id: 4, title: 'Adding Interactive Hotspots', duration: '4:30', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', desc: 'Attaching media to 3D parts.' },
-            ],
-            pedagogy: [
-                { id: 5, title: 'Bloom\'s Taxonomy in VR', duration: '12:00', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', desc: 'Structuring learning outcomes.' },
-                { id: 6, title: 'Flipped Classroom with GEAR', duration: '9:10', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', desc: 'Assigning VR homework.' },
-            ]
+        // Group by category to match previous JSON structure
+        const grouped = rows.reduce((acc, video) => {
+            if (!acc[video.category]) acc[video.category] = [];
+            acc[video.category].push({
+                id: video.id,
+                title: video.title,
+                duration: video.duration,
+                url: video.url,
+                desc: video.description, // Mapping DB 'description' to frontend expected 'desc' if needed, or keeping both? Check usage. 
+                // Previous file used 'desc'. DB has 'description'. Let's alias it to be safe.
+                // Actually, let's look at the original code: "desc: '...'"
+            });
+            return acc;
+        }, {});
+
+        // Ensure keys exist even if empty, matching defaults if possible, or just return what we have.
+        // The original code had specific keys: basics, creation, pedagogy. 
+        // If they are empty in DB, they won't appear here. This might break frontend if it expects them.
+        // Let's ensure default keys exist.
+        const structure = {
+            basics: grouped.basics || [],
+            creation: grouped.creation || [],
+            pedagogy: grouped.pedagogy || [],
+            ...grouped // Include any others that might be added dynamically
         };
-        fs.writeFileSync(ACADEMY_FILE, JSON.stringify(defaults, null, 2));
-        return defaults;
+
+        res.json(structure);
+    } catch (e) {
+        console.error("Failed to fetch videos:", e);
+        res.status(500).json({ error: "Failed to fetch videos" });
     }
-    return JSON.parse(fs.readFileSync(ACADEMY_FILE));
 };
 
-export const getVideos = (req, res) => {
-    res.json(getAcademyVideos());
-};
-
-export const addVideo = (req, res) => {
-    // Admin check logic is in route? Or repeated here?
-    // Let's assume protection is done via middleware or checked here if we pass user
-    // Original had simplistic check.
+export const addVideo = async (req, res) => {
     const requestor = req.headers['x-user-name'];
     if (!requestor) return res.status(401).json({ error: 'Unauthorized' });
 
     try {
         const { category, video } = req.body;
-        const data = getAcademyVideos();
+        // Video object likely comes as { title, duration, url, desc }
+        // We need to map 'desc' to 'description' if that's what comes in.
 
-        if (!data[category]) data[category] = [];
-        const newVideo = { ...video, id: Date.now() };
-        data[category].push(newVideo);
+        const description = video.desc || video.description || '';
 
-        fs.writeFileSync(ACADEMY_FILE, JSON.stringify(data, null, 2));
+        const [result] = await pool.query(
+            'INSERT INTO academy_videos (category, title, duration, url, description) VALUES (?, ?, ?, ?, ?)',
+            [category, video.title, video.duration, video.url, description]
+        );
+
+        const newVideo = {
+            id: result.insertId,
+            ...video,
+            desc: description
+        };
+
         res.json(newVideo);
     } catch (e) {
+        console.error("Failed to save video:", e);
         res.status(500).json({ error: "Failed to save video" });
     }
 };
 
-export const deleteVideo = (req, res) => {
+export const deleteVideo = async (req, res) => {
     const id = parseInt(req.params.id);
-    const data = getAcademyVideos();
-    let found = false;
-
-    Object.keys(data).forEach(cat => {
-        const initLen = data[cat].length;
-        data[cat] = data[cat].filter(v => v.id !== id);
-        if (data[cat].length !== initLen) found = true;
-    });
-
-    if (found) {
-        fs.writeFileSync(ACADEMY_FILE, JSON.stringify(data, null, 2));
-        res.json({ success: true });
-    } else {
-        res.status(404).json({ error: "Video not found" });
+    try {
+        const [result] = await pool.query('DELETE FROM academy_videos WHERE id = ?', [id]);
+        if (result.affectedRows > 0) {
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ error: "Video not found" });
+        }
+    } catch (e) {
+        console.error("Failed to delete video:", e);
+        res.status(500).json({ error: "Failed to delete video" });
     }
 };
 
-export const updateVideo = (req, res) => {
+export const updateVideo = async (req, res) => {
     const id = parseInt(req.params.id);
     const { video } = req.body;
-    const data = getAcademyVideos();
-    let found = false;
+    try {
+        // Construct dynamic update query
+        // Incoming video object might have partial fields? 
+        // Original logic was: data[cat][idx] = { ...data[cat][idx], ...video };
 
-    Object.keys(data).forEach(cat => {
-        const idx = data[cat].findIndex(v => v.id === id);
-        if (idx !== -1) {
-            data[cat][idx] = { ...data[cat][idx], ...video };
-            found = true;
+        // We need to fetch existing to know what to update? Or just update what is passed.
+        // DB update requires explicit fields.
+        // Let's assume video contains all fields or we build a query.
+
+        const fields = [];
+        const values = [];
+
+        if (video.title) { fields.push('title = ?'); values.push(video.title); }
+        if (video.duration) { fields.push('duration = ?'); values.push(video.duration); }
+        if (video.url) { fields.push('url = ?'); values.push(video.url); }
+        if (video.desc || video.description) {
+            fields.push('description = ?');
+            values.push(video.desc || video.description);
         }
-    });
+        if (video.category) { fields.push('category = ?'); values.push(video.category); }
+        // Note: category change might be tricky if frontend logic relies on simple ID lookup within category but API structure suggests ID is global. 
 
-    if (found) {
-        fs.writeFileSync(ACADEMY_FILE, JSON.stringify(data, null, 2));
-        res.json({ success: true });
-    } else {
-        res.status(404).json({ error: "Video not found" });
+        if (fields.length === 0) return res.json({ success: true }); // Nothing to update
+
+        values.push(id);
+
+        const [result] = await pool.query(`UPDATE academy_videos SET ${fields.join(', ')} WHERE id = ?`, values);
+
+        if (result.affectedRows > 0) {
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ error: "Video not found" });
+        }
+    } catch (e) {
+        console.error("Failed to update video:", e);
+        res.status(500).json({ error: "Failed to update video" });
     }
 };

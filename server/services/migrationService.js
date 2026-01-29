@@ -36,6 +36,42 @@ export const runMigrations = async () => {
             `);
         });
 
+        await pool.query('SELECT 1 FROM academy_videos LIMIT 1').catch(async () => {
+            console.log("Migrating DB: Creating academy_videos table...");
+            await pool.query(`
+                CREATE TABLE IF NOT EXISTS academy_videos (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    category VARCHAR(50) NOT NULL,
+                    title VARCHAR(255) NOT NULL,
+                    duration VARCHAR(20),
+                    url VARCHAR(255),
+                    description TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            `);
+
+            // Seed data if empty
+            const [rows] = await pool.query('SELECT COUNT(*) as count FROM academy_videos');
+            if (rows[0].count === 0) {
+                console.log("Seeding Academy Videos...");
+                const seedData = [
+                    { category: 'basics', title: 'Installing GEAR Locally', duration: '5:20', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', description: 'Deploying Docker containers in schools.' },
+                    { category: 'basics', title: 'Navigating the 3D Repo', duration: '3:15', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', description: 'Finding and filtering VET models.' },
+                    { category: 'creation', title: 'Creating Your First Lesson', duration: '8:45', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', description: 'Using the Workbook Editor.' },
+                    { category: 'creation', title: 'Adding Interactive Hotspots', duration: '4:30', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', description: 'Attaching media to 3D parts.' },
+                    { category: 'pedagogy', title: 'Bloom\'s Taxonomy in VR', duration: '12:00', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', description: 'Structuring learning outcomes.' },
+                    { category: 'pedagogy', title: 'Flipped Classroom with GEAR', duration: '9:10', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', description: 'Assigning VR homework.' }
+                ];
+
+                for (const video of seedData) {
+                    await pool.query(
+                        'INSERT INTO academy_videos (category, title, duration, url, description) VALUES (?, ?, ?, ?, ?)',
+                        [video.category, video.title, video.duration, video.url, video.description]
+                    );
+                }
+            }
+        });
+
     } catch (e) {
         console.error("Migration check failed:", e);
     }

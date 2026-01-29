@@ -1,0 +1,50 @@
+{
+  "basics": [
+    {
+      "id": 1,
+      "title": "Installing GEAR Locally",
+      "duration": "5:20",
+      "url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "desc": "Deploying Docker containers in schools."
+    },
+    {
+      "id": 2,
+      "title": "Navigating the 3D Repo",
+      "duration": "3:15",
+      "url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "desc": "Finding and filtering VET models."
+    }
+  ],
+  "creation": [
+    {
+      "id": 3,
+      "title": "Creating Your First Lesson",
+      "duration": "8:45",
+      "url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "desc": "Using the Workbook Editor."
+    },
+    {
+      "id": 4,
+      "title": "Adding Interactive Hotspots",
+      "duration": "4:30",
+      "url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "desc": "Attaching media to 3D parts."
+    }
+  ],
+  "pedagogy": [
+    {
+      "id": 5,
+      "title": "Bloom's Taxonomy in VR",
+      "duration": "12:00",
+      "url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "desc": "Structuring learning outcomes."
+    },
+    {
+      "id": 6,
+      "title": "Flipped Classroom with GEAR",
+      "duration": "9:10",
+      "url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "desc": "Assigning VR homework."
+    }
+  ]
+}

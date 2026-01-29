@@ -24,10 +24,18 @@ test('academy page functionality', async ({ page }) => {
     await expect(creationBtn).toBeVisible();
     await expect(pedagogyBtn).toBeVisible();
 
-    // Switch categories
+    // Verify Basics Content (Default)
+    await expect(page.getByText('Installing GEAR Locally')).toBeVisible();
+    await expect(page.getByText('Navigating the 3D Repo')).toBeVisible();
+
+    // Switch categories and verify content
     await creationBtn.click();
     await expect(creationBtn).toHaveClass(/bg-indigo-600/);
+    await expect(page.getByText('Creating Your First Lesson')).toBeVisible();
+    await expect(page.getByText('Adding Interactive Hotspots')).toBeVisible();
 
     await pedagogyBtn.click();
     await expect(pedagogyBtn).toHaveClass(/bg-indigo-600/);
+    await expect(page.getByText("Bloom's Taxonomy in VR")).toBeVisible();
+    await expect(page.getByText('Flipped Classroom with GEAR')).toBeVisible();
 });

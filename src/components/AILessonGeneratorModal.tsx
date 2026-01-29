@@ -176,7 +176,7 @@ const AILessonGeneratorModal: React.FC<AILessonGeneratorModalProps> = ({
                         <p className="text-xs text-indigo-300/80">
                             The AI will generate structured steps with
                             educational content and suggested interaction points
-                            based on the model's geometry.
+                            based on the model&apos;s geometry.
                         </p>
                     </div>
 

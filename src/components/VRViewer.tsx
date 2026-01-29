@@ -261,6 +261,40 @@ const VRViewer: React.FC<VRViewerProps> = ({
     const micStreamRef = useRef<MediaStream | null>(null);
     const modelEntityRef = useRef<any>(null);
 
+    const playSound = useCallback(
+        (type: 'click' | 'ping' | 'dismiss' | 'success') => {
+            try {
+                if (!audioCtxRef.current) {
+                    audioCtxRef.current = new (
+                        window.AudioContext ||
+                        (window as any).webkitAudioContext
+                    )();
+                }
+                const ctx = audioCtxRef.current;
+                if (ctx.state === 'suspended') ctx.resume();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                const now = ctx.currentTime;
+                if (type === 'click') {
+                    osc.frequency.setValueAtTime(880, now);
+                    gain.gain.setValueAtTime(0.08, now);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'ping') {
+                    osc.frequency.setValueAtTime(523, now);
+                    gain.gain.setValueAtTime(0.1, now);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                }
+            } catch (e) {
+                console.error('Audio playback error');
+            }
+        },
+        []
+    );
+
     useEffect(() => {
         const el = modelEntityRef.current;
         if (!el) return;
@@ -322,7 +356,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
                             } else {
                                 playSound('dismiss');
                                 setChallengeFeedback({
-                                    msg: `❌ That's ${name}. Look for: ${keywords.join(' or ')}`,
+                                    msg: `❌ That&apos;s ${name}. Look for: ${keywords.join(' or ')}`,
                                     type: 'error',
                                 });
                             }
@@ -375,40 +409,6 @@ const VRViewer: React.FC<VRViewerProps> = ({
 
     // Ref for the scene to access systems
     const bgSceneRef = useRef<any>(null);
-
-    const playSound = useCallback(
-        (type: 'click' | 'ping' | 'dismiss' | 'success') => {
-            try {
-                if (!audioCtxRef.current) {
-                    audioCtxRef.current = new (
-                        window.AudioContext ||
-                        (window as any).webkitAudioContext
-                    )();
-                }
-                const ctx = audioCtxRef.current;
-                if (ctx.state === 'suspended') ctx.resume();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                const now = ctx.currentTime;
-                if (type === 'click') {
-                    osc.frequency.setValueAtTime(880, now);
-                    gain.gain.setValueAtTime(0.08, now);
-                    osc.start(now);
-                    osc.stop(now + 0.05);
-                } else if (type === 'ping') {
-                    osc.frequency.setValueAtTime(523, now);
-                    gain.gain.setValueAtTime(0.1, now);
-                    osc.start(now);
-                    osc.stop(now + 0.2);
-                }
-            } catch (e) {
-                console.error('Audio playback error');
-            }
-        },
-        []
-    );
 
     const updateAudioListener = useCallback(() => {
         if (!outputAudioContextRef.current || !sceneRef.current) return;
@@ -830,7 +830,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
 
     // --- Telemetry / Analytics Tracker ---
     const telemetryBuffer = useRef<any[]>([]);
-    const lastFlushTime = useRef<number>(Date.now());
+    const lastFlushTime = useRef<number>(0);
 
     const flushTelemetry = useCallback(async () => {
         if (telemetryBuffer.current.length === 0) return;
@@ -862,7 +862,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
             if (!scene || !cursor || !modelEl) return;
 
             // 2. Check Intersections
-            // @ts-ignore
+            // @ts-expect-error
             const raycaster = (cursor as any).components.raycaster;
             if (!raycaster) return;
 
@@ -912,13 +912,12 @@ const VRViewer: React.FC<VRViewerProps> = ({
                     {/* Challenge Feedback Overlay */}
                     {challengeFeedback && (
                         <div
-                            className={`absolute top-0 left-0 right-0 p-4 rounded-xl mb-4 font-bold text-center animate-bounce shadow-xl border ${
-                                challengeFeedback.type === 'success'
+                            className={`absolute top-0 left-0 right-0 p-4 rounded-xl mb-4 font-bold text-center animate-bounce shadow-xl border ${challengeFeedback.type === 'success'
                                     ? 'bg-green-600 border-green-400 text-white'
                                     : challengeFeedback.type === 'error'
-                                      ? 'bg-rose-600 border-rose-400 text-white'
-                                      : 'bg-blue-600 text-white'
-                            }`}
+                                        ? 'bg-rose-600 border-rose-400 text-white'
+                                        : 'bg-blue-600 text-white'
+                                }`}
                         >
                             {challengeFeedback.msg}
                         </div>
@@ -975,11 +974,10 @@ const VRViewer: React.FC<VRViewerProps> = ({
                     <div className="flex gap-2 mb-4">
                         <button
                             onClick={() => setIsAssemblyMode(!isAssemblyMode)}
-                            className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
-                                isAssemblyMode
+                            className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${isAssemblyMode
                                     ? 'bg-amber-600 border-amber-500 text-white shadow-[0_0_10px_rgba(245,158,11,0.5)]'
                                     : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500'
-                            }`}
+                                }`}
                         >
                             {isAssemblyMode
                                 ? '🔧 Assembly Mode ON'
@@ -989,11 +987,10 @@ const VRViewer: React.FC<VRViewerProps> = ({
                         {model.optimized && (
                             <button
                                 onClick={() => setUseOptimized(!useOptimized)}
-                                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
-                                    useOptimized
+                                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${useOptimized
                                         ? 'bg-emerald-600 border-emerald-500 text-white shadow-[0_0_10px_rgba(16,185,129,0.5)]'
                                         : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500'
-                                }`}
+                                    }`}
                             >
                                 {useOptimized
                                     ? '✨ Optimized (AI)'
@@ -1040,13 +1037,12 @@ const VRViewer: React.FC<VRViewerProps> = ({
                             trainingTasks.map((t, i) => (
                                 <div
                                     key={`task-${i}`}
-                                    className={`p-3 rounded-xl border transition-all ${
-                                        t.status === 'completed'
+                                    className={`p-3 rounded-xl border transition-all ${t.status === 'completed'
                                             ? 'bg-green-900/40 border-green-500/50'
                                             : activeTaskId === t.id
-                                              ? 'bg-indigo-900/60 border-indigo-400 shadow-[0_0_10px_rgba(99,102,241,0.3)]'
-                                              : 'bg-slate-950 border-slate-800'
-                                    }`}
+                                                ? 'bg-indigo-900/60 border-indigo-400 shadow-[0_0_10px_rgba(99,102,241,0.3)]'
+                                                : 'bg-slate-950 border-slate-800'
+                                        }`}
                                 >
                                     <div className="flex justify-between items-start">
                                         <div>
@@ -1077,11 +1073,10 @@ const VRViewer: React.FC<VRViewerProps> = ({
                                                     if (!isAssemblyMode)
                                                         setIsAssemblyMode(true); // Auto-enable assembly
                                                 }}
-                                                className={`text-[10px] px-2 py-1 rounded border ${
-                                                    activeTaskId === t.id
+                                                className={`text-[10px] px-2 py-1 rounded border ${activeTaskId === t.id
                                                         ? 'bg-indigo-600 text-white border-indigo-500'
                                                         : 'bg-slate-800 text-slate-400 hover:text-white border-slate-700'
-                                                }`}
+                                                    }`}
                                             >
                                                 {activeTaskId === t.id
                                                     ? 'STOP'
@@ -1129,9 +1124,9 @@ const VRViewer: React.FC<VRViewerProps> = ({
                                         {activeHotspot.mediaUrl.includes(
                                             'youtube'
                                         ) ||
-                                        activeHotspot.mediaUrl.includes(
-                                            'vimeo'
-                                        ) ? (
+                                            activeHotspot.mediaUrl.includes(
+                                                'vimeo'
+                                            ) ? (
                                             <iframe
                                                 src={activeHotspot.mediaUrl}
                                                 className="w-full h-full"

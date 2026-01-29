@@ -8,17 +8,17 @@ interface HelpPageProps {
 const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
     const { t } = useTranslation();
     const [xrSupported, setXrSupported] = useState<boolean | null>(null);
-    const [isSecure, setIsSecure] = useState<boolean>(false);
-    const [browserName, setBrowserName] = useState<string>('');
-
-    useEffect(() => {
-        // Check Secure Context (HTTPS or localhost)
-        // Fallback to checking protocol if isSecureContext is false but protocol is https
+    const [isSecure, setIsSecure] = useState<boolean>(() => {
         const isHttps = window.location.protocol === 'https:';
         const isLocal =
             window.location.hostname === 'localhost' ||
             window.location.hostname === '127.0.0.1';
-        setIsSecure(window.isSecureContext || isHttps || isLocal);
+        return window.isSecureContext || isHttps || isLocal;
+    });
+    const [browserName, setBrowserName] = useState<string>('');
+
+    useEffect(() => {
+        // Check Secure Context (Moved to state init)
 
         // Check Browser Name
         const userAgent = navigator.userAgent;

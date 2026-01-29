@@ -211,16 +211,21 @@ const App: React.FC = () => {
 
         if (ltiUser) {
             // Auto-login from LTI
-            const user: User = {
-                id: 'lti-' + ltiUser, // This matches what we'd expect or we can fetch profile
-                username: ltiUser.split('@')[0], // derived
-                email: ltiUser,
-                role: (ltiRole as any) || 'student',
-                institution: 'LTI Provider',
-            };
+            const derivedId = 'lti-' + ltiUser;
+            // Only update if not already logged in as this user
+            if (currentUser?.id !== derivedId) {
+                const user: User = {
+                    id: derivedId,
+                    username: ltiUser.split('@')[0], // derived
+                    email: ltiUser,
+                    role: (ltiRole as any) || 'student',
+                    institution: 'LTI Provider',
+                };
 
-            setCurrentUser(user);
-            localStorage.setItem('gear_user', JSON.stringify(user));
+                // eslint-disable-next-line react-hooks/set-state-in-effect
+                setCurrentUser(user);
+                localStorage.setItem('gear_user', JSON.stringify(user));
+            }
 
             // Clean URL
             params.delete('lti_user');
@@ -240,6 +245,7 @@ const App: React.FC = () => {
                 setCurrentView('viewer');
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [models]);
 
     const handleViewModel = async (
@@ -612,14 +618,14 @@ const App: React.FC = () => {
                 {currentView === 'viewer' &&
                     selectedModel &&
                     (selectedModel.modelUrl.toLowerCase().endsWith('.pdb') ||
-                    selectedModel.modelUrl.includes('#pdb') ? (
+                        selectedModel.modelUrl.includes('#pdb') ? (
                         <PDBViewer
                             pdbUrl={selectedModel.modelUrl.replace('#pdb', '')}
                             onExit={handleExitViewer}
                         />
                     ) : selectedModel.modelUrl.toLowerCase().endsWith('.stp') ||
-                      selectedModel.modelUrl.toLowerCase().endsWith('.step') ||
-                      selectedModel.modelUrl.includes('#step') ? (
+                        selectedModel.modelUrl.toLowerCase().endsWith('.step') ||
+                        selectedModel.modelUrl.includes('#step') ? (
                         <CADViewer
                             fileUrl={selectedModel.modelUrl.replace(
                                 '#step',
@@ -629,9 +635,9 @@ const App: React.FC = () => {
                             fileName={selectedModel.name}
                         />
                     ) : selectedModel.modelUrl
-                          .toLowerCase()
-                          .endsWith?.('.stl') ||
-                      selectedModel.modelUrl.includes('#stl') ? (
+                        .toLowerCase()
+                        .endsWith?.('.stl') ||
+                        selectedModel.modelUrl.includes('#stl') ? (
                         <VRViewer
                             model={selectedModel}
                             workshopMode={isWorkshopMode}
@@ -674,19 +680,19 @@ const App: React.FC = () => {
 
             {(currentView === 'lessons' ||
                 (currentView === 'my-lessons' && currentUser)) && (
-                <LessonsList
-                    currentUser={currentUser}
-                    onViewLesson={handleViewLesson}
-                    onEditLesson={handeEditLesson}
-                    onCreateLesson={handleCreateLesson}
-                    onViewUser={setViewingProfileUser}
-                    initialAuthorFilter={
-                        currentView === 'my-lessons'
-                            ? currentUser?.username
-                            : undefined
-                    }
-                />
-            )}
+                    <LessonsList
+                        currentUser={currentUser}
+                        onViewLesson={handleViewLesson}
+                        onEditLesson={handeEditLesson}
+                        onCreateLesson={handleCreateLesson}
+                        onViewUser={setViewingProfileUser}
+                        initialAuthorFilter={
+                            currentView === 'my-lessons'
+                                ? currentUser?.username
+                                : undefined
+                        }
+                    />
+                )}
 
             {currentView === 'lesson-view' && selectedLesson && (
                 <LessonViewer

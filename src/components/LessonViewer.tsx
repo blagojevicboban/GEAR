@@ -39,12 +39,12 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
         msg: string;
     } | null>(null);
 
-    // Reset interaction state on step change
-    useEffect(() => {
+    // Reset interaction state handled in navigation functions now
+    const resetInteractionState = () => {
         setQuizSelected(null);
         setQuizSubmitted(false);
         setFindPartFeedback(null);
-    }, [currentStepIndex]);
+    };
 
     useEffect(() => {
         fetch(`/api/lessons/${lessonId}`)
@@ -241,6 +241,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
 
     const handleNext = () => {
         if (currentStepIndex < totalSteps - 1) {
+            resetInteractionState();
             setCurrentStepIndex((prev) => prev + 1);
         } else {
             // Finish
@@ -250,7 +251,10 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
     };
 
     const handlePrev = () => {
-        if (currentStepIndex > 0) setCurrentStepIndex((prev) => prev - 1);
+        if (currentStepIndex > 0) {
+            resetInteractionState();
+            setCurrentStepIndex((prev) => prev - 1);
+        }
     };
 
     return (
@@ -711,7 +715,10 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
                         <div className="text-slate-400">
                             <p className="mb-4">{lesson.description}</p>
                             <button
-                                onClick={() => setCurrentStepIndex(0)}
+                                onClick={() => {
+                                    resetInteractionState();
+                                    setCurrentStepIndex(0);
+                                }}
                                 className="text-indigo-400 underline"
                             >
                                 {t('lessons.viewer.start_first')}

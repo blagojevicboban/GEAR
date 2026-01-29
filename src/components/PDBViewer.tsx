@@ -2,24 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import type * as THREE_TYPES from 'three';
 const THREE = (window as any).THREE as typeof THREE_TYPES;
 
-// @ts-ignore
 import { TrackballControls } from '../lib/three-examples/controls/TrackballControls.js';
-// @ts-ignore
 import { PDBLoader } from '../lib/three-examples/loaders/PDBLoader.js';
-// @ts-ignore
 import {
     CSS2DRenderer,
     CSS2DObject,
 } from '../lib/three-examples/renderers/CSS2DRenderer.js';
-// @ts-ignore
 import { ARButton } from '../lib/three-examples/webxr/ARButton.js';
-// @ts-ignore
 import { XRControllerModelFactory } from '../lib/three-examples/webxr/XRControllerModelFactory.js';
-// @ts-ignore
 import { XRHandModelFactory } from '../lib/three-examples/webxr/XRHandModelFactory.js';
-// @ts-ignore
 import { InteractiveGroup } from '../lib/three-examples/interactive/InteractiveGroup.js';
-// @ts-ignore
 import { HTMLMesh } from '../lib/three-examples/interactive/HTMLMesh.js';
 import { io, Socket } from 'socket.io-client';
 
@@ -43,6 +35,10 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
     const [visualStyle, setVisualStyle] = useState<
         'ball-stick' | 'spacefill' | 'backbone'
     >('ball-stick');
+    const visualStyleRef = useRef(visualStyle);
+    useEffect(() => {
+        visualStyleRef.current = visualStyle;
+    }, [visualStyle]);
     const [arSessionActive, setArSessionActive] = useState(false);
     const [interactionMode, setInteractionMode] = useState<
         'manipulate' | 'annotate'
@@ -463,6 +459,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
             const absolutePdbUrl = `${baseUrl}/${cleanPdbUrl}`;
 
             console.log('Starting PDB Load:', absolutePdbUrl);
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setLoading(true);
             setError(null);
 
@@ -631,7 +628,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
             labelRenderer.render(scene, camera);
 
             // Wrist Menu Update
-            if (menuMesh && arSessionActive && controller1) {
+            if (menuMesh && renderer.xr.isPresenting && controller1) {
                 // Check if controller is tracking
                 // We can simply lerp to controller position + offset
                 const targetPos = new THREE.Vector3();
@@ -770,7 +767,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
 
         // Listen: Style Updates
         socket.on('update-style', (style: any) => {
-            if (style !== visualStyle) {
+            if (style !== visualStyleRef.current) {
                 isRemoteUpdate.current = true;
                 setVisualStyle(style);
                 setVoiceStatus(`Remote: ${style}`);
@@ -793,9 +790,9 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
 
     // --- Voice Control Logic ---
     useEffect(() => {
-        // @ts-ignore
         const SpeechRecognition =
-            window.SpeechRecognition || window.webkitSpeechRecognition;
+            (window as any).SpeechRecognition ||
+            (window as any).webkitSpeechRecognition;
         if (!SpeechRecognition) {
             console.warn('Speech Recognition not supported in this browser.');
             return;

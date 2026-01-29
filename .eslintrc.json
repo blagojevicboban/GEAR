@@ -19,7 +19,11 @@
         "ecmaVersion": 12,
         "sourceType": "module"
     },
-    "plugins": ["react", "@typescript-eslint", "prettier"],
+    "plugins": [
+        "react",
+        "@typescript-eslint",
+        "prettier"
+    ],
     "rules": {
         "prettier/prettier": "error",
         "react/react-in-jsx-scope": "off",
@@ -29,7 +33,9 @@
                 "argsIgnorePattern": "^_"
             }
         ],
-        "@typescript-eslint/no-explicit-any": "warn"
+        "@typescript-eslint/no-explicit-any": "warn",
+        "react/prop-types": "off",
+        "react/no-unknown-property": "off"
     },
     "settings": {
         "react": {
@@ -38,7 +44,9 @@
     },
     "overrides": [
         {
-            "files": ["server/**/*.js"],
+            "files": [
+                "server/**/*.js"
+            ],
             "rules": {
                 "@typescript-eslint/no-var-requires": "off"
             }

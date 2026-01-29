@@ -6,3 +6,7 @@ public
 playwright-report
 test-results
 *.min.js
+
+src/lib/**
+tailwind.config.js
+src/lib

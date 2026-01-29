@@ -60,7 +60,7 @@ export const analyzeModelDescription = async (
         try {
             const parsed = JSON.parse(text.trim());
             return Array.isArray(parsed) ? parsed : getFallbackTasks(name);
-        } catch (parseError) {
+        } catch {
             console.warn('Failed to parse Gemini JSON, using fallback.');
             return getFallbackTasks(name);
         }

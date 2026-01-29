@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { TourStep } from '../types';
 import { useTranslation } from 'react-i18next';
 
@@ -22,10 +22,9 @@ const TourOverlay: React.FC<TourOverlayProps> = ({
     const { t } = useTranslation();
     const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
     const currentStep = steps[currentStepIndex];
-    // @ts-ignore
-    const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    const updatePosition = () => {
+
+    const updatePosition = useCallback(() => {
         if (!currentStep) return;
 
         const element = document.getElementById(currentStep.targetId);
@@ -41,12 +40,13 @@ const TourOverlay: React.FC<TourOverlayProps> = ({
             // If element not found, we might want to wait a bit (e.g. for view transition)
             setTargetRect(null);
         }
-    };
+    }, [currentStep]);
 
     useEffect(() => {
         if (!isOpen) return;
 
         // Update immediately
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         updatePosition();
 
         // And keep updating on resize/scroll
@@ -61,7 +61,7 @@ const TourOverlay: React.FC<TourOverlayProps> = ({
             window.removeEventListener('scroll', updatePosition, true);
             clearInterval(interval);
         };
-    }, [isOpen, currentStepIndex, currentStep]);
+    }, [isOpen, currentStepIndex, currentStep, updatePosition]);
 
     if (!isOpen || !currentStep) return null;
 

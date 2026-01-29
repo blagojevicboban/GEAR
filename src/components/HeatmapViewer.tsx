@@ -29,7 +29,7 @@ const HeatmapViewer: React.FC<HeatmapViewerProps> = ({ model }) => {
         if (loading || !sceneRef.current) return;
 
         const sceneEl = sceneRef.current;
-        const heatGroup = document.createElement('a-entity');
+
 
         // Simple visualization: Small red spheres for now. 
         // Optimization: For 2000+ points, we should use a ParticleSystem (BufferGeometry), 
@@ -68,8 +68,8 @@ const HeatmapViewer: React.FC<HeatmapViewerProps> = ({ model }) => {
             // But we need to wait for the model entity?
             // Actually, we can just append this as a child of the interactable-model entity.
 
-            const modelEntity = document.getElementById('heatmap-model-root');
-            if (modelEntity) {
+            const modelEntity = document.getElementById('heatmap-model-root') as any;
+            if (modelEntity && modelEntity.object3D) {
                 modelEntity.object3D.add(wrapper);
             }
         }

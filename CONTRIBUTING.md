@@ -9,7 +9,11 @@ Thank you for your interest in contributing to THE GEAR! We welcome contribution
   - **`pages/`**: Main application routes.
   - **`services/`**: API client methods.
 - **`server/`**: Node.js/Express Backend.
-  - **`index.js`**: Main entry point and API routes.
+  - **`index.js`**: Main entry point (App wiring and middleware).
+  - **`controllers/`**: Request handlers (Auth, User, Model, etc.).
+  - **`routes/`**: API Route definitions.
+  - **`services/`**: Shared logic (File, AI, Migrations).
+  - **`config/`**: Configuration files (Socket.io).
   - **`db.js`**: Database connection pool.
   - **`uploads/`**: Directory for storing uploaded assets.
   - **`scripts/`**: Python/Shell scripts for data processing (e.g., CAD optimization).

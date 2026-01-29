@@ -2,6 +2,8 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import { Server } from 'socket.io';
 import { createServer } from 'http';
 import path from 'path';
@@ -32,17 +34,67 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const httpServer = createServer(app);
+
+// CORS Config
+const allowedOrigins = [process.env.CLIENT_URL || 'http://localhost:3000', 'http://localhost:3001'];
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+};
+
 const io = new Server(httpServer, {
     cors: {
-        origin: "*",
+        origin: allowedOrigins, // Match Express CORS
         methods: ["GET", "POST"]
     }
 });
 
 const PORT = process.env.PORT || 3001;
 
-app.use(cors());
+// Security Middleware
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            "default-src": ["'self'"],
+            "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // Needed for some 3D libs / React dev
+            "img-src": ["'self'", "data:", "blob:", "https://*"],
+            "connect-src": ["'self'", "ws:", "wss:", "https://generativelanguage.googleapis.com"],
+            "frame-src": ["'self'", "https://www.youtube.com"], // Academy Videos
+            "media-src": ["'self'", "data:", "blob:"],
+        }
+    },
+    crossOriginEmbedderPolicy: false // Often breaks loading 3D assets from other domains or blob/workers
+}));
+
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
+
+// Rate Limiting
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+app.use('/api', apiLimiter);
+
+const authLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 10, // Limit each IP to 10 login attempts per hour
+    message: "Too many login attempts, please try again after an hour"
+});
+app.use('/api/login', authLimiter);
+app.use('/api/register', authLimiter);
+
 
 // Ensure uploads directory exists
 if (!fs.existsSync(uploadDir)) {

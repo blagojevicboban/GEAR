@@ -177,14 +177,14 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
                                     className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
                                     id="nav-login"
                                 >
-                                    {t('auth.login')}
+                                    {t('nav.login')}
                                 </button>
                                 <button
                                     onClick={() => setView('register')}
                                     className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors"
                                     id="nav-register"
                                 >
-                                    {t('auth.register')}
+                                    {t('nav.register')}
                                 </button>
                             </div>
                         )}

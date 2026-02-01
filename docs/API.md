@@ -226,3 +226,76 @@ Download database backup (JSON or SQL).
 ### POST /admin/restore
 
 Restore database from backup file.
+
+## WebSockets (Socket.io)
+
+Real-time communication is handled via Socket.io at the root URL (proxied via `/socket.io`).
+
+### Events (Client -> Server)
+
+#### `join-workshop`
+Joins a specific workshop room.
+- **Payload**: `{ workshopId: string, user: { id, username, role } }`
+
+#### `update-transform`
+Broadcasts the user's current spatial information (Head/Hands).
+- **Payload**:
+  ```json
+  {
+      "workshopId": "123",
+      "transforms": {
+          "head": { "pos": { "x": 0, "y": 0, "z": 0 }, "rot": { "x": 0, "y": 0, "z": 0 } },
+          "leftHand": { "pos": ..., "rot": ... }, // Optional
+          "rightHand": { "pos": ..., "rot": ... } // Optional
+      }
+  }
+  ```
+
+#### `teacher-sync-update` (Teacher Only)
+Broadcasts the teacher's camera view to force-sync students.
+- **Payload**:
+  ```json
+  {
+      "workshopId": "123",
+      "camera": {
+          "position": { "x": 0, "y": 1.6, "z": 0 },
+          "rotation": { "x": 0, "y": 0, "z": 0 }
+      }
+  }
+  ```
+
+#### `teacher-pointer-move` (Teacher Only)
+Broadcasts 3D laser pointer data.
+- **Payload**:
+  ```json
+  {
+      "workshopId": "123",
+      "pointer": {
+          "active": true,
+          "origin": { "x": 0, "y": 0, "z": 0 },
+          "target": { "x": 0, "y": 0, "z": -10 }
+      }
+  }
+  ```
+
+### Events (Server -> Client)
+
+#### `user-joined`
+Fired when a new user enters the room.
+- **Payload**: `{ socketId, ...userProfile }`
+
+#### `user-left`
+Fired when a user disconnects.
+- **Payload**: `socketId`
+
+#### `participant-moved`
+Updates a remote user's avatar.
+- **Payload**: `{ socketId, transforms }`
+
+#### `teacher-sync-update`
+Received by students. Contains teacher's camera transform to comply with.
+- **Payload**: `{ socketId, camera }`
+
+#### `teacher-pointer-move`
+Received by all. Contains pointer data to render 3D line.
+- **Payload**: `{ socketId, pointer }`

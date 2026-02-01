@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { VETModel, Hotspot } from '../types';
 import { analyzeModelDescription } from '../services/geminiService';
 import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
@@ -246,6 +247,13 @@ const VRViewer: React.FC<VRViewerProps> = ({
             ? fixAssetUrl(model.optimizedUrl)
             : fixAssetUrl(model.modelUrl);
 
+    // --- Teacher Sync & Pointer State ---
+    const [isTeacherSyncActive, setIsTeacherSyncActive] = useState(false);
+    const [isTeacherPointerActive, setIsTeacherPointerActive] = useState(false);
+    const [teacherPointer, setTeacherPointer] = useState<{ origin: any, target: any, active?: boolean } | null>(null);
+
+    const activePointerRef = useRef<{ origin: any, target: any } | null>(null);
+
     const socketRef = useRef<Socket | null>(null);
 
     const sceneRef = useRef<any>(null);
@@ -259,6 +267,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
     const nextStartTimeRef = useRef<number>(0);
     const audioSourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set());
     const micStreamRef = useRef<MediaStream | null>(null);
+    const { t } = useTranslation();
     const modelEntityRef = useRef<any>(null);
 
     const playSound = useCallback(
@@ -729,6 +738,41 @@ const VRViewer: React.FC<VRViewerProps> = ({
             }
         });
 
+        // --- Teacher Sync Listeners ---
+        socket.on('teacher-sync-update', ({ socketId, camera }) => {
+            // Apply camera transform to local camera rig if NOT the teacher
+            // We only sync if we are a student? Or generally if not the sender?
+            if (user?.role !== 'teacher' || socketId !== socket.id) {
+                // Determine if we should follow (maybe a toggle for students "Follow Teacher"?)
+                // For now, FORCE sync if feature is active
+                const rig = document.querySelector('#rig');
+                const cam = document.querySelector('[camera]');
+                
+                if (rig && camera) {
+                    // Update Rig Position
+                    rig.setAttribute('position', camera.position);
+                    
+                    // Update Camera Rotation (LookControls might fight this)
+                    // We might need to disable look-controls momentarily or use look-controls API
+                    if (cam) {
+                         const lookControls = (cam as any).components['look-controls'];
+                         if (lookControls) {
+                             lookControls.yawObject.rotation.y = camera.rotation.y * (Math.PI / 180);
+                             lookControls.pitchObject.rotation.x = camera.rotation.x * (Math.PI / 180);
+                         }
+                    }
+                }
+            }
+        });
+
+        socket.on('teacher-pointer-move', ({ pointer }) => {
+            if (pointer && pointer.active) {
+                setTeacherPointer(pointer);
+            } else {
+                setTeacherPointer(null);
+            }
+        });
+
         return () => {
             socket.disconnect();
         };
@@ -765,6 +809,65 @@ const VRViewer: React.FC<VRViewerProps> = ({
                         z: (euler.z * 180) / Math.PI,
                     },
                 };
+                
+                // Teacher Sync Emission
+                if (isTeacherSyncActive) {
+                     socketRef.current.emit('teacher-sync-update', {
+                        workshopId,
+                        camera: {
+                            position: { x: pos.x, y: pos.y - 1.6, z: pos.z }, // Offset for rig?
+                            rotation: transforms.head.rot
+                        }
+                    });
+                }
+
+                // Teacher Pointer Logic
+                if (isTeacherPointerActive) {
+                     // Raycast from camera center
+                     // We can reuse the cursor raycaster or create a math one
+                     const raycaster = new (window as any).THREE.Raycaster();
+                     raycaster.setFromCamera({ x: 0, y: 0 }, camera); // Center of screen
+                     
+                     // Ray length 10m
+                     const farPoint = new (window as any).THREE.Vector3();
+                     raycaster.ray.at(10, farPoint);
+                     
+                     // Check intersection with model
+                     const modelEl = document.querySelector('.interactable-model');
+                     let target = farPoint;
+                     
+                     if (modelEl) {
+                         const intersects = raycaster.intersectObject((modelEl as any).object3D, true);
+                         if (intersects.length > 0) {
+                             target = intersects[0].point;
+                         }
+                     }
+                     
+                     // Emit
+                     const pointerData = {
+                         active: true,
+                         origin: pos,
+                         target: target
+                     };
+                     
+                     // Update local visual instantly
+                     setTeacherPointer(pointerData as any); 
+
+                     socketRef.current.emit('teacher-pointer-move', {
+                        workshopId,
+                        pointer: pointerData
+                    });
+                } else if (!isTeacherPointerActive && activePointerRef.current) {
+                     // Send clear signal once
+                     socketRef.current.emit('teacher-pointer-move', {
+                        workshopId,
+                        pointer: { active: false }
+                    });
+                    activePointerRef.current = null;
+                    setTeacherPointer(null);
+                }
+                
+                if (isTeacherPointerActive) activePointerRef.current = {} as any; // Mark as active
             }
 
             const leftHand = document.querySelector(
@@ -998,6 +1101,35 @@ const VRViewer: React.FC<VRViewerProps> = ({
                             </button>
                         )}
                     </div>
+
+                    {/* Teacher Controls */}
+                     {user?.role === 'teacher' && workshopMode && (
+                        <div className="flex gap-2 mb-4 p-3 bg-indigo-900/30 rounded-lg border border-indigo-500/30">
+                            <div className="text-[10px] font-bold text-indigo-300 uppercase writing-mode-vertical rotate-180 flex items-center justify-center">
+                                {t('workshop.teacher_controls')}
+                            </div>
+                            <div className="flex-1 flex flex-col gap-2">
+                                <button
+                                    onClick={() => setIsTeacherSyncActive(!isTeacherSyncActive)}
+                                    className={`w-full py-1.5 px-2 rounded text-xs font-bold transition-all border ${isTeacherSyncActive
+                                            ? 'bg-red-600 border-red-500 text-white animate-pulse'
+                                            : 'bg-slate-800 border-slate-700 text-slate-300'
+                                        }`}
+                                >
+                                    {isTeacherSyncActive ? `👁 ${t('workshop.sync_active')}` : `👁 ${t('workshop.sync_inactive')}`}
+                                </button>
+                                <button
+                                    onClick={() => setIsTeacherPointerActive(!isTeacherPointerActive)}
+                                    className={`w-full py-1.5 px-2 rounded text-xs font-bold transition-all border ${isTeacherPointerActive
+                                            ? 'bg-red-600 border-red-500 text-white'
+                                            : 'bg-slate-800 border-slate-700 text-slate-300'
+                                        }`}
+                                >
+                                    {isTeacherPointerActive ? `🔦 ${t('workshop.pointer_active')}` : `🔦 ${t('workshop.pointer_inactive')}`}
+                                </button>
+                            </div>
+                        </div>
+                    )}
 
                     {isAssemblyMode && (
                         <div className="flex gap-2 mb-4 animate-in fade-in slide-in-from-top-2">
@@ -1323,6 +1455,16 @@ const VRViewer: React.FC<VRViewerProps> = ({
 
                 <a-entity light="type: ambient; intensity: 0.5; color: #ffffff"></a-entity>
                 <a-entity light="type: directional; intensity: 0.8; castShadow: true; position: -1 4 2"></a-entity>
+                
+                 {/* Teacher Visual Pointer */}
+                {teacherPointer && (
+                    <a-entity>
+                         <a-entity
+                            line={`start: ${teacherPointer.origin.x} ${teacherPointer.origin.y} ${teacherPointer.origin.z}; end: ${teacherPointer.target.x} ${teacherPointer.target.y} ${teacherPointer.target.z}; color: red; opacity: 0.8`}
+                        ></a-entity>
+                        <a-sphere position={`${teacherPointer.target.x} ${teacherPointer.target.y} ${teacherPointer.target.z}`} radius="0.05" color="red" opacity="0.8"></a-sphere>
+                    </a-entity>
+                )}
             </a-scene>
         </div>
     );

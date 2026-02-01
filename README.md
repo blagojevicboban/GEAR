@@ -13,6 +13,8 @@ This platform implements the 4 key intellectual outputs of the **ARVR4VET** proj
 - **Room-Based Collaboration**: Users join isolated workshop rooms (`workshopId`) for privacy.
 - **Avatar System**: Real-time synchronization of **Head and Hands (Controllers)** using Inverse Kinematics principles.
 - **Visual Roles**: Distinct avatars for Teachers (Red) and Students (Green).
+- **Teacher Sync**: Teachers can broadcast their camera view, forcing student perspectives to align for guided tours.
+- **3D Laser Pointer**: Teachers can cast a visual laser ray into the 3D scene to highlight specific parts of the model for all students.
 
 ### ✅ Result 2: AI-Driven CAD Engine
 

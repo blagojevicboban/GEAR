@@ -264,6 +264,12 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                             </strong>
                             {t('help.sections.features.workshops_desc')}
                         </div>
+                        <div>
+                            <strong className="text-white block mb-1">
+                                {t('help.sections.features.sync_title')}
+                            </strong>
+                            {t('help.sections.features.sync_desc')}
+                        </div>
                     </div>
                 </div>
 

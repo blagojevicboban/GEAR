@@ -125,7 +125,9 @@
                 "teachers_title": "Teachers & Admins",
                 "teachers_desc": "Upload new models (via the + Upload button in Repository), create interactive lessons, host workshops, and track student progress.",
                 "workshops_title": "Collaborative Workshops",
-                "workshops_desc": "Teachers can spawn a \"Room\" where multiple students can join in VR. Everyone sees the same model and can interact with it together in real-time."
+                "workshops_desc": "Teachers can spawn a \"Room\" where multiple students can join in VR. Everyone sees the same model and can interact with it together in real-time.",
+                "sync_title": "Teacher Sync & Pointer",
+                "sync_desc": "Teachers can use the 'Sync Students' toggle to force everyone's view to match theirs, and use the 'Laser Pointer' to highlight specific parts of the model for all participants."
             },
             "learning": {
                 "title": "Interactive Learning & Academy",
@@ -537,5 +539,12 @@
                 "update_failed": "Failed to update profile"
             }
         }
+    },
+    "workshop": {
+        "teacher_controls": "TEACHER",
+        "sync_active": "SYNC ACTIVE",
+        "sync_inactive": "Sync Students",
+        "pointer_active": "SCENE POINTER ON",
+        "pointer_inactive": "Laser Pointer"
     }
 }

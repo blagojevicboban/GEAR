@@ -125,7 +125,9 @@
                 "teachers_title": "Nastavnici i administratori",
                 "teachers_desc": "Otpremite nove modele (preko dugmeta + Otpremi u Repozitorijumu), kreirajte interaktivne lekcije, vodite radionice i pratite napredak učenika.",
                 "workshops_title": "Kolaborativne radionice",
-                "workshops_desc": "Nastavnici mogu kreirati \"Sobu\" kojoj se više učenika može pridružiti u VR-u. Svi vide isti model i mogu komunicirati sa njim zajedno u realnom vremenu."
+                "workshops_desc": "Nastavnici mogu kreirati \"Sobu\" kojoj se više učenika može pridružiti u VR-u. Svi vide isti model i mogu komunicirati sa njim zajedno u realnom vremenu.",
+                "sync_title": "Sinhronizacija i Pokazivač",
+                "sync_desc": "Nastavnici mogu koristiti opciju 'Sinhronizuj Učenike' da usklade pogled svih učesnika sa svojim, i 'Laser Pokazivač' da istaknu specifične delove modela."
             },
             "learning": {
                 "title": "Interaktivno učenje i Akademija",
@@ -537,5 +539,12 @@
                 "update_failed": "Ažuriranje profila nije uspelo"
             }
         }
+    },
+    "workshop": {
+        "teacher_controls": "NASTAVNIK",
+        "sync_active": "SINHRONIZACIJA AKTIVNA",
+        "sync_inactive": "Sinhronizuj Učenike",
+        "pointer_active": "LASER POKAZIVAČ UKLJUČEN",
+        "pointer_inactive": "Laser Pokazivač"
     }
 }

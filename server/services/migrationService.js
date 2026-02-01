@@ -17,6 +17,39 @@ export const runMigrations = async () => {
             )
         `);
 
+        // Ensure sectors table exists
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS sectors (
+                id VARCHAR(50) PRIMARY KEY,
+                name VARCHAR(100) NOT NULL,
+                description TEXT
+            )
+        `);
+
+        // Ensure hotspots table exists
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS hotspots (
+                id VARCHAR(50) PRIMARY KEY,
+                model_id VARCHAR(50),
+                position JSON,
+                title VARCHAR(255),
+                description TEXT,
+                type VARCHAR(50),
+                mediaUrl VARCHAR(500)
+            )
+        `);
+
+        // Ensure workshops table exists
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS workshops (
+                id VARCHAR(50) PRIMARY KEY,
+                modelId VARCHAR(50),
+                createdBy VARCHAR(100),
+                status ENUM('active', 'ended') DEFAULT 'active',
+                createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
         await pool
             .query('SELECT optimizedUrl FROM models LIMIT 1')
             .catch(async () => {

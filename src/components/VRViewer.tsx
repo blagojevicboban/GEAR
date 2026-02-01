@@ -270,6 +270,10 @@ const VRViewer: React.FC<VRViewerProps> = ({
     const modelEntityRef = useRef<any>(null);
     const [isExploded, setIsExploded] = useState(false);
     
+    // Contextual Gaze State
+    const [activePartName, setActivePartName] = useState<string | null>(null);
+    const lastContextSentRef = useRef<string | null>(null);
+
     const assemblySystem = (window as any).AFRAME?.systems['assembly-mode-system'];
 
     const playSound = useCallback(
@@ -957,58 +961,88 @@ const VRViewer: React.FC<VRViewerProps> = ({
     }, []);
 
     useEffect(() => {
-        if (isEditMode) return; // Don't track edit sessions
+        if (isEditMode) return;
+        
+        let lastLookedObject: any = null;
+        let lookDuration = 0;
 
         const interval = setInterval(() => {
-            // 1. Get Scene and Raycaster
             const scene = sceneRef.current;
             const cursor = document.querySelector('a-cursor');
             const modelEl = modelEntityRef.current;
 
             if (!scene || !cursor || !modelEl) return;
 
-            // 2. Check Intersections
             // @ts-ignore
             const raycaster = (cursor as any).components.raycaster;
             if (!raycaster) return;
 
-            const intersections = raycaster.getIntersection(modelEl.object3D); // Raycast against the model group
-
+            const intersections = raycaster.getIntersection(modelEl.object3D);
+            
             if (intersections) {
-                // Convert world point to model local space (so points stick to the model as it rotates)
-                const worldPoint = intersections.point; // THREE.Vector3
-                const localPoint = modelEl.object3D.worldToLocal(
-                    worldPoint.clone()
-                );
+                const object = intersections.object;
+                
+                // Track sustained gaze (debounce)
+                if (object === lastLookedObject) {
+                    lookDuration += 1000;
+                } else {
+                    lastLookedObject = object;
+                    lookDuration = 0;
+                }
 
-                telemetryBuffer.current.push({
+                // If looked at for > 1s, update context
+                if (lookDuration >= 1000) {
+                     // Try to get meaningful name
+                     const name = object.userData?.name || object.name || 'Unknown Part';
+                     // Filter out generic names if possible or mapping
+                     if (name !== activePartName && name !== 'Scene') {
+                         setActivePartName(name);
+                     }
+                }
+
+                // Telemetry Logic (Existing)
+                const worldPoint = intersections.point;
+                const localPoint = modelEl.object3D.worldToLocal(worldPoint.clone());
+                 telemetryBuffer.current.push({
                     userId: user?.id,
                     lessonId: (window as any).currentLessonId || 'free-view',
                     modelId: model.id,
-                    position: { x: 0, y: 0, z: 0 }, // Camera is static usually or relatively unimportant if we track target
-                    target: {
-                        x: localPoint.x,
-                        y: localPoint.y,
-                        z: localPoint.z,
-                    }, // The HIT point on the model
-                    duration: 1000, // Sample rate is 1s
+                    position: { x: 0, y: 0, z: 0 },
+                    target: { x: localPoint.x, y: localPoint.y, z: localPoint.z },
+                    duration: 1000,
                 });
+            } else {
+                lastLookedObject = null;
+                lookDuration = 0;
+                if (activePartName) setActivePartName(null);
             }
 
-            // Flush every 10s or if buffer big
-            if (
-                telemetryBuffer.current.length > 10 ||
-                Date.now() - lastFlushTime.current > 10000
-            ) {
+             // Flush Telemetry
+            if (telemetryBuffer.current.length > 10 || Date.now() - lastFlushTime.current > 10000) {
                 flushTelemetry();
             }
+
         }, 1000);
 
         return () => {
-            clearInterval(interval);
-            flushTelemetry(); // Flush on exit
+             clearInterval(interval);
+             flushTelemetry();
         };
     }, [model.id, user, isEditMode, flushTelemetry]);
+
+    // Send Context to Gemini
+    useEffect(() => {
+        if (activePartName && isVoiceActive && sessionRef.current && activePartName !== lastContextSentRef.current) {
+            console.log('Sending Context to AI:', activePartName);
+            // Send text context frame
+            // Using "User" role to simulate user context, or "System" if supported.
+            // For live API, mostly we send "Content".
+            sessionRef.current.send({
+                parts: [{ text: `[System Context Update] User is now looking at: ${activePartName}. If they ask "What is this?", refer to this part.` }]
+            });
+            lastContextSentRef.current = activePartName;
+        }
+    }, [activePartName, isVoiceActive]);
 
     return (
         <div className="relative w-full h-full overflow-hidden bg-black text-slate-100">

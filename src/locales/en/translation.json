@@ -129,7 +129,9 @@
                 "sync_title": "Teacher Sync & Pointer",
                 "sync_desc": "Teachers can use the 'Sync Students' toggle to force everyone's view to match theirs, and use the 'Laser Pointer' to highlight specific parts of the model for all participants.",
                 "exploded_title": "Exploded View",
-                "exploded_desc": "In Assembly Mode, click 'Explode View' to automatically separate all parts of the model outward from the center, allowing you to see internal components."
+                "exploded_desc": "In Assembly Mode, click 'Explode View' to automatically separate all parts of the model outward from the center, allowing you to see internal components.",
+                "gaze_title": "Contextual AI Gaze",
+                "gaze_desc": "The AI Mentor knows what you are looking at. Simply gaze at a part for a moment and ask 'What is this?' to get a specific explanation."
             },
             "learning": {
                 "title": "Interactive Learning & Academy",

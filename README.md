@@ -43,6 +43,7 @@ This platform implements the 4 key intellectual outputs of the **ARVR4VET** proj
 - **Dynamic Sectors**: Flexible categorization system that adapts as users upload content from different fields.
 - **Interactive Workbooks**: Create step-by-step guides with quizzes and "Find the Part" challenges.
 - **Exploded View**: Automatically analyze and animate the assembly of any 3D model with a single click.
+- **Contextual AI Gaze**: The AI mentor intelligently tracks your gaze to provide context-aware answers about the specific part you are looking at.
 - **Teacher Dashboard**: Monitor student progress, engagement heatmaps, and host live workshops.
 - **AI Mentor**: Voice-activated AI assistant (Gemini 2.0 Flash) for context-aware guidance.
 - **Multi-User Workshops**: Shared virtual spaces with real-time position synchronization and collaborative interactions.

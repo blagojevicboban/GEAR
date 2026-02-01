@@ -276,6 +276,12 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                             </strong>
                             {t('help.sections.features.exploded_desc')}
                         </div>
+                        <div>
+                            <strong className="text-white block mb-1">
+                                {t('help.sections.features.gaze_title')}
+                            </strong>
+                            {t('help.sections.features.gaze_desc')}
+                        </div>
                     </div>
                 </div>
 

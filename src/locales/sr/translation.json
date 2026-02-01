@@ -129,7 +129,9 @@
                 "sync_title": "Sinhronizacija i Pokazivač",
                 "sync_desc": "Nastavnici mogu koristiti opciju 'Sinhronizuj Učenike' da usklade pogled svih učesnika sa svojim, i 'Laser Pokazivač' da istaknu specifične delove modela.",
                 "exploded_title": "Rasklapanje Modela",
-                "exploded_desc": "U Režimu Sklapanja, kliknite na 'Rasklopi Prikaz' da automatski razdvojite sve delove modela od centra, omogućavajući pregled unutrašnjih komponenti."
+                "exploded_desc": "U Režimu Sklapanja, kliknite na 'Rasklopi Prikaz' da automatski razdvojite sve delove modela od centra, omogućavajući pregled unutrašnjih komponenti.",
+                "gaze_title": "Kontekstualni AI Pogled",
+                "gaze_desc": "AI Mentor zna u šta gledate. Jednostavno usmerite pogled ka delu na trenutak i pitajte 'Šta je ovo?' da biste dobili konkretno objašnjenje."
             },
             "learning": {
                 "title": "Interaktivno učenje i Akademija",

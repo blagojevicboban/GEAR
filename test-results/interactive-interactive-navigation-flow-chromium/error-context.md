@@ -1,41 +1,18 @@
 # Page snapshot
 
 ```yaml
-- main [ref=e4]:
-  - generic [ref=e5]:
-    - generic [ref=e6]:
-      - generic [ref=e7]:
-        - heading "BrainStem - Bio-Mechanical Model" [level=2] [ref=e8]
-        - generic [ref=e9]:
-          - button [ref=e10] [cursor=pointer]:
-            - img [ref=e11]
-          - button [ref=e13] [cursor=pointer]:
-            - img [ref=e14]
-      - generic [ref=e16]:
-        - button "🔧 Enable Assembly" [ref=e17] [cursor=pointer]
-        - button "📦 Original (High-Poly)" [ref=e18] [cursor=pointer]
-      - generic [ref=e20]:
-        - generic [ref=e21]: Mechatronics
-        - generic [ref=e22]: "Author: boban.blagojevic"
-      - paragraph [ref=e23]: An advanced anatomical animation model used in Mechatronics and ICT VET courses to study complex skeletal rigging, vertex skinning, and synchronized motor control simulations.
-      - generic [ref=e24]:
-        - heading "Training Tasks" [level=4] [ref=e25]
-        - generic [ref=e27]:
-          - generic [ref=e28]:
-            - paragraph [ref=e29]: Visual Inspection
-            - paragraph [ref=e30]: Perform a detailed 360-degree inspection of the BrainStem - Bio-Mechanical Model to identify key mechanical components and potential wear points.
-          - button "START" [ref=e31] [cursor=pointer]
-        - generic [ref=e33]:
-          - generic [ref=e34]:
-            - paragraph [ref=e35]: Operational Safety Audit
-            - paragraph [ref=e36]: Identify all safety labels and emergency stop locations on this equipment model.
-          - button "START" [ref=e37] [cursor=pointer]
-        - generic [ref=e39]:
-          - generic [ref=e40]:
-            - paragraph [ref=e41]: Component Identification
-            - paragraph [ref=e42]: Locate the primary power interface and control modules as described in the technical manual for the BrainStem - Bio-Mechanical Model.
-          - button "START" [ref=e43] [cursor=pointer]
-    - generic [ref=e44]:
-      - button "Enter VR mode with a headset or fullscreen without" [ref=e46] [cursor=pointer]
-      - text: Insert phone into Cardboard holder.
+- generic [ref=e5]:
+  - generic [ref=e6]: "[plugin:vite:react-babel] /home/GEAR/src/components/VRViewer.tsx: Unexpected token, expected \",\" (1531:1) 1534 |"
+  - generic [ref=e7]: /home/GEAR/src/components/VRViewer.tsx:1531:1
+  - generic [ref=e8]: "1529| </div> 1530| ); 1531| }; | ^ 1532| 1533| export default VRViewer;"
+  - generic [ref=e9]: at constructor (/home/GEAR/node_modules/@babel/parser/lib/index.js:365:19) at TypeScriptParserMixin.raise (/home/GEAR/node_modules/@babel/parser/lib/index.js:6599:19) at TypeScriptParserMixin.unexpected (/home/GEAR/node_modules/@babel/parser/lib/index.js:6619:16) at TypeScriptParserMixin.expect (/home/GEAR/node_modules/@babel/parser/lib/index.js:6899:12) at TypeScriptParserMixin.parseCallExpressionArguments (/home/GEAR/node_modules/@babel/parser/lib/index.js:11233:14) at TypeScriptParserMixin.parseCoverCallAndAsyncArrowHead (/home/GEAR/node_modules/@babel/parser/lib/index.js:11176:29) at TypeScriptParserMixin.parseSubscript (/home/GEAR/node_modules/@babel/parser/lib/index.js:11110:19) at TypeScriptParserMixin.parseSubscript (/home/GEAR/node_modules/@babel/parser/lib/index.js:9272:18) at TypeScriptParserMixin.parseSubscripts (/home/GEAR/node_modules/@babel/parser/lib/index.js:11084:19) at TypeScriptParserMixin.parseExprSubscripts (/home/GEAR/node_modules/@babel/parser/lib/index.js:11075:17) at TypeScriptParserMixin.parseUpdate (/home/GEAR/node_modules/@babel/parser/lib/index.js:11056:21) at TypeScriptParserMixin.parseMaybeUnary (/home/GEAR/node_modules/@babel/parser/lib/index.js:11036:23) at TypeScriptParserMixin.parseMaybeUnary (/home/GEAR/node_modules/@babel/parser/lib/index.js:9827:18) at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/home/GEAR/node_modules/@babel/parser/lib/index.js:10889:61) at TypeScriptParserMixin.parseExprOps (/home/GEAR/node_modules/@babel/parser/lib/index.js:10894:23) at TypeScriptParserMixin.parseMaybeConditional (/home/GEAR/node_modules/@babel/parser/lib/index.js:10871:23) at TypeScriptParserMixin.parseMaybeAssign (/home/GEAR/node_modules/@babel/parser/lib/index.js:10821:21) at TypeScriptParserMixin.parseMaybeAssign (/home/GEAR/node_modules/@babel/parser/lib/index.js:9776:20) at TypeScriptParserMixin.parseExpressionBase (/home/GEAR/node_modules/@babel/parser/lib/index.js:10774:23) at /home/GEAR/node_modules/@babel/parser/lib/index.js:10770:39 at TypeScriptParserMixin.allowInAnd (/home/GEAR/node_modules/@babel/parser/lib/index.js:12411:16) at TypeScriptParserMixin.parseExpression (/home/GEAR/node_modules/@babel/parser/lib/index.js:10770:17) at TypeScriptParserMixin.parseStatementContent (/home/GEAR/node_modules/@babel/parser/lib/index.js:12885:23) at TypeScriptParserMixin.parseStatementContent (/home/GEAR/node_modules/@babel/parser/lib/index.js:9508:18) at TypeScriptParserMixin.parseStatementLike (/home/GEAR/node_modules/@babel/parser/lib/index.js:12757:17) at TypeScriptParserMixin.parseStatementListItem (/home/GEAR/node_modules/@babel/parser/lib/index.js:12737:17) at TypeScriptParserMixin.parseBlockOrModuleBlockBody (/home/GEAR/node_modules/@babel/parser/lib/index.js:13306:61) at TypeScriptParserMixin.parseBlockBody (/home/GEAR/node_modules/@babel/parser/lib/index.js:13299:10) at TypeScriptParserMixin.parseBlock (/home/GEAR/node_modules/@babel/parser/lib/index.js:13287:10) at TypeScriptParserMixin.parseFunctionBody (/home/GEAR/node_modules/@babel/parser/lib/index.js:12090:24) at TypeScriptParserMixin.parseArrowExpression (/home/GEAR/node_modules/@babel/parser/lib/index.js:12065:10) at TypeScriptParserMixin.parseParenAndDistinguishExpression (/home/GEAR/node_modules/@babel/parser/lib/index.js:11677:12) at TypeScriptParserMixin.parseExprAtom (/home/GEAR/node_modules/@babel/parser/lib/index.js:11321:23) at TypeScriptParserMixin.parseExprAtom (/home/GEAR/node_modules/@babel/parser/lib/index.js:4764:20) at TypeScriptParserMixin.parseExprSubscripts (/home/GEAR/node_modules/@babel/parser/lib/index.js:11071:23) at TypeScriptParserMixin.parseUpdate (/home/GEAR/node_modules/@babel/parser/lib/index.js:11056:21) at TypeScriptParserMixin.parseMaybeUnary (/home/GEAR/node_modules/@babel/parser/lib/index.js:11036:23) at TypeScriptParserMixin.parseMaybeUnary (/home/GEAR/node_modules/@babel/parser/lib/index.js:9827:18) at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/home/GEAR/node_modules/@babel/parser/lib/index.js:10889:61) at TypeScriptParserMixin.parseExprOps (/home/GEAR/node_modules/@babel/parser/lib/index.js:10894:23) at TypeScriptParserMixin.parseMaybeConditional (/home/GEAR/node_modules/@babel/parser/lib/index.js:10871:23) at TypeScriptParserMixin.parseMaybeAssign (/home/GEAR/node_modules/@babel/parser/lib/index.js:10821:21) at TypeScriptParserMixin.parseMaybeAssign (/home/GEAR/node_modules/@babel/parser/lib/index.js:9776:20) at /home/GEAR/node_modules/@babel/parser/lib/index.js:10790:39 at TypeScriptParserMixin.allowInAnd (/home/GEAR/node_modules/@babel/parser/lib/index.js:12411:16) at TypeScriptParserMixin.parseMaybeAssignAllowIn (/home/GEAR/node_modules/@babel/parser/lib/index.js:10790:17) at TypeScriptParserMixin.parseVar (/home/GEAR/node_modules/@babel/parser/lib/index.js:13374:91) at TypeScriptParserMixin.parseVarStatement (/home/GEAR/node_modules/@babel/parser/lib/index.js:13220:10) at TypeScriptParserMixin.parseVarStatement (/home/GEAR/node_modules/@babel/parser/lib/index.js:9408:31) at TypeScriptParserMixin.parseStatementContent (/home/GEAR/node_modules/@babel/parser/lib/index.js:12841:23
+  - generic [ref=e10]:
+    - text: Click outside, press Esc key, or fix the code to dismiss.
+    - text: You can also disable this overlay by setting
+    - code [ref=e11]: server.hmr.overlay
+    - text: to
+    - code [ref=e12]: "false"
+    - text: in
+    - code [ref=e13]: vite.config.ts
+    - text: .
 ```

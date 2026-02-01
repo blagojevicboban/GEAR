@@ -1,0 +1,41 @@
+# Page snapshot
+
+```yaml
+- main [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - heading "BrainStem - Bio-Mechanical Model" [level=2] [ref=e8]
+        - generic [ref=e9]:
+          - button [ref=e10] [cursor=pointer]:
+            - img [ref=e11]
+          - button [ref=e13] [cursor=pointer]:
+            - img [ref=e14]
+      - generic [ref=e16]:
+        - button "🔧 Enable Assembly" [ref=e17] [cursor=pointer]
+        - button "📦 Original (High-Poly)" [ref=e18] [cursor=pointer]
+      - generic [ref=e20]:
+        - generic [ref=e21]: Mechatronics
+        - generic [ref=e22]: "Author: boban.blagojevic"
+      - paragraph [ref=e23]: An advanced anatomical animation model used in Mechatronics and ICT VET courses to study complex skeletal rigging, vertex skinning, and synchronized motor control simulations.
+      - generic [ref=e24]:
+        - heading "Training Tasks" [level=4] [ref=e25]
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - paragraph [ref=e29]: Visual Inspection
+            - paragraph [ref=e30]: Perform a detailed 360-degree inspection of the BrainStem - Bio-Mechanical Model to identify key mechanical components and potential wear points.
+          - button "START" [ref=e31] [cursor=pointer]
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - paragraph [ref=e35]: Operational Safety Audit
+            - paragraph [ref=e36]: Identify all safety labels and emergency stop locations on this equipment model.
+          - button "START" [ref=e37] [cursor=pointer]
+        - generic [ref=e39]:
+          - generic [ref=e40]:
+            - paragraph [ref=e41]: Component Identification
+            - paragraph [ref=e42]: Locate the primary power interface and control modules as described in the technical manual for the BrainStem - Bio-Mechanical Model.
+          - button "START" [ref=e43] [cursor=pointer]
+    - generic [ref=e44]:
+      - button "Enter VR mode with a headset or fullscreen without" [ref=e46] [cursor=pointer]
+      - text: Insert phone into Cardboard holder.
+```

@@ -41,7 +41,9 @@ This platform implements the 4 key intellectual outputs of the **ARVR4VET** proj
 - **CAD Support**: Dedicated kernel-based viewer for `.stp` / `.step` industrial files (powered by OpenCascade.js).
 - **Smart Uploads**: Support for **.ZIP** archives with automatic extraction and detection of main CAD assembly files (`.step`, `.sldasm`, etc.).
 - **Dynamic Sectors**: Flexible categorization system that adapts as users upload content from different fields.
-- **Interactive Lessons**: Create and take guided 3D lessons with step-by-step instructions (Markdown) linked to specific CAD/VR models.
+- **Interactive Workbooks**: Create step-by-step guides with quizzes and "Find the Part" challenges.
+- **Exploded View**: Automatically analyze and animate the assembly of any 3D model with a single click.
+- **Teacher Dashboard**: Monitor student progress, engagement heatmaps, and host live workshops.
 - **AI Mentor**: Voice-activated AI assistant (Gemini 2.0 Flash) for context-aware guidance.
 - **Multi-User Workshops**: Shared virtual spaces with real-time position synchronization and collaborative interactions.
 - **Dashboard**: Featured models, global announcements, and category-based filtering (sectors).

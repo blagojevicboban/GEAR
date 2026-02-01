@@ -127,7 +127,9 @@
                 "workshops_title": "Kolaborativne radionice",
                 "workshops_desc": "Nastavnici mogu kreirati \"Sobu\" kojoj se više učenika može pridružiti u VR-u. Svi vide isti model i mogu komunicirati sa njim zajedno u realnom vremenu.",
                 "sync_title": "Sinhronizacija i Pokazivač",
-                "sync_desc": "Nastavnici mogu koristiti opciju 'Sinhronizuj Učenike' da usklade pogled svih učesnika sa svojim, i 'Laser Pokazivač' da istaknu specifične delove modela."
+                "sync_desc": "Nastavnici mogu koristiti opciju 'Sinhronizuj Učenike' da usklade pogled svih učesnika sa svojim, i 'Laser Pokazivač' da istaknu specifične delove modela.",
+                "exploded_title": "Rasklapanje Modela",
+                "exploded_desc": "U Režimu Sklapanja, kliknite na 'Rasklopi Prikaz' da automatski razdvojite sve delove modela od centra, omogućavajući pregled unutrašnjih komponenti."
             },
             "learning": {
                 "title": "Interaktivno učenje i Akademija",
@@ -546,5 +548,12 @@
         "sync_inactive": "Sinhronizuj Učenike",
         "pointer_active": "LASER POKAZIVAČ UKLJUČEN",
         "pointer_inactive": "Laser Pokazivač"
+    },
+    "assembly": {
+        "explode": "💥 Rasklopi Prikaz",
+        "collapse": "🧩 Sklopi",
+        "reset": "↺ Resetuj Sve Delove",
+        "mode_active": "🔧 Režim Sklapanja UKLJUČEN",
+        "mode_inactive": "🔧 Omogući Sklapanje"
     }
 }

@@ -127,7 +127,9 @@
                 "workshops_title": "Collaborative Workshops",
                 "workshops_desc": "Teachers can spawn a \"Room\" where multiple students can join in VR. Everyone sees the same model and can interact with it together in real-time.",
                 "sync_title": "Teacher Sync & Pointer",
-                "sync_desc": "Teachers can use the 'Sync Students' toggle to force everyone's view to match theirs, and use the 'Laser Pointer' to highlight specific parts of the model for all participants."
+                "sync_desc": "Teachers can use the 'Sync Students' toggle to force everyone's view to match theirs, and use the 'Laser Pointer' to highlight specific parts of the model for all participants.",
+                "exploded_title": "Exploded View",
+                "exploded_desc": "In Assembly Mode, click 'Explode View' to automatically separate all parts of the model outward from the center, allowing you to see internal components."
             },
             "learning": {
                 "title": "Interactive Learning & Academy",
@@ -546,5 +548,12 @@
         "sync_inactive": "Sync Students",
         "pointer_active": "SCENE POINTER ON",
         "pointer_inactive": "Laser Pointer"
+    },
+    "assembly": {
+        "explode": "💥 Explode View",
+        "collapse": "🧩 Collapse",
+        "reset": "↺ Reset All Parts",
+        "mode_active": "🔧 Assembly Mode ON",
+        "mode_inactive": "🔧 Enable Assembly"
     }
 }

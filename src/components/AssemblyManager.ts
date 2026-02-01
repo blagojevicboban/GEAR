@@ -109,6 +109,17 @@ if (AFRAME && THREE) {
                 }
             },
 
+            registerAllParts: function () {
+                const modelEl = document.querySelector('.interactable-model');
+                if (modelEl) {
+                    (modelEl as any).object3D.traverse((node: any) => {
+                        if (node.isMesh) {
+                            this.registerPart(node);
+                        }
+                    });
+                }
+            },
+
             onSelect: function (object: any) {
                 if (!this.data.enabled) return;
                 if (this.selectedObject === object) return;
@@ -238,16 +249,7 @@ if (AFRAME && THREE) {
             resetAll: function () {
                 this.deselect();
                 this.originalTransforms.forEach((data: any, uuid: string) => {
-                    // Find objects by UUID? Traversing scene is expensive.
-                    // Better to store reference to object if possible, but weak ref.
-                    // We rely on the fact that we can find them.
-
-                    // We need to find the object again.
-                    // Optimization: We can store the object ref in originalTransforms if we are careful about memory.
-                    // For now, let's traverse the model entity.
-                    const modelEl = document.querySelector(
-                        '.interactable-model'
-                    );
+                    const modelEl = document.querySelector('.interactable-model');
                     if (modelEl) {
                         (modelEl as any).object3D.traverse((node: any) => {
                             if (node.isMesh && node.uuid === uuid) {
@@ -259,6 +261,104 @@ if (AFRAME && THREE) {
                     }
                 });
             },
+
+            explode: function (scale: number = 1.5) {
+                this.deselect();
+                // 1. Calculate Center of Mass (of original positions)
+                const center = new THREE.Vector3();
+                let count = 0;
+                this.originalTransforms.forEach((data: any) => {
+                    center.add(data.position);
+                    count++;
+                });
+                if (count > 0) center.divideScalar(count);
+
+                // 2. Animate parts
+                const modelEl = document.querySelector('.interactable-model');
+                if (!modelEl) return;
+
+                const duration = 1000; // ms
+                const startTime = Date.now();
+
+                 // Store target positions
+                const targets = new Map();
+                this.originalTransforms.forEach((data: any, uuid: string) => {
+                    const direction = new THREE.Vector3().subVectors(data.position, center);
+                    // If direction is near zero (part is at center), push it up or random
+                    if (direction.lengthSq() < 0.001) direction.set(0, 1, 0);
+                    
+                    const targetPos = new THREE.Vector3().copy(data.position).add(direction.multiplyScalar(scale));
+                    targets.set(uuid, targetPos);
+                });
+
+                const animate = () => {
+                    const now = Date.now();
+                    const progress = Math.min((now - startTime) / duration, 1);
+                    // Ease out quadratic
+                    const ease = progress * (2 - progress);
+
+                    (modelEl as any).object3D.traverse((node: any) => {
+                        if (node.isMesh && this.originalTransforms.has(node.uuid)) {
+                            const original = this.originalTransforms.get(node.uuid);
+                            const target = targets.get(node.uuid);
+                            if (target) {
+                                node.position.lerpVectors(original.position, target, ease);
+                            }
+                        }
+                    });
+
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    }
+                };
+                animate();
+            },
+
+            collapse: function () {
+                this.deselect();
+                 const modelEl = document.querySelector('.interactable-model');
+                if (!modelEl) return;
+
+                const duration = 1000;
+                const startTime = Date.now();
+
+                // Current positions are start, originals are target
+                // We need to capture current positions because they might be mid-move or manually moved?
+                // Actually, let's just lerp from wherever they are to original.
+                
+                const startPositions = new Map();
+                (modelEl as any).object3D.traverse((node: any) => {
+                     if (node.isMesh && this.originalTransforms.has(node.uuid)) {
+                         startPositions.set(node.uuid, node.position.clone());
+                     }
+                });
+
+                const animate = () => {
+                    const now = Date.now();
+                    const progress = Math.min((now - startTime) / duration, 1);
+                     const ease = progress * (2 - progress);
+
+                    (modelEl as any).object3D.traverse((node: any) => {
+                        if (node.isMesh && this.originalTransforms.has(node.uuid)) {
+                            const start = startPositions.get(node.uuid);
+                            const original = this.originalTransforms.get(node.uuid);
+                            if (start && original) {
+                                node.position.lerpVectors(start, original.position, ease);
+                                // Also restore rotation/scale just in case
+                                if (progress === 1) {
+                                     node.quaternion.copy(original.quaternion);
+                                     node.scale.copy(original.scale);
+                                }
+                            }
+                        }
+                    });
+
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    }
+                };
+                animate();
+            }
         });
     }
 

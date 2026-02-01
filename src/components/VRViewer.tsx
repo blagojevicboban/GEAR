@@ -235,7 +235,6 @@ const VRViewer: React.FC<VRViewerProps> = ({
 
     // Assembly Mode State
     const [isAssemblyMode, setIsAssemblyMode] = useState(false);
-    const [assemblySystem, setAssemblySystem] = useState<any>(null);
 
     // Optimization State
     const [useOptimized, setUseOptimized] = useState(
@@ -269,6 +268,9 @@ const VRViewer: React.FC<VRViewerProps> = ({
     const micStreamRef = useRef<MediaStream | null>(null);
     const { t } = useTranslation();
     const modelEntityRef = useRef<any>(null);
+    const [isExploded, setIsExploded] = useState(false);
+    
+    const assemblySystem = (window as any).AFRAME?.systems['assembly-mode-system'];
 
     const playSound = useCallback(
         (type: 'click' | 'ping' | 'dismiss' | 'success') => {
@@ -387,7 +389,8 @@ const VRViewer: React.FC<VRViewerProps> = ({
             // Get system if not yet available (it should be valid by now)
             const system = bgSceneRef.current?.systems['assembly-mode-system'];
             if (system) {
-                setAssemblySystem(system);
+                console.log('Assembly System Found');
+                // We don't need to set state since we access it directly via window.AFRAME
 
                 model.traverse((node: any) => {
                     if (node.isMesh) {
@@ -965,7 +968,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
             if (!scene || !cursor || !modelEl) return;
 
             // 2. Check Intersections
-            // @ts-expect-error
+            // @ts-ignore
             const raycaster = (cursor as any).components.raycaster;
             if (!raycaster) return;
 
@@ -1083,8 +1086,8 @@ const VRViewer: React.FC<VRViewerProps> = ({
                                 }`}
                         >
                             {isAssemblyMode
-                                ? '🔧 Assembly Mode ON'
-                                : '🔧 Enable Assembly'}
+                                ? t('assembly.mode_active')
+                                : t('assembly.mode_inactive')}
                         </button>
 
                         {model.optimized && (
@@ -1133,11 +1136,31 @@ const VRViewer: React.FC<VRViewerProps> = ({
 
                     {isAssemblyMode && (
                         <div className="flex gap-2 mb-4 animate-in fade-in slide-in-from-top-2">
+                             <button
+                                onClick={() => {
+                                    if (isExploded) {
+                                         assemblySystem?.collapse();
+                                         setIsExploded(false);
+                                    } else {
+                                         // Ensure parts are registered before exploding
+                                         assemblySystem?.registerAllParts();
+                                         assemblySystem?.explode();
+                                         setIsExploded(true);
+                                    }
+                                }}
+                                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
+                                    isExploded 
+                                    ? 'bg-rose-600 border-rose-500 text-white' 
+                                    : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300'
+                                }`}
+                            >
+                                {isExploded ? t('assembly.collapse') : t('assembly.explode')}
+                            </button>
                             <button
                                 onClick={() => assemblySystem?.resetAll()}
                                 className="flex-1 py-1.5 px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-bold text-slate-300 transition-colors"
                             >
-                                ↺ Reset All Parts
+                                {t('assembly.reset')}
                             </button>
                         </div>
                     )}

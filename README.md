@@ -45,13 +45,13 @@ This platform implements the 4 key intellectual outputs of the **ARVR4VET** proj
 - **Exploded View**: Automatically analyze and animate the assembly of any 3D model with a single click.
 - **Contextual AI Gaze**: The AI mentor intelligently tracks your gaze to provide context-aware answers about the specific part you are looking at.
 - **Teacher Dashboard**: Monitor student progress, engagement heatmaps, and host live workshops.
-- **Multilingual TTS**: Built-in Text-to-Speech engine that reads lessons and technical descriptions aloud in English or Serbian.
+- **Multilingual TTS**: Built-in Text-to-Speech engine that reads lessons and technical descriptions aloud in multiple languages (English, Serbian, Italian, Greek, Portuguese, and Turkish).
 - **AI Mentor**: Voice-activated AI assistant (Gemini 2.0 Flash) for context-aware guidance.
 - **Multi-User Workshops**: Shared virtual spaces with real-time position synchronization and collaborative interactions.
 - **Dashboard**: Featured models, global announcements, and category-based filtering (sectors).
 - **Mixed Reality Mode**: Immersive AR experience with Passthrough, Hand Tracking, and Spatial UI controls.
 - **Admin Settings**: Comprehensive dashboard for User Management, Sector Management, System Logs, and Global Configuration (Maintenance Mode, Three-Tier Backups: JSON/SQL/ZIP, & Full System Restore).
-- **Multi-language Support**: Full internationalization (i18n) for **English** and **Serbian** across all modules.
+- **Multi-language Support**: Full internationalization (i18n) for **English**, **Serbian**, **Italian**, **Greek**, **Portuguese**, and **Turkish** across all modules.
 - **E2E Testing Suite**: Robust automated tests for critical flows, ensuring stability across both localized versions.
 - **Support Center**: Dedicated support page with interactive **System Diagnostics** (WebXR/HTTPS checks) and tutorials.
 - **Contextual Onboarding**: Interactive guided tour for new users and inline tooltips for complex forms.
@@ -89,7 +89,7 @@ THE GEAR is now a fully functional **Progressive Web App (PWA)**:
 
 The platform now supports multiple languages to broaden its reach across European VET schools:
 
-- **Native Support**: Switch instantly between **English** and **Serbian (Ćirilica/Latinica)**.
+- **Native Support**: Switch instantly between **English**, **Serbian**, **Italian**, **Greek**, **Portuguese**, and **Turkish**.
 - **Exhaustive Coverage**: Dashboard, repository, lesson editor, teacher tools, and administrative panels are fully localized.
 - **Scalability**: Built on `i18next`, making it easy to add new languages (e.g., German, Italian, Spanish) as the project grows.
 
@@ -134,7 +134,7 @@ We maintain a high-quality codebase with an extensive **Playwright** E2E test su
 - **Standard Flows**: Smoke tests for home, gallery, and model loading.
 - **i18n Testing**: Automated validation of UI translations and language persistence.
 - **Module Verification**: Specialized tests for **Auth**, **Academy**, and **Help Center** diagnostics.
-- **Dilingual Matching**: Tests use flexible regex matching to support both English and Serbian UI states.
+- **Multi-lingual Matching**: Tests use flexible regex matching to support across all enabled UI languages.
 
 ## 🥽 Mixed Reality Features (v1.2 Update)
 

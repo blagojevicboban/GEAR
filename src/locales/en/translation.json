@@ -119,7 +119,7 @@
                 "list": {
                     "tasks": "Training Tasks: Click the speaker icon 🔊 next to any task in the list.",
                     "hotspots": "Hotspots: Click the speaker icon 🔊 inside the popup when selecting a part.",
-                    "languages": "Languages: The voice automatically switches between English and Serbian based on your selected language."
+                    "languages": "Languages: The voice automatically switches between English, Serbian, Italian, Greek, Portuguese, and Turkish based on your selected language."
                 }
             },
             "controls": {

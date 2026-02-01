@@ -1,0 +1,305 @@
+{
+    "common": {
+        "loading": "Yükleniyor...",
+        "save": "Kaydet",
+        "cancel": "İptal",
+        "delete": "Sil",
+        "edit": "Düzenle",
+        "add": "Ekle",
+        "back": "Geri",
+        "next": "İleri",
+        "error": "Hata",
+        "success": "Başarılı"
+    },
+    "nav": {
+        "academy": "Akademi",
+        "models": "3D Modeller",
+        "workshop": "Atölye",
+        "help": "Yardım",
+        "admin": "Yönetici",
+        "language": "Dili Değiştir (TR)",
+        "logout": "Çıkış Yap",
+        "login": "Giriş Yap",
+        "profile": "Profil"
+    },
+    "hero": {
+        "title": "Yeni Nesil VET Eğitimi",
+        "subtitle": "Sürükleyici 3D eğitim ve gerçek zamanlı iş birliği araçlarını deneyimleyin.",
+        "get_started": "Başlayın",
+        "view_models": "Modelleri Görüntüle"
+    },
+    "academy": {
+        "title": "THE GEAR Akademisi",
+        "subtitle": "Etkileşimli dersler ve 3D zorluklarla teknik becerilerde ustalaşın.",
+        "search_placeholder": "Derslerde ara...",
+        "filters": {
+            "all": "Hepsi",
+            "automotive": "Otomotiv",
+            "electrical": "Elektrik",
+            "mechanical": "Mekanik"
+        },
+        "stats": {
+            "lessons": "Dersler",
+            "challenges": "Zorluklar",
+            "students": "Öğrenciler"
+        }
+    },
+    "help": {
+        "title": "Yardım Merkezi",
+        "subtitle": "THE GEAR platformunu kullanma hakkında bilmeniz gereken her şey.",
+        "start_tour": "Tura Başla",
+        "diagnostics": {
+            "title": "Sistem Tanılama",
+            "connection": "Güvenli Bağlantı",
+            "secure": "Bağlantınız güvenli",
+            "insecure": "Olağandışı bağlantı",
+            "webxr": "WebXR Desteği",
+            "supported": "WebXR destekleniyor",
+            "not_detected": "WebXR algılanmadı",
+            "checking": "Kontrol ediliyor...",
+            "browser": "Tarayıcı",
+            "optimized": "Quest için Optimize Edildi",
+            "meta_quest_tip": "Meta Quest Tarayıcı önerilir"
+        },
+        "sections": {
+            "vr_start": {
+                "title": "Hızlı VR Başlangıcı",
+                "requirements": "Gereksinimler",
+                "req_list": [
+                    "Meta Quest 2, 3 veya Pro",
+                    "Wi-Fi bağlantısı",
+                    "Güncel Quest tarayıcısı"
+                ],
+                "how_to": "Nasıl girilir",
+                "how_list": [
+                    "the-gear.app adresini açın",
+                    "Hesabınıza giriş yapın",
+                    "Bir model seçin",
+                    "'VR'a Gir' düğmesine tıklayın"
+                ],
+                "enter_vr": "VR'a Gir"
+            },
+            "tts": {
+                "title": "Metinden Sese (TTS)",
+                "description": "Platformumuz, öğrenmenize yardımcı olmak için AI sesli rehberliğini destekler.",
+                "list": {
+                    "tasks": "Eğitim Görevleri: Listedeki herhangi bir görevin yanındaki hoparlör simgesine 🔊 tıklayın.",
+                    "hotspots": "Etkin Noktalar (Hotspots): Bir parça seçerken açılır penceredeki hoparlör simgesine 🔊 tıklayın.",
+                    "languages": "Diller: Ses, seçtiğiniz dile göre İngilizce, Sırpça, İtalyanca, Yunanca, Portekizce ve Türkçe arasında otomatik olarak geçiş yapar."
+                }
+            },
+            "controls": {
+                "title": "Kontroller",
+                "desktop_title": "Masaüstü (Fare ve Klavye)",
+                "desktop_list": {
+                    "rotate": "Döndürme: Sol Tık + Sürükle",
+                    "pan": "Kaydırma: Sağ Tık + Sürükle",
+                    "zoom": "Yakınlaştırma: Fare tekerleği"
+                },
+                "vr_title": "VR (Kontrolcüler)",
+                "vr_list": {
+                    "move": "Hareket: Sol Thumbstick",
+                    "grab": "Tutma: Arka tetik",
+                    "interact": "Etkileşim: Ön tetik veya A düğmesi"
+                }
+            },
+            "features": {
+                "title": "Özellikler ve Roller",
+                "students_title": "Öğrenciler İçin",
+                "students_desc": "3D modellerle etkileşime girin, görevleri tamamlayın ve ilerlemenizi görüntüleyin.",
+                "teachers_title": "Öğretmenler İçin",
+                "teachers_desc": "Dersler oluşturun, öğrencileri yönetin ve analizleri takip edin.",
+                "workshops_title": "İş Birliği Atölyeleri",
+                "workshops_desc": "Gerçek zamanlı eğitim için başkalarıyla bir oturuma katılın.",
+                "sync_title": "Öğretmen Senkronizasyonu",
+                "sync_desc": "Öğretmenler öğrencilerin görünümünü yönlendirebilir ve parçaları vurgulayabilir.",
+                "exploded_title": "Patlatılmış Görünüm",
+                "exploded_desc": "Modeli parçalarına ayırarak bileşenlerin nasıl birbirine geçtiğini görün.",
+                "gaze_title": "Bağlamsal Bakış (Contextual Gaze)",
+                "gaze_desc": "AI asistanı neye baktığınızı bilir ve açıklayabilir."
+            },
+            "learning": {
+                "title": "Oyunlaştırılmış Öğrenme",
+                "academy_title": "Akademi",
+                "academy_desc": "Adım adım rehberlikle yapılandırılmış öğrenme.",
+                "lessons_title": "Etkileşimli Dersler",
+                "lessons_desc": "Her bileşenin arkasındaki teoriyi öğrenin.",
+                "challenges_title": "Zamanlı Zorluklar",
+                "challenges_desc": "Becerilerinizi zaman baskısı altında test edin."
+            },
+            "builder": {
+                "title": "Çalışma Kitabı Oluşturucu",
+                "creation_title": "Görev Oluşturma",
+                "creation_desc": "Öğretmenler doğrudan VR içinde etkileşimli çalışma kitapları oluşturabilir.",
+                "image_tip": "İpucu: Anlamaya yardımcı olması için şema ve resim yükleyebilirsiniz.",
+                "interaction_types": "Etkileşim Türleri",
+                "read_desc": "Metin ve bilgi okuma",
+                "find_part_desc": "3D içinde belirli bir parçayı bulma",
+                "quiz_desc": "Çoktan seçmeli soruları yanıtlama"
+            },
+            "ai": {
+                "title": "AI ve Optimizasyon",
+                "opt_title": "Otomatik 3D Optimizasyonu",
+                "opt_desc": "AI'mız ağır CAD modellerini VR'a hazır hafif modellere dönüştürür.",
+                "verdict_title": "AI Kararları",
+                "verdict_desc": "AI mentöründen performansınız hakkında anında geri bildirim alın."
+            },
+            "analytics": {
+                "title": "Analitikler ve Isı Haritaları",
+                "note_teacher": "ÖĞRETMEN NOTU:",
+                "note_desc": "Bu özellikler yalnızca öğretmen panelinde mevcuttur.",
+                "how_works_title": "Nasıl Çalışır",
+                "how_works_desc": "Öğrencilerin nerede zorlandığını göstermek için el hareketlerini ve bakışları takip ederiz.",
+                "viewing_title": "Isı Haritalarını Görüntüleme",
+                "viewing_desc": "Doğrudan 3D model üzerinde toplu verileri görün."
+            },
+            "lti": {
+                "title": "LMS Entegrasyonu (LTI 1.3)",
+                "seamless_title": "Kesintisiz Erişim",
+                "seamless_desc": "Moodle, Canvas veya Blackboard'unuzu bağlayın.",
+                "no_accounts": "Ayrı hesap gerekmez",
+                "role_mapping": "Otomatik rol eşleştirme",
+                "secure_access": "Güvenli veri aktarımı",
+                "admin_title": "LMS Yöneticileri İçin",
+                "admin_desc": "LTI aracını yapılandırmak için aşağıdaki URL'leri kullanın.",
+                "login_url": "Giriş URL'si",
+                "launch_url": "Başlatma URL'si",
+                "keys_url": "JWKS URL'si"
+            },
+            "install": {
+                "title": "Kurulum ve Çevrimdışı",
+                "how_title": "Nasıl kurulur",
+                "desktop_inst": "Masaüstü: Adres çubuğundaki 'Yükle' simgesine tıklayın.",
+                "android_inst": "Android: Chrome menüsünden 'Ana ekrana ekle'.",
+                "ios_inst": "iOS: 'Paylaş' > 'Ana Ekranına Ekle'.",
+                "offline_title": "Çevrimdışı Yetenekler",
+                "offline_desc": "Pek çok özellik internet bağlantısı olmadan çalışır.",
+                "offline_list": [
+                    "Akıllı model önbelleğe alma",
+                    "İndirilen dersleri görüntüleme",
+                    "Temel 3D etkileşimi"
+                ]
+            }
+        },
+        "footer": {
+            "questions": "Başka sorularınız mı var?",
+            "contact": "Destekle iletişime geçin"
+        }
+    },
+    "admin": {
+        "settings": {
+            "title": "Yönetici Ayarları",
+            "tabs": {
+                "users": "Kullanıcılar",
+                "sectors": "Sektörler",
+                "config": "Sistem",
+                "logs": "Günlükler"
+            }
+        },
+        "users": {
+            "title": "Kullanıcı Yönetimi",
+            "subtitle": "Platformdan kullanıcı ekleyin, düzenleyin veya kaldırın.",
+            "add_btn": "Kullanıcı Ekle",
+            "loading": "Kullanıcılar yükleniyor...",
+            "confirm_delete": "Bu kullanıcıyı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+            "alerts": {
+                "delete_failed": "Silme işlemi başarısız oldu",
+                "update_failed": "Güncelleme başarısız oldu",
+                "create_failed": "Oluşturma başarısız oldu: {{error}}"
+            },
+            "create_form": {
+                "title": "Yeni Kullanıcı Oluştur",
+                "username": "Kullanıcı adı",
+                "email": "E-posta",
+                "password": "Şifre",
+                "institution": "Kurum",
+                "create_btn": "Oluştur"
+            },
+            "table": {
+                "username": "Kullanıcı",
+                "email": "E-posta",
+                "institution": "Kurum",
+                "role": "Rol",
+                "actions": "İşlemler"
+            },
+            "actions": {
+                "view": "Görüntüle",
+                "edit": "Düzenle",
+                "delete": "Sil"
+            }
+        },
+        "sectors": {
+            "title": "Eğitim Sektörleri",
+            "desc": "Akademi sektörlerini ve kategorilerini yönetin.",
+            "add_placeholder": "Yeni sektör adı...",
+            "add_btn": "Ekle",
+            "loading": "Sektörler yükleniyor...",
+            "confirm_delete": "'{{sectorName}}' sektörü silinsin mi? Bu sektördeki modeller 'Sınıflandırılmamış' olarak işaretlenecek.",
+            "confirm_rename": "'{{editingSector}}' adı '{{newSectorName}}' olarak değiştirilsin mi?",
+            "tip": "İpucu: Bir sektörü silmek, içindeki modelleri silmez.",
+            "table": {
+                "header_name": "Sektör Adı",
+                "header_actions": "İşlemler",
+                "no_sectors": "Sektör bulunamadı."
+            }
+        },
+        "config": {
+            "title": "Sistem Yapılandırması",
+            "loading": "Yapılandırma yükleniyor...",
+            "maintenance": {
+                "label": "Bakım Modu",
+                "desc": "Platform erişimini yalnızca yöneticilerle sınırlandırır."
+            },
+            "announcement": {
+                "label": "Genel Duyuru",
+                "placeholder": "Tüm kullanıcılar için bir mesaj yazın..."
+            },
+            "save_btn": "Ayarları Kaydet",
+            "data_mgmt": {
+                "title": "Veri Yönetimi",
+                "desc": "Tüm veritabanını yedekleyin veya geri yükleyin.",
+                "export_title": "Veritabanını Dışa Aktar",
+                "export_desc": "Tüm kullanıcıları, modelleri ve ayarları indirin.",
+                "download": "JSON İndir",
+                "download_sql": "SQL İndir",
+                "download_full": "Tam Yedekleme İndir (ZIP)",
+                "restore_title": "Sistemi Geri Yükle",
+                "restore_desc": "DİKKAT: Bu, tüm mevcut verilerin üzerine yazacaktır!",
+                "restore_confirm": "{{filename}} dosyasından sistemi geri yüklemek istediğinizden emin misiniz?",
+                "upload": "Yükle ve Geri Yükle"
+            },
+            "alerts": {
+                "saved": "Ayarlar başarıyla kaydedildi",
+                "failed": "Ayarlar kaydedilemedi"
+            }
+        },
+        "logs": {
+            "title": "Sistem Günlükleri",
+            "desc": "Sunucu etkinliğini ve hataları gerçek zamanlı olarak izleyin.",
+            "refresh_tooltip": "Yenile",
+            "load_failed": "Günlükler yüklenemedi.",
+            "network_error": "Ağ hatası.",
+            "loading": "Günlükler getiriliyor...",
+            "no_logs": "Günlük bulunamadı."
+        }
+    },
+    "auth": {
+        "roles": {
+            "student": "Öğrenci",
+            "teacher": "Öğretmen",
+            "admin": "Yönetici"
+        }
+    },
+    "profile": {
+        "modal": {
+            "title": "Kullanıcı Profili",
+            "email": "E-posta",
+            "institution": "Kurum",
+            "not_specified": "Belirtilmedi",
+            "bio": "Biyografi",
+            "no_bio": "Henüz biyografi eklenmemiş.",
+            "uploaded_models": "Yüklenen Modeller",
+            "no_models": "Henüz model yüklenmemiş."
+        }
+    }
+}

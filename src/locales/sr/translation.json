@@ -119,7 +119,7 @@
                 "list": {
                     "tasks": "Zadaci obuke: Kliknite na ikonicu zvučnika 🔊 pored bilo kog zadatka na listi.",
                     "hotspots": "Hotspotovi: Kliknite na ikonicu zvučnika 🔊 unutar iskačućeg prozora kada izaberete deo.",
-                    "languages": "Jezici: Glas se automatski menja između engleskog i srpskog na osnovu izabranog jezika."
+                    "languages": "Jezici: Glas se automatski menja između engleskog, srpskog, italijanskog, grčkog, portugalskog i turskog na osnovu izabranog jezika."
                 }
             },
             "controls": {

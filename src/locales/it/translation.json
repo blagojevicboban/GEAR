@@ -1,0 +1,582 @@
+{
+    "nav": {
+        "library": "Libreria 3D",
+        "lessons": "Lezioni",
+        "academy": "Academy",
+        "help": "Aiuto",
+        "login": "Accedi",
+        "register": "Registrati",
+        "user_menu": {
+            "institution": "Istituzione",
+            "independent": "Indipendente",
+            "my_models": "I miei modelli",
+            "my_lessons": "Le mie lezioni",
+            "edit_profile": "Modifica profilo",
+            "teacher_dashboard": "Dashboard insegnante",
+            "admin_settings": "Impostazioni amministratore",
+            "logout": "Esci"
+        },
+        "profile": "Profilo",
+        "theme": "Tema",
+        "language": "Lingua",
+        "read_aloud": "Leggi ad alta voce",
+        "gamification": {
+            "challenge_mode": "Modalità sfida",
+            "time": "Tempo",
+            "complete": "Sfida completata!",
+            "leaderboard": "Classifica",
+            "rank": "Posizione",
+            "user": "Utente",
+            "score": "Punteggio"
+        }
+    },
+    "home": {
+        "welcome_title": "Benvenuti in THE GEAR",
+        "welcome_subtitle": "Il repository WebXR open-source definitivo per la formazione professionale.",
+        "get_started": "Inizia subito",
+        "featured_models": "Attrezzature in evidenza",
+        "active_workshops": "Workshop attivi",
+        "no_workshops": "Nessun workshop attivo al momento.",
+        "join": "Partecipa"
+    },
+    "tour": {
+        "welcome_title": "Benvenuti in THE GEAR",
+        "welcome_content": "Il repository WebXR open-source definitivo per la formazione professionale.",
+        "library_title": "Libreria 3D",
+        "library_content": "Sfoglia, filtra e carica nuovi modelli industriali.",
+        "lessons_title": "Lezioni Interattive",
+        "lessons_content": "Esplora esperienze di apprendimento guidate in 3D progettate dagli insegnanti.",
+        "academy_title": "GEAR Academy",
+        "academy_content": "Padroneggia la piattaforma con video tutorial e consigli pedagogici.",
+        "help_title": "Centro Assistenza",
+        "help_content": "Accedi qui a tutorial, diagnostica e supporto in qualsiasi momento.",
+        "login_title": "Accedi",
+        "login_content": "Hai già un account? Accedi per accedere ai tuoi progetti.",
+        "signup_title": "Registrati",
+        "signup_content": "Crea un nuovo account per iniziare a caricare modelli e partecipare ai workshop.",
+        "profile_title": "Profilo Utente",
+        "profile_content": "Gestisci le tue impostazioni, visualizza i tuoi progetti o esci.",
+        "workshops_title": "Workshop Attivi",
+        "workshops_content": "Partecipa a sessioni collaborative multi-utente in tempo reale in VR.",
+        "featured_title": "Attrezzature in evidenza",
+        "featured_content": "Scopri i modelli più popolari e di alta qualità selezionati per te."
+    },
+    "gallery": {
+        "title": "Repository di Attrezzature VET",
+        "subtitle": "Gemelli digitali 3D standardizzati, ottimizzati e interattivi.",
+        "upload": "Carica Nuovo Modello",
+        "search_placeholder": "Cerca attrezzatura...",
+        "all_sectors": "Tutti i settori",
+        "all_users": "Tutti gli utenti",
+        "quick_view": "Visualizzazione rapida",
+        "ai_optimized": "Ottimizzato per AI",
+        "explore_xr": "Esplora in XR",
+        "download": "Scarica",
+        "join": "Partecipa",
+        "no_models": "Nessun modello trovato corrispondente ai criteri.",
+        "edit_tooltip": "Modifica metadati del modello e hotspot",
+        "optimize_tooltip": "Auto-ottimizzazione con AI",
+        "delete_tooltip": "Elimina modello"
+    },
+    "help": {
+        "title": "Come usare THE GEAR",
+        "subtitle": "La tua guida all'esperienza WebXR VET definitiva.",
+        "start_tour": "Inizia il Tour Interattivo",
+        "diagnostics": {
+            "title": "Diagnostica di Sistema",
+            "connection": "Connessione",
+            "secure": "Contesto sicuro attivo (HTTPS/Localhost).",
+            "insecure": "Connessione non sicura. WebXR richiede HTTPS.",
+            "webxr": "Supporto WebXR",
+            "supported": "Il tuo browser supporta la VR immersiva.",
+            "not_detected": "WebXR non rilevato.",
+            "checking": "Verifica supporto in corso...",
+            "browser": "Browser",
+            "optimized": "Ottimizzato per THE GEAR.",
+            "meta_quest_tip": "Per i migliori risultati VR, usa Meta Quest Browser."
+        },
+        "sections": {
+            "vr_start": {
+                "title": "Avvio rapido modalità VR",
+                "requirements": "Requisiti",
+                "req_list": [
+                    "Visore Meta Quest 2, 3 o Pro",
+                    "Connessione Wi-Fi stabile",
+                    "Usa il browser Meta Quest integrato"
+                ],
+                "how_to": "Come entrare in VR",
+                "how_list": [
+                    "Apri the-gear.app nel visore",
+                    "Seleziona un modello dal Repository",
+                    "Clicca sul pulsante Enter VR",
+                    "Consenti 'Modalità Immersiva' se richiesto"
+                ],
+                "enter_vr": "Entra in VR"
+            },
+            "tts": {
+                "title": "Sintesi Vocale",
+                "description": "Puoi usare la funzione di sintesi vocale integrata per ascoltare i compiti di formazione e le descrizioni degli hotspot.",
+                "list": {
+                    "tasks": "Compiti di formazione: Clicca sull'icona dell'altoparlante 🔊 accanto a qualsiasi compito nella lista.",
+                    "hotspots": "Hotspot: Clicca sull'icona dell'altoparlante 🔊 all'interno del popup quando selezioni una parte.",
+                    "languages": "Lingue: La voce cambia automaticamente tra inglese, serbo, italiano, greco, portoghese e turco in base alla lingua selezionata."
+                }
+            },
+            "controls": {
+                "title": "Controlli e Navigazione",
+                "desktop_title": "In modalità Desktop / Mobile",
+                "vr_title": "In modalità VR (Touch Controller)",
+                "desktop_list": {
+                    "rotate": "Clic Sinistro + Trascina: Ruota modello",
+                    "pan": "Clic Destro + Trascina: Sposta telecamera",
+                    "zoom": "Scorrimento: Zoom avanti/indietro"
+                },
+                "vr_list": {
+                    "move": "Levetta: Teletrasporto / Movimento",
+                    "grab": "Pulsante Grip: Afferra oggetti / UI",
+                    "interact": "Trigger: Interagisci con i pulsanti"
+                }
+            },
+            "features": {
+                "title": "Funzionalità e Ruoli",
+                "students_title": "Studenti",
+                "students_desc": "Esplora l'intero repository, visualizza modelli in 3D/VR, scarica file CAD standard (STEP) e partecipa ai workshop ospitati dagli insegnanti.",
+                "teachers_title": "Insegnanti e Amministratori",
+                "teachers_desc": "Carica nuovi modelli (tramite il pulsante + Carica nel Repository), crea lezioni interattive, ospita workshop e monitora il progresso degli studenti.",
+                "workshops_title": "Workshop Collaborativi",
+                "workshops_desc": "Gli insegnanti possono creare una 'Stanza' dove più studenti possono partecipare in VR. Tutti vedono lo stesso modello e possono interagire insieme in tempo reale.",
+                "sync_title": "Sincronizzazione Insegnante e Puntatore",
+                "sync_desc": "Gli insegnanti possono usare l'opzione 'Sincronizza Studenti' per forzare la vista di tutti a corrispondere alla loro, e usare il 'Puntatore Laser' per evidenziare parti specifiche del modello per tutti i partecipanti.",
+                "exploded_title": "Vista Esplosa",
+                "exploded_desc": "In modalità Assemblaggio, clicca su 'Vista Esplosa' per separare automaticamente tutte le parti del modello verso l'esterno dal centro, permettendoti di vedere i componenti interni.",
+                "gaze_title": "Sguardo Contestuale AI",
+                "gaze_desc": "Il Mentore AI sa cosa stai guardando. Basta fissare una parte per un momento e chiedere 'Cos'è questo?' per ottenere una spiegazione specifica."
+            },
+            "learning": {
+                "title": "Apprendimento Interattivo & Academy",
+                "academy_title": "GEAR Academy",
+                "academy_desc": "Accedi alla formazione video ufficiale per educatori. Impara come creare lezioni, gestire workshop e usare la piattaforma in modo efficace tramite la scheda Academy.",
+                "lessons_title": "Lezioni Guidate & Quiz",
+                "lessons_desc": "Partecipa a lezioni 3D passo-dopo-passo con quiz integrati. Ricevi feedback istantaneo e monitora il tuo progresso.",
+                "challenges_title": "Sfide \"Trova la parte\"",
+                "challenges_desc": "Metti alla prova le tue abilità nell'ambiente 3D. Individua componenti specifici (es. \"Trova il pulsante di emergenza\") e conferma cliccando sulla mesh."
+            },
+            "ai": {
+                "title": "Motore AI (Nuovo)",
+                "opt_title": "Ottimizzazione Automatizzata",
+                "opt_desc": "I grandi file CAD (STEP/IGES) possono essere convertiti automaticamente in modelli GLB pronti per la VR. Usa il pulsante Ottimizza nel Repository.",
+                "verdict_title": "Verdetto AI",
+                "verdict_desc": "Google Gemini analizza ogni modello per fornire descrizioni tecniche e valutazioni di qualità."
+            },
+            "install": {
+                "title": "Installa App (Modalità Offline)",
+                "how_title": "Come installare",
+                "desktop_inst": "Desktop (Chrome/Edge): Clicca sull'icona di installazione (computer con freccia verso il basso) a destra nella barra degli indirizzi.",
+                "android_inst": "Android (Chrome): Tocca il menu (⋮) → \"Installa app\" o \"Aggiungi a schermata Home\".",
+                "ios_inst": "iOS (Safari): Tocca il pulsante Condividi → \"Aggiungi a schermata Home\".",
+                "offline_title": "Capacità Offline",
+                "offline_desc": "Una volta installata, l'app funziona anche senza connessione internet.",
+                "offline_list": [
+                    "Avvia l'app istantaneamente dalla tua schermata home.",
+                    "Visualizza modelli e lezioni aperti precedentemente.",
+                    "Naviga l'interfaccia e la dashboard."
+                ]
+            },
+            "analytics": {
+                "title": "Analitica 3D & Heatmap",
+                "note_teacher": "Nota per gli Insegnanti:",
+                "note_desc": "Ora puoi monitorare l'impegno degli studenti direttamente sui modelli 3D.",
+                "how_works_title": "Come funziona",
+                "how_works_desc": "Quando gli studenti visualizzano un modello in VR o 3D, il sistema traccia silenziosemente dove stanno guardando. Questi dati vengono aggregati in una Heatmap 3D.",
+                "viewing_title": "Visualizzazione Heatmap",
+                "viewing_desc": "Vai alla tua Dashboard Insegnante e clicca sulla nuova scheda \"Analitica\". Seleziona un modello per vedere una nuvola di punti che mostra gli hotspot dell'attenzione degli studenti."
+            },
+            "lti": {
+                "title": "Integrazione LMS (Moodle/Canvas)",
+                "seamless_title": "Accesso Semplificato",
+                "seamless_desc": "THE GEAR supporta LTI 1.3, permettendoti di avviare la piattaforma direttamente dai tuoi corsi Moodle o Canvas scolastici.",
+                "no_accounts": "Nessun account separato necessario",
+                "role_mapping": "Mappatura automatica dei ruoli (Insegnante/Studente)",
+                "secure_access": "Accesso standardizzato sicuro",
+                "admin_title": "Per gli Amministratori",
+                "admin_desc": "Per connettere il tuo LMS, devi registrare THE GEAR come strumento esterno utilizzando i seguenti endpoint:",
+                "login_url": "URL di accesso",
+                "launch_url": "URL di avvio",
+                "keys_url": "Chiavi (JWKS)"
+            },
+            "builder": {
+                "title": "Cartella di Lavoro & Quiz Interattivi",
+                "creation_title": "Creazione di Contenuti",
+                "creation_desc": "Gli insegnanti possono creare passaggi con compiti interattivi. Usa il Workbook Builder per allegare modelli, aggiungere descrizioni e impostare interazioni.",
+                "interaction_types": "Tipi di Interazione",
+                "read_desc": "Gli studenti leggono il testo e visualizzano il modello.",
+                "find_part_desc": "Gli studenti devono cliccare su una specifica parte 3D per procedere.",
+                "quiz_desc": "Scelta singola/multipla classica o la nuova 'Identificazione Modello' (clicca sulla parte gamificata) e controlli 'Vero/Falso'.",
+                "image_tip": "Consiglio: Usa Ctrl+V per incollare rapidamente screenshot o diagrammi nei tuoi passaggi."
+            }
+        },
+        "footer": {
+            "questions": "Hai ancora domande?",
+            "contact": "Contatta il supporto"
+        }
+    },
+    "auth": {
+        "login_title": "Bentornato",
+        "login_subtitle": "Accedi al VET WebXR Hub",
+        "register_title": "Crea un account",
+        "register_subtitle": "Unisciti al repository VET globale",
+        "email": "Indirizzo Email",
+        "password": "Password",
+        "username": "Nome utente",
+        "institution": "Istituzione",
+        "account_type": "Tipo di account",
+        "sign_in": "Accedi",
+        "sign_up": "Registrati",
+        "no_account": "Non hai un account?",
+        "have_account": "Hai già un account?",
+        "placeholder_email": "nome@istituzione.edu",
+        "placeholder_username": "mariorossi",
+        "placeholder_institution": "Istituto Tecnico Industriale",
+        "student": "Studente",
+        "teacher": "Insegnante",
+        "loading": "Caricamento in corso...",
+        "error_credentials": "Credenziali non valide",
+        "error_register": "Registrazione non riuscita",
+        "error_server": "Errore di connessione al server"
+    },
+    "common": {
+        "back": "Indietro",
+        "cancel": "Annulla",
+        "save": "Salva",
+        "delete": "Elimina",
+        "edit": "Modifica",
+        "add": "Aggiungi",
+        "next": "Avanti",
+        "previous": "Precedente",
+        "skip": "Salta",
+        "finish": "Fine",
+        "loading": "Caricamento..."
+    },
+    "builder": {
+        "title": "Workbook Builder",
+        "lesson_title": "Titolo della lezione...",
+        "short_description": "Breve descrizione...",
+        "pedagogical_tip": "Consiglio Pedagogico",
+        "bloom_tip": "\"Usa la tassonomia di Bloom: Inizia con passaggi di 'Identificazione' (Conoscenza) prima di passare ad 'Assemblaggio' (Applicazione).\"",
+        "step_editor": "Editor dei Passaggi",
+        "step_headline": "Titolo del Passaggio",
+        "attached_model": "Modello 3D Allegato",
+        "no_model": "-- Nessun modello --",
+        "step_content": "Contenuto del Passaggio",
+        "content_placeholder": "Spiega cosa dovrebbe fare lo studente...",
+        "interaction": "Interazione",
+        "read": "Leggi",
+        "find_part": "Trova Parte",
+        "quiz": "Quiz Interattivo",
+        "step_image": "Visuale del Passaggio",
+        "image_placeholder": "URL o Incolla Immagine (Ctrl+V)",
+        "upload_file": "Carica File",
+        "no_img": "NESSUNA IMMAGINE",
+        "place_hotspot": "Inserisci Nuovo Hotspot",
+        "hotspot_instruction": "Clicca sul modello per inserire...",
+        "hotspot_linked": "Hotspot Collegato",
+        "no_model_selected": "Nessun Modello 3D Selezionato",
+        "no_model_tip": "Seleziona un modello nel pannello di sinistra per iniziare.",
+        "aim_click_tip": "PUNTA & CLICCA sul modello per inserire il pin",
+        "define_hotspot": "Definisci Hotspot",
+        "hotspot_title": "Titolo",
+        "hotspot_description": "Descrizione",
+        "create_link": "Crea & Collega",
+        "quiz_types": {
+            "single": "Scelta Singola",
+            "multiple": "Scelta Multipla",
+            "model_click": "Identificazione 3D",
+            "true_false": "Vero / Falso"
+        },
+        "true_false": {
+            "true": "VERO",
+            "false": "FALSO"
+        },
+        "errors": {
+            "select_model": "Seleziona prima un modello 3D per questo passaggio.",
+            "enter_title": "Inserisci un titolo per la lezione",
+            "network_error": "Errore di rete durante il salvataggio della lezione",
+            "save_failed": "Salvataggio non riuscito: "
+        },
+        "intro_title": "Introduzione",
+        "intro_content": "Benvenuti in questa cartella di lavoro interattiva."
+    },
+    "academy": {
+        "title": "GEAR Academy",
+        "subtitle": "Padroneggia la piattaforma e migliora la tua metodologia di insegnamento. La MOOC Suite fornisce formazione certificata per educatori VET.",
+        "basics": "🛠️ Basi della Piattaforma",
+        "creation": "🎨 Creazione di Contenuti",
+        "pedagogy": "🎓 Pedagogia",
+        "add_video": "Aggiungi Video",
+        "edit_video": "Modifica Video",
+        "delete_confirm": "Eliminare questo video di formazione?",
+        "save_video": "Salva Video",
+        "update_video": "Aggiorna Video",
+        "no_videos": "Nessun video in questa categoria ancora.",
+        "get_certified": "Ottieni la Certificazione",
+        "cert_desc": "Completa tutti i moduli per ricevere il tuo certificato ufficiale Erasmus+ VET Digital Educator.",
+        "check_progress": "Controlla il mio progresso",
+        "mark_completed": "Segna come completato",
+        "form": {
+            "title": "Titolo",
+            "description": "Descrizione",
+            "url": "URL di incorporamento (YouTube/Vimeo)",
+            "duration": "Durata (es. 12:30)",
+            "add_new": "Aggiungi nuovo video a \"{{category}}\""
+        }
+    },
+    "lessons": {
+        "list_title": "Lezioni Interattive",
+        "list_subtitle": "Esperienze di apprendimento guidate in 3D",
+        "create_btn": "Crea Lezione",
+        "all_sectors": "Tutti i settori",
+        "loading": "Caricamento lezioni...",
+        "no_lessons": "Nessuna lezione trovata in questo settore.",
+        "start_btn": "Inizia Lezione",
+        "edit_btn": "Modifica",
+        "delete_btn": "Elimina",
+        "delete_confirm": "Sei sicuro di voler eliminare questa lezione?",
+        "general": "Generale",
+        "unknown": "Sconosciuto",
+        "viewer": {
+            "loading": "Caricamento Lezione...",
+            "not_found": "Lezione non trovata.",
+            "interactive_lesson": "Lezione Interattiva",
+            "step_x_of_y": "Passaggio {{current}} di {{total}}",
+            "no_model": "Nessun modello allegato a questo passaggio.",
+            "quiz": "Quiz Interattivo",
+            "submit_answer": "Invia Risposta",
+            "correct_answer": "Risposta Corretta!",
+            "incorrect_answer": "Incorretta. Riprovare?",
+            "retry": "Riprova",
+            "multiple_choice": "Scelta Multipla",
+            "model_identification": "Identificazione 3D",
+            "true_false_title": "Vero / Falso",
+            "click_instruction": "Usa la vista 3D per identificare la parte target.",
+            "target_prompt": "Clicca su {{target}}",
+            "retry_mesh": "Riprova! Quello era {{meshName}}.",
+            "find_task": "Compito: Trova Componente",
+            "find_instruction": "Individua e clicca sulla parte del modello 3D: {{target}}",
+            "find_success": "Corretto! Hai trovato {{target}}.",
+            "find_error": "Incorretto. Quella è la parte \"{{meshName}}\". Riprova.",
+            "start_first": "Inizia Primo Passaggio",
+            "previous": "Precedente",
+            "next": "Avanti",
+            "finish": "Fine"
+        },
+        "editor": {
+            "edit_title": "Modifica Lezione",
+            "create_title": "Crea Nuova Lezione",
+            "save_btn": "Salva Lezione",
+            "lesson_title": "Titolo della Lezione",
+            "title_placeholder": "es. Introduzione alla Robotica",
+            "sector": "Settore",
+            "image": "Immagine della Lezione",
+            "uploading": "Caricamento in corso...",
+            "description": "Descrizione",
+            "desc_placeholder": "Breve panoramica di ciò che copre questa lezione...",
+            "steps_title": "Passaggi della Lezione",
+            "add_step": "Aggiungi Passaggio",
+            "step_title_placeholder": "Titolo del Passaggio",
+            "step_type": "Tipo di Passaggio",
+            "read": "📖 Leggi",
+            "quiz": "🧠 Quiz",
+            "find_part": "🎯 Trova Parte",
+            "question": "Domanda",
+            "content_rich": "Contenuto (Rich Text)",
+            "question_placeholder": "Inserisci qui la domanda...",
+            "content_placeholder": "Scrivi qui il contenuto della lezione...",
+            "answers": "Risposte",
+            "option": "Opzione {{number}}",
+            "target_part": "Parte Target",
+            "no_part": "Nessuna parte selezionata",
+            "pointer": "Puntatore",
+            "pointer_tip": "Collega un modello, clicca su Puntatore, quindi clicca sulla parte nel visualizzatore 3D.",
+            "step_image": "Immagine del Passaggio (Opzionale)",
+            "no_img": "Nessuna Immagine",
+            "paste_img_tip": "Clicca qui e incolla (Ctrl+V) un'immagine",
+            "linked_model": "Modello 3D Collegato",
+            "no_model_text": "Nessun modello (Solo testo)",
+            "model_not_found": "Modello non trovato",
+            "select_target": "Seleziona Parte Target",
+            "select_target_tip": "Clicca sulla parte specifica del modello per impostarla come target.",
+            "intro_title": "Introduzione",
+            "intro_content": "# Benvenuti in questa lezione\n\nInizia spiegando l'argomento.",
+            "errors": {
+                "enter_title": "Inserisci un titolo per la lezione",
+                "link_model_first": "Collega prima un modello 3D!"
+            }
+        }
+    },
+    "admin": {
+        "settings": {
+            "title": "Impostazioni Amministratore",
+            "tabs": {
+                "users": "Gestione Utenti",
+                "sectors": "Gestione Settori",
+                "config": "Configurazione",
+                "logs": "Log di Sistema"
+            }
+        },
+        "config": {
+            "loading": "Caricamento impostazioni...",
+            "title": "Impostazioni Globali",
+            "maintenance": {
+                "label": "Modalità Manutenzione",
+                "desc": "Blocca l'accesso per gli utenti non amministratori."
+            },
+            "announcement": {
+                "label": "Annuncio Globale",
+                "placeholder": "Inserisci un messaggio da visualizzare in cima alla dashboard..."
+            },
+            "save_btn": "Salva Configurazione",
+            "data_mgmt": {
+                "title": "Gestione Dati",
+                "desc": "Esegui regolarmente il backup dei tuoi dati per prevenirne la perdita.",
+                "export_title": "Esporta Database",
+                "export_desc": "Scarica un dump JSON completo di tutte le tabelle.",
+                "download": "JSON (Solo DB)",
+                "download_sql": "SQL (Solo DB)",
+                "download_full": "Sistema Completo (ZIP)",
+                "restore_title": "Ripristina Database",
+                "restore_desc": "Pericolo: Il ripristino sovrascriverà i dati esistenti. Usa ZIP per il ripristino completo (DB + File) o JSON/SQL solo per i dati.",
+                "upload": "Carica Backup",
+                "restore_confirm": "ATTENZIONE: Stai per ripristinare il database da \"{{filename}}\".\n\nI dati esistenti potrebbero essere sovrascritti.\n\nSei sicuro?"
+            },
+            "alerts": {
+                "saved": "Impostazioni salvate con successo!",
+                "failed": "Salvataggio impostazioni non riuscito."
+            }
+        },
+        "sectors": {
+            "loading": "Caricamento settori...",
+            "title": "Gestione Settori",
+            "desc": "Gestisci l'elenco dei settori educativi. Rinomina per correggere refusi o consolidare categorie.",
+            "add_placeholder": "Nome Nuovo Settore",
+            "add_btn": "Aggiungi Settore",
+            "table": {
+                "header_name": "Nome Settore",
+                "header_actions": "Azioni",
+                "no_sectors": "Nessun settore personalizzato trovato."
+            },
+            "tip": "Consiglio: I nuovi settori vengono creati automaticamente quando si caricano modelli se non esistono già.",
+            "confirm_delete": "Sei sicuro di voler eliminare il settore \"{{sectorName}}\"? Questo è possibile solo se nessun modello lo sta utilizzando.",
+            "confirm_rename": "Rinominare \"{{editingSector}}\" in \"{{newSectorName}}\"? Questo aggiornerà tutti i modelli associati."
+        },
+        "logs": {
+            "title": "Log di Sistema",
+            "desc": "Visualizza le ultime 100 righe dei log di errore del server.",
+            "loading": "Caricamento log...",
+            "no_logs": "Nessun log disponibile.",
+            "refresh_tooltip": "Aggiorna Log",
+            "load_failed": "Caricamento log non riuscito. Potresti non avere i permessi necessari.",
+            "network_error": "Errore di rete durante il caricamento dei log."
+        },
+        "users": {
+            "loading": "Caricamento utenti...",
+            "title": "Gestione Utenti",
+            "subtitle": "Gestisci gli utenti registrati e i loro permessi.",
+            "add_btn": "+ Aggiungi Nuovo Utente",
+            "create_form": {
+                "title": "Crea Nuovo Utente",
+                "username": "Nome utente",
+                "email": "Email",
+                "password": "Password",
+                "institution": "Istituzione",
+                "role": "Ruolo",
+                "create_btn": "Crea"
+            },
+            "table": {
+                "username": "Nome utente",
+                "email": "Email",
+                "institution": "Istituzione",
+                "role": "Ruolo",
+                "actions": "Azioni"
+            },
+            "actions": {
+                "view": "Visualizza",
+                "edit": "Modifica",
+                "delete": "Elimina"
+            },
+            "confirm_delete": "Sei sicuro di voler eliminare questo utente?",
+            "alerts": {
+                "delete_failed": "Eliminazione utente non riuscita",
+                "update_failed": "Aggiornamento utente non riuscito",
+                "create_failed": "Creazione utente non riuscita: {{error}}"
+            }
+        }
+    },
+    "teacher": {
+        "dashboard": {
+            "title": "Dashboard Insegnante",
+            "subtitle": "Monitora il progresso e l'impegno degli studenti.",
+            "loading": "Caricamento Dashboard...",
+            "attempts": "Tentativi",
+            "completed": "Completato",
+            "in_progress": "In corso",
+            "search_placeholder": "Cerca studente o lezione...",
+            "no_stats": "Nessuna statistica trovata per le tue lezioni.",
+            "table": {
+                "student": "Studente",
+                "lesson": "Lezione",
+                "status": "Stato",
+                "score": "Punteggio",
+                "started": "Iniziato",
+                "completed": "Completato"
+            }
+        }
+    },
+    "profile": {
+        "modal": {
+            "title": "Profilo Utente",
+            "loading": "Caricamento profilo...",
+            "email": "Email",
+            "institution": "Istituzione",
+            "not_specified": "Non specificato",
+            "bio": "Biografia",
+            "no_bio": "Nessuna biografia fornita.",
+            "uploaded_models": "Modelli caricati",
+            "no_models": "Nessun modello caricato da questo utente.",
+            "created_lessons": "Lezioni create",
+            "steps": "{{count}} Passaggi"
+        },
+        "form": {
+            "title": "Modifica Profilo",
+            "subtitle": "Gestisci il tuo account e i dettagli istituzionali.",
+            "update_photo": "Aggiorna Foto",
+            "updating": "Aggiornamento Profilo...",
+            "username": "Nome utente",
+            "username_placeholder": "Il tuo nome visualizzato",
+            "email": "Indirizzo Email",
+            "email_placeholder": "nome@istituzione.edu",
+            "institution": "Istituzione / Scuola",
+            "institution_placeholder": "es., Istituto Tecnico Industriale",
+            "bio": "Breve Biografia",
+            "bio_placeholder": "Descrivi brevemente il tuo ruolo o focus (es., Insegnante di Meccatronica)...",
+            "save_btn": "Salva Profilo",
+            "errors": {
+                "upload_failed": "Caricamento immagine non riuscito",
+                "update_failed": "Aggiornamento profilo non riuscito"
+            }
+        }
+    },
+    "workshop": {
+        "teacher_controls": "INSEGNANTE",
+        "sync_active": "SYNC ATTIVO",
+        "sync_inactive": "Sincronizza Studenti",
+        "pointer_active": "PUNTATORE SCENA ATTIVO",
+        "pointer_inactive": "Puntatore Laser"
+    },
+    "assembly": {
+        "explode": "💥 Vista Esplosa",
+        "collapse": "🧩 Collassa",
+        "reset": "↺ Resetta Tutte le Parti",
+        "mode_active": "🔧 Modalità Assemblaggio ATTIVA",
+        "mode_inactive": "🔧 Abilita Assemblaggio"
+    }
+}

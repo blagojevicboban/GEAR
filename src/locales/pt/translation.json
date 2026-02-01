@@ -1,0 +1,305 @@
+{
+    "common": {
+        "loading": "Carregando...",
+        "save": "Salvar",
+        "cancel": "Cancelar",
+        "delete": "Excluir",
+        "edit": "Editar",
+        "add": "Adicionar",
+        "back": "Voltar",
+        "next": "Próximo",
+        "error": "Erro",
+        "success": "Sucesso"
+    },
+    "nav": {
+        "academy": "Academia",
+        "models": "Modelos 3D",
+        "workshop": "Workshop",
+        "help": "Ajuda",
+        "admin": "Admin",
+        "language": "Mudar Idioma (PT)",
+        "logout": "Sair",
+        "login": "Entrar",
+        "profile": "Perfil"
+    },
+    "hero": {
+        "title": "Treinamento VET de Próxima Geração",
+        "subtitle": "Experimente treinamento 3D imersivo e ferramentas de colaboração em tempo real.",
+        "get_started": "Começar",
+        "view_models": "Ver Modelos"
+    },
+    "academy": {
+        "title": "Academia THE GEAR",
+        "subtitle": "Domine habilidades técnicas através de lições interativas e desafios 3D.",
+        "search_placeholder": "Pesquisar lições...",
+        "filters": {
+            "all": "Todos",
+            "automotive": "Automotivo",
+            "electrical": "Elétrico",
+            "mechanical": "Mecânico"
+        },
+        "stats": {
+            "lessons": "Lições",
+            "challenges": "Desafios",
+            "students": "Estudantes"
+        }
+    },
+    "help": {
+        "title": "Centro de Ajuda",
+        "subtitle": "Tudo o que você precisa saber sobre o uso da plataforma THE GEAR.",
+        "start_tour": "Iniciar Tour",
+        "diagnostics": {
+            "title": "Diagnóstico do Sistema",
+            "connection": "Conexão Segura",
+            "secure": "Sua conexão é segura",
+            "insecure": "Conexão incomum",
+            "webxr": "Suporte WebXR",
+            "supported": "WebXR é suportado",
+            "not_detected": "WebXR não detectado",
+            "checking": "Verificando...",
+            "browser": "Navegador",
+            "optimized": "Otimizado para Quest",
+            "meta_quest_tip": "Navegador Meta Quest recomendado"
+        },
+        "sections": {
+            "vr_start": {
+                "title": "Início Rápido em VR",
+                "requirements": "Requisitos",
+                "req_list": [
+                    "Meta Quest 2, 3 ou Pro",
+                    "Conexão Wi-Fi",
+                    "Navegador Quest atualizado"
+                ],
+                "how_to": "Como entrar",
+                "how_list": [
+                    "Abra the-gear.app",
+                    "Faça login na sua conta",
+                    "Selecione um modelo",
+                    "Clique no botão 'Entrar em VR'"
+                ],
+                "enter_vr": "Entrar em VR"
+            },
+            "tts": {
+                "title": "Texto-para-Fala (TTS)",
+                "description": "Nossa plataforma suporta orientação por voz de IA para ajudá-lo na aprendizagem.",
+                "list": {
+                    "tasks": "Tarefas de Treinamento: Clique no ícone do alto-falante 🔊 ao lado de qualquer tarefa na lista.",
+                    "hotspots": "Hotspots: Clique no ícone do alto-falante 🔊 dentro do popup ao selecionar uma peça.",
+                    "languages": "Idiomas: A voz muda automaticamente entre Inglês, Sérvio, Italiano, Grego, Português e Turco com base no idioma selecionado."
+                }
+            },
+            "controls": {
+                "title": "Controles",
+                "desktop_title": "Desktop (Mouse e Teclado)",
+                "desktop_list": {
+                    "rotate": "Rotacionar: Clique Esquerdo + Arrastar",
+                    "pan": "Pan: Clique Direito + Arrastar",
+                    "zoom": "Zoom: Roda do mouse"
+                },
+                "vr_title": "VR (Controladores)",
+                "vr_list": {
+                    "move": "Mover: Thumbstick Esquerdo",
+                    "grab": "Agarrar: Gatilho traseiro",
+                    "interact": "Interagir: Gatilho frontal ou botão A"
+                }
+            },
+            "features": {
+                "title": "Recursos e Funções",
+                "students_title": "Para Estudantes",
+                "students_desc": "Interaja com modelos 3D, complete tarefas e visualize seu progresso.",
+                "teachers_title": "Para Professores",
+                "teachers_desc": "Crie lições, gerencie estudantes e acompanhe análises.",
+                "workshops_title": "Workshops Colaborativos",
+                "workshops_desc": "Participe de uma sessão com outros para treinamento em tempo real.",
+                "sync_title": "Sincronização do Professor",
+                "sync_desc": "Professores podem guiar a visão dos estudantes e destacar peças.",
+                "exploded_title": "Vista Explodida",
+                "exploded_desc": "Veja como as peças se encaixam desmontando o modelo.",
+                "gaze_title": "Contextual Gaze",
+                "gaze_desc": "O assistente de IA sabe o que você está olhando e pode explicar."
+            },
+            "learning": {
+                "title": "Aprendizagem Gamificada",
+                "academy_title": "Academia",
+                "academy_desc": "Aprendizagem estruturada com orientação passo a passo.",
+                "lessons_title": "Lições Interativas",
+                "lessons_desc": "Aprenda a teoria por trás de cada componente.",
+                "challenges_title": "Desafios com Cronômetro",
+                "challenges_desc": "Teste suas habilidades sob pressão de tempo."
+            },
+            "builder": {
+                "title": "Workbook Builder",
+                "creation_title": "Criação de Tarefas",
+                "creation_desc": "Professores podem criar cadernos de tarefas interativos diretamente em VR.",
+                "image_tip": "Dica: Você pode fazer upload de diagramas e imagens para ajudar na compreensão.",
+                "interaction_types": "Tipos de Interação",
+                "read_desc": "Leitura de texto e informações",
+                "find_part_desc": "Localizar uma peça específica no 3D",
+                "quiz_desc": "Responder perguntas de múltipla escolha"
+            },
+            "ai": {
+                "title": "IA e Otimização",
+                "opt_title": "Otimização Automática 3D",
+                "opt_desc": "Nossa IA converte modelos CAD pesados em modelos leves prontos para VR.",
+                "verdict_title": "Veredictos de IA",
+                "verdict_desc": "Receba feedback instantâneo sobre seu desempenho do mentor de IA."
+            },
+            "analytics": {
+                "title": "Análises e Heatmaps",
+                "note_teacher": "NOTA DO PROFESSOR:",
+                "note_desc": "Esses recursos estão disponíveis apenas no painel do professor.",
+                "how_works_title": "Como Funciona",
+                "how_works_desc": "Rastreamos o movimento das mãos e o olhar para mostrar onde os estudantes enfrentam dificuldades.",
+                "viewing_title": "Visualizando Heatmaps",
+                "viewing_desc": "Veja dados agregados diretamente no modelo 3D."
+            },
+            "lti": {
+                "title": "Integração LMS (LTI 1.3)",
+                "seamless_title": "Acesso Sem Interrupções",
+                "seamless_desc": "Conecte seu Moodle, Canvas ou Blackboard.",
+                "no_accounts": "Nenhuma conta separada necessária",
+                "role_mapping": "Mapeamento automático de funções",
+                "secure_access": "Transferência de dados segura",
+                "admin_title": "Para Administradores de LMS",
+                "admin_desc": "Use os seguintes URLs para configurar a ferramenta LTI.",
+                "login_url": "Login URL",
+                "launch_url": "Launch URL",
+                "keys_url": "JWKS URL"
+            },
+            "install": {
+                "title": "Instalação e Offline",
+                "how_title": "Como Instalar",
+                "desktop_inst": "Desktop: Clique no ícone 'Instalar' na barra de endereços.",
+                "android_inst": "Android: 'Adicionar à tela inicial' no menu do Chrome.",
+                "ios_inst": "iOS: 'Compartilhar' > 'Adicionar à Tela de Início'.",
+                "offline_title": "Capacidades Offline",
+                "offline_desc": "Muitos recursos funcionam sem conexão com a internet.",
+                "offline_list": [
+                    "Cache inteligente de modelos",
+                    "Visualizar lições baixadas",
+                    "Interação 3D básica"
+                ]
+            }
+        },
+        "footer": {
+            "questions": "Tem mais perguntas?",
+            "contact": "Entre em contato com o suporte"
+        }
+    },
+    "admin": {
+        "settings": {
+            "title": "Configurações de Admin",
+            "tabs": {
+                "users": "Usuários",
+                "sectors": "Setores",
+                "config": "Sistema",
+                "logs": "Logs"
+            }
+        },
+        "users": {
+            "title": "Gerenciamento de Usuários",
+            "subtitle": "Adicione, edite ou remova usuários da plataforma.",
+            "add_btn": "Adicionar Usuário",
+            "loading": "Carregando usuários...",
+            "confirm_delete": "Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.",
+            "alerts": {
+                "delete_failed": "Falha ao excluir",
+                "update_failed": "Falha ao atualizar",
+                "create_failed": "Falha ao criar: {{error}}"
+            },
+            "create_form": {
+                "title": "Criar Novo Usuário",
+                "username": "Nome de usuário",
+                "email": "E-mail",
+                "password": "Senha",
+                "institution": "Instituição",
+                "create_btn": "Criar"
+            },
+            "table": {
+                "username": "Usuário",
+                "email": "E-mail",
+                "institution": "Instituição",
+                "role": "Função",
+                "actions": "Ações"
+            },
+            "actions": {
+                "view": "Visualizar",
+                "edit": "Editar",
+                "delete": "Excluir"
+            }
+        },
+        "sectors": {
+            "title": "Setores de Treinamento",
+            "desc": "Gerencie os setores e categorias da academia.",
+            "add_placeholder": "Nome do novo setor...",
+            "add_btn": "Adicionar",
+            "loading": "Carregando setores...",
+            "confirm_delete": "Excluir setor '{{sectorName}}'? Modelos neste setor serão marcados como 'Não Categorizados'.",
+            "confirm_rename": "Renomear '{{editingSector}}' para '{{newSectorName}}'?",
+            "tip": "Dica: Excluir um setor não exclui seus modelos.",
+            "table": {
+                "header_name": "Nome do Setor",
+                "header_actions": "Ações",
+                "no_sectors": "Nenhum setor encontrado."
+            }
+        },
+        "config": {
+            "title": "Configuração do Sistema",
+            "loading": "Carregando configuração...",
+            "maintenance": {
+                "label": "Modo de Manutenção",
+                "desc": "Restringe o acesso à plataforma apenas para administradores."
+            },
+            "announcement": {
+                "label": "Anúncio Global",
+                "placeholder": "Digite uma mensagem para todos os usuários..."
+            },
+            "save_btn": "Salvar Configurações",
+            "data_mgmt": {
+                "title": "Gerenciamento de Dados",
+                "desc": "Backup ou restauração de todo o banco de dados.",
+                "export_title": "Exportar Banco de Dados",
+                "export_desc": "Baixar todos os usuários, modelos e configurações.",
+                "download": "Baixar JSON",
+                "download_sql": "Baixar SQL",
+                "download_full": "Baixar Backup Completo (ZIP)",
+                "restore_title": "Restaurar Sistema",
+                "restore_desc": "CUIDADO: Isso substituirá todos os dados atuais!",
+                "restore_confirm": "Tem certeza que deseja restaurar o sistema de {{filename}}?",
+                "upload": "Upload e Restaurar"
+            },
+            "alerts": {
+                "saved": "Configurações salvas com sucesso",
+                "failed": "Falha ao salvar configurações"
+            }
+        },
+        "logs": {
+            "title": "Logs do Sistema",
+            "desc": "Monitore a atividade do servidor e erros em tempo real.",
+            "refresh_tooltip": "Atualizar",
+            "load_failed": "Falha ao carregar logs.",
+            "network_error": "Erro de rede.",
+            "loading": "Buscando logs...",
+            "no_logs": "Nenhum log disponível."
+        }
+    },
+    "auth": {
+        "roles": {
+            "student": "Estudante",
+            "teacher": "Professor",
+            "admin": "Admin"
+        }
+    },
+    "profile": {
+        "modal": {
+            "title": "Perfil do Usuário",
+            "email": "E-mail",
+            "institution": "Instituição",
+            "not_specified": "Não especificada",
+            "bio": "Biografia",
+            "no_bio": "Nenhuma biografia disponível.",
+            "uploaded_models": "Modelos Carregados",
+            "no_models": "Nenhum modelo carregado ainda."
+        }
+    }
+}

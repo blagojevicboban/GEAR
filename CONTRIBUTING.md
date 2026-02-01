@@ -61,7 +61,7 @@ Thank you for your interest in contributing to THE GEAR! We welcome contribution
     - Run `npm run lint:fix` to auto-fix issues where possible.
     - Run `npm run format` to format code with Prettier.
 - **Internationalization (i18n)**:
-    - All UI strings MUST be placed in `src/locales/en/translation.json` and `src/locales/sr/translation.json`.
+    - All UI strings MUST be placed in all supported locale files (e.g., `src/locales/en/translation.json`, `src/locales/sr/translation.json`, `src/locales/it/translation.json`, etc.).
     - Use the `useTranslation` hook in React components.
     - When adding a new key, ensure it exists in BOTH language files to avoid fallbacks.
 
@@ -81,7 +81,7 @@ npm run test:e2e
 npx playwright test --ui
 ```
 
-- **Language Compatibility**: When writing new E2E tests, use regex-based text matching (e.g., `expect(page.getByText(/Save|Sačuvaj/i)).toBeVisible()`) to ensure tests pass in both English and Serbian.
+- **Language Compatibility**: When writing new E2E tests, use regex-based text matching to ensure tests pass across all supported languages.
 
 Before submitting a Pull Request, please ensure all tests pass.
 

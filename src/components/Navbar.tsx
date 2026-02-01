@@ -20,8 +20,10 @@ const Navbar: React.FC<NavbarProps> = ({
     const [showDropdown, setShowDropdown] = useState(false);
 
     const toggleLanguage = () => {
-        const newLang = i18n.language === 'sr' ? 'en' : 'sr';
-        i18n.changeLanguage(newLang);
+        const langs = ['en', 'sr', 'it', 'el', 'pt', 'tr'];
+        const currentIndex = langs.indexOf(i18n.language.split('-')[0]);
+        const nextIndex = (currentIndex + 1) % langs.length;
+        i18n.changeLanguage(langs[nextIndex]);
     };
 
     return (
@@ -80,10 +82,10 @@ const Navbar: React.FC<NavbarProps> = ({
                 {/* Language Toggle */}
                 <button
                     onClick={toggleLanguage}
-                    className="text-xs font-bold bg-slate-800 text-slate-300 px-2 py-1 rounded border border-slate-700 hover:border-slate-500 transition-colors uppercase"
+                    className="text-xs font-bold bg-slate-800 text-slate-300 px-2 py-1 rounded border border-slate-700 hover:border-slate-500 transition-colors uppercase min-w-[32px]"
                     title={t('nav.language')}
                 >
-                    {i18n.language === 'sr' ? 'SR' : 'EN'}
+                    {i18n.language.split('-')[0]}
                 </button>
 
                 {currentUser ? (

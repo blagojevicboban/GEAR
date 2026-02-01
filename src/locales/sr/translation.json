@@ -8,85 +8,85 @@
         "register": "Registracija",
         "user_menu": {
             "institution": "Institucija",
-            "independent": "Nezavisan",
-            "my_models": "Moji modeli",
-            "my_lessons": "Moje lekcije",
-            "edit_profile": "Izmeni profil",
-            "teacher_dashboard": "Panel za nastavnike",
-            "admin_settings": "Administratorska podešavanja",
-            "logout": "Odjavi se"
+            "independent": "Nezavisno",
+            "my_models": "Moji Modeli",
+            "my_lessons": "Moje Lekcije",
+            "edit_profile": "Izmeni Profil",
+            "teacher_dashboard": "Panel za Nastavnike",
+            "admin_settings": "Admin Podešavanja",
+            "logout": "Odjava"
         },
         "profile": "Profil",
         "theme": "Tema",
         "language": "Jezik",
-        "read_aloud": "Pročitaj Naglas",
+        "read_aloud": "Čitaj Naglas",
         "gamification": {
-            "challenge_mode": "Izazov",
+            "challenge_mode": "Challenge Mode",
             "time": "Vreme",
             "complete": "Izazov Završen!",
-            "leaderboard": "Tabela",
-            "rank": "Rang",
+            "leaderboard": "Leaderboard",
+            "rank": "Rank",
             "user": "Korisnik",
-            "score": "Rezultat"
+            "score": "Poeni"
         }
     },
     "home": {
         "welcome_title": "Dobrodošli u THE GEAR",
-        "welcome_subtitle": "Vaš vrhunski WebXR repozitorijum otvorenog koda za stručno obrazovanje.",
-        "get_started": "Započnite",
-        "featured_models": "Izdvojena Oprema",
+        "welcome_subtitle": "Vaš WebXR repozitorijum otvorenog koda za stručno obrazovanje.",
+        "get_started": "Započni",
+        "featured_models": "Izdvojena oprema",
         "active_workshops": "Aktivne Radionice",
         "no_workshops": "Trenutno nema aktivnih radionica.",
         "join": "Pridruži se"
     },
     "tour": {
         "welcome_title": "Dobrodošli u THE GEAR",
-        "welcome_content": "Vaš vrhunski WebXR repozitorijum otvorenog koda za stručno obrazovanje.",
+        "welcome_content": "Vaš WebXR repozitorijum otvorenog koda za stručno obrazovanje.",
         "library_title": "3D Biblioteka",
-        "library_content": "Pregledajte, filtrirajte i otpremite nove industrijske modele.",
+        "library_content": "Pregledajte, filtrirajte i otpremajte nove industrijske modele.",
         "lessons_title": "Interaktivne Lekcije",
         "lessons_content": "Istražite vođena 3D iskustva učenja koja su kreirali nastavnici.",
         "academy_title": "GEAR Akademija",
-        "academy_content": "Ovladajte platformom uz video tutorijale i pedagoške savete.",
+        "academy_content": "Savladajte platformu uz video tutorijale i savete o pedagogiji.",
         "help_title": "Centar za Podršku",
-        "help_content": "Pristupite tutorijalima, dijagnostici i podršci bilo kada.",
+        "help_content": "Pristupite tutorijalima, dijagnostici i podršci ovde u bilo kom trenutku.",
         "login_title": "Prijava",
-        "login_content": "Već imate nalog? Prijavite se da biste pristupili svojim projektima.",
+        "login_content": "Već imate nalog? Prijavite se da pristupite svojim projektima.",
         "signup_title": "Registracija",
         "signup_content": "Kreirajte novi nalog da biste počeli sa otpremanjem modela i pridruživanjem radionicama.",
-        "profile_title": "Korisnički Profil",
-        "profile_content": "Upravljajte svojim podešavanjima, pregledajte projekte ili se odjavite.",
+        "profile_title": "Korisnički profil",
+        "profile_content": "Upravljajte svojim podešavanjima, pregledajte svoje projekte ili se odjavite.",
         "workshops_title": "Aktivne Radionice",
-        "workshops_content": "Pridružite se sesijama saradnje uživo za više korisnika u VR-u.",
-        "featured_title": "Izdvojena Oprema",
-        "featured_content": "Pogledajte najpopularnije i najkvalitetnije modele odabrane za vas."
+        "workshops_content": "Pridružite se radionicama uživo sa više korisnika u VR-u.",
+        "featured_title": "Izdvojena oprema",
+        "featured_content": "Pogledajte najpopularnije i najkvalitetnije modele izabrane za vas."
     },
     "gallery": {
         "title": "VET Repozitorijum Opreme",
-        "subtitle": "Standardizovani, optimizovani i interaktivni 3D blizanci.",
+        "subtitle": "Standardizovani, optimizovani i interaktivni 3D digitalni blizanci.",
         "upload": "Otpremi Novi Model",
         "search_placeholder": "Pretraži opremu...",
         "all_sectors": "Svi Sektori",
         "all_users": "Svi Korisnici",
         "quick_view": "Brzi Pregled",
-        "ai_optimized": "AI Optimizovano",
+        "ai_optimized": "AI Optimizovan",
         "explore_xr": "Istraži u XR",
         "download": "Preuzmi",
         "join": "Pridruži se",
         "no_models": "Nisu pronađeni modeli koji odgovaraju vašim kriterijumima.",
-        "edit_tooltip": "Izmeni metapodatke i hotspotove",
-        "optimize_tooltip": "Auto-optimizacija pomoću AI",
+        "edit_tooltip": "Izmeni metapodatke modela i hotspots",
+        "optimize_tooltip": "Auto-optimizacija uz AI",
         "delete_tooltip": "Obriši model"
     },
     "help": {
         "title": "Kako koristiti THE GEAR",
-        "subtitle": "Vaš vodič za vrhunsko WebXR VET iskustvo.",
-        "start_tour": "Započni interaktivnu turu",
+        "subtitle": "Vaš vodič za ultimativno WebXR VET iskustvo.",
+        "start_tour": "Započni Interaktivnu Turu",
         "diagnostics": {
             "title": "Sistemska Dijagnostika",
             "connection": "Veza",
-            "secure": "Siguran kontekst aktivan (HTTPS/Localhost).",
-            "insecure": "Nesigurna veza. WebXR zahteva HTTPS.",
+            "secure": "Sigurna veza aktivna (HTTPS/Localhost).",
+            "insecure": "Nezavisna veza. WebXR zahteva HTTPS.",
             "webxr": "WebXR Podrška",
             "supported": "Vaš pretraživač podržava imerzivni VR.",
             "not_detected": "WebXR nije detektovan.",
@@ -97,56 +97,56 @@
         },
         "sections": {
             "vr_start": {
-                "title": "Brzi početak u VR režimu",
+                "title": "VR Režim - Brzi Početak",
                 "requirements": "Zahtevi",
                 "req_list": [
-                    "Meta Quest 2, 3 ili Pro kaciga",
+                    "Meta Quest 2, 3 ili Pro headset",
                     "Stabilna Wi-Fi veza",
                     "Koristite ugrađeni Meta Quest Browser"
                 ],
                 "how_to": "Kako ući u VR",
                 "how_list": [
-                    "Otvorite the-gear.app u vašoj kacigi",
+                    "Otvorite the-gear.app u vašem headset-u",
                     "Izaberite model iz repozitorijuma",
                     "Kliknite na dugme Enter VR",
-                    "Dozvolite \"Immersive Mode\" ako se zatraži"
+                    "Dozvolite \"Immersive Mode\" ako se to zatraži"
                 ],
-                "enter_vr": "Uđi u VR"
+                "enter_vr": "Enter VR"
             },
             "tts": {
-                "title": "Čitanje teksta (Text-to-Speech)",
-                "description": "Možete koristiti ugrađenu opciju za čitanje teksta da biste slušali zadatke obuke i opise hotspotova.",
+                "title": "Pretvaranje teksta u govor (TTS)",
+                "description": "Možete koristiti ugrađenu funkciju pretvaranja teksta u govor da biste slušali zadatke obuke i opise hotspot-ova.",
                 "list": {
-                    "tasks": "Zadaci obuke: Kliknite na ikonicu zvučnika 🔊 pored bilo kog zadatka na listi.",
-                    "hotspots": "Hotspotovi: Kliknite na ikonicu zvučnika 🔊 unutar iskačućeg prozora kada izaberete deo.",
-                    "languages": "Jezici: Glas se automatski menja između engleskog, srpskog, italijanskog, grčkog, portugalskog i turskog na osnovu izabranog jezika."
+                    "tasks": "Zadaci obuke: Kliknite na ikonu zvučnika 🔊 pored bilo kog zadatka na listi.",
+                    "hotspots": "Hotspots: Kliknite na ikonu zvučnika 🔊 unutar iskačućeg prozora kada izaberete deo.",
+                    "languages": "Jezici: Glas se automatski menja između engleskog, srpskog, italijanskog, grčkog, portugalskog i turskog na osnovu vašeg izabranog jezika."
                 }
             },
             "controls": {
-                "title": "Kontrole i navigacija",
-                "desktop_title": "U Desktop / Mobilnom režimu",
-                "vr_title": "U VR režimu (Touch kontroleri)",
+                "title": "Kontrole i Navigacija",
+                "desktop_title": "U Desktop / Mobilnom Režimu",
+                "vr_title": "U VR Režimu (Touch Kontroleri)",
                 "desktop_list": {
-                    "rotate": "Levi klik + prevlačenje: Rotiranje modela",
-                    "pan": "Desni klik + prevlačenje: Pomeranje kamere",
+                    "rotate": "Levi Klik + Prevlačenje: Rotiranje modela",
+                    "pan": "Desni Klik + Prevlačenje: Pomeranje kamere",
                     "zoom": "Skrolovanje: Zumiranje"
                 },
                 "vr_list": {
                     "move": "Thumbstick: Teleportacija / Kretanje",
-                    "grab": "Grip dugme: Hvatanje objekata / UI",
+                    "grab": "Grip Dugme: Hvatanje objekata / UI",
                     "interact": "Trigger: Interakcija sa dugmićima"
                 }
             },
             "features": {
-                "title": "Funkcije i uloge",
+                "title": "Funkcije i Uloge",
                 "students_title": "Učenici",
-                "students_desc": "Istražite ceo repozitorijum, pregledajte modele u 3D/VR-u, preuzmite standardne CAD datoteke (STEP) i pridružite se radionicama koje vode nastavnici.",
-                "teachers_title": "Nastavnici i administratori",
-                "teachers_desc": "Otpremite nove modele (preko dugmeta + Otpremi u Repozitorijumu), kreirajte interaktivne lekcije, vodite radionice i pratite napredak učenika.",
-                "workshops_title": "Kolaborativne radionice",
-                "workshops_desc": "Nastavnici mogu kreirati \"Sobu\" kojoj se više učenika može pridružiti u VR-u. Svi vide isti model i mogu komunicirati sa njim zajedno u realnom vremenu.",
+                "students_desc": "Istražite ceo repozitorijum, pregledajte modele u 3D/VR, preuzmite standardne CAD fajlove (STEP) i pridružite se radionicama koje vode nastavnici.",
+                "teachers_title": "Nastavnici i Admini",
+                "teachers_desc": "Otpremajte nove modele (preko dugmeta + Otpremi u Repozitorijumu), kreirajte interaktivne lekcije, vodite radionice i pratite napredak učenika.",
+                "workshops_title": "Kolaborativne Radionice",
+                "workshops_desc": "Nastavnici mogu kreirati \"Sobu\" kojoj se više učenika može pridružiti u VR-u. Svi vide isti model i mogu komunicirati u realnom vremenu.",
                 "sync_title": "Sinhronizacija i Pokazivač",
-                "sync_desc": "Nastavnici mogu koristiti opciju 'Sinhronizuj Učenike' da usklade pogled svih učesnika sa svojim, i 'Laser Pokazivač' da istaknu specifične delove modela.",
+                "sync_desc": "Nastavnici mogu koristiti opciju 'Sinhronizuj Učenike' da bi svi videli isto što i oni, i koristiti 'Laser Pokazivač' da istaknu delove modela.",
                 "exploded_title": "Rasklapanje Modela",
                 "exploded_desc": "U Režimu Sklapanja, kliknite na 'Rasklopi Prikaz' da automatski razdvojite sve delove modela od centra, omogućavajući pregled unutrašnjih komponenti.",
                 "gaze_title": "Kontekstualni AI Pogled",
@@ -198,11 +198,22 @@
                 "no_accounts": "Nisu potrebni posebni nalozi",
                 "role_mapping": "Automatsko mapiranje uloga (Nastavnik/Učenik)",
                 "secure_access": "Siguran standardizovan pristup",
-                "admin_title": "Za administratore",
-                "admin_desc": "Da biste povezali svoj LMS, potrebno je da registrujete THE GEAR kao spoljni alat koristeći sledeće linkove:",
+                "admin_title": "Za LMS administratore",
+                "admin_desc": "Koristite sledeće linkove da registrujete THE GEAR u podešavanjima vašeg LTI provajdera:",
                 "login_url": "Login URL",
                 "launch_url": "Launch URL",
-                "keys_url": "Ključevi (JWKS)"
+                "keys_url": "Javni JWKS URL"
+            },
+            "admin": {
+                "title": "Administracija Platforme (v2.0)",
+                "config_title": "Globalna Konfiguracija",
+                "config_desc": "Administratori mogu prilagoditi identitet platforme (Brendiranje), fino podesiti ponašanje AI-a i upravljati bezbednosnim postavkama na kartici Podešavanja administratora > Konfiguracija.",
+                "features": [
+                    "Custom Branding: Promena naziva i primarne boje na celom sajtu.",
+                    "AI Podešavanja: Izbor modela (Flash/Pro) i nivoa kreativnosti.",
+                    "Bezbednost: Kontrola javne registracije i limita za otpremanje fajlova.",
+                    "Rezervne kopije: Troslojni sistem bekapa (JSON, SQL, System ZIP)."
+                ]
             },
             "builder": {
                 "title": "Workbook & Interaktivni Kvizovi",
@@ -278,7 +289,7 @@
         "upload_file": "Otpremi datoteku",
         "no_img": "BEZ SLIKE",
         "place_hotspot": "Postavi novi hotspot",
-        "hotspot_instruction": "Kliknite na model da postavite...",
+        "hotspot_instruction": "Kliknite na model da postavi...",
         "hotspot_linked": "Hotspot povezan",
         "no_model_selected": "Nije izabran 3D model",
         "no_model_tip": "Izaberite model u levom panelu da biste počeli.",

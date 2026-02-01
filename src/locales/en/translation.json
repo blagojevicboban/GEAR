@@ -198,11 +198,22 @@
                 "no_accounts": "No separate accounts needed",
                 "role_mapping": "Automatic role mapping (Teacher/Student)",
                 "secure_access": "Secure standardized access",
-                "admin_title": "For Administrators",
-                "admin_desc": "To connect your LMS, you need to register THE GEAR as an external tool using the following endpoints:",
+                "admin_title": "For LMS Administrators",
+                "admin_desc": "Use the following endpoints to register THE GEAR in your LTI Provider tool settings:",
                 "login_url": "Login URL",
                 "launch_url": "Launch URL",
-                "keys_url": "Keys (JWKS)"
+                "keys_url": "Public JWKS URL"
+            },
+            "admin": {
+                "title": "Platform Administration (v2.0)",
+                "config_title": "Global Configuration",
+                "config_desc": "Administrators can customize the platform identity (Branding), fine-tune AI behavior, and manage security settings from the dedicated Admin Settings > Configuration tab.",
+                "features": [
+                    "Custom Branding: Change Name and Primary Color site-wide.",
+                    "AI Tweaks: Select models (Flash/Pro) and set generation creativity.",
+                    "Security: Control public registration and file upload limits.",
+                    "Backups: Three-tier backup system (JSON, SQL, System ZIP)."
+                ]
             },
             "builder": {
                 "title": "Workbook & Interactive Quizzes",

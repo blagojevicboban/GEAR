@@ -22,4 +22,9 @@ test('help page content and diagnostics', async ({ page }) => {
     await expect(
         page.getByText(/VR Mode Quick Start|Uputstvo za VR režim/i)
     ).toBeVisible();
+
+    // Check Administration section (v2.0)
+    await expect(
+        page.getByText(/Platform Administration|Administracija Platforme/i)
+    ).toBeVisible();
 });

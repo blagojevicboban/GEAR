@@ -1,4 +1,4 @@
-# THE GEAR - VET WebXR Hub (v1.9.0)
+# THE GEAR - VET WebXR Hub (v2.0.0)
 
 **THE GEAR** is an open-source WebXR platform designed for Vocational Education and Training (VET). It allows schools and students to upload, manage, and interact with 3D digital twins of industrial equipment directly in the browser, with support for VR headsets (Meta Quest), mobile devices, and desktops.
 
@@ -19,7 +19,7 @@ This platform implements the 4 key intellectual outputs of the **ARVR4VET** proj
 ### ✅ Result 2: AI-Driven CAD Engine
 
 - **Automated Optimization**: Server-side pipeline converts huge industrial STEP files into optimized low-poly GLB models for VR.
-- **AI Verdict**: Google Gemini 1.5 Pro analyzes the model geometry and metadata to provide technical summaries.
+- **AI Verdict**: Google Gemini 1.5/2.0 analyzes the model geometry and metadata to provide technical summaries.
 - **Performance Toggle**: Instantly switch between "Original (High-Poly)" and "Optimized (AI)" versions in the viewer.
 
 ### ✅ Result 3: Interactive Workbook
@@ -50,7 +50,7 @@ This platform implements the 4 key intellectual outputs of the **ARVR4VET** proj
 - **Multi-User Workshops**: Shared virtual spaces with real-time position synchronization and collaborative interactions.
 - **Dashboard**: Featured models, global announcements, and category-based filtering (sectors).
 - **Mixed Reality Mode**: Immersive AR experience with Passthrough, Hand Tracking, and Spatial UI controls.
-- **Admin Settings**: Comprehensive dashboard for User Management, Sector Management, System Logs, and Global Configuration (Maintenance Mode, Three-Tier Backups: JSON/SQL/ZIP, & Full System Restore).
+- **Admin Settings**: Comprehensive dashboard for User Management, Sector Management, System Logs, and **Global Configuration** (Custom Branding, AI Tweaks, Gamification control, Maintenance Mode, Three-Tier Backups).
 - **Multi-language Support**: Full internationalization (i18n) for **English**, **Serbian**, **Italian**, **Greek**, **Portuguese**, and **Turkish** across all modules.
 - **E2E Testing Suite**: Robust automated tests for critical flows, ensuring stability across both localized versions.
 - **Support Center**: Dedicated support page with interactive **System Diagnostics** (WebXR/HTTPS checks) and tutorials.

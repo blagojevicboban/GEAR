@@ -72,7 +72,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
     ];
 
     if (currentUser?.role === 'admin') {
-        navItems.push({ view: 'admin-settings', label: t('nav.user_menu.admin_settings'), icon: Settings });
+        navItems.push({ view: 'admin-settings', label: t('nav.user_menu.admin_settings'), icon: Settings, id: 'nav-admin-settings' });
     }
 
     const currentLangCode = i18n.language?.split('-')[0] || 'en';
@@ -94,7 +94,10 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
                             >
                                 <HardHat className="text-white w-5 h-5" />
                             </div>
-                            <span className="text-xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+                            <span 
+                                id="navbar-logo-text"
+                                className="text-xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent"
+                            >
                                 {config.brand_name || 'THE GEAR'}
                             </span>
                         </button>

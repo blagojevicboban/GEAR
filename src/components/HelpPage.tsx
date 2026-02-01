@@ -532,6 +532,40 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                     </div>
                 </div>
 
+                {/* Section 7: Platform Administration (v2.0) */}
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
+                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <span className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
+                            ⚙️
+                        </span>
+                        {t('help.sections.admin.title')}
+                    </h2>
+                    <div className="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 className="font-bold text-indigo-400 mb-4">
+                                {t('help.sections.admin.config_title')}
+                            </h3>
+                            <p className="text-slate-400 mb-4">
+                                {t('help.sections.admin.config_desc')}
+                            </p>
+                        </div>
+                        <div>
+                            <ul className="space-y-3 text-slate-400">
+                                {(
+                                    t('help.sections.admin.features', {
+                                        returnObjects: true,
+                                    }) as string[]
+                                ).map((feature, i) => (
+                                    <li key={i} className="flex items-start gap-2">
+                                        <span className="text-indigo-500">•</span>
+                                        {feature}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
                 <div className="text-center pt-8">
                     <p className="text-slate-500 mb-4">
                         {t('help.footer.questions')}

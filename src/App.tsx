@@ -726,7 +726,7 @@ const App: React.FC = () => {
 
             {currentView !== 'viewer' && (
                 <footer className="bg-slate-900 border-t border-slate-800 py-6 text-center text-slate-500 text-sm">
-                    <p>
+                    <p id="footer-brand-name">
                         &copy; 2026 {config.brand_name} - Open Source VET WebXR Platform.
                         Optimized for Meta Quest.
                     </p>

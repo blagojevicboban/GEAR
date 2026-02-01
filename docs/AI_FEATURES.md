@@ -20,6 +20,14 @@ The **AI Lesson Generator** uses Google's Gemini 2.0 Flash model to automaticall
 
 - A valid `GEMINI_API_KEY` must be configured in **Admin Settings > Configuration**.
 
+### AI Tweaks (v2.0)
+
+Administrators can now fine-tune the AI Engine:
+
+1.  **Model Selection**: Switch between **Gemini 2.0 Flash** (Fastest) and **Gemini 1.5 Pro** (More detailed reasoning).
+2.  **Language Lock**: Force the AI to always generate content in a specific institutional language (Srpski, Italiano, etc.) instead of relying on automatic detection.
+3.  **Temperature (Creativity)**: Use a slider (0.0 to 1.0) to control the "vibe" of the AI. Choose `0.2` for strictly technical instructions or `0.8` for more engaging, creative teaching styles.
+
 ---
 
 ## 2. 3D Heatmaps (Analytics)

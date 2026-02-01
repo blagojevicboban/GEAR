@@ -205,6 +205,23 @@ Update a video.
 
 Remove a video.
 
+## Configuration & Public Data
+
+### GET /config/public
+
+Fetch non-sensitive system configuration. Used by the frontend for branding and security checks before login.
+**Response:**
+```json
+{
+  "brand_name": "THE GEAR",
+  "brand_color": "#4f46e5",
+  "global_announcement": "Classes are cancelled tomorrow...",
+  "maintenance_mode": "false",
+  "allow_public_registration": "true",
+  "show_leaderboard": "true"
+}
+```
+
 ## Admin System
 
 ### GET /admin/logs
@@ -213,7 +230,23 @@ Get last 100 lines of server error logs.
 
 ### GET /admin/config
 
-Get system configuration (maintenance mode, etc).
+Get system configuration.
+**Response Keys:**
+- `maintenance_mode`: (bool)
+- `global_announcement`: (string)
+- `gemini_api_key`: (string - encrypted)
+- `allowed_origins`: (string - CSV)
+- `allow_public_registration`: (bool)
+- `max_file_size_mb`: (int)
+- `moodle_url`: (string)
+- `moodle_client_id`: (string)
+- `brand_name`: (string)
+- `brand_color`: (hex)
+- `ai_model`: (string)
+- `ai_language`: (string: 'Auto' | 'Serbian' | 'English' | ...)
+- `ai_temperature`: (float: 0.0 - 1.0)
+- `challenge_duration_days`: (int)
+- `show_leaderboard`: (bool)
 
 ### PUT /admin/config
 

@@ -28,6 +28,7 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({
                     </h1>
                     <div className="flex gap-8 overflow-x-auto">
                         <button
+                            id="admin-tab-users"
                             onClick={() => setActiveTab('users')}
                             className={`pb-4 px-2 font-medium text-sm transition-all border-b-2 ${
                                 activeTab === 'users'
@@ -38,6 +39,7 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({
                             {t('admin.settings.tabs.users')}
                         </button>
                         <button
+                            id="admin-tab-sectors"
                             onClick={() => setActiveTab('sectors')}
                             className={`pb-4 px-2 font-medium text-sm transition-all border-b-2 ${
                                 activeTab === 'sectors'
@@ -48,6 +50,7 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({
                             {t('admin.settings.tabs.sectors')}
                         </button>
                         <button
+                            id="admin-tab-config"
                             onClick={() => setActiveTab('config')}
                             className={`pb-4 px-2 font-medium text-sm transition-all border-b-2 ${
                                 activeTab === 'config'
@@ -416,6 +419,7 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                 type="text"
                                 className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                                 placeholder={t('admin.config.branding.name_label')}
+                                id="config-brand-name"
                                 value={config.brand_name || ''}
                                 onChange={(e) =>
                                     setConfig({
@@ -428,6 +432,7 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                 <input
                                     type="color"
                                     className="h-12 w-12 bg-slate-950 border border-slate-700 rounded-lg cursor-pointer p-1"
+                                    id="config-brand-color-picker"
                                     value={config.brand_color || '#4f46e5'}
                                     onChange={(e) =>
                                         setConfig({
@@ -473,6 +478,7 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                 <input
                                     type="number"
                                     className="w-1/3 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 outline-none"
+                                    id="config-challenge-days"
                                     placeholder="7"
                                     value={config.challenge_duration_days || '7'}
                                     onChange={(e) =>
@@ -495,6 +501,7 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                 </div>
                                 <div
                                     className={`w-12 h-6 rounded-full p-1 transition-colors ${config.show_leaderboard === 'true' ? 'bg-amber-600' : 'bg-slate-600'}`}
+                                    id="config-toggle-leaderboard"
                                     onClick={() =>
                                         setConfig({
                                             ...config,
@@ -593,6 +600,7 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                     </div>
 
                     <button
+                        id="config-save-btn"
                         onClick={handleSave}
                         className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-500/20 transition-all"
                     >

@@ -803,6 +803,8 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
         recognition.lang = 'en-US';
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
+        
+        let isIntentionalStop = false;
 
         recognition.onstart = () => {
             console.log('Voice Control Active');
@@ -859,10 +861,29 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
         };
 
         recognition.onerror = (event: any) => {
+            if (event.error === 'no-speech') {
+                // Ignore no-speech, it just means silence
+                return; 
+            }
+            if (event.error === 'aborted') {
+                console.warn('Speech Recognition Aborted');
+                return;
+            }
             console.error('Speech Recognition Error:', event.error);
         };
 
-        // Start listening only if AR is active or always? Let's do always for testing on desktop too.
+        recognition.onend = () => {
+             if (!isIntentionalStop) {
+                 // Auto-restart if it stopped unexpectedly
+                 try {
+                     recognition.start();
+                 } catch (e) {
+                     // ignore if already started
+                 }
+             }
+        };
+
+        // Start listening
         try {
             recognition.start();
         } catch (e) {
@@ -870,6 +891,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
         }
 
         return () => {
+            isIntentionalStop = true;
             recognition.stop();
         };
     }, []); // Run once on mount

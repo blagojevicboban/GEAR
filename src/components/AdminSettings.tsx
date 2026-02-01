@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { User, VETModel } from '../types';
 import UserManagement from './UserManagement';
+import { Terminal } from 'lucide-react';
 
 interface AdminSettingsProps {
     currentUser: User;
@@ -117,6 +118,11 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
         moodle_client_id: '',
         brand_name: 'THE GEAR',
         brand_color: '#4f46e5',
+        ai_model: 'gemini-2.0-flash',
+        ai_language: 'Auto',
+        ai_temperature: '0.7',
+        challenge_duration_days: '7',
+        show_leaderboard: 'true',
     });
     const [loading, setLoading] = useState(true);
 
@@ -296,6 +302,74 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                         </p>
                     </div>
 
+                    <div className="bg-indigo-900/20 border border-indigo-500/30 rounded-2xl p-6 space-y-4">
+                        <div className="flex items-center gap-2 mb-2">
+                            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                                <Terminal className="w-4 h-4 text-white" />
+                            </div>
+                            <h3 className="text-lg font-bold text-white">
+                                {t('admin.config.ai_tweaks.label')}
+                            </h3>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-bold text-indigo-300 uppercase mb-2">
+                                {t('admin.config.ai_tweaks.model_label')}
+                            </label>
+                            <select 
+                                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                value={config.ai_model || 'gemini-2.0-flash'}
+                                onChange={(e) => setConfig({ ...config, ai_model: e.target.value })}
+                            >
+                                <option value="gemini-2.0-flash">Gemini 2.0 Flash (Fast & Balanced)</option>
+                                <option value="gemini-1.5-pro">Gemini 1.5 Pro (Deep Reasoning)</option>
+                                <option value="gemini-2.0-flash-lite-preview-02-05">Gemini 2.0 Flash Lite (Speed focus)</option>
+                            </select>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-xs font-bold text-indigo-300 uppercase mb-2">
+                                    {t('admin.config.ai_tweaks.language_label')}
+                                </label>
+                                <select 
+                                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    value={config.ai_language || 'Auto'}
+                                    onChange={(e) => setConfig({ ...config, ai_language: e.target.value })}
+                                >
+                                    <option value="Auto">Auto (Browser Lang)</option>
+                                    <option value="Serbian">Srpski</option>
+                                    <option value="English">English</option>
+                                    <option value="Italian">Italiano</option>
+                                    <option value="Greek">Greek</option>
+                                    <option value="Portuguese">Portuguese</option>
+                                    <option value="Turkish">Turkish</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-indigo-300 uppercase mb-2">
+                                    {t('admin.config.ai_tweaks.temp_label')}
+                                </label>
+                                <div className="flex items-center gap-3">
+                                    <input 
+                                        type="range"
+                                        min="0"
+                                        max="1"
+                                        step="0.1"
+                                        className="flex-1 accent-indigo-500"
+                                        value={config.ai_temperature || '0.7'}
+                                        onChange={(e) => setConfig({ ...config, ai_temperature: e.target.value })}
+                                    />
+                                    <span className="text-white font-mono w-8 text-right">{config.ai_temperature}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p className="text-xs text-slate-500">
+                            {t('admin.config.ai_tweaks.desc')}
+                        </p>
+                    </div>
+
                     <div>
                         <label className="block text-sm font-bold text-slate-300 mb-2">
                             Google Gemini API Key
@@ -378,6 +452,68 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                         </div>
                         <p className="text-xs text-slate-500 mt-1">
                             {t('admin.config.branding.desc')}
+                        </p>
+                    </div>
+
+                    <div className="bg-amber-900/20 border border-amber-500/30 rounded-2xl p-6 space-y-4">
+                        <div className="flex items-center gap-2 mb-2">
+                            <div className="w-8 h-8 bg-amber-600 rounded-lg flex items-center justify-center text-lg">
+                                🏆
+                            </div>
+                            <h3 className="text-lg font-bold text-white">
+                                {t('admin.config.gamification.label')}
+                            </h3>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-bold text-amber-300 uppercase mb-2">
+                                {t('admin.config.gamification.challenge_label')}
+                            </label>
+                            <div className="flex items-center gap-3">
+                                <input
+                                    type="number"
+                                    className="w-1/3 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 outline-none"
+                                    placeholder="7"
+                                    value={config.challenge_duration_days || '7'}
+                                    onChange={(e) =>
+                                        setConfig({
+                                            ...config,
+                                            challenge_duration_days: e.target.value,
+                                        })
+                                    }
+                                />
+                                <span className="text-slate-400 font-bold">{t('common.days') || 'Days'}</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl border border-slate-700 cursor-pointer hover:bg-slate-800 transition-colors">
+                                <div>
+                                    <span className="block font-bold text-white">
+                                        {t('admin.config.gamification.leaderboard_label')}
+                                    </span>
+                                </div>
+                                <div
+                                    className={`w-12 h-6 rounded-full p-1 transition-colors ${config.show_leaderboard === 'true' ? 'bg-amber-600' : 'bg-slate-600'}`}
+                                    onClick={() =>
+                                        setConfig({
+                                            ...config,
+                                            show_leaderboard:
+                                                config.show_leaderboard === 'true'
+                                                    ? 'false'
+                                                    : 'true',
+                                        })
+                                    }
+                                >
+                                    <div
+                                        className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform ${config.show_leaderboard === 'true' ? 'translate-x-6' : ''}`}
+                                    ></div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <p className="text-xs text-slate-500">
+                            {t('admin.config.gamification.desc')}
                         </p>
                     </div>
 

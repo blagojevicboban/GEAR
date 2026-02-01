@@ -450,6 +450,19 @@
                 "color_label": "Primarna boja (HEX)",
                 "desc": "Prilagodite izgled platforme bojama i nazivom vaše institucije."
             },
+            "ai_tweaks": {
+                "label": "AI Podešavanja",
+                "model_label": "Gemini Model",
+                "language_label": "Jezik generisanja",
+                "temp_label": "Kreativnost (Temperature)",
+                "desc": "Fino podesite kako AI generiše lekcije i analizira modele."
+            },
+            "gamification": {
+                "label": "Aktivnosti i Gamifikacija",
+                "challenge_label": "Trajanje izazova (u danima)",
+                "leaderboard_label": "Javni rang (Leaderboard)",
+                "desc": "Podešavanja za takmičenja i prikaz rezultata učenika."
+            },
             "announcement": {
                 "label": "Globalno obaveštenje",
                 "placeholder": "Unesite poruku koja će biti prikazana na vrhu kontrolne table..."

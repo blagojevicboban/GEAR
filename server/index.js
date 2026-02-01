@@ -151,7 +151,7 @@ app.use('/api', gamificationRoutes);
 app.get('/api/config/public', async (req, res) => {
     try {
         const [rows] = await pool.query(
-            "SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN ('brand_name', 'brand_color', 'global_announcement', 'maintenance_mode', 'allow_public_registration')"
+            "SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN ('brand_name', 'brand_color', 'global_announcement', 'maintenance_mode', 'allow_public_registration', 'show_leaderboard')"
         );
         const config = {};
         rows.forEach((r) => (config[r.setting_key] = r.setting_value));

@@ -450,6 +450,19 @@
                 "color_label": "Primary Color (HEX)",
                 "desc": "Customize the look and name of the platform for your institution."
             },
+            "ai_tweaks": {
+                "label": "AI Tweaks",
+                "model_label": "Gemini Model",
+                "language_label": "Generation Language",
+                "temp_label": "Creativity (Temperature)",
+                "desc": "Fine-tune how AI generates lessons and analyzes models."
+            },
+            "gamification": {
+                "label": "Activities and Gamification",
+                "challenge_label": "Challenge Duration (Days)",
+                "leaderboard_label": "Public Leaderboard",
+                "desc": "Settings for competitions and displaying student results."
+            },
             "announcement": {
                 "label": "Global Announcement",
                 "placeholder": "Enter a message to be displayed on the top of the dashboard..."

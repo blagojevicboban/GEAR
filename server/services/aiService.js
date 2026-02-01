@@ -59,10 +59,16 @@ export const optimizeModel = async (id) => {
                         });
                         const prompt = `CAD Optimization Audit:\nStats: ${JSON.stringify(result)}\nContext: Is this safe for training? Returns JSON {status, reason}`;
 
+                        const selectedModel = await getSetting('ai_model', 'gemini-2.0-flash');
+                        const selectedTemp = await getSetting('ai_temperature', '0.7');
+
                         const aiRes = await ai.models.generateContent({
-                            model: 'gemini-2.0-flash-exp',
+                            model: selectedModel,
                             contents: prompt,
-                            config: { responseMimeType: 'application/json' },
+                            config: { 
+                                responseMimeType: 'application/json',
+                                temperature: parseFloat(selectedTemp) 
+                            },
                         });
                         aiVerdict = aiRes.text;
                     } catch (e) {
@@ -97,9 +103,19 @@ export const generateLesson = async ({
 
     const ai = new GoogleGenAI({ apiKey: apiKey });
 
+    // Fetch dynamic tweaks
+    const selectedModel = await getSetting('ai_model', 'gemini-2.0-flash');
+    const selectedLang = await getSetting('ai_language', 'Auto');
+    const selectedTemp = await getSetting('ai_temperature', '0.7');
+
+    const languageNote = selectedLang === 'Auto' 
+        ? 'Use the language of the provided model name/description.'
+        : `Generate all content in ${selectedLang} language.`;
+
     const systemPrompt = `You are an expert vocational teacher creating a lesson for a 3D interactive workbook.
     Create a ${stepCount}-step lesson plan for a 3D model of "${modelName}".
-    
+    ${languageNote}
+
     Context/Description of model: ${modelDescription || 'Standard industrial component'}
     Target Audience Level: ${level || 'Intermediate'}
     Specific Topic Focus: ${topic || 'General Overview'}
@@ -120,11 +136,11 @@ export const generateLesson = async ({
     `;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-2.0-flash',
+        model: selectedModel,
         contents: systemPrompt,
         config: {
             responseMimeType: 'application/json',
-            temperature: 0.7,
+            temperature: parseFloat(selectedTemp),
         },
     });
 

@@ -18,7 +18,17 @@
         },
         "profile": "Profile",
         "theme": "Theme",
-        "language": "Language"
+        "language": "Language",
+        "read_aloud": "Read Aloud",
+        "gamification": {
+            "challenge_mode": "Challenge Mode",
+            "time": "Time",
+            "complete": "Challenge Complete!",
+            "leaderboard": "Leaderboard",
+            "rank": "Rank",
+            "user": "User",
+            "score": "Score"
+        }
     },
     "home": {
         "welcome_title": "Welcome to THE GEAR",

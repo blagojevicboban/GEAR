@@ -208,6 +208,7 @@ async function decodeAudioData(
     return buffer;
 }
 
+import { speak, cancelSpeech } from '../utils/tts';
 import { fixAssetUrl } from '../utils/urlUtils';
 
 const VRViewer: React.FC<VRViewerProps> = ({
@@ -266,7 +267,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
     const nextStartTimeRef = useRef<number>(0);
     const audioSourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set());
     const micStreamRef = useRef<MediaStream | null>(null);
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const modelEntityRef = useRef<any>(null);
     const [isExploded, setIsExploded] = useState(false);
     
@@ -274,7 +275,75 @@ const VRViewer: React.FC<VRViewerProps> = ({
     const [activePartName, setActivePartName] = useState<string | null>(null);
     const lastContextSentRef = useRef<string | null>(null);
 
+    // --- Gamification State ---
+    const [challengeMode, setChallengeMode] = useState(false);
+    const [challengeStartTime, setChallengeStartTime] = useState<number | null>(null);
+    const [challengeTime, setChallengeTime] = useState(0); // ms
+    const [isChallengeComplete, setIsChallengeComplete] = useState(false);
+    const [showLeaderboard, setShowLeaderboard] = useState(false);
+    const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
+
     const assemblySystem = (window as any).AFRAME?.systems['assembly-mode-system'];
+
+    // Load leaderboard
+    const fetchLeaderboard = useCallback(async () => {
+        try {
+            const res = await fetch(`/api/scores/${model.id}`);
+            if (res.ok) {
+                const data = await res.json();
+                setLeaderboardData(data);
+            }
+        } catch (e) {
+            console.error("Failed to fetch leaderboard", e);
+        }
+    }, [model.id]);
+
+    useEffect(() => {
+        if (showLeaderboard) fetchLeaderboard();
+    }, [showLeaderboard, fetchLeaderboard]);
+
+    // Challenge Logic
+    useEffect(() => {
+        let interval: any;
+        if (challengeMode && challengeStartTime && !isChallengeComplete) {
+            interval = setInterval(() => {
+                setChallengeTime(Date.now() - challengeStartTime);
+            }, 100);
+        }
+        return () => clearInterval(interval);
+    }, [challengeMode, challengeStartTime, isChallengeComplete]);
+
+    // Start Timer on first task
+    useEffect(() => {
+        if (challengeMode && !challengeStartTime && activeTaskId) {
+            setChallengeStartTime(Date.now());
+        }
+    }, [challengeMode, challengeStartTime, activeTaskId]);
+
+    // Check Completion
+    useEffect(() => {
+        if (challengeMode && !isChallengeComplete && challengeStartTime && trainingTasks.length > 0) {
+            const allComplete = trainingTasks.every(t => t.status === 'completed');
+            if (allComplete) {
+                setIsChallengeComplete(true);
+                const finalTime = (Date.now() - challengeStartTime) / 1000;
+                // Save Score
+                fetch('/api/scores', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        userId: user?.id || 1, // Fallback for dev
+                        username: user?.username || 'Guest',
+                        modelId: model.id,
+                        timeSeconds: finalTime
+                    })
+                }).then(() => {
+                     playSound('success');
+                     setShowLeaderboard(true);
+                });
+            }
+        }
+    }, [challengeMode, isChallengeComplete, challengeStartTime, trainingTasks, user, model.id]);
 
     const playSound = useCallback(
         (type: 'click' | 'ping' | 'dismiss' | 'success') => {
@@ -1199,6 +1268,24 @@ const VRViewer: React.FC<VRViewerProps> = ({
                         </div>
                     )}
 
+                    {/* Challenge Mode Toggle */}
+                    <button
+                        onClick={() => {
+                            setChallengeMode(!challengeMode);
+                            setChallengeTime(0);
+                            setChallengeStartTime(null);
+                            setIsChallengeComplete(false);
+                            setActiveTaskId(null);
+                        }}
+                        className={`w-full py-2 mb-4 rounded-lg backdrop-blur-md transition-all font-bold flex items-center justify-center gap-2 border ${challengeMode
+                                ? 'bg-amber-500/80 border-amber-400 text-white shadow-[0_0_15px_rgba(245,158,11,0.5)]'
+                                : 'bg-slate-900/80 border-slate-600 text-slate-300 hover:bg-slate-800'
+                            }`}
+                    >
+                        <span>🏆</span>
+                        {t('gamification.challenge_mode')}
+                    </button>
+
                     <div className="flex flex-col gap-2 mb-4">
                         <div className="flex items-center justify-between">
                             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
@@ -1272,6 +1359,16 @@ const VRViewer: React.FC<VRViewerProps> = ({
                                                     : 'START'}
                                             </button>
                                         )}
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                speak(t.taskName + '. ' + (t.description || ''), i18n.language);
+                                            }}
+                                            className="ml-2 text-[10px] px-2 py-1 rounded bg-slate-800 text-slate-400 hover:text-white border border-slate-700"
+                                            title="Read Aloud"
+                                        >
+                                            🔊
+                                        </button>
                                     </div>
                                 </div>
                             ))
@@ -1286,7 +1383,10 @@ const VRViewer: React.FC<VRViewerProps> = ({
                     <div className="relative w-full max-w-4xl bg-slate-900 border border-indigo-500/30 rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh]">
                         {/* Close Button */}
                         <button
-                            onClick={handleCloseHotspot}
+                            onClick={() => {
+                                cancelSpeech();
+                                handleCloseHotspot();
+                            }}
                             className="absolute top-4 right-4 z-30 p-2 bg-black/50 hover:bg-rose-600 text-white rounded-full transition-all backdrop-blur-md"
                             title="Close and return to XR"
                         >
@@ -1350,8 +1450,15 @@ const VRViewer: React.FC<VRViewerProps> = ({
                                 <span className="inline-block px-3 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-bold uppercase tracking-widest rounded-full mb-3 border border-indigo-500/20">
                                     {activeHotspot.type} marker
                                 </span>
-                                <h3 className="text-2xl font-bold text-white mb-4">
+                                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                                     {activeHotspot.title}
+                                    <button
+                                        onClick={() => speak(activeHotspot.title + '. ' + activeHotspot.description, i18n.language)}
+                                        className="p-2 rounded-full bg-indigo-500/20 hover:bg-indigo-500 text-white transition-colors text-sm"
+                                        title="Read Aloud"
+                                    >
+                                        🔊
+                                    </button>
                                 </h3>
                                 <div className="h-1 w-12 bg-indigo-500 rounded-full mb-6"></div>
                                 <p className="text-slate-400 text-sm leading-relaxed">
@@ -1523,6 +1630,78 @@ const VRViewer: React.FC<VRViewerProps> = ({
                     </a-entity>
                 )}
             </a-scene>
+            {/* Challenge Timer Overlay */}
+            {challengeMode && (
+                <div className="absolute top-24 left-1/2 -translate-x-1/2 bg-black/60 px-8 py-3 rounded-full border border-amber-500/50 backdrop-blur-md z-10 flex flex-col items-center">
+                    <div className="flex items-center gap-3">
+                        <span className="text-amber-400 text-2xl animate-pulse">⏱️</span>
+                        <span className="font-mono text-3xl font-bold text-white tracking-wider">
+                            {new Date(challengeTime).toISOString().slice(14, 19)}
+                            <span className="text-sm text-slate-400">.{Math.floor((challengeTime % 1000) / 100)}</span>
+                        </span>
+                    </div>
+                    {isChallengeComplete && (
+                        <div className="text-green-400 text-xs font-bold uppercase tracking-widest mt-1 animate-bounce">
+                            {t('gamification.complete')}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Leaderboard Modal */}
+            {showLeaderboard && (
+                <div className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-lg animate-in fade-in duration-300">
+                    <div className="relative w-full max-w-md bg-slate-900 border border-amber-500/30 rounded-3xl shadow-2xl overflow-hidden flex flex-col p-6">
+                        <button
+                            onClick={() => setShowLeaderboard(false)}
+                            className="absolute top-4 right-4 p-2 bg-slate-800 hover:bg-slate-700 text-white rounded-full transition-colors"
+                        >
+                            ✕
+                        </button>
+                        
+                        <h2 className="text-2xl font-bold text-amber-500 mb-6 flex items-center gap-2">
+                            🏆 {t('gamification.leaderboard')}
+                        </h2>
+
+                        <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
+                            <div className="grid grid-cols-4 text-xs font-bold text-slate-500 border-b border-slate-800 pb-2 mb-2">
+                                <span>{t('gamification.rank')}</span>
+                                <span className="col-span-2">{t('gamification.user')}</span>
+                                <span className="text-right">{t('gamification.score')}</span>
+                            </div>
+                            {leaderboardData.length > 0 ? (
+                                leaderboardData.map((entry, i) => (
+                                    <div key={i} className={`grid grid-cols-4 py-2 border-b border-slate-800/50 items-center ${i < 3 ? 'text-white' : 'text-slate-400'}`}>
+                                        <span className="flex items-center gap-2">
+                                            {i === 0 && '🥇'}
+                                            {i === 1 && '🥈'}
+                                            {i === 2 && '🥉'}
+                                            <span className="font-mono text-xs opacity-50">#{i + 1}</span>
+                                        </span>
+                                        <span className="col-span-2 font-medium truncate">{entry.username}</span>
+                                        <span className="text-right font-mono text-amber-400">{entry.time_seconds.toFixed(2)}s</span>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="text-center py-8 text-slate-500 italic">
+                                    No scores yet. Be the first!
+                                </div>
+                            )}
+                        </div>
+
+                        <button
+                            onClick={() => {
+                                setShowLeaderboard(false);
+                                setChallengeMode(false);
+                                setIsChallengeComplete(false);
+                            }}
+                            className="mt-6 w-full py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl transition-all"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -185,6 +185,30 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                     </div>
                 </div>
 
+                {/* Section 1a: Text-to-Speech */}
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl mt-8">
+                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <span className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
+                            🔊
+                        </span>
+                        Text-to-Speech (Pročitaj Naglas)
+                    </h2>
+                    <p className="text-slate-400 mb-4">
+                        {t('help.sections.tts.description') || "You can use the built-in Text-to-Speech feature to listen to training tasks and hotspot descriptions."}
+                    </p>
+                    <ul className="list-disc list-inside text-slate-400 space-y-2">
+                        <li>
+                            <strong>Training Tasks:</strong> Click the speaker icon 🔊 next to any task in the list.
+                        </li>
+                        <li>
+                            <strong>Hotspots:</strong> Click the speaker icon 🔊 inside the popup when selecting a part.
+                        </li>
+                        <li>
+                            <strong>Languages:</strong> The voice automatically switches between English and Serbian based on your selected language.
+                        </li>
+                    </ul>
+                </div>
+
                 {/* Section 2: Controls */}
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
                     <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">

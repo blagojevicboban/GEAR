@@ -22,6 +22,7 @@ import teacherRoutes from './routes/teacher.js';
 import adminRoutes from './routes/admin.js';
 import analyticsRoutes from './routes/analytics.js';
 import academyRoutes from './routes/academy.js';
+import gamificationRoutes from './routes/gamification.js';
 
 // Services & Config
 import { setupSocket } from './config/socket.js';
@@ -126,6 +127,7 @@ app.use('/api/teacher', teacherRoutes); // /api/teacher/stats
 app.use('/api/admin', adminRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/academy', academyRoutes);
+app.use('/api', gamificationRoutes);
 
 // Health Check
 app.get('/api/health', (req, res) => {

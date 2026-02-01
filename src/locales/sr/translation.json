@@ -18,7 +18,17 @@
         },
         "profile": "Profil",
         "theme": "Tema",
-        "language": "Jezik"
+        "language": "Jezik",
+        "read_aloud": "Pročitaj Naglas",
+        "gamification": {
+            "challenge_mode": "Izazov",
+            "time": "Vreme",
+            "complete": "Izazov Završen!",
+            "leaderboard": "Tabela",
+            "rank": "Rang",
+            "user": "Korisnik",
+            "score": "Rezultat"
+        }
     },
     "home": {
         "welcome_title": "Dobrodošli u THE GEAR",

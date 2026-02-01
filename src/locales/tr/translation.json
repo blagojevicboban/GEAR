@@ -13,12 +13,14 @@
     },
     "nav": {
         "academy": "Akademi",
-        "models": "3D Modeller",
-        "workshop": "Atölye",
+        "library": "3D Modeller",
+        "lessons": "Dersler",
         "help": "Yardım",
-        "admin": "Yönetici",
+        "user_menu": {
+            "admin_settings": "Yönetici",
+            "logout": "Çıkış Yap"
+        },
         "language": "Dili Değiştir (TR)",
-        "logout": "Çıkış Yap",
         "login": "Giriş Yap",
         "profile": "Profil"
     },

@@ -13,12 +13,14 @@
     },
     "nav": {
         "academy": "Academia",
-        "models": "Modelos 3D",
-        "workshop": "Workshop",
+        "library": "Modelos 3D",
+        "lessons": "Lições",
         "help": "Ajuda",
-        "admin": "Admin",
+        "user_menu": {
+            "admin_settings": "Administrador",
+            "logout": "Sair"
+        },
         "language": "Mudar Idioma (PT)",
-        "logout": "Sair",
         "login": "Entrar",
         "profile": "Perfil"
     },

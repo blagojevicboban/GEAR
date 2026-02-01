@@ -13,12 +13,14 @@
     },
     "nav": {
         "academy": "Ακαδημία",
-        "models": "Μοντέλα 3D",
-        "workshop": "Εργαστήριο",
+        "library": "Μοντέλα 3D",
+        "lessons": "Μαθήματα",
         "help": "Βοήθεια",
-        "admin": "Διαχειριστής",
+        "user_menu": {
+            "admin_settings": "Διαχειριστής",
+            "logout": "Αποσύνδεση"
+        },
         "language": "Αλλαγή γλώσσας (EL)",
-        "logout": "Αποσύνδεση",
         "login": "Σύνδεση",
         "profile": "Προφίλ"
     },

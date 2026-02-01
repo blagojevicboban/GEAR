@@ -113,6 +113,15 @@
                 ],
                 "enter_vr": "Uđi u VR"
             },
+            "tts": {
+                "title": "Čitanje teksta (Text-to-Speech)",
+                "description": "Možete koristiti ugrađenu opciju za čitanje teksta da biste slušali zadatke obuke i opise hotspotova.",
+                "list": {
+                    "tasks": "Zadaci obuke: Kliknite na ikonicu zvučnika 🔊 pored bilo kog zadatka na listi.",
+                    "hotspots": "Hotspotovi: Kliknite na ikonicu zvučnika 🔊 unutar iskačućeg prozora kada izaberete deo.",
+                    "languages": "Jezici: Glas se automatski menja između engleskog i srpskog na osnovu izabranog jezika."
+                }
+            },
             "controls": {
                 "title": "Kontrole i navigacija",
                 "desktop_title": "U Desktop / Mobilnom režimu",
@@ -431,9 +440,11 @@
                 "desc": "Redovno pravite rezervne kopije podataka kako biste sprečili gubitak.",
                 "export_title": "Izvoz baze podataka",
                 "export_desc": "Preuzmite kompletan JSON snimak svih tabela.",
-                "download": "Preuzmi",
+                "download": "JSON (Samo Baza)",
+                "download_sql": "SQL (Samo Baza)",
+                "download_full": "Kompletan Sistem (ZIP)",
                 "restore_title": "Vraćanje baze podataka",
-                "restore_desc": "Opasnost: Vraćanje će prepisati postojeće podatke. Koristite SQL ili JSON datoteke.",
+                "restore_desc": "Opasnost: Vraćanje će prepisati postojeće podatke. Koristite ZIP za kompletno vraćanje (Baza + Fajlovi) ili JSON/SQL za samo podatke.",
                 "upload": "Otpremi rezervnu kopiju",
                 "restore_confirm": "UPOZORENJE: Spremate se da vratite bazu podataka iz datoteke \"{{filename}}\".\n\nPostojeći podaci mogu biti prepisani.\n\nDa li ste sigurni?"
             },

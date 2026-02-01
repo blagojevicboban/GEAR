@@ -221,11 +221,16 @@ Update system configuration.
 
 ### GET /admin/backup
 
-Download database backup (JSON or SQL).
+Download system backup.
+**Query Parameters:**
+- `format`: `json` (tables only), `sql` (Database only via mysqldump), or `full` (Full System ZIP with DB + Uploads)
+- `token`: Client-side token for download tracking (optional)
 
 ### POST /admin/restore
 
-Restore database from backup file.
+Restore system from backup file.
+**Body:** Form-Data with `file`.
+- Supports `.json` (Data merge), `.sql` (Full Database Restore), or `.zip` (Full System Restore - **Danger: Overwrites DB & Files**).
 
 ## WebSockets (Socket.io)
 

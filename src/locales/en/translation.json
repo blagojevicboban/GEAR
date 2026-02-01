@@ -113,6 +113,15 @@
                 ],
                 "enter_vr": "Enter VR"
             },
+            "tts": {
+                "title": "Text-to-Speech",
+                "description": "You can use the built-in Text-to-Speech feature to listen to training tasks and hotspot descriptions.",
+                "list": {
+                    "tasks": "Training Tasks: Click the speaker icon 🔊 next to any task in the list.",
+                    "hotspots": "Hotspots: Click the speaker icon 🔊 inside the popup when selecting a part.",
+                    "languages": "Languages: The voice automatically switches between English and Serbian based on your selected language."
+                }
+            },
             "controls": {
                 "title": "Controls & Navigation",
                 "desktop_title": "In Desktop / Mobile Mode",
@@ -431,9 +440,11 @@
                 "desc": "Backup your data regularly to prevent data loss.",
                 "export_title": "Export Database",
                 "export_desc": "Download a complete JSON dump of all tables.",
-                "download": "Download",
+                "download": "JSON (DB Only)",
+                "download_sql": "SQL (DB Only)",
+                "download_full": "Full System (ZIP)",
                 "restore_title": "Restore Database",
-                "restore_desc": "Danger: Restoring will overwrite existing data. Use SQL or JSON backup files.",
+                "restore_desc": "Danger: Restoring will overwrite existing data. Use ZIP for full restore (DB + Files) or JSON/SQL for data only.",
                 "upload": "Upload Backup",
                 "restore_confirm": "WARNING: You are about to restore database from \"{{filename}}\".\n\nExisting data might be overwritten.\n\nAre you sure?"
             },

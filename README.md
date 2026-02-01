@@ -50,7 +50,7 @@ This platform implements the 4 key intellectual outputs of the **ARVR4VET** proj
 - **Multi-User Workshops**: Shared virtual spaces with real-time position synchronization and collaborative interactions.
 - **Dashboard**: Featured models, global announcements, and category-based filtering (sectors).
 - **Mixed Reality Mode**: Immersive AR experience with Passthrough, Hand Tracking, and Spatial UI controls.
-- **Admin Settings**: Comprehensive dashboard for User Management, Sector Management, System Logs, and Global Configuration (Maintenance Mode, Backups & **Restore** in JSON/SQL).
+- **Admin Settings**: Comprehensive dashboard for User Management, Sector Management, System Logs, and Global Configuration (Maintenance Mode, Three-Tier Backups: JSON/SQL/ZIP, & Full System Restore).
 - **Multi-language Support**: Full internationalization (i18n) for **English** and **Serbian** across all modules.
 - **E2E Testing Suite**: Robust automated tests for critical flows, ensuring stability across both localized versions.
 - **Support Center**: Dedicated support page with interactive **System Diagnostics** (WebXR/HTTPS checks) and tutorials.

@@ -142,21 +142,31 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
         }
     };
 
-    const handleBackup = (format: 'json' | 'sql' = 'json') => {
-        const ext = format === 'json' ? 'json' : 'sql';
+    const [backingUp, setBackingUp] = useState(false);
+    const [restoring, setRestoring] = useState(false);
 
-        fetch(`/api/admin/backup?format=${format}`, {
-            headers: { 'X-User-Name': currentUser.username },
-        })
-            .then((res) => res.blob())
-            .then((blob) => {
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `gear_backup_${new Date().toISOString().split('T')[0]}.${ext}`;
-                link.click();
-            })
-            .catch((e) => alert('Backup failed: ' + e));
+    const handleBackup = (format: 'json' | 'sql' | 'full' = 'json') => {
+        // All backup types now use direct download with spinner support
+        setBackingUp(true);
+        const token = Date.now().toString();
+        
+        // Polling for completion cookie
+        const interval = setInterval(() => {
+            const cookies = document.cookie.split(';').reduce((acc, cookie) => {
+                const [key, val] = cookie.trim().split('=');
+                if (key && val) acc[key.trim()] = val.trim();
+                return acc;
+            }, {} as Record<string, string>);
+
+            if (cookies['backup_download_started'] === token) {
+                clearInterval(interval);
+                setBackingUp(false);
+                document.cookie = 'backup_download_started=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+            }
+        }, 1000);
+
+        const url = `/api/admin/backup?format=${format}&user_name=${encodeURIComponent(currentUser.username)}&token=${token}`;
+        window.location.href = url;
     };
 
     if (loading)
@@ -164,8 +174,34 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
             <div className="text-slate-400">{t('admin.config.loading')}</div>
         );
 
+
+    const renderOverlay = () => {
+        if (!backingUp && !restoring) return null;
+        
+        const isRestore = restoring;
+        const title = isRestore ? "Restoring System..." : "Preparing Backup...";
+        const desc = isRestore 
+            ? "Overwriting existing data. This may take several minutes." 
+            : "Generating backup file. Please wait while the server prepares your download.";
+
+        return (
+            <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm">
+                <div className="bg-slate-900 border border-slate-700 p-8 rounded-2xl shadow-2xl flex flex-col items-center max-w-sm text-center">
+                    <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-6"></div>
+                    <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
+                    <p className="text-slate-400 text-sm">
+                        {desc}
+                        <br />
+                        <span className="text-indigo-400 mt-2 block">Please do not close this window.</span>
+                    </p>
+                </div>
+            </div>
+        );
+    };
+
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+            {renderOverlay()}
             <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-xl">
                 <h2 className="text-2xl font-bold text-white mb-6">
                     {t('admin.config.title')}
@@ -296,24 +332,33 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                     <p className="text-sm text-slate-500 mb-6">
                         {t('admin.config.data_mgmt.export_desc')}
                     </p>
-                    <div className="flex gap-4 items-center">
+                    <div className="flex flex-wrap gap-4 items-center justify-center">
                         <button
                             onClick={() => handleBackup('json')}
-                            className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-6 rounded-lg transition-colors border border-slate-600 flex items-center gap-2"
+                            className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg transition-colors border border-slate-600 flex items-center gap-2 text-sm"
                         >
-                            <span className="text-xs uppercase bg-slate-800 px-1.5 py-0.5 rounded text-amber-400">
+                            <span className="text-[10px] uppercase bg-slate-800 px-1.5 py-0.5 rounded text-amber-400">
                                 JSON
                             </span>
                             {t('admin.config.data_mgmt.download')}
                         </button>
                         <button
                             onClick={() => handleBackup('sql')}
-                            className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-6 rounded-lg transition-colors border border-slate-600 flex items-center gap-2"
+                            className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg transition-colors border border-slate-600 flex items-center gap-2 text-sm"
                         >
-                            <span className="text-xs uppercase bg-slate-800 px-1.5 py-0.5 rounded text-blue-400">
+                            <span className="text-[10px] uppercase bg-slate-800 px-1.5 py-0.5 rounded text-blue-400">
                                 SQL
                             </span>
-                            {t('admin.config.data_mgmt.download')}
+                            {t('admin.config.data_mgmt.download_sql')}
+                        </button>
+                        <button
+                            onClick={() => handleBackup('full')}
+                            className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg transition-colors border border-slate-600 flex items-center gap-2 text-sm"
+                        >
+                            <span className="text-[10px] uppercase bg-slate-800 px-1.5 py-0.5 rounded text-indigo-400">
+                                ZIP
+                            </span>
+                            {t('admin.config.data_mgmt.download_full')}
                         </button>
                     </div>
                 </div>
@@ -344,7 +389,7 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                     <div className="relative">
                         <input
                             type="file"
-                            accept=".json,.sql"
+                            accept=".json,.zip,.sql"
                             className="hidden"
                             id="restore-upload"
                             onChange={async (e) => {
@@ -364,6 +409,8 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
 
                                 const formData = new FormData();
                                 formData.append('file', file);
+
+                                setRestoring(true); // Start Spinner
 
                                 try {
                                     const res = await fetch(
@@ -386,6 +433,8 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                     }
                                 } catch (err) {
                                     alert('Network Error');
+                                } finally {
+                                    setRestoring(false); // Stop Spinner
                                 }
                                 e.target.value = '';
                             }}

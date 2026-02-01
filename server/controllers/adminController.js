@@ -1,6 +1,21 @@
 import pool from '../db.js';
 import fs from 'fs';
 import path from 'path';
+import { spawn, exec } from 'child_process';
+import { promisify } from 'util';
+import { fileURLToPath } from 'url';
+
+const execAsync = promisify(exec);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const uploadsDir = path.join(__dirname, '../uploads');
+const tempDir = path.join(__dirname, '../temp_backups');
+
+// Ensure temp dir exists
+if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir, { recursive: true });
+}
+
 
 const getUserRole = async (username) => {
     if (!username) return null;
@@ -70,68 +85,104 @@ export const updateConfig = async (req, res) => {
 };
 
 export const getBackup = async (req, res) => {
-    const requestor = req.headers['x-user-name'];
-    const { format } = req.query; // 'json' or 'sql'
+    // Allow auth via header OR query param (essential for browser downloads)
+    const requestor = req.headers['x-user-name'] || req.query.user_name;
+    const { format } = req.query; // 'json', 'sql', or 'full'
 
     try {
         const role = await getUserRole(requestor);
         if (role !== 'admin')
             return res.status(403).json({ error: 'Forbidden' });
 
-        const tables = [
-            'users',
-            'models',
-            'workshops',
-            'sectors',
-            'lessons',
-            'hotspots',
-            'system_settings',
-        ];
+        if (format === 'sql' || format === 'full') {
+            // SQL-based backup
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const workDir = path.join(tempDir, `backup_${timestamp}`);
+            const sqlFile = path.join(workDir, 'database.sql');
+            
+            if (!fs.existsSync(workDir)) fs.mkdirSync(workDir, { recursive: true });
 
-        if (format === 'sql') {
-            let sqlDump = `-- GEAR Database Backup\n-- Generated: ${new Date().toISOString()}\n\n`;
+            // 1. Dump Database
+            const dbHost = process.env.DB_HOST || 'localhost';
+            const dbUser = process.env.DB_USER || 'gear';
+            const dbPass = process.env.DB_PASSWORD || 'Tsp-2024';
+            const dbName = process.env.DB_NAME || 'gear';
 
-            for (const table of tables) {
-                try {
-                    const [rows] = await pool.query(`SELECT * FROM ${table}`);
-                    if (rows.length > 0) {
-                        sqlDump += `\n-- Table: ${table}\n`;
-                        sqlDump += `LOCK TABLES \`${table}\` WRITE;\n`;
-                        sqlDump += `/*!40000 ALTER TABLE \`${table}\` DISABLE KEYS */;\n`;
+            console.log('Starting DB Dump...');
+            await new Promise((resolve, reject) => {
+                const dump = spawn('mysqldump', [
+                    `-h${dbHost}`,
+                    `-u${dbUser}`,
+                    `--password=${dbPass}`,
+                    dbName,
+                ]);
 
-                        const insertStatements = rows
-                            .map((row) => {
-                                const values = Object.values(row)
-                                    .map((val) => {
-                                        if (val === null) return 'NULL';
-                                        if (typeof val === 'number') return val;
-                                        // Escape single quotes and backslashes
-                                        return `'${String(val).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
-                                    })
-                                    .join(', ');
-                                return `INSERT INTO \`${table}\` VALUES (${values});`;
-                            })
-                            .join('\n');
+                const fileStream = fs.createWriteStream(sqlFile);
+                dump.stdout.pipe(fileStream);
 
-                        sqlDump += insertStatements + '\n';
-                        sqlDump += `/*!40000 ALTER TABLE \`${table}\` ENABLE KEYS */;\n`;
-                        sqlDump += `UNLOCK TABLES;\n`;
-                    }
-                } catch (e) {
-                    console.warn(
-                        `Skipping table ${table} in backup: ${e.message}`
-                    );
-                }
+                dump.stderr.on('data', (data) => console.error(`mysqldump stderr: ${data}`));
+
+                dump.on('close', (code) => {
+                    if (code === 0) resolve();
+                    else reject(new Error(`mysqldump exited with code ${code}`));
+                });
+            });
+
+            const token = req.query.token;
+            if (token) {
+                res.cookie('backup_download_started', token, {
+                    path: '/',
+                    maxAge: 1000 * 60 * 5 // 5 minutes
+                });
             }
 
-            res.setHeader(
-                'Content-Disposition',
-                `attachment; filename="gear_backup_${Date.now()}.sql"`
-            );
-            res.setHeader('Content-Type', 'application/sql');
-            res.send(sqlDump);
+            if (format === 'full') {
+                // Full System Backup (ZIP)
+                const zipFile = path.join(tempDir, `gear_full_backup_${timestamp}.zip`);
+                
+                // 2. Zip database.sql
+                console.log('Zipping SQL...');
+                await new Promise((resolve, reject) => {
+                    const zip = spawn('zip', ['-q', zipFile, 'database.sql'], { cwd: workDir });
+                    zip.on('close', code => code === 0 ? resolve() : reject(new Error(`zip sql failed: ${code}`)));
+                    zip.on('error', reject);
+                });
+
+                // 3. Add Uploads directory
+                const uploadsParent = path.dirname(uploadsDir);
+                const uploadsBase = path.basename(uploadsDir);
+                
+                console.log('Adding Uploads to Zip...');
+                if (fs.existsSync(uploadsDir)) {
+                    await new Promise((resolve, reject) => {
+                        const zip = spawn('zip', ['-urq', zipFile, uploadsBase], { cwd: uploadsParent });
+                        zip.on('close', code => code === 0 ? resolve() : reject(new Error(`zip uploads failed: ${code}`)));
+                        zip.on('error', reject);
+                    });
+                }
+
+                res.download(zipFile, `gear_full_backup_${timestamp}.zip`, (err) => {
+                    if (err) console.error('Error sending file:', err);
+                    try {
+                        fs.rmSync(workDir, { recursive: true, force: true });
+                        fs.unlinkSync(zipFile);
+                    } catch (e) { console.error('Cleanup error:', e); }
+                });
+            } else {
+                // SQL Only (Database)
+                res.download(sqlFile, `gear_db_backup_${timestamp}.sql`, (err) => {
+                    if (err) console.error('Error sending file:', err);
+                    try {
+                        fs.rmSync(workDir, { recursive: true, force: true });
+                    } catch (e) { console.error('Cleanup error:', e); }
+                });
+            }
+
         } else {
-            // Default JSON
+            // Default JSON (Database Only)
+             const tables = [
+                'users', 'models', 'workshops', 'sectors', 'lessons', 'hotspots', 'system_settings'
+            ];
             const backupData = {
                 timestamp: new Date().toISOString(),
                 tables: {},
@@ -142,22 +193,25 @@ export const getBackup = async (req, res) => {
                     const [rows] = await pool.query(`SELECT * FROM ${table}`);
                     backupData.tables[table] = rows;
                 } catch (e) {
-                    console.warn(
-                        `Skipping table ${table} in backup: ${e.message}`
-                    );
+                    console.warn(`Skipping table ${table} in backup: ${e.message}`);
                 }
             }
 
-            res.setHeader(
-                'Content-Disposition',
-                `attachment; filename="gear_backup_${Date.now()}.json"`
-            );
+            const token = req.query.token;
+            if (token) {
+                res.cookie('backup_download_started', token, {
+                    path: '/',
+                    maxAge: 1000 * 60 * 5
+                });
+            }
+
+            res.setHeader('Content-Disposition', `attachment; filename="gear_backup_${Date.now()}.json"`);
             res.setHeader('Content-Type', 'application/json');
             res.send(JSON.stringify(backupData, null, 2));
         }
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Backup failed' });
+        console.error('Backup error:', err);
+        res.status(500).json({ error: 'Backup failed: ' + err.message });
     }
 };
 
@@ -176,21 +230,52 @@ export const restoreBackup = async (req, res) => {
         }
 
         const ext = path.extname(req.file.originalname).toLowerCase();
+        
+        if (ext === '.zip' || ext === '.sql') {
+             // SQL-based Restore (Full ZIP or SQL file)
+             const dbHost = process.env.DB_HOST || 'localhost';
+             const dbUser = process.env.DB_USER || 'gear';
+             const dbPass = process.env.DB_PASSWORD || 'Tsp-2024';
+             const dbName = process.env.DB_NAME || 'gear';
 
-        if (ext === '.sql') {
-            const sqlContent = fs.readFileSync(req.file.path, 'utf8');
-            try {
-                await pool.query(sqlContent);
-                res.json({
-                    success: true,
-                    message: 'Database restored successfully (SQL).',
+             if (ext === '.zip') {
+                // Full System Restore
+                const zipPath = req.file.path;
+                const extractPath = path.join(tempDir, `restore_${Date.now()}`);
+                if (!fs.existsSync(extractPath)) fs.mkdirSync(extractPath, { recursive: true });
+
+                try {
+                    await execAsync(`unzip -q "${zipPath}" -d "${extractPath}"`);
+                    const sqlFile = path.join(extractPath, 'database.sql');
+                    if (fs.existsSync(sqlFile)) {
+                        await new Promise((resolve, reject) => {
+                            const restore = spawn('mysql', [`-h${dbHost}`, `-u${dbUser}`, `--password=${dbPass}`, dbName]);
+                            fs.createReadStream(sqlFile).pipe(restore.stdin);
+                            restore.on('close', code => code === 0 ? resolve() : reject(new Error(`mysql exited with ${code}`)));
+                            restore.stderr.on('data', d => console.error('mysql err:', d.toString()));
+                        });
+                    }
+                    const uploadsInZip = path.join(extractPath, 'uploads');
+                    if (fs.existsSync(uploadsInZip)) {
+                        const fallbackPath = path.join(path.dirname(uploadsDir), `uploads_backup_${Date.now()}`);
+                        if (fs.existsSync(uploadsDir)) fs.renameSync(uploadsDir, fallbackPath);
+                        fs.renameSync(uploadsInZip, uploadsDir);
+                    }
+                    res.json({ success: true, message: 'Full system restore completed.' });
+                } finally {
+                    if (fs.existsSync(extractPath)) fs.rmSync(extractPath, { recursive: true, force: true });
+                }
+             } else {
+                // SQL Only Restore
+                await new Promise((resolve, reject) => {
+                    const restore = spawn('mysql', [`-h${dbHost}`, `-u${dbUser}`, `--password=${dbPass}`, dbName]);
+                    fs.createReadStream(req.file.path).pipe(restore.stdin);
+                    restore.on('close', (code) => code === 0 ? resolve() : reject(new Error(`mysql exited with ${code}`)));
+                    restore.stderr.on('data', d => console.error('mysql err:', d.toString()));
                 });
-            } catch (sqlErr) {
-                console.error('SQL Restore Error:', sqlErr);
-                res.status(500).json({
-                    error: 'SQL Execution Failed: ' + sqlErr.message,
-                });
-            }
+                res.json({ success: true, message: 'Database restored successfully from SQL.' });
+             }
+
         } else if (ext === '.json') {
             const jsonContent = fs.readFileSync(req.file.path, 'utf8');
             const data = JSON.parse(jsonContent);
@@ -231,7 +316,7 @@ export const restoreBackup = async (req, res) => {
             }
         } else {
             res.status(400).json({
-                error: 'Unsupported file format. Use .sql or .json',
+                error: 'Unsupported file format. Use .zip (Full) or .json (Data)',
             });
         }
 
@@ -241,6 +326,6 @@ export const restoreBackup = async (req, res) => {
         console.error(err);
         if (req.file && fs.existsSync(req.file.path))
             fs.unlinkSync(req.file.path);
-        res.status(500).json({ error: 'Restore failed' });
+        res.status(500).json({ error: 'Restore failed: ' + err.message });
     }
 };

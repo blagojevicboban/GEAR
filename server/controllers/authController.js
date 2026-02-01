@@ -51,7 +51,17 @@ export const login = async (req, res) => {
             res.status(401).json({ error: 'Invalid credentials' });
         }
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Login failed' });
+        console.error('Login error details:', {
+            message: err.message,
+            stack: err.stack,
+            code: err.code,
+            errno: err.errno,
+            sqlState: err.sqlState,
+            sqlMessage: err.sqlMessage
+        });
+        res.status(500).json({ 
+            error: 'Login failed', 
+            details: process.env.NODE_ENV === 'development' ? err.message : undefined 
+        });
     }
 };

@@ -17,9 +17,11 @@ npm install
 # Build the frontend
 npm run build
 
-# Restart the backend service (assuming we use PM2 for node apps)
-pm2 restart gear-backend
+# Restart the backend service
+# Use --update-env to pick up potential .env changes
+pm2 restart gear-backend --update-env || pm2 start server/index.js --name gear-backend
 
 echo "Deployment finished at $(date)"
 
-pm2 restart gear-webhook #(optional, if you change webhook logic)
+# Restart webhook if it exists
+pm2 restart gear-webhook --update-env || pm2 start deployment/webhook.js --name gear-webhook || echo "Webhook skip"

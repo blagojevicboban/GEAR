@@ -2,6 +2,21 @@ import pool from '../db.js';
 
 export const runMigrations = async () => {
     try {
+        // Ensure users table exists
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS users (
+                id VARCHAR(50) PRIMARY KEY,
+                username VARCHAR(100) NOT NULL UNIQUE,
+                email VARCHAR(255) NOT NULL UNIQUE,
+                password VARCHAR(255),
+                institution VARCHAR(255),
+                bio TEXT,
+                profilePicUrl VARCHAR(500),
+                createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                role ENUM('admin', 'teacher', 'student') DEFAULT 'student'
+            )
+        `);
+
         await pool
             .query('SELECT optimizedUrl FROM models LIMIT 1')
             .catch(async () => {

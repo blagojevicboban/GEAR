@@ -76,7 +76,7 @@ export const runMigrations = async () => {
                 )
             `);
                 await pool.query(
-                    "INSERT IGNORE INTO system_settings (setting_key, setting_value) VALUES ('maintenance_mode', 'false'), ('global_announcement', '')"
+                    "INSERT IGNORE INTO system_settings (setting_key, setting_value) VALUES ('maintenance_mode', 'false'), ('global_announcement', ''), ('allowed_origins', 'http://localhost:3000,http://localhost:3001,https://gear.tsp.edu.rs'), ('gemini_api_key', ''), ('allow_public_registration', 'true'), ('max_file_size_mb', '50'), ('moodle_url', ''), ('moodle_client_id', ''), ('brand_name', 'THE GEAR'), ('brand_color', '#4f46e5')"
                 );
             });
 

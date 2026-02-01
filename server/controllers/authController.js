@@ -1,9 +1,15 @@
 import pool from '../db.js';
 import bcrypt from 'bcryptjs';
+import { getSetting } from '../services/settingsService.js';
 
 export const register = async (req, res) => {
     const { username, email, institution, password, role } = req.body;
     try {
+        const allowPublic = await getSetting('allow_public_registration', 'true');
+        if (allowPublic === 'false') {
+            return res.status(403).json({ error: 'Public registration is disabled' });
+        }
+
         const id = 'user-' + Date.now();
         const userRole = role === 'admin' ? 'student' : role || 'student';
         const hashedPassword = await bcrypt.hash(password, 10);

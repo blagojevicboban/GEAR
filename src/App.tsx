@@ -24,9 +24,11 @@ import UserProfileModal from './components/UserProfileModal';
 import TeacherDashboard from './components/TeacherDashboard';
 import Academy from './components/Academy';
 import AdminSettings from './components/AdminSettings';
+import { useConfig } from './context/ConfigContext';
 
 const App: React.FC = () => {
     const { t } = useTranslation();
+    const { config } = useConfig();
     const [currentView, setCurrentView] = useState<AppView>('home');
     const [models, setModels] = useState<VETModel[]>(INITIAL_MODELS); // Initialize with constants
     const [selectedModel, setSelectedModel] = useState<VETModel | null>(null);
@@ -470,6 +472,15 @@ const App: React.FC = () => {
                 />
             )}
 
+            {config.global_announcement && (
+                <div 
+                    className="py-2 px-4 text-center text-sm font-medium animate-in slide-in-from-top duration-500"
+                    style={{ backgroundColor: 'var(--brand-primary)', color: 'white' }}
+                >
+                    {config.global_announcement}
+                </div>
+            )}
+
             <main className="flex-1">
                 {currentView === 'home' && (
                     <Dashboard
@@ -716,7 +727,7 @@ const App: React.FC = () => {
             {currentView !== 'viewer' && (
                 <footer className="bg-slate-900 border-t border-slate-800 py-6 text-center text-slate-500 text-sm">
                     <p>
-                        &copy; 2026 THE GEAR - Open Source VET WebXR Platform.
+                        &copy; 2026 {config.brand_name} - Open Source VET WebXR Platform.
                         Optimized for Meta Quest.
                     </p>
                 </footer>

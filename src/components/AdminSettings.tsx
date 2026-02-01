@@ -111,6 +111,12 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
         maintenance_mode: 'false',
         global_announcement: '',
         gemini_api_key: '',
+        allow_public_registration: 'true',
+        max_file_size_mb: '50',
+        moodle_url: '',
+        moodle_client_id: '',
+        brand_name: 'THE GEAR',
+        brand_color: '#4f46e5',
     });
     const [loading, setLoading] = useState(true);
 
@@ -219,22 +225,75 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                 </span>
                             </div>
                             <div
-                                className={`w-12 h-6 rounded-full p-1 transition-colors ${config.maintenance_mode === 'true' ? 'bg-indigo-600' : 'bg-slate-600'}`}
-                                onClick={() =>
-                                    setConfig({
-                                        ...config,
-                                        maintenance_mode:
-                                            config.maintenance_mode === 'true'
-                                                ? 'false'
-                                                : 'true',
-                                    })
-                                }
+                                 className={`w-12 h-6 rounded-full p-1 transition-colors ${config.maintenance_mode === 'true' ? 'bg-indigo-600' : 'bg-slate-600'}`}
+                                 onClick={() =>
+                                     setConfig({
+                                         ...config,
+                                         maintenance_mode:
+                                             config.maintenance_mode === 'true'
+                                                 ? 'false'
+                                                 : 'true',
+                                     })
+                                 }
                             >
                                 <div
                                     className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform ${config.maintenance_mode === 'true' ? 'translate-x-6' : ''}`}
                                 ></div>
                             </div>
                         </label>
+                    </div>
+
+                    <div>
+                        <label className="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl border border-slate-700 cursor-pointer hover:bg-slate-800 transition-colors">
+                            <div>
+                                <span className="block font-bold text-white">
+                                    {t('admin.config.registration.label')}
+                                </span>
+                                <span className="text-xs text-slate-400">
+                                    {t('admin.config.registration.desc')}
+                                </span>
+                            </div>
+                            <div
+                                className={`w-12 h-6 rounded-full p-1 transition-colors ${config.allow_public_registration === 'true' ? 'bg-green-600' : 'bg-slate-600'}`}
+                                onClick={() =>
+                                    setConfig({
+                                        ...config,
+                                        allow_public_registration:
+                                            config.allow_public_registration === 'true'
+                                                ? 'false'
+                                                : 'true',
+                                    })
+                                }
+                            >
+                                <div
+                                    className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform ${config.allow_public_registration === 'true' ? 'translate-x-6' : ''}`}
+                                ></div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-bold text-slate-300 mb-2">
+                            {t('admin.config.max_size.label')}
+                        </label>
+                        <div className="flex items-center gap-3">
+                            <input
+                                type="number"
+                                className="w-1/3 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                placeholder="50"
+                                value={config.max_file_size_mb || '50'}
+                                onChange={(e) =>
+                                    setConfig({
+                                        ...config,
+                                        max_file_size_mb: e.target.value,
+                                    })
+                                }
+                            />
+                            <span className="text-slate-400 font-bold">MB</span>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1">
+                            {t('admin.config.max_size.desc')}
+                        </p>
                     </div>
 
                     <div>
@@ -271,6 +330,110 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                             >
                                 Get Key
                             </a>
+                        </p>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-bold text-slate-300 mb-2">
+                            {t('admin.config.branding.label')}
+                        </label>
+                        <div className="space-y-3">
+                            <input
+                                type="text"
+                                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                placeholder={t('admin.config.branding.name_label')}
+                                value={config.brand_name || ''}
+                                onChange={(e) =>
+                                    setConfig({
+                                        ...config,
+                                        brand_name: e.target.value,
+                                    })
+                                }
+                            />
+                            <div className="flex gap-3">
+                                <input
+                                    type="color"
+                                    className="h-12 w-12 bg-slate-950 border border-slate-700 rounded-lg cursor-pointer p-1"
+                                    value={config.brand_color || '#4f46e5'}
+                                    onChange={(e) =>
+                                        setConfig({
+                                            ...config,
+                                            brand_color: e.target.value,
+                                        })
+                                    }
+                                />
+                                <input
+                                    type="text"
+                                    className="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none font-mono"
+                                    placeholder="#4f46e5"
+                                    value={config.brand_color || ''}
+                                    onChange={(e) =>
+                                        setConfig({
+                                            ...config,
+                                            brand_color: e.target.value,
+                                        })
+                                    }
+                                />
+                            </div>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1">
+                            {t('admin.config.branding.desc')}
+                        </p>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-bold text-slate-300 mb-2">
+                            {t('admin.config.moodle.label')}
+                        </label>
+                        <div className="space-y-3">
+                            <input
+                                type="text"
+                                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                placeholder={t('admin.config.moodle.url_label')}
+                                value={config.moodle_url || ''}
+                                onChange={(e) =>
+                                    setConfig({
+                                        ...config,
+                                        moodle_url: e.target.value,
+                                    })
+                                }
+                            />
+                            <input
+                                type="text"
+                                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                placeholder={t('admin.config.moodle.client_id_label')}
+                                value={config.moodle_client_id || ''}
+                                onChange={(e) =>
+                                    setConfig({
+                                        ...config,
+                                        moodle_client_id: e.target.value,
+                                    })
+                                }
+                            />
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1">
+                            {t('admin.config.moodle.desc')}
+                        </p>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-bold text-slate-300 mb-2">
+                            {t('admin.config.cors.label')}
+                        </label>
+                        <input
+                            type="text"
+                            className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                            placeholder="https://example.com, https://app.example.com"
+                            value={config.allowed_origins || ''}
+                            onChange={(e) =>
+                                setConfig({
+                                    ...config,
+                                    allowed_origins: e.target.value,
+                                })
+                            }
+                        />
+                        <p className="text-xs text-slate-500 mt-1">
+                            {t('admin.config.cors.desc')}
                         </p>
                     </div>
 

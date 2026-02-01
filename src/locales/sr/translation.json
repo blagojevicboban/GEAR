@@ -430,9 +430,33 @@
                 "label": "Režim održavanja",
                 "desc": "Onemogući prijavu za korisnike koji nisu administratori."
             },
+            "registration": {
+                "label": "Javna registracija",
+                "desc": "Kada je isključeno, novi korisnici se ne mogu sami registrovati."
+            },
+            "max_size": {
+                "label": "Maksimalna veličina fajla",
+                "desc": "Limit za otpremanje 3D modela i ostalih fajlova."
+            },
+            "moodle": {
+                "label": "Moodle Integracija (LTI)",
+                "url_label": "Moodle URL",
+                "client_id_label": "Moodle Client ID",
+                "desc": "Podešavanja za povezivanje sa školskim LMS-om."
+            },
+            "branding": {
+                "label": "Brendiranje",
+                "name_label": "Naziv platforme",
+                "color_label": "Primarna boja (HEX)",
+                "desc": "Prilagodite izgled platforme bojama i nazivom vaše institucije."
+            },
             "announcement": {
                 "label": "Globalno obaveštenje",
                 "placeholder": "Unesite poruku koja će biti prikazana na vrhu kontrolne table..."
+            },
+            "cors": {
+                "label": "Dozvoljeni domeni (CORS)",
+                "desc": "Lista domena odvojenih zarezom koji mogu pristupati API-ju (npr. https://škola.edu.rs). Ostavite prazno za podrazumevane vrednosti."
             },
             "save_btn": "Sačuvaj konfiguraciju",
             "data_mgmt": {

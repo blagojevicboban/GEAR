@@ -22,8 +22,11 @@ interface NavbarProps {
     onLogout: () => void;
 }
 
+import { useConfig } from '../context/ConfigContext';
+
 const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLogout }) => {
     const { t, i18n } = useTranslation();
+    const { config } = useConfig();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showLangDropdown, setShowLangDropdown] = useState(false);
     
@@ -85,11 +88,14 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
                             className="flex items-center gap-2 group text-left"
                             id="nav-logo"
                         >
-                            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-500 transition-colors">
+                            <div 
+                                className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+                                style={{ backgroundColor: 'var(--brand-primary)' }}
+                            >
                                 <HardHat className="text-white w-5 h-5" />
                             </div>
                             <span className="text-xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
-                                THE GEAR
+                                {config.brand_name || 'THE GEAR'}
                             </span>
                         </button>
 

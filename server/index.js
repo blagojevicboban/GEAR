@@ -37,29 +37,47 @@ const app = express();
 const httpServer = createServer(app);
 
 // CORS Config
-const allowedOrigins = [
-    process.env.CLIENT_URL || 'http://localhost:3000',
-    'http://localhost:3001',
-];
+import { getSetting } from './services/settingsService.js';
+
 const corsOptions = {
-    origin: function (origin, callback) {
+    origin: async function (origin, callback) {
         // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
+        
+        try {
+            const dbOriginsStr = await getSetting('allowed_origins', '');
+            const dbOrigins = dbOriginsStr.split(',').map(o => o.trim()).filter(Boolean);
+            const envOrigins = (process.env.CLIENT_URL || 'http://localhost:3000').split(',').map(o => o.trim());
+            
+            const allAllowed = [...new Set([...dbOrigins, ...envOrigins, 'http://localhost:3001', 'https://gear.tsp.edu.rs'])];
+            
+            if (allAllowed.indexOf(origin) !== -1) {
+                callback(null, true);
+            } else {
+                console.error('CORS blocked origin:', origin);
+                console.log('Allowed origins (Merged):', allAllowed);
+                callback(new Error('Not allowed by CORS'));
+            }
+        } catch (err) {
+            console.error('CORS database check failed, falling back to ENV:', err);
+            // Fallback to env only in case of DB failure
+            const envOrigins = (process.env.CLIENT_URL || 'http://localhost:3000').split(',').map(o => o.trim());
+            if (envOrigins.indexOf(origin) !== -1 || origin === 'https://gear.tsp.edu.rs') {
+                callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS (Fallback)'));
+            }
         }
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
 };
 
+// For socket.io, we need a static list or a dynamic check.
+// Let's use a function for socket.io too if possible, but standard is just origin list.
+// To keep it simple and consistent, we'll allow all for socket.io or use same logic.
 const io = new Server(httpServer, {
-    cors: {
-        origin: allowedOrigins, // Match Express CORS
-        methods: ['GET', 'POST'],
-    },
+    cors: corsOptions
 });
 
 const PORT = process.env.PORT || 3001;
@@ -128,6 +146,20 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/academy', academyRoutes);
 app.use('/api', gamificationRoutes);
+
+// Public Config
+app.get('/api/config/public', async (req, res) => {
+    try {
+        const [rows] = await pool.query(
+            "SELECT setting_key, setting_value FROM system_settings WHERE setting_key IN ('brand_name', 'brand_color', 'global_announcement', 'maintenance_mode', 'allow_public_registration')"
+        );
+        const config = {};
+        rows.forEach((r) => (config[r.setting_key] = r.setting_value));
+        res.json(config);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch public config' });
+    }
+});
 
 // Health Check
 app.get('/api/health', (req, res) => {

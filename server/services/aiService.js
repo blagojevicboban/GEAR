@@ -4,6 +4,12 @@ import pool from '../db.js';
 import path from 'path';
 import fs from 'fs';
 import { uploadDir } from './fileService.js';
+import { getSetting } from './settingsService.js';
+
+const getApiKey = async () => {
+    const dbKey = await getSetting('gemini_api_key', '');
+    return dbKey || process.env.API_KEY || process.env.GEMINI_API_KEY;
+};
 
 export const optimizeModel = async (id) => {
     console.log(`Starting AI Optimization for model ${id}...`);
@@ -45,10 +51,11 @@ export const optimizeModel = async (id) => {
                 const result = JSON.parse(dataString);
                 let aiVerdict = 'AI Verification Skipped';
 
-                if (process.env.API_KEY) {
+                const apiKey = await getApiKey();
+                if (apiKey) {
                     try {
                         const ai = new GoogleGenAI({
-                            apiKey: process.env.API_KEY,
+                            apiKey: apiKey,
                         });
                         const prompt = `CAD Optimization Audit:\nStats: ${JSON.stringify(result)}\nContext: Is this safe for training? Returns JSON {status, reason}`;
 
@@ -83,11 +90,12 @@ export const generateLesson = async ({
     topic,
     stepCount = 5,
 }) => {
-    if (!process.env.API_KEY) {
+    const apiKey = await getApiKey();
+    if (!apiKey) {
         throw new Error('AI Service Unavailable (Missing Key)');
     }
 
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: apiKey });
 
     const systemPrompt = `You are an expert vocational teacher creating a lesson for a 3D interactive workbook.
     Create a ${stepCount}-step lesson plan for a 3D model of "${modelName}".

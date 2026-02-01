@@ -430,9 +430,33 @@
                 "label": "Maintenance Mode",
                 "desc": "Block login for non-admin users."
             },
+            "registration": {
+                "label": "Public Registration",
+                "desc": "When disabled, new users cannot sign up themselves."
+            },
+            "max_size": {
+                "label": "Maximum File Size",
+                "desc": "Limit for 3D model and other file uploads."
+            },
+            "moodle": {
+                "label": "Moodle Integration (LTI)",
+                "url_label": "Moodle URL",
+                "client_id_label": "Moodle Client ID",
+                "desc": "Settings for connecting with the school LMS."
+            },
+            "branding": {
+                "label": "Custom Branding",
+                "name_label": "Platform Name",
+                "color_label": "Primary Color (HEX)",
+                "desc": "Customize the look and name of the platform for your institution."
+            },
             "announcement": {
                 "label": "Global Announcement",
                 "placeholder": "Enter a message to be displayed on the top of the dashboard..."
+            },
+            "cors": {
+                "label": "Allowed Origins (CORS)",
+                "desc": "Comma-separated list of domains allowed to access the API (e.g., https://school.edu.rs). Leave empty for defaults."
             },
             "save_btn": "Save Configuration",
             "data_mgmt": {

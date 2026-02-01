@@ -4,6 +4,8 @@ import { createRoot } from 'react-dom/client';
 import './i18n'; // Initialize i18n
 import App from './App';
 
+import { ConfigProvider } from './context/ConfigContext';
+
 const rootElement = document.getElementById('root');
 if (!rootElement) {
     throw new Error('Could not find root element to mount to');
@@ -12,6 +14,8 @@ if (!rootElement) {
 const root = createRoot(rootElement);
 root.render(
     <React.StrictMode>
-        <App />
+        <ConfigProvider>
+            <App />
+        </ConfigProvider>
     </React.StrictMode>
 );

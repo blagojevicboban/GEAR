@@ -530,8 +530,14 @@
         },
         "library": {
             "title": "3D Library Management",
-            "desc": "Manage all uploaded 3D models. Promote high-quality models to 'Featured' status or remove inappropriate content.",
+            "desc": "Manage all uploaded 3D models. Use filters to sort by Sector or Uploader. Promote high-quality models to 'Featured' status or remove inappropriate content.",
             "search_placeholder": "Search models or uploaders...",
+            "filters": {
+                "all_sectors": "All Sectors",
+                "all_uploaders": "All Uploaders",
+                "label_sector": "Sector",
+                "label_uploader": "Uploader"
+            },
             "table": {
                 "thumb": "Preview",
                 "name": "Name",

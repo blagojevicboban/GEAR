@@ -1,6 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
 import { uploadDir } from '../services/fileService.js';
 import * as uploadController from '../controllers/uploadController.js';
 
@@ -9,12 +10,28 @@ const router = express.Router();
 // Configure Multer
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, uploadDir);
+        // Create a dedicated folder for this upload
+        // naming convention: type_filename_shorthash (e.g. glb_motor_x92k1)
+        
+        const ext = path.extname(file.originalname).replace('.', '').toLowerCase();
+        const namePart = path.parse(file.originalname).name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        // Short random hash (6 chars)
+        const hash = Math.random().toString(36).substring(2, 8);
+        
+        const folderName = `${ext}_${namePart}_${hash}`;
+        const finalDir = path.join(uploadDir, folderName);
+
+        if (!fs.existsSync(finalDir)) {
+            fs.mkdirSync(finalDir, { recursive: true });
+        }
+        
+        cb(null, finalDir);
     },
     filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const ext = path.extname(file.originalname);
-        cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+        // We are already in a unique folder, so just keep the original name or simple safe name
+        // But keeping a unique suffix doesn't hurt.
+        // Let's keep it simple: originalname (sanitized)
+        cb(null, file.originalname);
     },
 });
 

@@ -168,3 +168,152 @@ export const copyFile = (sourceUrl) => {
         return sourceUrl; // Fallback to original, risky but better than crash
     }
 };
+
+export const moveFileToFolder = (fileUrl, targetUrl) => {
+    if (!fileUrl || !fileUrl.startsWith('/api/uploads/') || !targetUrl || !targetUrl.startsWith('/api/uploads/')) {
+        return fileUrl;
+    }
+
+    try {
+        const fileRel = fileUrl.replace('/api/uploads/', '');
+        const targetRel = targetUrl.replace('/api/uploads/', '');
+        
+        // Target folder is the first part of the target path
+        const targetParts = targetRel.split('/');
+        if (targetParts.length < 2) return fileUrl; // Target is in root, cannot consolidate to folder
+        
+        const targetFolder = targetParts[0];
+        const targetDir = path.join(uploadDir, targetFolder);
+        
+        // File details
+        const fileParts = fileRel.split('/');
+        // If file is already in the target folder, do nothing
+        if (fileParts.length > 1 && fileParts[0] === targetFolder) return fileUrl;
+
+        // Current location
+        const fileCleanRel = fileRel.split('#')[0]; // removal hash
+        const fileHash = fileRel.includes('#') ? '#' + fileRel.split('#')[1] : '';
+        const sourcePath = path.join(uploadDir, decodeURIComponent(fileCleanRel));
+        
+        if (!fs.existsSync(sourcePath)) return fileUrl;
+
+        // Move
+        const fileName = path.basename(sourcePath);
+        const destPath = path.join(targetDir, fileName);
+        
+        // Avoid overwrite if name conflict
+        if (fs.existsSync(destPath)) {
+            // Add a suffix
+             const ext = path.extname(fileName);
+             const name = path.basename(fileName, ext);
+             const newName = `${name}_${Date.now()}${ext}`;
+             const newDestPath = path.join(targetDir, newName);
+             fs.renameSync(sourcePath, newDestPath);
+             return `/api/uploads/${targetFolder}/${newName}${fileHash}`;
+        } else {
+            fs.renameSync(sourcePath, destPath);
+        }
+
+        // Cleanup old folder if empty
+        const sourceDir = path.dirname(sourcePath);
+        if (sourceDir !== uploadDir) {
+             try {
+                 if (fs.readdirSync(sourceDir).length === 0) {
+                     fs.rmdirSync(sourceDir);
+                     console.log(`Cleaned up empty folder: ${sourceDir}`);
+                 }
+             } catch (e) { /* ignore */ }
+        }
+
+        return `/api/uploads/${targetFolder}/${fileName}${fileHash}`;
+    } catch (err) {
+        console.error('Failed to move file:', err);
+        return fileUrl;
+    }
+};
+
+export const consolidateLessonFiles = (lessonId, title, imageUrl, steps) => {
+    // 1. Determine Folder
+    const safeTitle = title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    const hash = lessonId.split('-').pop(); // simple hash from id or random
+    const folderName = `lesson_${safeTitle}_${hash}`;
+    const targetDir = path.join(uploadDir, folderName);
+
+    if (!fs.existsSync(targetDir)) {
+        fs.mkdirSync(targetDir, { recursive: true });
+    }
+
+    const moveResult = (fileUrl) => {
+        if (!fileUrl || !fileUrl.startsWith('/api/uploads/')) return fileUrl;
+        
+        try {
+            const relativePath = fileUrl.replace('/api/uploads/', '');
+            const cleanRelativePath = relativePath.split('#')[0];
+            const hashPart = relativePath.includes('#') ? '#' + relativePath.split('#')[1] : '';
+            const sourcePath = path.join(uploadDir, decodeURIComponent(cleanRelativePath));
+
+            if (!fs.existsSync(sourcePath)) return fileUrl;
+
+            // Check if already in correct folder
+            const parentDir = path.dirname(sourcePath);
+            if (path.basename(parentDir) === folderName) return fileUrl;
+
+            const fileName = path.basename(sourcePath);
+            const destPath = path.join(targetDir, fileName);
+
+            if (fs.existsSync(destPath) && sourcePath !== destPath) {
+                 // Rename
+                 const ext = path.extname(fileName);
+                 const name = path.basename(fileName, ext);
+                 const newName = `${name}_${Date.now()}${ext}`;
+                 fs.renameSync(sourcePath, path.join(targetDir, newName));
+                 return `/api/uploads/${folderName}/${newName}${hashPart}`;
+            } else if (sourcePath !== destPath) {
+                fs.renameSync(sourcePath, destPath);
+            }
+            
+            // Cleanup source dir if empty
+            if (path.dirname(sourcePath) !== uploadDir) {
+                 try {
+                     if (fs.readdirSync(path.dirname(sourcePath)).length === 0) {
+                         fs.rmdirSync(path.dirname(sourcePath));
+                     }
+                 } catch(e) {}
+            }
+
+            return `/api/uploads/${folderName}/${fileName}${hashPart}`;
+        } catch (e) {
+            console.error('Lesson file move failed', e);
+            return fileUrl;
+        }
+    };
+
+    let newImageUrl = imageUrl;
+    if (imageUrl) {
+        newImageUrl = moveResult(imageUrl);
+    }
+
+    let newSteps = steps;
+    if (steps && Array.isArray(steps)) {
+        newSteps = steps.map(step => {
+            let updatedStep = { ...step };
+            
+            // Step Image
+            if (step.image_url) {
+                updatedStep.image_url = moveResult(step.image_url);
+            }
+
+            // Step Content
+            if (step.content && step.content.includes('/api/uploads/')) {
+                const regex = /src="(\/api\/uploads\/[^"]+)"/g;
+                updatedStep.content = step.content.replace(regex, (match, url) => {
+                    const newUrl = moveResult(url);
+                    return `src="${newUrl}"`;
+                });
+            }
+            return updatedStep;
+        });
+    }
+
+    return { imageUrl: newImageUrl, steps: newSteps };
+};

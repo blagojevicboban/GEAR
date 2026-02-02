@@ -48,7 +48,7 @@ This platform implements the 4 key intellectual outputs of the **ARVR4VET** proj
 - **Multilingual TTS**: Built-in Text-to-Speech engine that reads lessons and technical descriptions aloud in multiple languages (English, Serbian, Italian, Greek, Portuguese, and Turkish).
 - **AI Mentor**: Voice-activated AI assistant (Gemini 2.0 Flash) for context-aware guidance.
 - **Multi-User Workshops**: Shared virtual spaces with real-time position synchronization and collaborative interactions.
-- **Dashboard**: Featured models, global announcements, and category-based filtering (sectors).
+- **Dashboard**: Featured models, global announcements, and granular filtering (**Sectors** & **Uploaders**).
 - **Mixed Reality Mode**: Immersive AR experience with Passthrough, Hand Tracking, and Spatial UI controls.
 - **Admin Settings**: Comprehensive dashboard for User Management, Sector Management, System Logs, and **Global Configuration** (Custom Branding, AI Tweaks, Gamification control, Maintenance Mode, Three-Tier Backups).
 - **Multi-language Support**: Full internationalization (i18n) for **English**, **Serbian**, **Italian**, **Greek**, **Portuguese**, and **Turkish** across all modules.

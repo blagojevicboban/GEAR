@@ -439,8 +439,14 @@
         },
         "library": {
             "title": "Upravljanje 3D bibliotekom",
-            "desc": "Upravljajte svim otpremljenim 3D modelima. Promovišite visokokvalitetne modele u status 'Izdvojeno' ili uklonite neprikladan sadržaj.",
+            "desc": "Upravljajte svim otpremljenim 3D modelima. Koristite filtere za pretragu po Sektoru ili Otpremniku. Promovišite visokokvalitetne modele u status 'Izdvojeno' ili uklonite neprikladan sadržaj.",
             "search_placeholder": "Pretraži modele ili otpremaoce...",
+            "filters": {
+                "all_sectors": "Svi Sektori",
+                "all_uploaders": "Svi Otpremnici",
+                "label_sector": "Sektor",
+                "label_uploader": "Otpremnik"
+            },
             "table": {
                 "thumb": "Pregled",
                 "name": "Naziv",

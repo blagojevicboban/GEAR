@@ -1,4 +1,5 @@
 import pool from '../db.js';
+import * as fileService from '../services/fileService.js';
 
 export const getAllLessons = async (req, res) => {
     try {
@@ -75,14 +76,20 @@ export const createLesson = async (req, res) => {
         }
 
         const id = 'lesson-' + Date.now();
+
+        // Organize assets
+        const consolidated = fileService.consolidateLessonFiles(id, title, image_url, steps);
+        const finalImageUrl = consolidated.imageUrl;
+        const finalSteps = consolidated.steps;
+
         await pool.query(
             'INSERT INTO lessons (id, title, description, sector_id, author_id, image_url) VALUES (?, ?, ?, ?, ?, ?)',
-            [id, title, description, sector_id, user.id, image_url || null]
+            [id, title, description, sector_id, user.id, finalImageUrl || null]
         );
 
         // Insert Steps if present
-        if (steps && Array.isArray(steps) && steps.length > 0) {
-            const stepValues = steps.map((s, index) => [
+        if (finalSteps && Array.isArray(finalSteps) && finalSteps.length > 0) {
+            const stepValues = finalSteps.map((s, index) => [
                 s.id || 'step-' + Date.now() + '-' + index,
                 id,
                 index + 1, // step_order
@@ -144,20 +151,25 @@ export const updateLesson = async (req, res) => {
                 .json({ error: 'You can only edit your own lessons' });
         }
 
+        // Organize assets
+        const consolidated = fileService.consolidateLessonFiles(id, title, image_url, steps);
+        const finalImageUrl = consolidated.imageUrl;
+        const finalSteps = consolidated.steps;
+
         // Update Metadata
         await pool.query(
             'UPDATE lessons SET title=?, description=?, sector_id=?, image_url=? WHERE id=?',
-            [title, description, sector_id, image_url || null, id]
+            [title, description, sector_id, finalImageUrl || null, id]
         );
 
         // Update Steps (Delete all and insert)
-        if (steps && Array.isArray(steps)) {
+        if (finalSteps && Array.isArray(finalSteps)) {
             await pool.query('DELETE FROM lesson_steps WHERE lesson_id = ?', [
                 id,
             ]);
 
-            if (steps.length > 0) {
-                const stepValues = steps.map((s, index) => [
+            if (finalSteps.length > 0) {
+                const stepValues = finalSteps.map((s, index) => [
                     s.id || 'step-' + Date.now() + '-' + index,
                     id,
                     index + 1, // step_order

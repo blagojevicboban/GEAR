@@ -42,6 +42,8 @@ export const uploadFile = async (req, res) => {
         }
     }
 
-    const fileUrl = `/api/uploads/${req.file.filename}`;
+    const relativePath = path.relative(uploadDir, req.file.path);
+    // Ensure forward slashes for URL
+    const fileUrl = `/api/uploads/${relativePath.split(path.sep).join('/')}`;
     res.json({ url: fileUrl, originalName: req.file.originalname });
 };

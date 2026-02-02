@@ -92,6 +92,20 @@ export const createModel = async (req, res) => {
                 model.isFeatured || false,
             ]
         );
+
+        // Post-creation: Consolidate files
+        // If we have a local modelUrl and local thumbnailUrl, try to move thumbnail to model folder
+        if (model.modelUrl && model.thumbnailUrl && 
+            model.modelUrl.startsWith('/api/uploads/') && 
+            model.thumbnailUrl.startsWith('/api/uploads/')) {
+            
+            const newThumbUrl = fileService.moveFileToFolder(model.thumbnailUrl, model.modelUrl);
+            if (newThumbUrl !== model.thumbnailUrl) {
+                await pool.query('UPDATE models SET thumbnailUrl = ? WHERE id = ?', [newThumbUrl, model.id]);
+                model.thumbnailUrl = newThumbUrl; // Update response
+            }
+        }
+
         res.json(model);
     } catch (err) {
         console.error('Model Upload Error:', err);
@@ -141,6 +155,19 @@ export const updateModel = async (req, res) => {
                 id,
             ]
         );
+
+        // Consolidate files on update if paths changed (or just always try, it's safe)
+        if (model.modelUrl && model.thumbnailUrl && 
+            model.modelUrl.startsWith('/api/uploads/') && 
+            model.thumbnailUrl.startsWith('/api/uploads/')) {
+            
+            const newThumbUrl = fileService.moveFileToFolder(model.thumbnailUrl, model.modelUrl);
+            if (newThumbUrl !== model.thumbnailUrl) {
+                // Determine if we need to update DB again (slightly inefficient but robust)
+                await pool.query('UPDATE models SET thumbnailUrl = ? WHERE id = ?', [newThumbUrl, id]);
+                model.thumbnailUrl = newThumbUrl;
+            }
+        }
 
         await pool.query('DELETE FROM hotspots WHERE model_id = ?', [id]);
 

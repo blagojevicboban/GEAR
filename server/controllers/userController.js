@@ -1,4 +1,5 @@
 import pool from '../db.js';
+import * as fileService from '../services/fileService.js';
 import bcrypt from 'bcryptjs';
 
 const getUserRole = async (username) => {
@@ -113,11 +114,21 @@ export const updateProfile = async (req, res) => {
     const { username, institution, bio, profilePicUrl } = req.body;
 
     try {
+        let finalProfilePicUrl = profilePicUrl;
+        
+        // Consolidate profile picture
+        if (profilePicUrl && profilePicUrl.startsWith('/api/uploads/')) {
+            const profilesDir = '/api/uploads/profile_pictures/';
+            if (!profilePicUrl.startsWith(profilesDir)) {
+                 finalProfilePicUrl = fileService.moveFileToFolder(profilePicUrl, profilesDir);
+            }
+        }
+
         await pool.query(
             'UPDATE users SET username=?, institution=?, bio=?, profilePicUrl=?, language=? WHERE id=?',
-            [username, institution, bio, profilePicUrl, req.body.language, id]
+            [username, institution, bio, finalProfilePicUrl, req.body.language, id]
         );
-        res.json({ id, username, institution, bio, profilePicUrl, language: req.body.language });
+        res.json({ id, username, institution, bio, profilePicUrl: finalProfilePicUrl, language: req.body.language });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to update profile' });

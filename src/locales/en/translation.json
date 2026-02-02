@@ -428,6 +428,7 @@
         "settings": {
             "title": "Admin Settings",
             "tabs": {
+                "library": "3D Library",
                 "users": "User Management",
                 "sectors": "Sector Management",
                 "config": "Configuration",
@@ -524,6 +525,22 @@
             "refresh_tooltip": "Refresh Logs",
             "load_failed": "Failed to load logs. You might not have permission.",
             "network_error": "Network error loading logs."
+        },
+        "library": {
+            "title": "3D Library Management",
+            "desc": "Manage all uploaded 3D models. Promote high-quality models to 'Featured' status or remove inappropriate content.",
+            "search_placeholder": "Search models or uploaders...",
+            "table": {
+                "thumb": "Preview",
+                "name": "Name",
+                "sector": "Sector",
+                "uploader": "Uploader",
+                "size": "Size",
+                "featured": "Featured",
+                "actions": "Actions"
+            },
+            "empty": "No 3D models found.",
+            "confirm_delete": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
         },
         "users": {
             "loading": "Loading users...",

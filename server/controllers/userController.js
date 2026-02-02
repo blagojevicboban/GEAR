@@ -14,7 +14,7 @@ export const getPublicProfile = async (req, res) => {
     const { username } = req.params;
     try {
         const [users] = await pool.query(
-            'SELECT username, role, institution, bio, profilePicUrl, email FROM users WHERE username = ?',
+            'SELECT username, role, institution, bio, profilePicUrl, email, language FROM users WHERE username = ?',
             [username]
         );
         if (users.length === 0) {
@@ -37,7 +37,7 @@ export const getAllUsers = async (req, res) => {
                 .json({ error: 'Forbidden: Admin access only' });
         }
         const [users] = await pool.query(
-            'SELECT id, username, email, institution, role, profilePicUrl, createdAt FROM users'
+            'SELECT id, username, email, institution, role, profilePicUrl, language, createdAt FROM users'
         );
         res.json(users);
     } catch (err) {
@@ -114,10 +114,10 @@ export const updateProfile = async (req, res) => {
 
     try {
         await pool.query(
-            'UPDATE users SET username=?, institution=?, bio=?, profilePicUrl=? WHERE id=?',
-            [username, institution, bio, profilePicUrl, id]
+            'UPDATE users SET username=?, institution=?, bio=?, profilePicUrl=?, language=? WHERE id=?',
+            [username, institution, bio, profilePicUrl, req.body.language, id]
         );
-        res.json({ id, username, institution, bio, profilePicUrl });
+        res.json({ id, username, institution, bio, profilePicUrl, language: req.body.language });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Failed to update profile' });

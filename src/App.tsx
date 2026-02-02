@@ -198,6 +198,15 @@ const App: React.FC = () => {
     useEffect(() => {
         if (currentUser) {
             localStorage.setItem('gear_user', JSON.stringify(currentUser));
+            if (currentUser.language) {
+                // Determine if we need to change language
+                // Note: i18n.changeLanguage is async but we don't strictly need to await it here
+                import('./i18n').then(({ default: i18n }) => {
+                    if (i18n.language !== currentUser.language) {
+                        i18n.changeLanguage(currentUser.language);
+                    }
+                });
+            }
         } else {
             localStorage.removeItem('gear_user');
         }
@@ -346,15 +355,37 @@ const App: React.FC = () => {
                         return [...prev, updatedModel.sector].sort();
                     });
                 }
-
-                setCurrentView('gallery');
-                setModelToEdit(null);
+                
+                // If we are in edit view, go back. If called from Admin, we might not want to switch view.
+                if (currentView === 'edit') {
+                    setCurrentView('gallery');
+                    setModelToEdit(null);
+                }
             } else {
                 const err = await res.json();
                 alert(`Update failed: ${err.error}`);
             }
         } catch (err) {
             console.error('Failed to update model', err);
+        }
+    };
+
+    const handleDeleteModel = async (id: string) => {
+        try {
+            const res = await fetch(`/api/models/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-User-Name': currentUser?.username || '',
+                },
+            });
+            if (res.ok) {
+                setModels((prev) => prev.filter((m) => m.id !== id));
+            } else {
+                const err = await res.json();
+                alert(`Delete failed: ${err.error}`);
+            }
+        } catch (err) {
+            console.error('Failed to delete', err);
         }
     };
 
@@ -505,33 +536,7 @@ const App: React.FC = () => {
                         onEnterWorkshop={(m) => handleViewModel(m, true)}
                         onUpload={() => setCurrentView('upload')}
                         onEditModel={handleEditRequest}
-                        onDeleteModel={async (id) => {
-                            if (
-                                !confirm(
-                                    'Are you sure you want to delete this model?'
-                                )
-                            )
-                                return;
-                            try {
-                                const res = await fetch(`/api/models/${id}`, {
-                                    method: 'DELETE',
-                                    headers: {
-                                        'X-User-Name':
-                                            currentUser?.username || '',
-                                    },
-                                });
-                                if (res.ok) {
-                                    setModels((prev) =>
-                                        prev.filter((m) => m.id !== id)
-                                    );
-                                } else {
-                                    const err = await res.json();
-                                    alert(`Delete failed: ${err.error}`);
-                                }
-                            } catch (err) {
-                                console.error('Failed to delete', err);
-                            }
-                        }}
+                        onDeleteModel={handleDeleteModel}
                     />
                 )}
 
@@ -546,33 +551,7 @@ const App: React.FC = () => {
                         onViewUser={setViewingProfileUser}
                         onEnterWorkshop={(m) => handleViewModel(m, true)}
                         onEditModel={handleEditRequest}
-                        onDeleteModel={async (id) => {
-                            if (
-                                !confirm(
-                                    'Are you sure you want to delete this model?'
-                                )
-                            )
-                                return;
-                            try {
-                                const res = await fetch(`/api/models/${id}`, {
-                                    method: 'DELETE',
-                                    headers: {
-                                        'X-User-Name':
-                                            currentUser?.username || '',
-                                    },
-                                });
-                                if (res.ok) {
-                                    setModels((prev) =>
-                                        prev.filter((m) => m.id !== id)
-                                    );
-                                } else {
-                                    const err = await res.json();
-                                    alert(`Delete failed: ${err.error}`);
-                                }
-                            } catch (err) {
-                                console.error('Failed to delete', err);
-                            }
-                        }}
+                        onDeleteModel={handleDeleteModel}
                     />
                 )}
 
@@ -611,7 +590,12 @@ const App: React.FC = () => {
                 )}
 
                 {currentView === 'admin-settings' && currentUser && (
-                    <AdminSettings currentUser={currentUser} models={models} />
+                    <AdminSettings 
+                        currentUser={currentUser} 
+                        models={models} 
+                        onDeleteModel={handleDeleteModel}
+                        onUpdateModel={handleUpdate}
+                    />
                 )}
 
                 {currentView === 'teacher-dashboard' && currentUser && (

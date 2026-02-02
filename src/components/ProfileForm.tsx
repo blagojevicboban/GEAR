@@ -23,6 +23,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
         institution: user.institution || '',
         bio: user.bio || '',
         profilePicUrl: user.profilePicUrl || '',
+        language: user.language || 'en',
     });
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -74,6 +75,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                     institution: formData.institution,
                     bio: formData.bio,
                     profilePicUrl: finalProfilePicUrl,
+                    language: formData.language,
                 }),
             });
 
@@ -228,6 +230,29 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                             />
                         </div>
 
+                        <div className="space-y-2">
+                             <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">
+                                {t('nav.language')}
+                            </label>
+                            <select
+                                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-white"
+                                value={formData.language}
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        language: e.target.value,
+                                    })
+                                }
+                            >
+                                <option value="en">English</option>
+                                <option value="sr">Srpski</option>
+                                <option value="it">Italiano</option>
+                                <option value="el">Eλληνικά</option>
+                                <option value="pt">Português</option>
+                                <option value="tr">Türkçe</option>
+                            </select>
+                        </div>
+                        
                         <div className="space-y-2">
                             <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">
                                 {t('profile.form.bio')}

@@ -9,6 +9,7 @@ import { createServer } from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import pool from './db.js';
 
 // Routes
 import authRoutes from './routes/auth.js';

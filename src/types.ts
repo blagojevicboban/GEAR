@@ -53,7 +53,8 @@ export interface User {
     bio?: string;
     profilePicUrl?: string;
     role: 'admin' | 'teacher' | 'student';
-    createdAt?: string; // Added to match DB
+    createdAt?: string;
+    language?: string;
 }
 
 export type AppView =

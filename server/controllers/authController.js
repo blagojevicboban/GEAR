@@ -15,10 +15,10 @@ export const register = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         await pool.query(
-            'INSERT INTO users (id, username, email, institution, password, role) VALUES (?, ?, ?, ?, ?, ?)',
-            [id, username, email, institution, hashedPassword, userRole]
+            'INSERT INTO users (id, username, email, institution, password, role, language) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [id, username, email, institution, hashedPassword, userRole, 'en']
         );
-        res.json({ id, username, email, institution, role: userRole });
+        res.json({ id, username, email, institution, role: userRole, language: 'en' });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Registration failed' });

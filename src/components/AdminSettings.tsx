@@ -2,21 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { User, VETModel } from '../types';
 import UserManagement from './UserManagement';
+import LibraryManager from './LibraryManager';
 import { Terminal } from 'lucide-react';
 
 interface AdminSettingsProps {
     currentUser: User;
     models: VETModel[];
+    onDeleteModel: (id: string) => Promise<void>;
+    onUpdateModel: (model: VETModel) => Promise<void>;
 }
 
 const AdminSettings: React.FC<AdminSettingsProps> = ({
     currentUser,
     models,
+    onDeleteModel,
+    onUpdateModel,
 }) => {
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<
-        'users' | 'sectors' | 'logs' | 'config'
-    >('users');
+        'users' | 'sectors' | 'logs' | 'config' | 'library'
+    >('library');
 
     return (
         <div className="min-h-screen bg-slate-950 pb-20">
@@ -27,6 +32,17 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({
                         {t('admin.settings.title')}
                     </h1>
                     <div className="flex gap-8 overflow-x-auto">
+                        <button
+                            id="admin-tab-library"
+                            onClick={() => setActiveTab('library')}
+                            className={`pb-4 px-2 font-medium text-sm transition-all border-b-2 ${
+                                activeTab === 'library'
+                                    ? 'border-indigo-500 text-indigo-400'
+                                    : 'border-transparent text-slate-400 hover:text-white hover:border-slate-700'
+                            }`}
+                        >
+                            {t('admin.settings.tabs.library')}
+                        </button>
                         <button
                             id="admin-tab-users"
                             onClick={() => setActiveTab('users')}
@@ -100,6 +116,17 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({
                 {activeTab === 'config' && (
                     <div className="animate-in fade-in slide-in-from-bottom-4">
                         <SystemConfig currentUser={currentUser} />
+                    </div>
+                )}
+
+                {activeTab === 'library' && (
+                    <div className="animate-in fade-in slide-in-from-bottom-4">
+                        <LibraryManager
+                            currentUser={currentUser}
+                            models={models}
+                            onDeleteModel={onDeleteModel}
+                            onUpdateModel={onUpdateModel}
+                        />
                     </div>
                 )}
             </div>

@@ -11,7 +11,8 @@ import {
     Terminal,
     User,
     ChevronDown,
-    Globe
+    Globe,
+    Download
 } from 'lucide-react';
 import { AppView, User as UserType } from '../types';
 
@@ -62,6 +63,26 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
         e.stopPropagation();
         i18n.changeLanguage(code);
         setShowLangDropdown(false);
+    };
+
+    const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+    useEffect(() => {
+        const handler = (e: any) => {
+            e.preventDefault();
+            setDeferredPrompt(e);
+        };
+        window.addEventListener('beforeinstallprompt', handler);
+        return () => window.removeEventListener('beforeinstallprompt', handler);
+    }, []);
+
+    const handleInstallClick = async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            setDeferredPrompt(null);
+        }
     };
 
     const navItems: { view: AppView; label: string; icon: any; id?: string }[] = [
@@ -122,6 +143,15 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
                     </div>
 
                     <div className="hidden md:flex items-center gap-4">
+                        {deferredPrompt && (
+                            <button
+                                onClick={handleInstallClick}
+                                className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition-colors animate-pulse"
+                            >
+                                <Download className="w-4 h-4" />
+                                {t('nav.install_app')}
+                            </button>
+                        )}
                         {/* Language Selector Dropdown (Desktop) */}
                         <div className="relative" ref={langRefDesktop}>
                             <button
@@ -303,6 +333,18 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
                                     {t('auth.register')}
                                 </button>
                             </div>
+                        )}
+                        {deferredPrompt && (
+                            <button
+                                onClick={() => {
+                                    handleInstallClick();
+                                    setIsMenuOpen(false);
+                                }}
+                                className="flex w-full items-center gap-3 px-3 py-3 rounded-md text-base font-medium text-indigo-400 hover:bg-indigo-900/20"
+                            >
+                                <Download className="w-5 h-5" />
+                                {t('nav.install_app')}
+                            </button>
                         )}
                     </div>
                 </div>

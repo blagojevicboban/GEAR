@@ -20,6 +20,7 @@
         "theme": "Tema",
         "language": "Jezik",
         "read_aloud": "Čitaj Naglas",
+        "install_app": "Instaliraj Aplikaciju",
         "gamification": {
             "challenge_mode": "Challenge Mode",
             "time": "Vreme",
@@ -171,8 +172,8 @@
             "install": {
                 "title": "Instaliraj aplikaciju (Offline režim)",
                 "how_title": "Kako instalirati",
-                "desktop_inst": "Desktop (Chrome/Edge): Kliknite na ikonu za instalaciju (računar sa strelicom nadole) na desnoj strani adresne trake.",
-                "android_inst": "Android (Chrome): Dodirnite meni (⋮) → \"Instaliraj aplikaciju\" ili \"Dodaj na početni ekran\".",
+                "desktop_inst": "Desktop: Kliknite na dugme 'Instaliraj Aplikaciju' u gornjoj traci ili ikonu za instalaciju u pretraživaču.",
+                "android_inst": "Mobilni: Koristite dugme 'Instaliraj Aplikaciju' u meniju ili opciju 'Dodaj na početni ekran'.",
                 "ios_inst": "iOS (Safari): Dodirnite dugme Deli → \"Dodaj na početni ekran\".",
                 "offline_title": "Offline mogućnosti",
                 "offline_desc": "Nakon instalacije, aplikacija radi čak i bez internet veze.",
@@ -211,6 +212,7 @@
                 "features": [
                     "Custom Branding: Promena naziva i primarne boje na celom sajtu.",
                     "AI Podešavanja: Izbor modela (Flash/Pro) i nivoa kreativnosti.",
+                    "Upravljanje modelima: Klonirajte i menjajte modele direktno iz biblioteke.",
                     "Bezbednost: Kontrola javne registracije i limita za otpremanje fajlova.",
                     "Rezervne kopije: Troslojni sistem bekapa (JSON, SQL, System ZIP)."
                 ]
@@ -448,6 +450,11 @@
                 "featured": "Izdvojeno",
                 "actions": "Akcije"
             },
+            "actions": {
+                "clone": "Kloniraj Model",
+                "edit": "Izmeni Model"
+            },
+            "confirm_clone": "Klonirati {{name}}?",
             "empty": "Nisu pronađeni 3D modeli.",
             "confirm_delete": "Da li ste sigurni da želite da obrišete \"{{name}}\"? Ova akcija se ne može opozvati."
         },

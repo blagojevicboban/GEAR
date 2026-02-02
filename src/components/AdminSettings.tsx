@@ -10,6 +10,8 @@ interface AdminSettingsProps {
     models: VETModel[];
     onDeleteModel: (id: string) => Promise<void>;
     onUpdateModel: (model: VETModel) => Promise<void>;
+    onCloneModel: (id: string) => Promise<void>;
+    onEditModel: (model: VETModel) => void;
 }
 
 const AdminSettings: React.FC<AdminSettingsProps> = ({
@@ -17,6 +19,8 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({
     models,
     onDeleteModel,
     onUpdateModel,
+    onCloneModel,
+    onEditModel,
 }) => {
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<
@@ -126,6 +130,8 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({
                             models={models}
                             onDeleteModel={onDeleteModel}
                             onUpdateModel={onUpdateModel}
+                            onCloneModel={onCloneModel}
+                            onEditModel={onEditModel}
                         />
                     </div>
                 )}

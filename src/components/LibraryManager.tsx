@@ -1,19 +1,24 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { VETModel, User } from '../types';
-import { Search, Trash2, Star, Download, ExternalLink, Box } from 'lucide-react';
+import { Search, Trash2, Star, Download, ExternalLink, Box, Copy, Pencil } from 'lucide-react';
+import { fixAssetUrl } from '../utils/urlUtils';
 
 interface LibraryManagerProps {
     currentUser: User;
     models: VETModel[];
     onDeleteModel: (id: string) => Promise<void>;
     onUpdateModel: (model: VETModel) => Promise<void>;
+    onCloneModel: (id: string) => Promise<void>;
+    onEditModel: (model: VETModel) => void;
 }
 
 const LibraryManager: React.FC<LibraryManagerProps> = ({
     models,
     onDeleteModel,
     onUpdateModel,
+    onCloneModel,
+    onEditModel,
 }) => {
     const { t } = useTranslation();
     const [searchTerm, setSearchTerm] = useState('');
@@ -130,7 +135,7 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                                         <div className="w-12 h-12 rounded-lg bg-slate-800 overflow-hidden flex items-center justify-center border border-slate-700">
                                             {model.thumbnailUrl ? (
                                                 <img 
-                                                    src={model.thumbnailUrl} 
+                                                    src={fixAssetUrl(model.thumbnailUrl)}  
                                                     alt={model.name} 
                                                     className="w-full h-full object-cover"
                                                 />
@@ -188,6 +193,28 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                                             >
                                                 <ExternalLink className="w-4 h-4" />
                                             </a>
+                                            <button
+                                                onClick={() => {
+                                                    if (
+                                                        confirm(
+                                                            t('admin.library.confirm_clone', { name: model.name })
+                                                        )
+                                                    ) {
+                                                        onCloneModel(model.id);
+                                                    }
+                                                }}
+                                                className="p-2 text-slate-400 hover:text-green-400 hover:bg-green-900/20 rounded-lg transition-colors"
+                                                title={t('admin.library.actions.clone')}
+                                            >
+                                                <Copy className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => onEditModel(model)}
+                                                className="p-2 text-slate-400 hover:text-indigo-400 hover:bg-indigo-900/20 rounded-lg transition-colors"
+                                                title={t('admin.library.actions.edit')}
+                                            >
+                                                <Pencil className="w-4 h-4" />
+                                            </button>
                                             <button
                                                 onClick={() => handleDelete(model)}
                                                 className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"

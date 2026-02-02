@@ -6,9 +6,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // We need to point to server/uploads, assuming this file is in server/services/fileService.js
-// ../../server/uploads -> path.join(process.cwd(), 'server', 'uploads') might be safer or relative from here.
-// Original index.js was in server/ so it used __dirname + 'uploads'.
-// If we are in server/services/, we need ../uploads
 export const uploadDir = path.resolve(__dirname, '../uploads');
 
 if (!fs.existsSync(uploadDir)) {
@@ -118,5 +115,56 @@ export const deleteFile = (relativePath) => {
         } catch (delErr) {
             console.error(`Failed to delete: ${pathToDelete}`, delErr);
         }
+    }
+};
+
+export const copyFile = (sourceUrl) => {
+    if (!sourceUrl || !sourceUrl.startsWith('/api/uploads/')) return sourceUrl;
+
+    try {
+        const relativePath = sourceUrl.replace('/api/uploads/', '');
+        // Handle URL fragments if any (like #test)
+        const cleanRelativePath = relativePath.split('#')[0];
+        const fragment = relativePath.includes('#') ? '#' + relativePath.split('#')[1] : '';
+
+        const sourcePath = path.join(uploadDir, cleanRelativePath);
+        
+        if (!fs.existsSync(sourcePath)) {
+            console.warn(`Source file not found for copy: ${sourcePath}`);
+            return sourceUrl; 
+        }
+
+        const pathParts = cleanRelativePath.split('/');
+        
+        // If it looks like a folder structure (length > 1), we treat the top-level folder as the unit to copy
+        // This matches deleteFile logic where we delete the whole extracted folder
+        if (pathParts.length > 1) {
+            const rootFolderName = pathParts[0];
+            const sourceDir = path.join(uploadDir, rootFolderName);
+            
+            // Generate new folder name
+            const newDirName = `${rootFolderName}_copy_${Date.now()}`;
+            const newDir = path.join(uploadDir, newDirName);
+
+            // Copy recursively
+            fs.cpSync(sourceDir, newDir, { recursive: true });
+
+            // Construct new URL
+            // Original: folder/sub/file.ext -> New: folder_copy_123/sub/file.ext
+            const restOfPath = pathParts.slice(1).join('/');
+            return `/api/uploads/${newDirName}/${restOfPath}${fragment}`;
+        } else {
+            // Single file in root uploads
+            const ext = path.extname(cleanRelativePath);
+            const namePart = path.basename(cleanRelativePath, ext);
+            const newFilename = `${namePart}_copy_${Date.now()}${ext}`;
+            const newPath = path.join(uploadDir, newFilename);
+
+            fs.copyFileSync(sourcePath, newPath);
+            return `/api/uploads/${newFilename}${fragment}`;
+        }
+    } catch (err) {
+        console.error('Failed to copy file:', err);
+        return sourceUrl; // Fallback to original, risky but better than crash
     }
 };

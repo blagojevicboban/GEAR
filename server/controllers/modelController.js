@@ -237,3 +237,88 @@ export const generateLesson = async (req, res) => {
         });
     }
 };
+
+export const duplicateModel = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const requestor = req.headers['x-user-name'];
+
+        const role = await getUserRole(requestor);
+        if (!role) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        const [existing] = await pool.query('SELECT * FROM models WHERE id = ?', [
+            id,
+        ]);
+        if (existing.length === 0)
+            return res.status(404).json({ error: 'Model not found' });
+        const original = existing[0];
+
+        if (role !== 'admin' && original.uploadedBy !== requestor) {
+            return res.status(403).json({
+                error: 'Forbidden: You can only duplicate your own models',
+            });
+        }
+
+        // Copy files
+        const newModelUrl = fileService.copyFile(original.modelUrl);
+        const newThumbnailUrl = fileService.copyFile(original.thumbnailUrl);
+
+        const newId = Math.random().toString(36).substr(2, 9);
+        const newName = `${original.name} (Copy)`;
+
+        await pool.query(
+            'INSERT INTO models (id, name, description, sector, equipmentType, level, modelUrl, thumbnailUrl, optimized, fileSize, uploadedBy, createdAt, isFeatured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [
+                newId,
+                newName,
+                original.description,
+                original.sector,
+                original.equipmentType,
+                original.level,
+                newModelUrl,
+                newThumbnailUrl,
+                original.optimized,
+                original.fileSize,
+                requestor,
+                new Date().toISOString().split('T')[0],
+                false,
+            ]
+        );
+
+        // Copy Hotspots
+        const [hotspots] = await pool.query(
+            'SELECT * FROM hotspots WHERE model_id = ?',
+            [id]
+        );
+        if (hotspots.length > 0) {
+            const hotspotValues = hotspots.map((h) => [
+                'hs-' + Math.random().toString(36).substr(2, 5),
+                newId,
+                typeof h.position === 'object'
+                    ? JSON.stringify(h.position)
+                    : h.position,
+                h.title,
+                h.description,
+                h.mediaUrl,
+                h.type,
+            ]);
+
+            await pool.query(
+                'INSERT INTO hotspots (id, model_id, position, title, description, mediaUrl, type) VALUES ?',
+                [hotspotValues]
+            );
+        }
+
+        const [newModel] = await pool.query('SELECT * FROM models WHERE id = ?', [
+            newId,
+        ]);
+        res.json(newModel[0]);
+    } catch (err) {
+        console.error('Duplicate Model Error:', err);
+        res.status(500).json({
+            error: 'Failed to duplicate model: ' + err.message,
+        });
+    }
+};

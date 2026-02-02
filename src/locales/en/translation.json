@@ -20,6 +20,7 @@
         "theme": "Theme",
         "language": "Language",
         "read_aloud": "Read Aloud",
+        "install_app": "Install App",
         "gamification": {
             "challenge_mode": "Challenge Mode",
             "time": "Time",
@@ -171,8 +172,8 @@
             "install": {
                 "title": "Install App (Offline Mode)",
                 "how_title": "How to Install",
-                "desktop_inst": "Desktop (Chrome/Edge): Click the install icon (Computer with Down Arrow) in the right of the address bar.",
-                "android_inst": "Android (Chrome): Tap the menu (⋮) → \"Install App\" or \"Add to Home Screen\".",
+                "desktop_inst": "Desktop: Click the 'Install App' button in the top bar (if visible) or the install icon in the address bar.",
+                "android_inst": "Mobile: Open the menu and tap 'Install App' or use the browser's 'Add to Home Screen' option.",
                 "ios_inst": "iOS (Safari): Tap the Share button → \"Add to Home Screen\".",
                 "offline_title": "Offline Capabilities",
                 "offline_desc": "Once installed, the app works even without an internet connection.",
@@ -209,8 +210,9 @@
                 "config_title": "Global Configuration",
                 "config_desc": "Administrators can customize the platform identity (Branding), fine-tune AI behavior, and manage security settings from the dedicated Admin Settings > Configuration tab.",
                 "features": [
-                    "Custom Branding: Change Name and Primary Color site-wide.",
+                     "Custom Branding: Change Name and Primary Color site-wide.",
                     "AI Tweaks: Select models (Flash/Pro) and set generation creativity.",
+                    "Model Management: Clone and edit models directly from the library list.",
                     "Security: Control public registration and file upload limits.",
                     "Backups: Three-tier backup system (JSON, SQL, System ZIP)."
                 ]
@@ -539,6 +541,11 @@
                 "featured": "Featured",
                 "actions": "Actions"
             },
+            "actions": {
+                "clone": "Clone Model",
+                "edit": "Edit Model"
+            },
+            "confirm_clone": "Clone {{name}}?",
             "empty": "No 3D models found.",
             "confirm_delete": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
         },

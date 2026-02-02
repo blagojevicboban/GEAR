@@ -389,10 +389,37 @@ const App: React.FC = () => {
         }
     };
 
+    const handleCloneModel = async (id: string) => {
+        try {
+            const res = await fetch(`/api/models/${id}/clone`, {
+                method: 'POST',
+                headers: {
+                    'X-User-Name': currentUser?.username || '',
+                },
+            });
+            if (res.ok) {
+                const newModel = await res.json();
+                setModels((prev) => [newModel, ...prev]);
+            } else {
+                let errorMsg = 'Unknown error';
+                try {
+                    const err = await res.json();
+                    errorMsg = err.error || JSON.stringify(err);
+                } catch (e) {
+                    errorMsg = `Server error (${res.status}): ` + await res.text();
+                }
+                alert(`Clone failed: ${errorMsg}`);
+            }
+        } catch (err) {
+            console.error('Failed to clone model', err);
+        }
+    };
+
     const handleProfileUpdate = (updatedUser: User) => {
         setCurrentUser(updatedUser);
         setCurrentView('home');
     };
+
 
     const handleExitViewer = () => {
         setCurrentView('gallery');
@@ -595,6 +622,8 @@ const App: React.FC = () => {
                         models={models} 
                         onDeleteModel={handleDeleteModel}
                         onUpdateModel={handleUpdate}
+                        onCloneModel={handleCloneModel}
+                        onEditModel={handleEditRequest}
                     />
                 )}
 

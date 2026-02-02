@@ -333,31 +333,74 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                             ))}
                         </select>
                     </div>
-                    <div>
                         <label className="block text-sm font-medium text-slate-400 mb-1">
                             {t('lessons.editor.image')}
                         </label>
-                        <div className="flex items-center gap-4">
-                            {imageUrl && (
-                                <img
-                                    src={imageUrl}
-                                    alt="Preview"
-                                    className="w-16 h-16 object-cover rounded-lg border border-slate-700"
-                                />
+                        <div className="space-y-3">
+                            {imageUrl ? (
+                                <div className="relative w-full h-48 bg-slate-950 rounded-lg overflow-hidden border border-slate-700 group">
+                                    <img
+                                        src={fixAssetUrl(imageUrl)}
+                                        alt="Preview"
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity gap-3">
+                                        <button
+                                            onClick={() =>
+                                                document
+                                                    .getElementById(
+                                                        'lesson-cover-upload'
+                                                    )
+                                                    ?.click()
+                                            }
+                                            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-bold shadow-lg transition-all"
+                                        >
+                                            Change Image
+                                        </button>
+                                        <button
+                                            onClick={() => setImageUrl('')}
+                                            className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-sm font-bold shadow-lg transition-all"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div
+                                    onClick={() =>
+                                        document
+                                            .getElementById(
+                                                'lesson-cover-upload'
+                                            )
+                                            ?.click()
+                                    }
+                                    className="w-full h-32 border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-lg flex flex-col items-center justify-center cursor-pointer transition-colors bg-slate-950/30 hover:bg-slate-950/50 group"
+                                >
+                                    <div className="p-3 bg-slate-900 rounded-full mb-2 group-hover:scale-110 transition-transform">
+                                        <Plus className="text-slate-400" />
+                                    </div>
+                                    <p className="text-xs text-slate-400 font-medium">
+                                        Click to upload cover image
+                                    </p>
+                                </div>
                             )}
+
                             <input
+                                id="lesson-cover-upload"
                                 type="file"
                                 accept="image/*"
                                 onChange={handleImageUpload}
-                                className="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-500/10 file:text-indigo-400 hover:file:bg-indigo-500/20"
+                                className="hidden"
                             />
+
+                            {isUploading && (
+                                <div className="text-center py-2">
+                                    <p className="text-xs text-indigo-400 animate-pulse font-bold">
+                                        {t('lessons.editor.uploading')}
+                                    </p>
+                                </div>
+                            )}
                         </div>
-                        {isUploading && (
-                            <p className="text-xs text-indigo-400 mt-1">
-                                {t('lessons.editor.uploading')}
-                            </p>
-                        )}
-                    </div>
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-slate-400 mb-1">

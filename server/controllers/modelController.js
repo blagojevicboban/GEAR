@@ -264,8 +264,17 @@ export const generateLesson = async (req, res) => {
         res.json({ steps });
     } catch (err) {
         console.error('AI Lesson Gen Error:', err);
+        let msg = err.message;
+        
+        // Handle Gemini 429 Errors gracefully
+        if (msg.includes('429') || msg.includes('quota') || msg.includes('RESOURCE_EXHAUSTED')) {
+            msg = 'AI Usage Limit Exceeded. Please try again in 1-2 minutes, or check your Gemini API quota.';
+        } else if (msg.includes('JSON')) {
+            msg = 'AI response was invalid. Please try again.';
+        }
+
         res.status(500).json({
-            error: 'Failed to generate lesson: ' + err.message,
+            error: msg
         });
     }
 };

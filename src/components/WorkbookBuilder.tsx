@@ -15,7 +15,9 @@ import {
     MousePointer,
     Info,
     Sparkles,
+    Image as ImageIcon,
 } from 'lucide-react';
+import { fixAssetUrl } from '../utils/urlUtils';
 
 interface WorkbookBuilderProps {
     lessonToEdit?: Lesson;
@@ -40,7 +42,8 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
     const [description, setDescription] = useState(
         lessonToEdit?.description || ''
     );
-    const [sector] = useState(
+    const [sector, setSector] = useState(
+
         lessonToEdit?.sector || availableSectors[0] || 'Mechatronics'
     );
     const [imageUrl, setImageUrl] = useState(lessonToEdit?.image_url || '');
@@ -139,6 +142,24 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
     };
 
     // --- Image Upload & Paste Logic ---
+    const handleImageUpload = async (
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setImageUrl(''); // Clear current preview/url while uploading (optional UI feedback)
+        
+        try {
+            const url = await handleUploadFile(file);
+            if (url) {
+                setImageUrl(url);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     const handleUploadFile = async (file: File): Promise<string | null> => {
         const formData = new FormData();
         formData.append('file', file);
@@ -354,6 +375,50 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                             rows={2}
                             placeholder={t('builder.short_description')}
                         />
+                        <textarea
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            className="w-full bg-slate-900 rounded p-2 text-xs text-slate-400 resize-none outline-none focus:ring-1 focus:ring-slate-700"
+                            rows={2}
+                            placeholder={t('builder.short_description')}
+                        />
+
+                        {/* Sector & Image Controls */}
+                        <div className="grid grid-cols-2 gap-2">
+                            <select
+                                value={sector}
+                                onChange={(e) => setSector(e.target.value)}
+                                className="w-full bg-slate-900 rounded p-2 text-xs text-slate-400 outline-none focus:ring-1 focus:ring-slate-700 cursor-pointer"
+                            >
+                                {availableSectors.map((s) => (
+                                    <option key={s} value={s}>{s}</option>
+                                ))}
+                            </select>
+
+                            <div className="relative group">
+                                <button
+                                    onClick={() => document.getElementById('lesson-meta-img')?.click()}
+                                    className="w-full bg-slate-900 rounded p-2 text-xs text-slate-400 hover:text-white flex items-center justify-center gap-2 border border-transparent hover:border-slate-700 transition-all truncate"
+                                    title={imageUrl ? 'Change Cover Image' : 'Upload Cover Image'}
+                                >
+                                    <ImageIcon size={14} />
+                                    {imageUrl ? 'Change Cover' : 'Upload Cover'}
+                                </button>
+                                <input
+                                    id="lesson-meta-img"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                    className="hidden"
+                                />
+                                {imageUrl && (
+                                    <div className="absolute bottom-full left-0 mb-2 w-32 h-20 bg-slate-900 rounded shadow-xl border border-slate-700 overflow-hidden hidden group-hover:block z-50">
+                                        <img src={fixAssetUrl(imageUrl)} className="w-full h-full object-cover" alt="Cover Preview" />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
                         {/* Pedagogical Tip (Result 4) */}
                         <div className="mt-2 p-2 bg-indigo-900/20 border border-indigo-500/20 rounded-lg flex gap-2">
                             <Info

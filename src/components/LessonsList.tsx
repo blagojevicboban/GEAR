@@ -130,7 +130,7 @@ const LessonsList: React.FC<LessonsListProps> = ({
                         <div className="h-40 w-full overflow-hidden relative group-hover:opacity-100">
                             {lesson.image_url ? (
                                 <img
-                                    src={lesson.image_url}
+                                    src={fixAssetUrl(lesson.image_url)}
                                     alt={lesson.title}
                                     className="w-full h-full object-cover transition-transform group-hover:scale-110"
                                 />

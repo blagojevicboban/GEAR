@@ -420,8 +420,25 @@
                 "users": "Gestione Utenti",
                 "sectors": "Gestione Settori",
                 "config": "Configurazione",
-                "logs": "Log di Sistema"
+                "logs": "Log di Sistema",
+                "library": "Libreria 3D"
             }
+        },
+        "library": {
+            "title": "Gestione Libreria 3D",
+            "desc": "Gestisci tutti i modelli 3D caricati. Promuovi modelli di alta qualità o rimuovi contenuti inappropriati.",
+            "search_placeholder": "Cerca modelli o uploader...",
+            "table": {
+                "thumb": "Anteprima",
+                "name": "Nome",
+                "sector": "Settore",
+                "uploader": "Uploader",
+                "size": "Dimensione",
+                "featured": "In evidenza",
+                "actions": "Azioni"
+            },
+            "empty": "Nessun modello 3D trovato.",
+            "confirm_delete": "Sei sicuro di voler eliminare \"{{name}}\"? Questa azione non può essere annullata."
         },
         "config": {
             "loading": "Caricamento impostazioni...",
@@ -563,6 +580,14 @@
                 "upload_failed": "Caricamento immagine non riuscito",
                 "update_failed": "Aggiornamento profilo non riuscito"
             }
+        },
+        "password": {
+            "title": "Cambia Password",
+            "current": "Password Attuale",
+            "new": "Nuova Password",
+            "confirm": "Conferma Nuova Password",
+            "success": "Password cambiata con successo!",
+            "error_mismatch": "Le nuove password non corrispondono"
         }
     },
     "workshop": {

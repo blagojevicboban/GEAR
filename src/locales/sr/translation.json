@@ -431,8 +431,25 @@
                 "users": "Upravljanje korisnicima",
                 "sectors": "Upravljanje sektorima",
                 "config": "Konfiguracija",
-                "logs": "Sistemski logovi"
+                "logs": "Sistemski logovi",
+                "library": "Upravljanje 3D bibliotekom"
             }
+        },
+        "library": {
+            "title": "Upravljanje 3D bibliotekom",
+            "desc": "Upravljajte svim otpremljenim 3D modelima. Promovišite visokokvalitetne modele u status 'Izdvojeno' ili uklonite neprikladan sadržaj.",
+            "search_placeholder": "Pretraži modele ili otpremaoce...",
+            "table": {
+                "thumb": "Pregled",
+                "name": "Naziv",
+                "sector": "Sektor",
+                "uploader": "Otpremanje",
+                "size": "Veličina",
+                "featured": "Izdvojeno",
+                "actions": "Akcije"
+            },
+            "empty": "Nisu pronađeni 3D modeli.",
+            "confirm_delete": "Da li ste sigurni da želite da obrišete \"{{name}}\"? Ova akcija se ne može opozvati."
         },
         "config": {
             "loading": "Učitavanje podešavanja...",
@@ -611,6 +628,14 @@
                 "upload_failed": "Otpremanje slike nije uspelo",
                 "update_failed": "Ažuriranje profila nije uspelo"
             }
+        },
+        "password": {
+            "title": "Promena lozinke",
+            "current": "Trenutna lozinka",
+            "new": "Nova lozinka",
+            "confirm": "Potvrdite novu lozinku",
+            "success": "Lozinka uspešno promenjena!",
+            "error_mismatch": "Nove lozinke se ne podudaraju"
         }
     },
     "workshop": {

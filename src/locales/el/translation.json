@@ -23,7 +23,16 @@
         "language": "Αλλαγή γλώσσας (EL)",
         "login": "Σύνδεση",
         "register": "Εγγραφή",
-        "profile": "Προφίλ"
+        "profile": "Προφίλ",
+        "gamification": {
+            "challenge_mode": "Challenge Mode",
+            "time": "Time",
+            "complete": "Challenge Complete!",
+            "leaderboard": "Leaderboard",
+            "rank": "Rank",
+            "user": "User",
+            "score": "Score"
+        }
     },
     "hero": {
         "title": "Εκπαίδευση VET Επόμενης Γενιάς",
@@ -196,7 +205,8 @@
                 "users": "Χρήστες",
                 "sectors": "Τομείς",
                 "config": "Σύστημα",
-                "logs": "Καταγραφές"
+                "logs": "Καταγραφές",
+                "library": "3D Library"
             }
         },
         "users": {
@@ -284,6 +294,22 @@
             "network_error": "Σφάλμα δικτύου.",
             "loading": "Λήψη καταγραφών...",
             "no_logs": "Δεν υπάρχουν καταγραφές."
+        },
+        "library": {
+            "title": "3D Library Management",
+            "desc": "Manage all uploaded 3D models. Promote high-quality models to 'Featured' status or remove inappropriate content.",
+            "search_placeholder": "Search models or uploaders...",
+            "table": {
+                "thumb": "Preview",
+                "name": "Name",
+                "sector": "Sector",
+                "uploader": "Uploader",
+                "size": "Size",
+                "featured": "Featured",
+                "actions": "Actions"
+            },
+            "empty": "No 3D models found.",
+            "confirm_delete": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
         }
     },
     "auth": {
@@ -303,6 +329,150 @@
             "no_bio": "Δεν υπάρχει διαθέσιμο βιογραφικό.",
             "uploaded_models": "Μεταφορτωμένα Μοντέλα",
             "no_models": "Δεν έχουν μεταφορτωθεί μοντέλα ακόμη."
+        },
+        "form": {
+            "title": "Edit Profile",
+            "subtitle": "Manage your account and institutional details.",
+            "update_photo": "Update Photo",
+            "updating": "Updating Profile...",
+            "username": "Username",
+            "username_placeholder": "Your display name",
+            "email": "Email Address",
+            "email_placeholder": "name@institution.edu",
+            "institution": "Institution / School",
+            "institution_placeholder": "e.g., Technical School Pirot",
+            "bio": "Short Bio",
+            "bio_placeholder": "Briefly describe your role or focus (e.g., Mechatronics Teacher)...",
+            "save_btn": "Save Profile",
+            "errors": {
+                "upload_failed": "Image upload failed",
+                "update_failed": "Failed to update profile"
+            }
+        },
+        "password": {
+            "title": "Change Password",
+            "current": "Current Password",
+            "new": "New Password",
+            "confirm": "Confirm New Password",
+            "success": "Password changed successfully!",
+            "error_mismatch": "New passwords do not match"
+        }
+    },
+    "teacher": {
+        "dashboard": {
+            "title": "Teacher Dashboard",
+            "subtitle": "Monitor student progress and engagement.",
+            "loading": "Loading Dashboard...",
+            "attempts": "Attempts",
+            "completed": "Completed",
+            "in_progress": "In Progress",
+            "search_placeholder": "Search student or lesson...",
+            "no_stats": "No stats found for your lessons.",
+            "table": {
+                "student": "Student",
+                "lesson": "Lesson",
+                "status": "Status",
+                "score": "Score",
+                "started": "Started",
+                "completed": "Completed"
+            }
+        }
+    },
+    "workshop": {
+        "teacher_controls": "TEACHER",
+        "sync_active": "SYNC ACTIVE",
+        "sync_inactive": "Sync Students",
+        "pointer_active": "SCENE POINTER ON",
+        "pointer_inactive": "Laser Pointer"
+    },
+    "assembly": {
+        "explode": "💥 Explode View",
+        "collapse": "🧩 Collapse",
+        "reset": "↺ Reset All Parts",
+        "mode_active": "🔧 Assembly Mode ON",
+        "mode_inactive": "🔧 Enable Assembly"
+    },
+    "lessons": {
+        "list_title": "Interactive Lessons",
+        "list_subtitle": "Guided 3D learning experiences",
+        "create_btn": "Create Lesson",
+        "all_sectors": "All Sectors",
+        "loading": "Loading lessons...",
+        "no_lessons": "No lessons found in this sector.",
+        "start_btn": "Start Lesson",
+        "edit_btn": "Edit",
+        "delete_btn": "Delete",
+        "delete_confirm": "Are you sure you want to delete this lesson?",
+        "general": "General",
+        "unknown": "Unknown",
+        "viewer": {
+            "loading": "Loading Lesson...",
+            "not_found": "Lesson not found.",
+            "interactive_lesson": "Interactive Lesson",
+            "step_x_of_y": "Step {{current}} of {{total}}",
+            "no_model": "No model attached to this step.",
+            "quiz": "Interactive Quiz",
+            "submit_answer": "Submit Answer",
+            "correct_answer": "Correct Answer!",
+            "incorrect_answer": "Incorrect. Try again?",
+            "retry": "Retry",
+            "multiple_choice": "Multiple Selection",
+            "model_identification": "3D Identification",
+            "true_false_title": "True / False",
+            "click_instruction": "Use the 3D view to identify the target part.",
+            "target_prompt": "Click on the {{target}}",
+            "retry_mesh": "Try again! That was {{meshName}}.",
+            "find_task": "Task: Find Component",
+            "find_instruction": "Locate and click on the 3D model part: {{target}}",
+            "find_success": "Correct! You found the {{target}}.",
+            "find_error": "Incorrect. That is part \"{{meshName}}\". Try again.",
+            "start_first": "Start First Step",
+            "previous": "Previous",
+            "next": "Next",
+            "finish": "Finish"
+        },
+        "editor": {
+            "edit_title": "Edit Lesson",
+            "create_title": "Create New Lesson",
+            "save_btn": "Save Lesson",
+            "lesson_title": "Lesson Title",
+            "title_placeholder": "e.g. Introduction to Robotics",
+            "sector": "Sector",
+            "image": "Lesson Image",
+            "uploading": "Uploading...",
+            "description": "Description",
+            "desc_placeholder": "Brief overview of what this lesson covers...",
+            "steps_title": "Lesson Steps",
+            "add_step": "Add Step",
+            "step_title_placeholder": "Step Title",
+            "step_type": "Step Type",
+            "read": "📖 Read",
+            "quiz": "🧠 Quiz",
+            "find_part": "🎯 Find Part",
+            "question": "Question",
+            "content_rich": "Content (Rich Text)",
+            "question_placeholder": "Enter the question here...",
+            "content_placeholder": "Write the lesson content here...",
+            "answers": "Answers",
+            "option": "Option {{number}}",
+            "target_part": "Target Part",
+            "no_part": "No part selected",
+            "pointer": "Pointer",
+            "pointer_tip": "Link a model, click Pointer, then click the part in the 3D viewer.",
+            "step_image": "Step Image (Optional)",
+            "no_img": "No Img",
+            "paste_img_tip": "Click here and paste (Ctrl+V) an image",
+            "linked_model": "Linked 3D Model",
+            "no_model_text": "No Model (Text only)",
+            "model_not_found": "Model not found",
+            "select_target": "Select Target Part",
+            "select_target_tip": "Click on the specific part of the model to set it as the target.",
+            "intro_title": "Introduction",
+            "intro_content": "# Welcome to this lesson\n\nStart by explaining the topic.",
+            "errors": {
+                "enter_title": "Please enter a lesson title",
+                "link_model_first": "Link a 3D model first!"
+            }
         }
     }
 }

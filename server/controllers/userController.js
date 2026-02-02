@@ -198,6 +198,16 @@ export const deleteUser = async (req, res) => {
             }
         }
 
+        // Delete Profile Picture
+        const [userRows] = await pool.query('SELECT profilePicUrl FROM users WHERE id = ?', [id]);
+        if (userRows.length > 0 && userRows[0].profilePicUrl) {
+            const picUrl = userRows[0].profilePicUrl;
+            if (picUrl.startsWith('/api/uploads/')) {
+                // fileService will detect 'profile_pictures' folder and ONLY delete the file, protecting the folder
+                fileService.deleteFile(picUrl.replace('/api/uploads/', ''));
+            }
+        }
+
         await pool.query('DELETE FROM users WHERE id = ?', [id]);
         res.json({ success: true });
     } catch (err) {

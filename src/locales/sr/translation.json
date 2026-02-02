@@ -214,7 +214,8 @@
                     "AI Podešavanja: Izbor modela (Flash/Pro) i nivoa kreativnosti.",
                     "Upravljanje modelima: Klonirajte i menjajte modele direktno iz biblioteke.",
                     "Bezbednost: Kontrola javne registracije i limita za otpremanje fajlova.",
-                    "Rezervne kopije: Troslojni sistem bekapa (JSON, SQL, System ZIP)."
+                    "Rezervne kopije: Troslojni sistem bekapa (JSON, SQL, System ZIP).",
+                    "Održavanje fajlova: Očistite fajlove siročiće i optimizujte skladište."
                 ]
             },
             "builder": {
@@ -462,7 +463,28 @@
             },
             "confirm_clone": "Klonirati {{name}}?",
             "empty": "Nisu pronađeni 3D modeli.",
-            "confirm_delete": "Da li ste sigurni da želite da obrišete \"{{name}}\"? Ova akcija se ne može opozvati."
+            "confirm_delete": "Da li ste sigurni da želite da obrišete \"{{name}}\"? Ova akcija se ne može opozvati.",
+            "orphans": {
+                "button": "Siročići (Orphaned Files)",
+                "label": "Održavanje",
+                "description": "Ovi fajlovi/folderi postoje u folderu uploads ali se <strong>ne referenciraju u bazi podataka</strong>. Verovatno su ostaci od obrisanih modela ili neuspelih otpremanja.",
+                "warning": "Upozorenje: Brisanje je trajno.",
+                "refresh_tooltip": "Osveži listu",
+                "scan_progress": "Skeniranje uploads direktorijuma...",
+                "empty": "Nema siročića. Vaš prostor je čist! ✨",
+                "delete_all": "Obriši Sve",
+                "confirm_delete": "Da li ste sigurni da želite da obrišete siroče \"{{name}}\"? Ovo se ne može opozvati.",
+                "confirm_delete_all": "Da li ste sigurni da želite da obrišete SVE siročiće? Ova operacija je trajna i ne može se opozvati!",
+                "delete_success": "Siroče uspešno obrisano.",
+                "delete_all_success": "Uspešno obrisano {{count}} siročića.",
+                "delete_flailed": "Brisanje nije uspelo",
+                "headers": {
+                    "type": "Tip",
+                    "name": "Naziv",
+                    "size": "Veličina",
+                    "action": "Akcija"
+                }
+            }
         },
         "config": {
             "loading": "Učitavanje podešavanja...",

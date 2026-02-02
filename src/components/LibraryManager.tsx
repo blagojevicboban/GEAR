@@ -143,7 +143,7 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
     }, [showOrphans]);
 
     const handleDeleteOrphan = async (name: string) => {
-        if (!confirm(`Are you sure you want to delete orphan "${name}"? This cannot be undone.`)) return;
+        if (!confirm(t('admin.library.orphans.confirm_delete', { name }))) return;
         try {
             const token = localStorage.getItem('token');
             const res = await fetch(`/api/admin/orphans/${encodeURIComponent(name)}`, {
@@ -156,16 +156,16 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
             if (res.ok) {
                 setOrphans(prev => prev.filter(o => o.name !== name));
             } else {
-                alert('Failed to delete orphan');
+                alert(t('admin.library.orphans.delete_failed'));
             }
         } catch (e) { 
             console.error(e);
-            alert('Error deleting orphan');
+            alert(t('admin.library.orphans.delete_failed'));
         }
     };
 
     const handleDeleteAllOrphans = async () => {
-        if (!confirm('Are you sure you want to delete ALL orphan files? This operation is permanent and cannot be undone!')) return;
+        if (!confirm(t('admin.library.orphans.confirm_delete_all'))) return;
         
         setLoadingOrphans(true);
         try {
@@ -179,14 +179,14 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
             });
             if (res.ok) {
                 const data = await res.json();
-                alert(`Successfully deleted ${data.count} orphans.`);
+                alert(t('admin.library.orphans.delete_all_success', { count: data.count }));
                 setOrphans([]);
             } else {
-                alert('Failed to delete orphans');
+                alert(t('admin.library.orphans.delete_failed'));
             }
         } catch (e) {
             console.error(e);
-            alert('Error deleting orphans');
+            alert(t('admin.library.orphans.delete_failed'));
         } finally {
             setLoadingOrphans(false);
         }
@@ -387,24 +387,24 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                     className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-4"
                 >
                     <AlertTriangle className="w-5 h-5" />
-                    <span className="font-bold text-lg">Orphaned Files & Folders</span>
-                    <span className="text-xs bg-slate-800 px-2 py-0.5 rounded text-slate-500">Maintenance</span>
+                    <span className="font-bold text-lg">{t('admin.library.orphans.button')}</span>
+                    <span className="text-xs bg-slate-800 px-2 py-0.5 rounded text-slate-500">{t('admin.library.orphans.label')}</span>
                 </button>
 
                 {showOrphans && (
                     <div className="bg-slate-950/30 rounded-xl border border-slate-800/50 p-6">
                         <div className="flex justify-between items-center mb-4">
                             <p className="text-sm text-slate-400 max-w-2xl">
-                                These files/folders are present in the uploads directory but are <strong>not referenced in the database</strong>. 
-                                They are likely leftovers from deleted models or failed uploads. 
+                                <span dangerouslySetInnerHTML={{ __html: t('admin.library.orphans.description') }} />
                                 <br />
-                                <span className="text-amber-500/80">Warning: Deletion is permanent.</span>
+                                <span className="text-amber-500/80">{t('admin.library.orphans.warning')}</span>
                             </p>
+                            <div className="flex items-center">
                             <button 
                                 onClick={loadOrphans}
                                 disabled={loadingOrphans}
                                 className="p-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors mr-2"
-                                title="Refresh List"
+                                title={t('admin.library.orphans.refresh_tooltip')}
                             >
                                 <RefreshCw className={`w-4 h-4 ${loadingOrphans ? 'animate-spin' : ''}`} />
                             </button>
@@ -413,30 +413,31 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                                     onClick={handleDeleteAllOrphans}
                                     disabled={loadingOrphans}
                                     className="px-3 py-2 bg-red-900/20 text-red-400 border border-red-900/50 rounded-lg hover:bg-red-900/40 transition-colors flex items-center gap-2 text-sm"
-                                    title="Delete All Orphans"
+                                    title={t('admin.library.orphans.delete_all')}
                                 >
                                     <Trash2 className="w-4 h-4" />
-                                    Delete All
+                                    {t('admin.library.orphans.delete_all')}
                                 </button>
                             )}
+                            </div>
                         </div>
 
                         {loadingOrphans ? (
-                            <div className="text-center py-8 text-slate-500">Scanning uploads directory...</div>
+                            <div className="text-center py-8 text-slate-500">{t('admin.library.orphans.scan_progress')}</div>
                         ) : orphans.length === 0 ? (
                             <div className="text-center py-8 text-green-500/50 flex flex-col items-center gap-2">
                                 <Box className="w-8 h-8" />
-                                <span>No orphans found. Your storage is clean! ✨</span>
+                                <span>{t('admin.library.orphans.empty')}</span>
                             </div>
                         ) : (
                             <div className="overflow-x-auto rounded-lg border border-slate-800">
                                 <table className="w-full text-left text-sm">
                                     <thead className="bg-slate-900 text-slate-400">
                                         <tr>
-                                            <th className="p-3 font-medium">Type</th>
-                                            <th className="p-3 font-medium">Name</th>
-                                            <th className="p-3 font-medium text-right">Size</th>
-                                            <th className="p-3 font-medium text-right">Action</th>
+                                            <th className="p-3 font-medium">{t('admin.library.orphans.headers.type')}</th>
+                                            <th className="p-3 font-medium">{t('admin.library.orphans.headers.name')}</th>
+                                            <th className="p-3 font-medium text-right">{t('admin.library.orphans.headers.size')}</th>
+                                            <th className="p-3 font-medium text-right">{t('admin.library.orphans.headers.action')}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-800">
@@ -453,7 +454,7 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                                                         className="text-red-400 hover:text-red-300 hover:underline flex items-center justify-end gap-1 ml-auto"
                                                     >
                                                         <Trash2 className="w-3 h-3" />
-                                                        Delete
+                                                        {t('common.delete')}
                                                     </button>
                                                 </td>
                                             </tr>

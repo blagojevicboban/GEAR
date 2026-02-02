@@ -96,18 +96,33 @@ export const deleteFile = (relativePath) => {
     const fullPath = path.join(uploadDir, relativePath);
     const pathParts = relativePath.split('/');
     let pathToDelete = fullPath;
+    let isProtected = false;
+
+    // Protected folders that should NEVER be deleted recursively
+    const PROTECTED_FOLDERS = ['profile_pictures'];
 
     if (pathParts.length > 1) {
-        const extractedFolderName = pathParts[0];
-        pathToDelete = path.join(uploadDir, extractedFolderName);
+        const topFolder = pathParts[0];
+        if (PROTECTED_FOLDERS.includes(topFolder)) {
+            // It's a protected folder, only delete the file itself
+            pathToDelete = fullPath;
+            isProtected = true;
+        } else {
+            // It's a standard model/lesson folder, delete the whole folder
+            pathToDelete = path.join(uploadDir, topFolder);
+        }
     }
 
     if (fs.existsSync(pathToDelete)) {
         try {
             const stats = fs.statSync(pathToDelete);
             if (stats.isDirectory()) {
-                fs.rmSync(pathToDelete, { recursive: true, force: true });
-                console.log(`Deleted directory: ${pathToDelete}`);
+                if (isProtected) {
+                    console.warn(`Skiping deletion of protected directory: ${pathToDelete}`);
+                } else {
+                    fs.rmSync(pathToDelete, { recursive: true, force: true });
+                    console.log(`Deleted directory: ${pathToDelete}`);
+                }
             } else {
                 fs.unlinkSync(pathToDelete);
                 console.log(`Deleted file: ${pathToDelete}`);

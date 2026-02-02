@@ -222,6 +222,16 @@ export const deleteLesson = async (req, res) => {
                 .json({ error: 'You can only delete your own lessons' });
         }
 
+        // Delete Lesson Files
+        const [lessonRows] = await pool.query('SELECT image_url FROM lessons WHERE id = ?', [id]);
+        if (lessonRows.length > 0 && lessonRows[0].image_url) {
+             const imgUrl = lessonRows[0].image_url;
+             if (imgUrl.startsWith('/api/uploads/')) {
+                 // This should delete the lesson folder because it's not protected
+                 fileService.deleteFile(imgUrl.replace('/api/uploads/', ''));
+             }
+        }
+
         await pool.query('DELETE FROM lessons WHERE id = ?', [id]); // Cascades to steps
         res.json({ success: true });
     } catch (err) {

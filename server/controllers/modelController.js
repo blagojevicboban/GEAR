@@ -225,9 +225,14 @@ export const deleteModel = async (req, res) => {
             [id]
         );
         if (rows.length > 0) {
-            const fileUrl = rows[0].modelUrl;
-            if (fileUrl && fileUrl.startsWith('/api/uploads/')) {
-                fileService.deleteFile(fileUrl.replace('/api/uploads/', ''));
+            const model = rows[0];
+            // Delete Model File (and its folder if applicable)
+            if (model.modelUrl && model.modelUrl.startsWith('/api/uploads/')) {
+                fileService.deleteFile(model.modelUrl.replace('/api/uploads/', ''));
+            }
+            // Delete Thumbnail (if it's in a different folder, it might clean that up too)
+            if (model.thumbnailUrl && model.thumbnailUrl.startsWith('/api/uploads/')) {
+                fileService.deleteFile(model.thumbnailUrl.replace('/api/uploads/', ''));
             }
         }
 

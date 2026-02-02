@@ -101,6 +101,15 @@ The platform has undergone a significant technical overhaul to ensure enterprise
 - **0-Error Policy**: The codebase now passes `npx tsc` with zero types errors, significantly reducing runtime regressions.
 - **Dependency Hardening**: Comprehensive type definitions for all core libraries (React, Three.js, etc.).
 
+## 🧹 File Management & Maintenance (New in v2.1)
+
+A complete overhaul of how files are stored and managed ensures long-term stability:
+
+- **Smart Folder Structure**: Files are now automatically organized into dedicated folders (`models/NAME_HASH`, `lessons/ID_HASH`, `profile_pictures/`).
+- **Orphan Detection**: Admin dashboard now includes a scanner that identifies files in storage that are not referenced in the database.
+- **Safe Deletion**: Deleting a Model, Lesson, or User automatically performs a cascading delete of all associated files (images, GLB files, thumbnails) while protecting shared resources.
+- **Bulk Cleanup**: Tools to automatically remove all orphaned files with a single click.
+
 ## 🤖 AI & Analytics (New in v1.9)
 
 ### AI Lesson Generator

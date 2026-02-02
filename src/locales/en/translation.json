@@ -214,7 +214,8 @@
                     "AI Tweaks: Select models (Flash/Pro) and set generation creativity.",
                     "Model Management: Clone and edit models directly from the library list.",
                     "Security: Control public registration and file upload limits.",
-                    "Backups: Three-tier backup system (JSON, SQL, System ZIP)."
+                    "Backups: Three-tier backup system (JSON, SQL, System ZIP).",
+                    "File Maintenance: Clean up orphaned files and optimize storage."
                 ]
             },
             "builder": {
@@ -553,7 +554,28 @@
             },
             "confirm_clone": "Clone {{name}}?",
             "empty": "No 3D models found.",
-            "confirm_delete": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
+            "confirm_delete": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+            "orphans": {
+                "button": "Orphaned Files & Folders",
+                "label": "Maintenance",
+                "description": "These files/folders are present in the uploads directory but are <strong>not referenced in the database</strong>. They are likely leftovers from deleted models or failed uploads.",
+                "warning": "Warning: Deletion is permanent.",
+                "refresh_tooltip": "Refresh List",
+                "scan_progress": "Scanning uploads directory...",
+                "empty": "No orphans found. Your storage is clean! ✨",
+                "delete_all": "Delete All",
+                "confirm_delete": "Are you sure you want to delete orphan \"{{name}}\"? This cannot be undone.",
+                "confirm_delete_all": "Are you sure you want to delete ALL orphan files? This operation is permanent and cannot be undone!",
+                "delete_success": "Successfully deleted orphan.",
+                "delete_all_success": "Successfully deleted {{count}} orphans.",
+                "delete_flailed": "Failed to delete orphan",
+                "headers": {
+                    "type": "Type",
+                    "name": "Name",
+                    "size": "Size",
+                    "action": "Action"
+                }
+            }
         },
         "users": {
             "loading": "Loading users...",

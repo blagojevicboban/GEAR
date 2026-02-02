@@ -628,6 +628,14 @@
                 "upload_failed": "Image upload failed",
                 "update_failed": "Failed to update profile"
             }
+        },
+        "password": {
+            "title": "Change Password",
+            "current": "Current Password",
+            "new": "New Password",
+            "confirm": "Confirm New Password",
+            "success": "Password changed successfully!",
+            "error_mismatch": "New passwords do not match"
         }
     },
     "workshop": {

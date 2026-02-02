@@ -26,6 +26,13 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
         language: user.language || 'en',
     });
 
+    const [passwordData, setPasswordData] = useState({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+    });
+    const [showPasswordSection, setShowPasswordSection] = useState(false);
+
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,10 +90,32 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                 throw new Error(t('profile.form.errors.update_failed'));
             const updatedUser = await res.json();
 
+            // Change Password if requested
+            if (showPasswordSection && passwordData.currentPassword) {
+                if (passwordData.newPassword !== passwordData.confirmPassword) {
+                    throw new Error(t('profile.password.error_mismatch'));
+                }
+
+                const pwdRes = await fetch(`/api/users/${user.id}/password`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        currentPassword: passwordData.currentPassword,
+                        newPassword: passwordData.newPassword,
+                    }),
+                });
+
+                if (!pwdRes.ok) {
+                    const pwdErr = await pwdRes.json();
+                    throw new Error(pwdErr.error || 'Password update failed');
+                }
+            }
+
             onUpdateSuccess({
                 ...user,
                 ...updatedUser,
             });
+            alert(t('profile.form.errors.update_failed').replace('Failed', 'Success').replace('to update profile', 'Profile Updated')); // Quick hack for success msg, or rely on parent
         } catch (err: any) {
             console.error(err);
             alert(err.message || t('profile.form.errors.update_failed'));
@@ -269,6 +298,84 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                                 }
                                 placeholder={t('profile.form.bio_placeholder')}
                             />
+                        </div>
+
+                        <div className="border-t border-slate-800 pt-6">
+                            <button
+                                type="button"
+                                onClick={() => setShowPasswordSection(!showPasswordSection)}
+                                className="text-indigo-400 text-sm font-bold hover:text-indigo-300 flex items-center gap-2"
+                            >
+                                <svg
+                                    className={`w-4 h-4 transition-transform ${showPasswordSection ? 'rotate-180' : ''}`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M19 9l-7 7-7-7"
+                                    />
+                                </svg>
+                                {t('profile.password.title')}
+                            </button>
+
+                            {showPasswordSection && (
+                                <div className="mt-4 space-y-4 bg-slate-950/50 p-6 rounded-xl border border-slate-800">
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">
+                                            {t('profile.password.current')}
+                                        </label>
+                                        <input
+                                            type="password"
+                                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-white"
+                                            value={passwordData.currentPassword}
+                                            onChange={(e) =>
+                                                setPasswordData({
+                                                    ...passwordData,
+                                                    currentPassword: e.target.value,
+                                                })
+                                            }
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">
+                                                {t('profile.password.new')}
+                                            </label>
+                                            <input
+                                                type="password"
+                                                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-white"
+                                                value={passwordData.newPassword}
+                                                onChange={(e) =>
+                                                    setPasswordData({
+                                                        ...passwordData,
+                                                        newPassword: e.target.value,
+                                                    })
+                                                }
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">
+                                                {t('profile.password.confirm')}
+                                            </label>
+                                            <input
+                                                type="password"
+                                                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-white"
+                                                value={passwordData.confirmPassword}
+                                                onChange={(e) =>
+                                                    setPasswordData({
+                                                        ...passwordData,
+                                                        confirmPassword: e.target.value,
+                                                    })
+                                                }
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <div className="flex gap-4 pt-4 border-t border-slate-800">

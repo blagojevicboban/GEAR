@@ -8,6 +8,7 @@ router.get('/', userController.getAllUsers); // Admin list
 router.get('/public/:username', userController.getPublicProfile);
 router.put('/:id', userController.updateUser); // Admin update role
 router.put('/:id/profile', userController.updateProfile); // Self update
+router.put('/:id/password', userController.changePassword); // Change password
 router.delete('/:id', userController.deleteUser); // Admin delete
 
 export default router;

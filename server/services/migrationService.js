@@ -180,6 +180,15 @@ export const runMigrations = async () => {
                     }
                 }
             });
+        
+        await pool
+            .query("SELECT language FROM users LIMIT 1")
+            .catch(async () => {
+                console.log("Migrating DB: Adding language column to users...");
+                await pool.query(
+                    "ALTER TABLE users ADD COLUMN language VARCHAR(10) DEFAULT 'en'"
+                );
+            });
     } catch (e) {
         console.error('Migration check failed:', e);
     }

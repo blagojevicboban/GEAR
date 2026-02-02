@@ -124,6 +124,45 @@ export const updateProfile = async (req, res) => {
     }
 };
 
+export const changePassword = async (req, res) => {
+    const { id } = req.params;
+    const { currentPassword, newPassword } = req.body;
+
+    try {
+        // 1. Get user by ID (need password hash)
+        const [users] = await pool.query(
+            'SELECT password FROM users WHERE id = ?',
+            [id]
+        );
+
+        if (users.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const user = users[0];
+
+        // 2. Verify current password
+        const valid = await bcrypt.compare(currentPassword, user.password);
+        if (!valid) {
+            return res.status(401).json({ error: 'Incorrect current password' });
+        }
+
+        // 3. Hash new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // 4. Update password
+        await pool.query('UPDATE users SET password = ? WHERE id = ?', [
+            hashedPassword,
+            id,
+        ]);
+
+        res.json({ success: true, message: 'Password updated successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to update password' });
+    }
+};
+
 export const deleteUser = async (req, res) => {
     const { id } = req.params;
     const requestor = req.headers['x-user-name'];

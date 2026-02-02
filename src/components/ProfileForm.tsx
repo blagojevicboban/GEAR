@@ -86,8 +86,10 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                 }),
             });
 
-            if (!res.ok)
-                throw new Error(t('profile.form.errors.update_failed'));
+            if (!res.ok) {
+                const errJson = await res.json().catch(() => ({}));
+                throw new Error(errJson.error || t('profile.form.errors.update_failed'));
+            }
             const updatedUser = await res.json();
 
             // Change Password if requested
@@ -115,7 +117,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                 ...user,
                 ...updatedUser,
             });
-            alert(t('profile.form.errors.update_failed').replace('Failed', 'Success').replace('to update profile', 'Profile Updated')); // Quick hack for success msg, or rely on parent
+            alert(t('profile.form.success_update')); 
         } catch (err: any) {
             console.error(err);
             alert(err.message || t('profile.form.errors.update_failed'));

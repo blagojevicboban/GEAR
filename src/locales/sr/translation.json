@@ -77,7 +77,8 @@
         "no_models": "Nisu pronađeni modeli koji odgovaraju vašim kriterijumima.",
         "edit_tooltip": "Izmeni metapodatke modela i hotspots",
         "optimize_tooltip": "Auto-optimizacija uz AI",
-        "delete_tooltip": "Obriši model"
+        "delete_tooltip": "Obriši model",
+        "confirm_delete": "Da li ste sigurni da želite da obrišete \"{{name}}\"? Ova akcija se ne može opozvati."
     },
     "help": {
         "title": "Kako koristiti THE GEAR",
@@ -662,7 +663,8 @@
             "errors": {
                 "upload_failed": "Otpremanje slike nije uspelo",
                 "update_failed": "Ažuriranje profila nije uspelo"
-            }
+            },
+            "success_update": "Profil je uspešno ažuriran!"
         },
         "password": {
             "title": "Promena lozinke",

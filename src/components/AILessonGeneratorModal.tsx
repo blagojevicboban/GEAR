@@ -35,7 +35,7 @@ const AILessonGeneratorModal: React.FC<AILessonGeneratorModalProps> = ({
         setError('');
 
         try {
-            const res = await fetch('/api/ai/generate-lesson', {
+            const res = await fetch('/api/models/ai/generate-lesson', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

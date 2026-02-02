@@ -211,7 +211,15 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            onDeleteModel(model.id);
+                                            if (
+                                                window.confirm(
+                                                    t('gallery.confirm_delete', {
+                                                        name: model.name,
+                                                    })
+                                                )
+                                            ) {
+                                                onDeleteModel(model.id);
+                                            }
                                         }}
                                         className="absolute top-12 right-2 bg-rose-600 p-2 rounded-lg text-white shadow-lg z-10 opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-500"
                                         title={t('gallery.delete_tooltip')}

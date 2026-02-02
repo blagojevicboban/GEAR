@@ -1,6 +1,7 @@
 import pool from '../db.js';
 import * as fileService from '../services/fileService.js';
 import bcrypt from 'bcryptjs';
+import fs from 'fs';
 
 const getUserRole = async (username) => {
     if (!username) return null;
@@ -113,25 +114,55 @@ export const updateProfile = async (req, res) => {
     const { id } = req.params;
     const { username, institution, bio, profilePicUrl } = req.body;
 
+    // Fetch current user first to handle old file deletion later
+    let oldProfilePicUrl = null;
+    try {
+        const [users] = await pool.query('SELECT profilePicUrl FROM users WHERE id = ?', [id]);
+        if (users.length > 0) oldProfilePicUrl = users[0].profilePicUrl;
+    } catch(e) { console.error('Error fetching old user', e); }
+
     try {
         let finalProfilePicUrl = profilePicUrl;
         
         // Consolidate profile picture
-        if (profilePicUrl && profilePicUrl.startsWith('/api/uploads/')) {
-            const profilesDir = '/api/uploads/profile_pictures/';
-            if (!profilePicUrl.startsWith(profilesDir)) {
-                 finalProfilePicUrl = fileService.moveFileToFolder(profilePicUrl, profilesDir);
+        try {
+            if (profilePicUrl && profilePicUrl.startsWith('/api/uploads/')) {
+                const profilesDir = '/api/uploads/profile_pictures/';
+                if (!profilePicUrl.startsWith(profilesDir)) {
+                     finalProfilePicUrl = fileService.moveFileToFolder(profilePicUrl, profilesDir);
+                }
             }
+        } catch (moveErr) {
+             console.error(`Move failed: ${moveErr.message}`);
         }
 
         await pool.query(
             'UPDATE users SET username=?, institution=?, bio=?, profilePicUrl=?, language=? WHERE id=?',
-            [username, institution, bio, finalProfilePicUrl, req.body.language, id]
+            [username, institution, bio, finalProfilePicUrl, req.body.language || 'en', id]
         );
-        res.json({ id, username, institution, bio, profilePicUrl: finalProfilePicUrl, language: req.body.language });
+
+        // Delete old profile picture if it changed and exists
+        // We wrap this in a try-catch so that if cleanup fails, the user update still succeeds
+        try {
+            if (oldProfilePicUrl && oldProfilePicUrl !== finalProfilePicUrl && oldProfilePicUrl.startsWith('/api/uploads/')) {
+                fileService.deleteFile(oldProfilePicUrl.replace('/api/uploads/', ''));
+            }
+        } catch (cleanupErr) {
+            console.error('Failed to clean up old profile picture:', cleanupErr);
+            // Non-critical error, proceed
+        }
+
+        res.json({ 
+            id, 
+            username, 
+            institution, 
+            bio, 
+            profilePicUrl: finalProfilePicUrl, 
+            language: req.body.language || 'en' 
+        });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Failed to update profile' });
+        console.error('Profile update main error:', err);
+        res.status(500).json({ error: 'Failed to update profile: ' + (err.message || err) });
     }
 };
 

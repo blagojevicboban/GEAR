@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Navigate to project root
-cd /home/GEAR
+# Navigate to project root (works dynamically)
+cd "$(dirname "$0")/.."
 
 echo "Starting deployment at $(date)"
 

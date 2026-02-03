@@ -13,6 +13,7 @@ import {
     XCircle,
     HelpCircle,
 } from 'lucide-react';
+import { renderLatexInHtml } from '../utils/latexUtils';
 
 interface LessonViewerProps {
     lessonId: string;
@@ -322,7 +323,9 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
                             <div
                                 className="prose prose-invert prose-sm max-w-none text-slate-300"
                                 dangerouslySetInnerHTML={{
-                                    __html: currentStep.content,
+                                    __html: renderLatexInHtml(
+                                        currentStep.content
+                                    ),
                                 }}
                             />
 

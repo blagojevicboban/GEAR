@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Navigate to project root
-cd /home/gear/public_html
+cd /home/GEAR
 
 echo "Starting deployment at $(date)"
 

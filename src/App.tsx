@@ -335,9 +335,10 @@ const App: React.FC = () => {
                 body: JSON.stringify(updatedModel),
             });
             if (res.ok) {
+                const savedModel = await res.json();
                 setModels((prev) =>
                     prev.map((m) =>
-                        m.id === updatedModel.id ? updatedModel : m
+                        m.id === savedModel.id ? savedModel : m
                     )
                 );
 

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
     Bold,
     Italic,
@@ -10,7 +10,10 @@ import {
     Code,
     Undo,
     Redo,
+    Eye,
+    EyeOff,
 } from 'lucide-react';
+import { renderLatexInHtml } from '../utils/latexUtils';
 
 interface RichTextEditorProps {
     value: string;
@@ -26,21 +29,21 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     onPaste,
 }) => {
     const editorRef = useRef<HTMLDivElement>(null);
+    const [isPreview, setIsPreview] = useState(false);
 
     // Initial render sync
     useEffect(() => {
-        if (editorRef.current && editorRef.current.innerHTML !== value) {
+        if (
+            editorRef.current &&
+            editorRef.current.innerHTML !== value &&
+            !isPreview
+        ) {
             // Only update if significantly different to avoid cursor jumps
-            // But for initial load it's needed. For typing, we rely on onInput.
-            // A simple check: if empty and value exists, or if value is totally different.
-            // Risk: Cursor resets on external update.
-            // Strategy: Only set innerHTML on mount or if value changes externally (not from user typing ideally).
-            // For now, simple implementation: set content if focused is false?
             if (document.activeElement !== editorRef.current) {
                 editorRef.current.innerHTML = value;
             }
         }
-    }, [value]);
+    }, [value, isPreview]);
 
     const handleInput = () => {
         if (editorRef.current) {
@@ -111,19 +114,40 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                     icon={<Code size={16} />}
                     title="Code Block"
                 />
+                <div className="flex-1" />
+                <button
+                    onClick={() => setIsPreview(!isPreview)}
+                    className={`flex items-center gap-2 px-2 py-1 rounded text-xs font-bold transition-colors ${
+                        isPreview
+                            ? 'bg-indigo-600 text-white'
+                            : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    }`}
+                >
+                    {isPreview ? <EyeOff size={14} /> : <Eye size={14} />}
+                    {isPreview ? 'Edit' : 'Preview'}
+                </button>
             </div>
 
             {/* Editable Area */}
-            <div
-                ref={editorRef}
-                className="flex-1 p-4 min-h-[200px] outline-none text-slate-300 prose prose-invert max-w-none text-sm overflow-y-auto"
-                contentEditable
-                onInput={handleInput}
-                onPaste={onPaste}
-                role="textbox"
-                aria-multiline="true"
-                data-placeholder={placeholder}
-            />
+            {isPreview ? (
+                <div
+                    className="flex-1 p-4 min-h-[200px] text-slate-300 prose prose-invert max-w-none text-sm overflow-y-auto"
+                    dangerouslySetInnerHTML={{
+                        __html: renderLatexInHtml(value),
+                    }}
+                />
+            ) : (
+                <div
+                    ref={editorRef}
+                    className="flex-1 p-4 min-h-[200px] outline-none text-slate-300 prose prose-invert max-w-none text-sm overflow-y-auto"
+                    contentEditable
+                    onInput={handleInput}
+                    onPaste={onPaste}
+                    role="textbox"
+                    aria-multiline="true"
+                    data-placeholder={placeholder}
+                />
+            )}
             <style>{`
                 [contentEditable]:empty:before {
                     content: attr(data-placeholder);

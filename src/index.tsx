@@ -1,5 +1,6 @@
 import React from 'react';
 import './index.css';
+import 'katex/dist/katex.min.css';
 import { createRoot } from 'react-dom/client';
 import './i18n'; // Initialize i18n
 import App from './App';

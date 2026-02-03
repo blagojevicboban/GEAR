@@ -375,13 +375,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                             rows={2}
                             placeholder={t('builder.short_description')}
                         />
-                        <textarea
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            className="w-full bg-slate-900 rounded p-2 text-xs text-slate-400 resize-none outline-none focus:ring-1 focus:ring-slate-700"
-                            rows={2}
-                            placeholder={t('builder.short_description')}
-                        />
+
 
                         {/* Sector & Image Controls */}
                         <div className="grid grid-cols-2 gap-2">

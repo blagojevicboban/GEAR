@@ -13,6 +13,15 @@ import pool from './db.js';
 
 // Routes
 import authRoutes from './routes/auth.js';
+
+console.log('---------------------------------------------------');
+console.log('SERVER STARTING - DEBUG MODE');
+console.log('DB Config:', {
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    db: process.env.DB_NAME
+});
+console.log('---------------------------------------------------');
 import userRoutes from './routes/users.js';
 import modelRoutes from './routes/models.js';
 import uploadRoutes from './routes/uploads.js';

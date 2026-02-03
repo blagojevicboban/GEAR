@@ -57,7 +57,7 @@ export default defineConfig(({ mode }) => {
                         {
                             urlPattern:
                                 /^\/api\/(models|lessons|sectors|workshops\/active)/,
-                            handler: 'StaleWhileRevalidate',
+                            handler: 'NetworkFirst',
                             options: {
                                 cacheName: 'api-cache',
                                 expiration: {

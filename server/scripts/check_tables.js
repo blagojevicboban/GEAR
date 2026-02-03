@@ -37,6 +37,14 @@ async function check() {
         const [sectors] = await conn.query('DESCRIBE sectors');
         console.table(sectors);
 
+        console.log('\n--- Hotspots Table ---');
+        const [hotspots] = await conn.query('DESCRIBE hotspots');
+        console.table(hotspots);
+
+        console.log('\n--- Models Table ---');
+        const [models] = await conn.query('DESCRIBE models');
+        console.table(models);
+
         await conn.end();
     } catch (e) {
         console.error('DB Error:', e);

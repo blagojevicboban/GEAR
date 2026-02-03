@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppView, VETModel, User, TourStep, Lesson } from './types';
-import { INITIAL_MODELS } from './constants';
 import Navbar from './components/Navbar';
 import Dashboard from './components/Dashboard';
 import ModelGallery from './components/ModelGallery';
@@ -30,7 +29,7 @@ const App: React.FC = () => {
     const { t } = useTranslation();
     const { config } = useConfig();
     const [currentView, setCurrentView] = useState<AppView>('home');
-    const [models, setModels] = useState<VETModel[]>(INITIAL_MODELS); // Initialize with constants
+    const [models, setModels] = useState<VETModel[]>([]); 
     const [selectedModel, setSelectedModel] = useState<VETModel | null>(null);
     const [modelToEdit, setModelToEdit] = useState<VETModel | null>(null);
     const [isWorkshopMode, setIsWorkshopMode] = useState(false);
@@ -167,13 +166,7 @@ const App: React.FC = () => {
         fetch('/api/models')
             .then((res) => res.json())
             .then((data) => {
-                // Merge API models with INITIAL_MODELS (dev/test models)
-                // Avoid duplicates if IDs collide (API takes precedence)
-                const apiIds = new Set(data.map((m: VETModel) => m.id));
-                const filteredInitial = INITIAL_MODELS.filter(
-                    (m) => !apiIds.has(m.id)
-                );
-                setModels([...filteredInitial, ...data]);
+                setModels(data);
             })
             .catch((err) => console.error('Failed to fetch models', err));
 

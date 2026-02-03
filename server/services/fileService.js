@@ -332,3 +332,14 @@ export const consolidateLessonFiles = (lessonId, title, imageUrl, steps) => {
 
     return { imageUrl: newImageUrl, steps: newSteps };
 };
+
+export const checkFileExists = (fileUrl) => {
+    if (!fileUrl) return false;
+    if (fileUrl.startsWith('http')) return true; // Remote files are assumed to exist
+    if (!fileUrl.startsWith('/api/uploads/')) return false;
+    
+    const relativePath = fileUrl.replace('/api/uploads/', '').split('#')[0];
+    const fullPath = path.join(uploadDir, decodeURIComponent(relativePath));
+    
+    return fs.existsSync(fullPath);
+};

@@ -287,6 +287,12 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                                         <div className="font-bold text-white">{model.name}</div>
                                         <div className="text-xs text-slate-500 font-mono truncate max-w-[150px]" title={model.modelUrl}>
                                             {model.modelUrl.split('/api/uploads/')[1]?.split('/')[0] || 'root'}
+                                            {model.missingFile && (
+                                                <span className="ml-2 text-red-500 font-bold flex items-center gap-1">
+                                                    <AlertTriangle className="w-3 h-3" />
+                                                    MISSING FILE
+                                                </span>
+                                            )}
                                         </div>
                                     </td>
                                     <td className="p-4">

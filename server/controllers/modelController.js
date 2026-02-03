@@ -21,19 +21,35 @@ export const getModels = async (req, res) => {
         `);
         const [hotspots] = await pool.query('SELECT * FROM hotspots');
 
-        const modelsWithHotspots = models.map((model) => ({
-            ...model,
-            optimized: !!model.optimized,
-            hotspots: hotspots
-                .filter((h) => h.model_id === model.id)
-                .map((h) => ({
-                    ...h,
-                    position:
-                        typeof h.position === 'string'
-                            ? JSON.parse(h.position)
-                            : h.position,
-                })),
-        }));
+        const modelsWithHotspots = models.map((model) => {
+            let missingFile = false;
+            // Check if model file exists
+            if (model.modelUrl) {
+                // We need to fix URL first if it's missing /api/ prefix, similar to urlUtils but server-side
+                let urlToCheck = model.modelUrl;
+                if (urlToCheck.startsWith('/uploads/')) urlToCheck = '/api' + urlToCheck;
+                else if (!urlToCheck.startsWith('/api/') && !urlToCheck.startsWith('http')) urlToCheck = '/api/uploads/' + urlToCheck;
+
+                if (!fileService.checkFileExists(urlToCheck)) {
+                    missingFile = true;
+                }
+            }
+            
+            return {
+                ...model,
+                optimized: !!model.optimized,
+                missingFile,
+                hotspots: hotspots
+                    .filter((h) => h.model_id === model.id)
+                    .map((h) => ({
+                        ...h,
+                        position:
+                            typeof h.position === 'string'
+                                ? JSON.parse(h.position)
+                                : h.position,
+                    })),
+            };
+        });
 
         res.json(modelsWithHotspots);
     } catch (err) {
@@ -124,20 +140,38 @@ export const updateModel = async (req, res) => {
             return res.status(401).json({ error: 'Unauthorized' });
         }
 
-        if (role !== 'admin') {
-            const [existing] = await pool.query(
-                'SELECT uploadedBy FROM models WHERE id = ?',
-                [id]
-            );
-            if (existing.length === 0)
-                return res.status(404).json({ error: 'Model not found' });
+        // Always check if model exists first
+        const [existing] = await pool.query(
+            'SELECT uploadedBy FROM models WHERE id = ?',
+            [id]
+        );
 
+        if (existing.length === 0) {
+            return res.status(404).json({ error: 'Model not found' });
+        }
+
+        if (role !== 'admin') {
             if (existing[0].uploadedBy !== requestor) {
                 return res.status(403).json({
                     error: 'Forbidden: You can only edit your own models',
                 });
             }
             model.uploadedBy = requestor;
+        }
+
+        // Auto-create sector if it doesn't exist (fixes FK issues on update)
+        if (model.sector) {
+            const [sectors] = await pool.query(
+                'SELECT id FROM sectors WHERE id = ?',
+                [model.sector]
+            );
+            if (sectors.length === 0) {
+                console.log(`[UpdateModel] Auto-creating new sector: ${model.sector}`);
+                await pool.query(
+                    'INSERT INTO sectors (id, name, description) VALUES (?, ?, ?)',
+                    [model.sector, model.sector, 'Custom User Sector']
+                );
+            }
         }
 
         await pool.query(

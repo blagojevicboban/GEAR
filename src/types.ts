@@ -43,6 +43,7 @@ export interface VETModel {
     hotspots: Hotspot[];
     isFeatured?: boolean;
     uploaderProfilePic?: string; // from join
+    missingFile?: boolean;
 }
 
 export interface User {

@@ -16,20 +16,54 @@ export const extractZip = async (filePath, originalName) => {
     try {
         const AdmZip = (await import('adm-zip')).default;
         const zip = new AdmZip(filePath);
-        // Original logic used req.file.filename (without extension) for folder name.
-        // We'll assume the caller passes unique name or we derive it.
-        const baseName = path.basename(filePath, '.zip');
-        const extractDir = path.join(uploadDir, baseName + '_extracted');
+        
+        // Extract to the same directory where the ZIP is located (already unique from Multer)
+        const extractDir = path.dirname(filePath);
 
         // Extract all
         zip.extractAllTo(extractDir, true);
         console.log(`Extracted ZIP to: ${extractDir}`);
+
+        // Flatten logic: if the ZIP contained a single folder, move its contents up
+        // First, get list of items in extractDir excluding the ZIP file itself
+        const zipFileName = path.basename(filePath);
+        const items = fs.readdirSync(extractDir).filter(item => item !== zipFileName);
+        
+        if (items.length === 1) {
+            const singleItemPath = path.join(extractDir, items[0]);
+            if (fs.statSync(singleItemPath).isDirectory()) {
+                console.log(`Found single directory "${items[0]}" in ZIP, flattening...`);
+                const subItems = fs.readdirSync(singleItemPath);
+                subItems.forEach(subItem => {
+                    const oldPath = path.join(singleItemPath, subItem);
+                    const newPath = path.join(extractDir, subItem);
+                    // Handle potential conflicts (though unlikely in a fresh extract)
+                    if (fs.existsSync(newPath)) {
+                        if (fs.statSync(newPath).isDirectory()) {
+                            // If it's a directory, we might need recursive merge, but for CAD/3D usually simple is fine
+                            // For simplicity, we just rename with timestamp if conflict
+                            const conflictPath = path.join(extractDir, `${subItem}_${Date.now()}`);
+                            fs.renameSync(oldPath, conflictPath);
+                        } else {
+                            fs.renameSync(oldPath, newPath);
+                        }
+                    } else {
+                        fs.renameSync(oldPath, newPath);
+                    }
+                });
+                // Remove the now empty subdirectory
+                fs.rmdirSync(singleItemPath);
+            }
+        }
 
         const getFiles = (dir) => {
             let results = [];
             const list = fs.readdirSync(dir);
             list.forEach((file) => {
                 const fullPath = path.join(dir, file);
+                // Skip the original ZIP file
+                if (file === zipFileName) return;
+
                 const stat = fs.statSync(fullPath);
                 if (stat && stat.isDirectory()) {
                     results = results.concat(getFiles(fullPath));
@@ -48,12 +82,15 @@ export const extractZip = async (filePath, originalName) => {
             '.catproduct',
             '.iam',
             '.asm',
+            '.gltf',
+            '.glb',
         ];
         const candidates = allFiles.filter((f) =>
             extensions.includes(path.extname(f).toLowerCase())
         );
 
         let mainFile;
+        // Priority: files in the "root" of extraction
         const rootFiles = candidates.filter(
             (f) => path.dirname(f) === extractDir
         );
@@ -71,7 +108,7 @@ export const extractZip = async (filePath, originalName) => {
         // Fallback to parts
         if (!mainFile) {
             const parts = allFiles.filter((f) =>
-                ['.sldprt', '.ipt', '.prt', '.catpart'].includes(
+                ['.sldprt', '.ipt', '.prt', '.catpart', '.stl', '.obj'].includes(
                     path.extname(f).toLowerCase()
                 )
             );
@@ -80,7 +117,8 @@ export const extractZip = async (filePath, originalName) => {
 
         if (mainFile) {
             const relativePath = path.relative(uploadDir, mainFile);
-            const newFileUrl = `/api/uploads/${relativePath}`;
+            // Ensure forward slashes for URL
+            const newFileUrl = `/api/uploads/${relativePath.split(path.sep).join('/')}`;
             return { url: newFileUrl, isAssembly: true };
         }
 

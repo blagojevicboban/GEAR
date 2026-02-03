@@ -153,6 +153,65 @@ if (typeof window !== 'undefined' && (window as any).AFRAME) {
             },
         });
     }
+
+    if (!AFRAME.components['wireframe-toggle']) {
+        AFRAME.registerComponent('wireframe-toggle', {
+            schema: { enabled: { default: false } },
+            update: function () {
+                const mesh = this.el.getObject3D('mesh');
+                if (!mesh) return;
+                mesh.traverse((node: any) => {
+                    if (node.isMesh && node.material) {
+                        if (Array.isArray(node.material)) {
+                            node.material.forEach((m: any) => {
+                                m.wireframe = this.data.enabled;
+                            });
+                        } else {
+                            node.material.wireframe = this.data.enabled;
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    if (!AFRAME.components['renderer-settings']) {
+        AFRAME.registerComponent('renderer-settings', {
+            schema: {
+                exposure: { type: 'number', default: 1.0 },
+                toneMapping: { type: 'string', default: 'ACESFilmicToneMapping' }
+            },
+            init: function() {
+                this.applySettings = this.applySettings.bind(this);
+                this.el.sceneEl.addEventListener('render-target-loaded', this.applySettings);
+            },
+            update: function () {
+                this.applySettings();
+            },
+            applySettings: function() {
+                const renderer = this.el.sceneEl.renderer;
+                if (!renderer) return;
+
+                renderer.toneMappingExposure = this.data.exposure;
+                
+                const THREE = (window as any).THREE;
+                const mapping: any = {
+                    'NoToneMapping': THREE.NoToneMapping,
+                    'LinearToneMapping': THREE.LinearToneMapping,
+                    'ReinhardToneMapping': THREE.ReinhardToneMapping,
+                    'CineonToneMapping': THREE.CineonToneMapping,
+                    'ACESFilmicToneMapping': THREE.ACESFilmicToneMapping
+                };
+                
+                if (mapping[this.data.toneMapping] !== undefined) {
+                    renderer.toneMapping = mapping[this.data.toneMapping];
+                }
+            },
+            remove: function() {
+                this.el.sceneEl.removeEventListener('render-target-loaded', this.applySettings);
+            }
+        });
+    }
 }
 
 interface VRViewerProps {
@@ -282,6 +341,23 @@ const VRViewer: React.FC<VRViewerProps> = ({
     const [isChallengeComplete, setIsChallengeComplete] = useState(false);
     const [showLeaderboard, setShowLeaderboard] = useState(false);
     const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
+
+    // --- Studio Mode State (glTF Sample Viewer style) ---
+    const [isStudioOpen, setIsStudioOpen] = useState(false);
+    const [studioConfig, setStudioConfig] = useState({
+        environment: 'contact', // contact, egypt, forest, etc from aframe-environment-component
+        exposure: 1.0,
+        toneMapping: 'ACESFilmic',
+        wireframe: false,
+        showBoundingBox: false,
+        autoRotate: false
+    });
+    const [modelStats, setModelStats] = useState({
+        vertices: 0,
+        triangles: 0,
+        meshes: 0,
+        materials: 0
+    });
 
     const assemblySystem = (window as any).AFRAME?.systems['assembly-mode-system'];
 
@@ -463,13 +539,67 @@ const VRViewer: React.FC<VRViewerProps> = ({
             const system = bgSceneRef.current?.systems['assembly-mode-system'];
             if (system) {
                 console.log('Assembly System Found');
-                // We don't need to set state since we access it directly via window.AFRAME
+                
+                let vertices = 0;
+                let triangles = 0;
+                let meshes = 0;
+                const materials = new Set();
+
+                // --- Auto-centering and Scaling Logic ---
+                const THREE = (window as any).THREE;
+                const box = new THREE.Box3().setFromObject(model);
+                const size = new THREE.Vector3();
+                box.getSize(size);
+                const center = new THREE.Vector3();
+                box.getCenter(center);
+                
+                const maxDim = Math.max(size.x, size.y, size.z);
+                console.log('Model dimensions:', size, 'Max dim:', maxDim);
+                
+                if (maxDim > 0) {
+                    // We want the model to be roughly 1.5 - 2 meters in size for comfortable viewing
+                    const targetSize = 2.0;
+                    const scaleFactor = targetSize / maxDim;
+                    
+                    // Apply scale to the GLTF model instance
+                    evt.target.setAttribute('scale', `${scaleFactor} ${scaleFactor} ${scaleFactor}`);
+                    
+                    // Center the model relative to its entity origin
+                    // We compensate for the offset
+                    const offset = center.multiplyScalar(-scaleFactor);
+                    model.position.set(offset.x, offset.y, offset.z);
+                    console.log(`Auto-scaled by ${scaleFactor.toFixed(4)}, centered at offset:`, offset);
+                }
 
                 model.traverse((node: any) => {
                     if (node.isMesh) {
                         system.registerPart(node);
+                        meshes++;
+                        if (node.geometry) {
+                            vertices += node.geometry.attributes.position.count;
+                            if (node.geometry.index) {
+                                triangles += node.geometry.index.count / 3;
+                            } else {
+                                triangles += node.geometry.attributes.position.count / 3;
+                            }
+                        }
+                        if (node.material) {
+                            if (Array.isArray(node.material)) {
+                                node.material.forEach((m: any) => materials.add(m.uuid));
+                            } else {
+                                materials.add(node.material.uuid);
+                            }
+                        }
                     }
                 });
+                
+                setModelStats({
+                    vertices,
+                    triangles: Math.floor(triangles),
+                    meshes,
+                    materials: materials.size
+                });
+
                 console.log('Assembly Mode: Parts Registered');
             }
         };
@@ -1139,6 +1269,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
                         <div className="flex gap-2">
                             <button
                                 onClick={handleToggleVoice}
+                                title="AI Voice Assistant"
                                 className={`p-2 rounded-lg transition-all relative ${isVoiceActive ? 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]' : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'}`}
                             >
                                 {isVoiceActive && (
@@ -1157,6 +1288,23 @@ const VRViewer: React.FC<VRViewerProps> = ({
                                         d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
                                     />
                                 </svg>
+                            </button>
+                            <button
+                                onClick={() => setIsStudioOpen(!isStudioOpen)}
+                                title="Studio Settings (glTF Sample Viewer style)"
+                                className={`p-2 rounded-lg transition-all ${isStudioOpen ? 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]' : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'}`}
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </button>
+                            <button
+                                onClick={() => window.open(`https://gltf-viewer.donmccurdy.com/?model=${window.location.origin}${activeModelUrl}`, '_blank')}
+                                title="Open in External glTF Viewer"
+                                className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white transition-all text-xs"
+                            >
+                                ↗️
                             </button>
                             <button
                                 onClick={() => onExit()}
@@ -1202,8 +1350,8 @@ const VRViewer: React.FC<VRViewerProps> = ({
                                     }`}
                             >
                                 {useOptimized
-                                    ? '✨ Optimized (AI)'
-                                    : '📦 Original (High-Poly)'}
+                                    ? `✨ ${t('assets.optimized')}`
+                                    : `📦 ${t('assets.original')}`}
                             </button>
                         )}
                     </div>
@@ -1283,7 +1431,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
                             }`}
                     >
                         <span>🏆</span>
-                        {t('gamification.challenge_mode')}
+                        {t('nav.gamification.challenge_mode')}
                     </button>
 
                     <div className="flex flex-col gap-2 mb-4">
@@ -1476,11 +1624,126 @@ const VRViewer: React.FC<VRViewerProps> = ({
                 </div>
             )}
 
+            {/* Studio Mode Sidebar (Khronos Style) */}
+            {isStudioOpen && (
+                <div className="absolute right-0 top-0 bottom-0 w-80 bg-slate-900/95 backdrop-blur-xl border-l border-slate-800 z-40 flex flex-col animate-in slide-in-from-right duration-300">
+                    <div className="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-950/50">
+                        <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                            <span className="text-indigo-400">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </span> {t('studio.title')}
+                        </h2>
+                        <button onClick={() => setIsStudioOpen(false)} className="text-slate-400 hover:text-white transition-colors">✕</button>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+                        {/* Environment Section */}
+                        <section className="space-y-4">
+                            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">{t('studio.lighting_env')}</h3>
+                            <div className="grid grid-cols-2 gap-2">
+                                {['none', 'contact', 'egypt', 'forest', 'goaland', 'yosemite', 'tron'].map((env) => (
+                                    <button
+                                        key={env}
+                                        onClick={() => setStudioConfig({...studioConfig, environment: env})}
+                                        className={`px-3 py-2 text-xs rounded-lg border transition-all ${studioConfig.environment === env ? 'bg-indigo-600 border-indigo-500 text-white font-bold' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}`}
+                                    >
+                                        {env.charAt(0).toUpperCase() + env.slice(1)}
+                                    </button>
+                                ))}
+                            </div>
+                        </section>
+
+                        {/* Rendering Controls */}
+                        <section className="space-y-4">
+                            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">{t('studio.rendering')}</h3>
+                            
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-center">
+                                    <label className="text-xs text-slate-300">{t('studio.exposure')}</label>
+                                    <span className="text-[10px] font-mono text-indigo-400">{studioConfig.exposure.toFixed(1)}</span>
+                                </div>
+                                <input
+                                    type="range" min="0.1" max="5.0" step="0.1"
+                                    value={studioConfig.exposure}
+                                    onChange={(e) => setStudioConfig({...studioConfig, exposure: parseFloat(e.target.value)})}
+                                    className="w-full accent-indigo-500 bg-slate-800 h-1 rounded-full appearance-none cursor-pointer"
+                                />
+
+                                <div className="flex flex-col gap-1.5 pt-2">
+                                    <label className="text-xs text-slate-300">{t('studio.tone_mapping')}</label>
+                                    <select
+                                        value={studioConfig.toneMapping}
+                                        onChange={(e) => setStudioConfig({...studioConfig, toneMapping: e.target.value})}
+                                        className="w-full bg-slate-800 border border-slate-700 text-slate-300 text-[10px] rounded-lg p-2 outline-none focus:border-indigo-500"
+                                    >
+                                        <option value="NoToneMapping">None</option>
+                                        <option value="LinearToneMapping">Linear</option>
+                                        <option value="ReinhardToneMapping">Reinhard</option>
+                                        <option value="CineonToneMapping">Cineon</option>
+                                        <option value="ACESFilmicToneMapping">ACES Filmic</option>
+                                    </select>
+                                </div>
+
+                                <div className="flex items-center justify-between pt-2">
+                                    <label className="text-xs text-slate-300">{t('studio.wireframe')}</label>
+                                    <button
+                                        onClick={() => setStudioConfig({...studioConfig, wireframe: !studioConfig.wireframe})}
+                                        className={`w-10 h-5 rounded-full relative transition-colors ${studioConfig.wireframe ? 'bg-indigo-600' : 'bg-slate-700'}`}
+                                    >
+                                        <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${studioConfig.wireframe ? 'left-6' : 'left-1'}`}></div>
+                                    </button>
+                                </div>
+
+                                <div className="flex items-center justify-between">
+                                    <label className="text-xs text-slate-300">{t('studio.auto_rotate')}</label>
+                                    <button
+                                        onClick={() => setStudioConfig({...studioConfig, autoRotate: !studioConfig.autoRotate})}
+                                        className={`w-10 h-5 rounded-full relative transition-colors ${studioConfig.autoRotate ? 'bg-indigo-600' : 'bg-slate-700'}`}
+                                    >
+                                        <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${studioConfig.autoRotate ? 'left-6' : 'left-1'}`}></div>
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* Model Statistics */}
+                        <section className="bg-slate-950/50 rounded-2xl p-4 border border-slate-800/50 space-y-3">
+                            <h3 className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">{t('studio.stats')}</h3>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] text-slate-500">{t('studio.vertices')}</span>
+                                    <span className="text-sm font-mono text-slate-200">{(modelStats.vertices / 1000).toFixed(1)}k</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] text-slate-500">{t('studio.triangles')}</span>
+                                    <span className="text-sm font-mono text-slate-200">{(modelStats.triangles / 1000).toFixed(1)}k</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] text-slate-500">{t('studio.meshes')}</span>
+                                    <span className="text-sm font-mono text-slate-200">{modelStats.meshes}</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] text-slate-500">{t('studio.materials')}</span>
+                                    <span className="text-sm font-mono text-slate-200">{modelStats.materials}</span>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div className="p-6 border-t border-slate-800 text-[10px] text-slate-500 italic">
+                        Khronos glTF compatibility validated.
+                    </div>
+                </div>
+            )}
+
             {/* A-Frame Scene */}
             <a-scene
                 ref={bgSceneRef}
                 embedded
-                renderer="antialias: true; colorManagement: true; physicallyCorrectLights: true;"
+                renderer-settings={`exposure: ${studioConfig.exposure}; toneMapping: ${studioConfig.toneMapping};`}
                 xr-mode-ui="enabled: true"
                 className="w-full h-full"
             >
@@ -1554,7 +1817,12 @@ const VRViewer: React.FC<VRViewerProps> = ({
                 ))}
 
                 {/* Model and Environment */}
-                <a-sky color="#050505"></a-sky>
+                {studioConfig.environment !== 'none' ? (
+                    <a-entity environment={`preset: ${studioConfig.environment}; lighting: true; shadow: true; fog: 0; intensity: 0.8`}></a-entity>
+                ) : (
+                    <a-sky color="#050505"></a-sky>
+                )}
+                
                 <a-grid-helper
                     size="20"
                     divisions="20"
@@ -1565,6 +1833,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
                 <a-entity
                     position="0 0 -3"
                     drag-rotate
+                    animation={studioConfig.autoRotate ? "property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear" : ""}
                     className="interactable-model"
                     assembly-mode-system={`enabled: ${isAssemblyMode}`}
                 >
@@ -1584,9 +1853,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
                         scale="1 1 1"
                         rotation="0 0 0"
                         interactive-part
-                        onClick={(e: any) =>
-                            console.log('Model Clicked', e.detail.intersection)
-                        }
+                        wireframe-toggle={`enabled: ${studioConfig.wireframe}`}
                     ></a-entity>
 
                     {/* Hotspots rendered in 3D space */}

@@ -13,12 +13,11 @@ const storage = multer.diskStorage({
         // Create a dedicated folder for this upload
         // naming convention: type_filename_shorthash (e.g. glb_motor_x92k1)
         
-        const ext = path.extname(file.originalname).replace('.', '').toLowerCase();
         const namePart = path.parse(file.originalname).name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
         // Short random hash (6 chars)
         const hash = Math.random().toString(36).substring(2, 8);
         
-        const folderName = `${ext}_${namePart}_${hash}`;
+        const folderName = `${namePart}_${hash}`;
         const finalDir = path.join(uploadDir, folderName);
 
         if (!fs.existsSync(finalDir)) {

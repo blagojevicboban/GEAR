@@ -22,10 +22,10 @@
         "read_aloud": "Čitaj Naglas",
         "install_app": "Instaliraj Aplikaciju",
         "gamification": {
-            "challenge_mode": "Challenge Mode",
+            "challenge_mode": "Izazovni Režim",
             "time": "Vreme",
             "complete": "Izazov Završen!",
-            "leaderboard": "Leaderboard",
+            "leaderboard": "Rang Lista",
             "rank": "Rank",
             "user": "Korisnik",
             "score": "Poeni"
@@ -688,5 +688,23 @@
         "reset": "↺ Resetuj Sve Delove",
         "mode_active": "🔧 Režim Sklapanja UKLJUČEN",
         "mode_inactive": "🔧 Omogući Sklapanje"
+    },
+    "studio": {
+        "title": "Studio Režim",
+        "lighting_env": "Okruženje i Osvetljenje",
+        "rendering": "Parametri Renderovanja",
+        "exposure": "Ekspozicija",
+        "tone_mapping": "Tone Mapping",
+        "wireframe": "Wireframe Prikaz",
+        "auto_rotate": "Auto Rotacija",
+        "stats": "Statistika Modela",
+        "vertices": "Temena (Points)",
+        "triangles": "Trouglovi",
+        "meshes": "Mreže",
+        "materials": "Materijali"
+    },
+    "assets": {
+        "optimized": "Optimizovano (AI)",
+        "original": "Original (High-Poly)"
     }
 }

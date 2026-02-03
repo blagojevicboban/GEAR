@@ -688,5 +688,23 @@
         "reset": "↺ Reset All Parts",
         "mode_active": "🔧 Assembly Mode ON",
         "mode_inactive": "🔧 Enable Assembly"
+    },
+    "studio": {
+        "title": "Studio Mode",
+        "lighting_env": "Lighting Environment",
+        "rendering": "Rendering Parameters",
+        "exposure": "Exposure",
+        "tone_mapping": "Tone Mapping",
+        "wireframe": "Wireframe View",
+        "auto_rotate": "Auto Rotate",
+        "stats": "Model Statistics",
+        "vertices": "Vertices",
+        "triangles": "Triangles",
+        "meshes": "Meshes",
+        "materials": "Materials"
+    },
+    "assets": {
+        "optimized": "Optimized (AI)",
+        "original": "Original (High-Poly)"
     }
 }

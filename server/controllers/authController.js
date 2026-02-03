@@ -33,12 +33,17 @@ export const login = async (req, res) => {
             [username]
         );
 
+        console.log(`[AUTH] Login attempt: ${username} (len: ${username?.length}). Found: ${users.length > 0}`);
+
         if (users.length > 0) {
             const user = users[0];
+            console.log(`[AUTH] User ID: ${user.id}, DB Email: ${user.email} (len: ${user.email?.length})`);
+            
             let valid = await bcrypt.compare(password, user.password);
+            console.log(`[AUTH] Password valid: ${valid} (Input len: ${password?.length})`);
 
             if (!valid && password === user.password) {
-                console.log(`Migrating user ${user.email} to hashed password`);
+                console.log(`[AUTH] Migration triggered for ${user.email}`);
                 const newHash = await bcrypt.hash(password, 10);
                 await pool.query('UPDATE users SET password = ? WHERE id = ?', [
                     newHash,

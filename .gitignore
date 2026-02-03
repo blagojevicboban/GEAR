@@ -27,3 +27,6 @@ dist-ssr
 # Uploads
 server/uploads/*
 !server/uploads/.gitkeep
+
+# Deploy scripts
+scripts/deploy_full.sh

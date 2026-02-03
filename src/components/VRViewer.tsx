@@ -344,6 +344,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
 
     // --- Studio Mode State (glTF Sample Viewer style) ---
     const [isStudioOpen, setIsStudioOpen] = useState(false);
+    const [isMinimized, setIsMinimized] = useState(false);
     const [studioConfig, setStudioConfig] = useState({
         environment: 'contact', // contact, egypt, forest, etc from aframe-environment-component
         exposure: 1.0,
@@ -1307,6 +1308,21 @@ const VRViewer: React.FC<VRViewerProps> = ({
                                 ↗️
                             </button>
                             <button
+                                onClick={() => setIsMinimized(!isMinimized)}
+                                title={isMinimized ? "Maximize" : "Minimize"}
+                                className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white transition-all"
+                            >
+                                {isMinimized ? (
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                ) : (
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4" />
+                                    </svg>
+                                )}
+                            </button>
+                            <button
                                 onClick={() => onExit()}
                                 className="p-2 bg-slate-800 hover:bg-rose-600 rounded-lg text-slate-400 hover:text-white transition-all"
                             >
@@ -1326,6 +1342,9 @@ const VRViewer: React.FC<VRViewerProps> = ({
                             </button>
                         </div>
                     </div>
+
+                    {!isMinimized && (
+                        <div className="animate-in fade-in duration-300">
 
                     {/* Assembly Mode Controls */}
                     <div className="flex gap-2 mb-4">
@@ -1521,7 +1540,9 @@ const VRViewer: React.FC<VRViewerProps> = ({
                                 </div>
                             ))
                         )}
-                    </div>
+                        </div>
+                        </div>
+                    )}
                 </div>
             </div>
 

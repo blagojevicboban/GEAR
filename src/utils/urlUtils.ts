@@ -13,5 +13,13 @@ export const fixAssetUrl = (url: string | undefined | null): string => {
         return '/api' + url;
     }
 
+    // If it starts with /api/uploads, return as is
+    if (url.startsWith('/api/uploads/')) return url;
+
+    // If it doesn't start with a slash, it's likely a relative path/filename in uploads
+    if (!url.startsWith('/')) {
+        return '/api/uploads/' + url;
+    }
+
     return url;
 };

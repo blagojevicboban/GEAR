@@ -2,7 +2,7 @@
 
 **THE GEAR** is an open-source WebXR platform designed for Vocational Education and Training (VET). It allows schools and students to upload, manage, and interact with 3D digital twins of industrial equipment directly in the browser, with support for VR headsets (Meta Quest), mobile devices, and desktops.
 
-[![THE GEAR Dashboard](assets/dashboard-preview.png)](https://gear.tsp.edu.rs)
+[![THE GEAR Dashboard](gear.webp)](https://gear.tsp.edu.rs)
 
 ### 🌐 [Live Demo: gear.tsp.edu.rs](https://gear.tsp.edu.rs)
 

@@ -212,6 +212,17 @@ if (typeof window !== 'undefined' && (window as any).AFRAME) {
             }
         });
     }
+
+    if (!AFRAME.components['auto-rotate']) {
+        AFRAME.registerComponent('auto-rotate', {
+            schema: { enabled: { default: false }, speed: { default: 20 } },
+            tick: function (_t: any, dt: number) {
+                if (!this.data.enabled) return;
+                // Use Object3D rotation directly for performance and to avoid sync issues
+                this.el.object3D.rotation.y += (dt / 1000) * (this.data.speed * (Math.PI / 180));
+            }
+        });
+    }
 }
 
 interface VRViewerProps {
@@ -1854,7 +1865,8 @@ const VRViewer: React.FC<VRViewerProps> = ({
                 <a-entity
                     position="0 0 -3"
                     drag-rotate
-                    animation={studioConfig.autoRotate ? "property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear" : ""}
+                    auto-rotate={studioConfig.autoRotate ? "enabled: true; speed: 20" : "enabled: false"}
+                    animation__rotate="enabled: false"
                     className="interactable-model"
                     assembly-mode-system={`enabled: ${isAssemblyMode}`}
                 >

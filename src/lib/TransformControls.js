@@ -1,3 +1,9 @@
+// Lazy THREE initialization helper
+function getTHREE() {
+    return window.AFRAME ? window.AFRAME.THREE : window.THREE;
+}
+
+const THREE_INSTANCE = getTHREE();
 const {
     BoxGeometry,
     BufferGeometry,
@@ -18,9 +24,8 @@ const {
     SphereGeometry,
     TorusGeometry,
     Vector3,
-} = window.THREE;
-
-const { EventDispatcher } = window.THREE;
+    EventDispatcher
+} = THREE_INSTANCE;
 
 class Controls extends EventDispatcher {
     constructor(object, domElement = null) {

@@ -12,7 +12,7 @@ declare global {
 const AFRAME = typeof window !== 'undefined' ? window.AFRAME : null;
 const THREE =
     typeof window !== 'undefined'
-        ? window.THREE || (AFRAME ? AFRAME.THREE : null)
+        ? (AFRAME && AFRAME.THREE ? AFRAME.THREE : window.THREE)
         : null;
 
 if (AFRAME && THREE) {
@@ -74,7 +74,11 @@ if (AFRAME && THREE) {
                     }
                 );
 
-                scene.add(this.transformControls);
+                const helper = this.transformControls.getHelper();
+                // Safety: Force flags to bypass version mismatch instanceof checks
+                (helper as any).isObject3D = true;
+                (helper as any).isGroup = true;
+                scene.add(helper);
                 this.transformControls.visible = false;
                 this.transformControls.enabled = false;
 

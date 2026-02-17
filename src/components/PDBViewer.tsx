@@ -512,8 +512,8 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
 
         window.addEventListener('resize', onWindowResize);
 
-        // Spatial UI (3D Menu)
-        let menuMesh: any = null; // Reference for animation loop
+        // Spatial UI (3D Menu for AR)
+        let menuMesh: any = null;
         const menuElement = document.getElementById('ar-menu');
         if (menuElement) {
             // @ts-ignore
@@ -521,53 +521,15 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
             scene.add(interactionGroup as any);
 
             const mesh = new HTMLMesh(menuElement);
-            // mesh.position.set(0.4, 0, -0.5); // To the right (Old static pos)
-            // Initial position (will be overridden by Wrist logic if AR is active)
             mesh.position.set(0.4, 0, -0.5);
             mesh.rotation.y = -Math.PI / 6;
-            mesh.scale.setScalar(1.5); // Slightly smaller for wrist
+            mesh.scale.setScalar(1.5);
+            mesh.visible = false; // Hidden on desktop by default
             interactionGroup.add(mesh as any);
             menuMesh = mesh;
 
-            // Button Listeners
-            const btnReset = document.getElementById('btn-reset');
-            if (btnReset) {
-                btnReset.onclick = () => {
-                    rootGroup.position.set(0, 0, -0.5);
-                    rootGroup.rotation.set(0, 0, 0);
-                    rootGroup.scale.setScalar(1);
-                };
-            }
-
-            const btnStyleBS = document.getElementById('btn-style-bs');
-            if (btnStyleBS)
-                btnStyleBS.onclick = () => setVisualStyle('ball-stick');
-
-            const btnStyleSF = document.getElementById('btn-style-sf');
-            if (btnStyleSF)
-                btnStyleSF.onclick = () => setVisualStyle('spacefill');
-
-            const btnStyleBB = document.getElementById('btn-style-bb');
-            if (btnStyleBB)
-                btnStyleBB.onclick = () => setVisualStyle('backbone');
-
-            const btnMode = document.getElementById('btn-mode-toggle');
-            if (btnMode) {
-                // Update text initially
-                btnMode.textContent = `Mode: ${modeRef.current === 'manipulate' ? 'Manipulate' : 'Annotate'}`;
-
-                btnMode.onclick = () => {
-                    const newMode =
-                        modeRef.current === 'manipulate'
-                            ? 'annotate'
-                            : 'manipulate';
-                    setInteractionMode(newMode);
-                    btnMode.textContent = `Mode: ${newMode === 'manipulate' ? 'Manipulate' : 'Annotate'}`;
-                    // Visual feedback
-                    setVoiceStatus(`Mode: ${newMode.toUpperCase()}`);
-                    setTimeout(() => setVoiceStatus(''), 1500);
-                };
-            }
+            // Note: Manual listeners removed as they are now handled by React JSX
+            // which HTMLMesh dispatches events to.
         }
 
         const animate = (_time: number, frame?: any) => {
@@ -627,31 +589,28 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
             renderer.render(scene, camera);
             labelRenderer.render(scene, camera);
 
-            // Wrist Menu Update
-            if (menuMesh && renderer.xr.isPresenting && controller1) {
-                // Check if controller is tracking
-                // We can simply lerp to controller position + offset
-                const targetPos = new THREE.Vector3();
-                const targetRot = new THREE.Quaternion();
+            // Wrist Menu Update (AR Only)
+            if (menuMesh) {
+                const isPresenting = renderer.xr.isPresenting;
+                menuMesh.visible = isPresenting;
+                
+                if (isPresenting && controller1) {
+                    // Smoothly follow controller
+                    const targetPos = new THREE.Vector3();
+                    const targetRot = new THREE.Quaternion();
 
-                // Get controller world transform
-                targetPos.setFromMatrixPosition(controller1.matrixWorld);
-                targetRot.setFromRotationMatrix(controller1.matrixWorld);
+                    targetPos.setFromMatrixPosition(controller1.matrixWorld);
+                    targetRot.setFromRotationMatrix(controller1.matrixWorld);
 
-                // Offset: 15cm "above" the controller (Simulating looking at a watch)
-                // We need to apply offset in local controller space.
-                const offset = new THREE.Vector3(0.05, 0.15, 0.0); // Right 5cm, Up 15cm
-                offset.applyQuaternion(targetRot);
-                targetPos.add(offset);
+                    // Offset: 15cm "above" the controller (Watch position)
+                    const offset = new THREE.Vector3(0.05, 0.15, 0.0);
+                    offset.applyQuaternion(targetRot);
+                    targetPos.add(offset);
 
-                // Update Mesh
-                menuMesh.position.lerp(targetPos, 0.1); // Smooth follow
-                menuMesh.quaternion.slerp(targetRot, 0.1);
-                // Fix Rotation (Make it face the user? Or just fixed to wrist? Fixed to wrist is better for "Watch" feel)
-                // But HTMLMesh might need rotation adjustment to be readable.
-                // Let's rotate it -90 deg on X to be flat-ish like a watch?
-                // Or actually, user rotates wrist. Let's keep it aligned with controller.
-                menuMesh.rotateX(-Math.PI / 2);
+                    menuMesh.position.lerp(targetPos, 0.15); // Slightly faster follow
+                    menuMesh.quaternion.slerp(targetRot, 0.15);
+                    menuMesh.rotateX(-Math.PI / 2);
+                }
             }
 
             // Broadcast Transform
@@ -717,7 +676,18 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
         // Add to existing animate loop? Or just run check inside animate.
         // We can add it to the 'animate' function defined above.
 
+        // Reset View Listener
+        const handleResetView = () => {
+            rootGroup.position.set(0, 0, -0.5);
+            rootGroup.rotation.set(0, 0, 0);
+            rootGroup.scale.setScalar(1);
+            setVoiceStatus('View Reset');
+            setTimeout(() => setVoiceStatus(''), 1500);
+        };
+        window.addEventListener('gear-reset-view', handleResetView);
+
         return () => {
+            window.removeEventListener('gear-reset-view', handleResetView);
             window.removeEventListener(
                 'gear-remote-update',
                 handleRemoteUpdate
@@ -923,56 +893,95 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
                 </button>
             </div>
 
-            {/* Spatial UI Container (Hidden in 2D, used for texture) */}
+            {/* Spatial UI Container - Now a 2D Glass Overlay on Desktop, source for 3D Mesh in AR */}
             <div
                 id="ar-menu"
-                className="absolute top-0 left-0 -z-50 opacity-0 pointer-events-none"
+                className={`fixed top-4 right-4 z-40 transition-all duration-500 transform ${
+                    arSessionActive
+                        ? 'opacity-0 scale-90 pointer-events-none'
+                        : 'opacity-100 scale-100'
+                }`}
             >
-                <div className="w-64 p-4 bg-slate-800/90 text-white rounded-xl border border-blue-500/50 flex flex-col gap-2">
-                    <h3 className="text-lg font-bold text-center border-b border-white/10 pb-2 mb-2">
-                        Controls
-                    </h3>
+                <div className="w-64 p-5 bg-slate-900/40 backdrop-blur-xl text-white rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)] flex flex-col gap-3 group transition-all hover:bg-slate-900/50 hover:border-blue-500/30">
+                    <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                        <h3 className="text-lg font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+                            Controls
+                        </h3>
+                        <div className="flex gap-1">
+                            <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse delay-75"></div>
+                        </div>
+                    </div>
+
                     <button
                         id="btn-reset"
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-center font-medium transition active:scale-95"
+                        className="w-full px-4 py-2.5 bg-blue-600/80 hover:bg-blue-500 rounded-xl text-center font-semibold transition-all shadow-lg shadow-blue-900/20 active:scale-[0.98]"
+                        onClick={() => window.dispatchEvent(new CustomEvent('gear-reset-view'))}
                     >
                         Reset View
                     </button>
 
-                    <div className="grid grid-cols-3 gap-1 mt-2">
+                    <div className="grid grid-cols-3 gap-2 mt-1">
                         <button
                             id="btn-style-bs"
-                            className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded transition"
+                            className={`px-2 py-2 rounded-lg transition-all border ${
+                                visualStyle === 'ball-stick'
+                                    ? 'bg-slate-700/80 border-blue-400/50'
+                                    : 'bg-slate-800/40 border-transparent hover:bg-slate-800/60'
+                            }`}
+                            onClick={() => setVisualStyle('ball-stick')}
                         >
-                            B&S
+                            <span className="text-xs font-medium">B&S</span>
                         </button>
                         <button
                             id="btn-style-sf"
-                            className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded transition"
+                            className={`px-2 py-2 rounded-lg transition-all border ${
+                                visualStyle === 'spacefill'
+                                    ? 'bg-slate-700/80 border-blue-400/50'
+                                    : 'bg-slate-800/40 border-transparent hover:bg-slate-800/60'
+                            }`}
+                            onClick={() => setVisualStyle('spacefill')}
                         >
-                            Space
+                            <span className="text-xs font-medium">Space</span>
                         </button>
                         <button
                             id="btn-style-bb"
-                            className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-xs rounded transition"
+                            className={`px-2 py-2 rounded-lg transition-all border ${
+                                visualStyle === 'backbone'
+                                    ? 'bg-slate-700/80 border-blue-400/50'
+                                    : 'bg-slate-800/40 border-transparent hover:bg-slate-800/60'
+                            }`}
+                            onClick={() => setVisualStyle('backbone')}
                         >
-                            Bone
+                            <span className="text-xs font-medium">Bone</span>
                         </button>
                     </div>
 
-                    <div className="mt-2 border-t border-white/10 pt-2">
+                    <div className="mt-1">
                         <button
                             id="btn-mode-toggle"
-                            className="w-full px-2 py-1 bg-emerald-600 hover:bg-emerald-500 rounded text-sm font-medium transition"
+                            className={`w-full px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-lg ${
+                                interactionMode === 'manipulate'
+                                    ? 'bg-emerald-600/80 hover:bg-emerald-500 shadow-emerald-900/20'
+                                    : 'bg-amber-600/80 hover:bg-amber-500 shadow-amber-900/20'
+                            }`}
+                            onClick={() => {
+                                const newMode =
+                                    interactionMode === 'manipulate'
+                                        ? 'annotate'
+                                        : 'manipulate';
+                                setInteractionMode(newMode);
+                                setVoiceStatus(`Mode: ${newMode.toUpperCase()}`);
+                                setTimeout(() => setVoiceStatus(''), 1500);
+                            }}
                         >
-                            Mode: Manipulate
+                            Mode: {interactionMode === 'manipulate' ? 'Manipulate' : 'Annotate'}
                         </button>
                     </div>
 
-                    <div className="text-xs text-slate-400 text-center mt-1">
-                        Grab/Pinch to Move
-                        <br />
-                        Stick to Zoom
+                    <div className="text-[10px] text-slate-400/80 text-center mt-1 flex flex-col gap-0.5 leading-tight italic">
+                        <span>Grab/Pinch to Move</span>
+                        <span>Stick to Zoom</span>
                     </div>
                 </div>
             </div>

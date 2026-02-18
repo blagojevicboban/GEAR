@@ -28,5 +28,9 @@ dist-ssr
 server/uploads/*
 !server/uploads/.gitkeep
 
+# Test artifacts
+playwright-report/
+test-results/
+
 # Deploy scripts
 scripts/deploy_full.sh

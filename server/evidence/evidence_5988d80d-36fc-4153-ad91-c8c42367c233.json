@@ -1,0 +1,24 @@
+{
+  "header": {
+    "standard": "Erasmus+ VET Evidence v1.0",
+    "timestamp": "2026-02-18T06:57:54.107Z",
+    "session_id": "5988d80d-36fc-4153-ad91-c8c42367c233",
+    "integrity_hash_algo": "HMAC-SHA256"
+  },
+  "student": {
+    "user_id": "student-demo-123"
+  },
+  "simulation": {
+    "id": "sim-laser-cutter-01",
+    "parameters": {
+      "material": "Al",
+      "thickness": 3,
+      "power": 80
+    },
+    "result": {
+      "estimatedSpeed": 2.243140373195215,
+      "efficiency": 26.666666666666668
+    }
+  },
+  "signature": "367c5f728ff0f77f4d1c82ff4b94a5d123c7222c86b868932b2432925921a4d3"
+}

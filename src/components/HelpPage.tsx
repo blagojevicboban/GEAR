@@ -593,7 +593,7 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                     </div>
                 </div>
 
-                {/* Section 7: Platform Administration (v2.0) */}
+                {/* Section 7: Platform Administration (v2.2) */}
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
                     <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">

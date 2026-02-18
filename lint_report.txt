@@ -1,4 +1,0 @@
-
-> the-gear---vet-webxr-hub@1.8.0 lint
-> eslint . --ext .js,.jsx,.ts,.tsx
-

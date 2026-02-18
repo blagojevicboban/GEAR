@@ -46,13 +46,10 @@ This platform implements the 4 key intellectual outputs of the **ARVR4VET** proj
 - **Contextual AI Gaze**: The AI mentor intelligently tracks your gaze to provide context-aware answers about the specific part you are looking at.
 - **Teacher Dashboard**: Monitor student progress, engagement heatmaps, and host live workshops.
 - **Multilingual TTS**: Built-in Text-to-Speech engine that reads lessons and technical descriptions aloud in multiple languages (English, Serbian, Italian, Greek, Portuguese, and Turkish).
-- **Materials Engine**: Apply high-quality PBR materials to different parts of the model to simulate various surface finishes (Metals, Plastics, etc.). Integrates with the **Materials Project API** to search real materials by formula and display detailed properties (Band Gap, Density, Formation Energy, Magnetic Ordering, Symmetry). Includes a **Laser Cutting Speed Calculator** that uses real material physics to estimate production parameters.
-- **Crystal Structure Viewer**: Interactive 3D visualization of crystal structures fetched from the Materials Project. Renders atoms (CPK coloring), bonds, unit cell wireframe, and lattice parameters with mouse/touch rotation and zoom. Features a dedicated **AR/VR Explore Mode** for immersive inspection in Mixed Reality.
-- **Erasmus+ Evidence**: Context-aware logging system that generates cryptographically signed proof-of-work certificates for project reporting.
-- **AI Mentor**: Voice-activated AI assistant (Gemini 2.0 Flash) for context-aware guidance.
-- **Multi-User Workshops**: Shared virtual spaces with real-time position synchronization and collaborative interactions.
-- **Dashboard**: Featured models, global announcements, and granular filtering (**Sectors** & **Uploaders**).
-- **Mixed Reality Mode**: Immersive AR experience with Passthrough, Hand Tracking, and Spatial UI controls.
+- **Advanced Materials Engine**: Integrates with the **Materials Project API (v2)** to search real materials by formula and display detailed properties. Includes a **Laser Cutting Speed Calculator** that uses real material physics to estimate production parameters.
+- **Crystal Structure Viewer**: Interactive 3D visualization of crystal structures. Features **Periodic Boundary Repeats** and **External Bonding** logic for realistic lattice representation.
+- **Mobile-Optimized UX**: All 3D viewers feature **Minimizable Controls** (Gear Icon) to maximize screen real estate on mobile devices while keeping all advanced settings accessible.
+- **Mixed Reality Mode**: Immersive AR experience with Passthrough, Hand Tracking, and **Premium Minimizable Overlays**.
 - **Admin Settings**: Comprehensive dashboard for User Management, Sector Management, System Logs, and **Global Configuration** (Custom Branding, AI Tweaks, Gamification control, Maintenance Mode, Three-Tier Backups).
 - **Multi-language Support**: Full internationalization (i18n) for **English**, **Serbian**, **Italian**, **Greek**, **Portuguese**, and **Turkish** across all modules.
 - **E2E Testing Suite**: Robust automated tests for critical flows, ensuring stability across both localized versions.
@@ -112,6 +109,9 @@ A complete overhaul of how files are stored and managed ensures long-term stabil
 - **Orphan Detection**: Admin dashboard now includes a scanner that identifies files in storage that are not referenced in the database.
 - **Safe Deletion**: Deleting a Model, Lesson, or User automatically performs a cascading delete of all associated files (images, GLB files, thumbnails) while protecting shared resources.
 - **Bulk Cleanup**: Tools to automatically remove all orphaned files with a single click.
+- **Materials API Upgrade**: Full migration to **Materials Project API v2** for more robust data fetching.
+- **Advanced Rendering**: Support for **Ball & Stick**, **Space-filling**, and **Bone** models in crystal viewers.
+- **Mobile Optimization**: Minimizable controls across all 3D modules.
 
 ## 🤖 AI & Analytics (New in v1.9)
 

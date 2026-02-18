@@ -3,6 +3,7 @@
         "library": "3D Library",
         "lessons": "Lessons",
         "academy": "Academy",
+        "materials": "Materials",
         "help": "Help",
         "login": "Login",
         "register": "Register",
@@ -266,6 +267,7 @@
         "delete": "Delete",
         "edit": "Edit",
         "add": "Add",
+        "search": "Search",
         "next": "Next",
         "previous": "Previous",
         "skip": "Skip",
@@ -706,5 +708,18 @@
     "assets": {
         "optimized": "Optimized (AI)",
         "original": "Original (High-Poly)"
+    },
+    "materials": {
+        "title": "Materials Engine",
+        "desc_title": "PBR Material Library",
+        "desc": "Apply high-quality PBR (Physically Based Rendering) materials to your 3D models. Adjust roughness, metalness, and other physical properties.",
+        "usage": "Select a part in the 3D view, then choose a material from the panel to apply it."
+    },
+    "evidence": {
+        "title": "Erasmus+ Evidence",
+        "subtitle": "Project Result Tracking",
+        "desc": "Generate cryptographically signed logs of your activities for Erasmus+ reporting.",
+        "generate_btn": "Generate Evidence Log",
+        "download_btn": "Download Signed PDF"
     }
 }

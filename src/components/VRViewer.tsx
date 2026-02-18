@@ -7,7 +7,9 @@ import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
 import { STLLoader } from '../lib/three-examples/loaders/STLLoader.js';
 import { io, Socket } from 'socket.io-client';
 import './AssemblyManager'; // Register Assembly Mode components
+import './AssemblyManager'; // Register Assembly Mode components
 import Avatar from './Avatar';
+import { LODManager, PerformanceTier } from '../utils/LODManager';
 
 // A-Frame types
 declare global {
@@ -344,6 +346,29 @@ const VRViewer: React.FC<VRViewerProps> = ({
     // Contextual Gaze State
     const [activePartName, setActivePartName] = useState<string | null>(null);
     const lastContextSentRef = useRef<string | null>(null);
+
+    // --- LOD / Optimization State ---
+    const [performanceTier, setPerformanceTier] = useState<PerformanceTier>(PerformanceTier.HIGH);
+    
+    useEffect(() => {
+        const tier = LODManager.getTier();
+        setPerformanceTier(tier);
+        const config = LODManager.getConfig(tier);
+        
+        console.log(`[Antigravity] Device Tier: ${tier}`, config);
+
+        // Apply global renderer settings if possible, or store for A-Frame components
+        // We can't easily set renderer.pixelRatio directly in React, it's handled by A-Frame
+        // But we can limit the resolution or disable expensive effects.
+        
+        // Setup initial studio config based on tier
+        setStudioConfig(prev => ({
+            ...prev,
+            exposure: tier === PerformanceTier.ECO ? 0.8 : 1.0, // Lower exposure on low-end
+            toneMapping: tier === PerformanceTier.HIGH ? 'ACESFilmic' : 'NoToneMapping' // Cheaper tone mapping
+        }));
+        
+    }, []);
 
     // --- Gamification State ---
     const [challengeMode, setChallengeMode] = useState(false);

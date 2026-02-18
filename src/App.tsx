@@ -23,6 +23,7 @@ import UserProfileModal from './components/UserProfileModal';
 import TeacherDashboard from './components/TeacherDashboard';
 import Academy from './components/Academy';
 import AdminSettings from './components/AdminSettings';
+import MaterialSelector from './components/MaterialSelector';
 import { useConfig } from './context/ConfigContext';
 
 const App: React.FC = () => {
@@ -693,6 +694,12 @@ const App: React.FC = () => {
 
                 {currentView === 'academy' && (
                     <Academy currentUser={currentUser} />
+                )}
+
+                {currentView === 'materials' && (
+                    <div className="flex justify-center items-center h-[calc(100vh-64px)]">
+                        <MaterialSelector />
+                    </div>
                 )}
             </main>
 

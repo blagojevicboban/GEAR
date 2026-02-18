@@ -44,6 +44,8 @@ export interface VETModel {
     isFeatured?: boolean;
     uploaderProfilePic?: string; // from join
     missingFile?: boolean;
+    lodUrl_mobile?: string;
+    lodUrl_low?: string;
 }
 
 export interface User {
@@ -76,7 +78,8 @@ export type AppView =
     | 'help'
     | 'teacher-dashboard'
     | 'academy'
-    | 'admin-settings';
+    | 'admin-settings'
+    | 'materials';
 
 export interface TourStep {
     targetId: string;

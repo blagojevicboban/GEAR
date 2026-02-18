@@ -46,6 +46,8 @@ This platform implements the 4 key intellectual outputs of the **ARVR4VET** proj
 - **Contextual AI Gaze**: The AI mentor intelligently tracks your gaze to provide context-aware answers about the specific part you are looking at.
 - **Teacher Dashboard**: Monitor student progress, engagement heatmaps, and host live workshops.
 - **Multilingual TTS**: Built-in Text-to-Speech engine that reads lessons and technical descriptions aloud in multiple languages (English, Serbian, Italian, Greek, Portuguese, and Turkish).
+- **Materials Engine**: Apply high-quality PBR materials to different parts of the model to simulate various surface finishes (Metals, Plastics, etc.).
+- **Erasmus+ Evidence**: Context-aware logging system that generates cryptographically signed proof-of-work certificates for project reporting.
 - **AI Mentor**: Voice-activated AI assistant (Gemini 2.0 Flash) for context-aware guidance.
 - **Multi-User Workshops**: Shared virtual spaces with real-time position synchronization and collaborative interactions.
 - **Dashboard**: Featured models, global announcements, and granular filtering (**Sectors** & **Uploaders**).

@@ -29,8 +29,8 @@ export const login = async (req, res) => {
     const { username, password } = req.body;
     try {
         const [users] = await pool.query(
-            'SELECT * FROM users WHERE email = ?',
-            [username]
+            'SELECT * FROM users WHERE email = ? OR username = ?',
+            [username, username]
         );
 
         console.log(`[AUTH] Login attempt: ${username} (len: ${username?.length}). Found: ${users.length > 0}`);
@@ -39,11 +39,21 @@ export const login = async (req, res) => {
             const user = users[0];
             console.log(`[AUTH] User ID: ${user.id}, DB Email: ${user.email} (len: ${user.email?.length})`);
             
-            let valid = await bcrypt.compare(password, user.password);
-            console.log(`[AUTH] Password valid: ${valid} (Input len: ${password?.length})`);
+            let valid = false;
 
+            // 1. Try bcrypt comparison first (Standard path)
+            try {
+                valid = await bcrypt.compare(password, user.password);
+            } catch (e) {
+                // If bcrypt fails (e.g. invalid salt/hash format), it might be plain text
+                console.log('[AUTH] Bcrypt compare error (likely plain text):', e.message);
+            }
+
+            // 2. Fallback: Check for Plain Text (Legacy/Migration path)
             if (!valid && password === user.password) {
-                console.log(`[AUTH] Migration triggered for ${user.email}`);
+                console.log(`[AUTH] Plain text match found for ${user.username}. Migrating to hash.`);
+                
+                // Auto-migrate to secure hash
                 const newHash = await bcrypt.hash(password, 10);
                 await pool.query('UPDATE users SET password = ? WHERE id = ?', [
                     newHash,
@@ -56,6 +66,7 @@ export const login = async (req, res) => {
                 const { password: _, ...userData } = user;
                 res.json(userData);
             } else {
+                console.log(`[AUTH] Invalid password for ${username}`);
                 res.status(401).json({ error: 'Invalid credentials' });
             }
         } else {

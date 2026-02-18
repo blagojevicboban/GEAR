@@ -33,6 +33,8 @@ import adminRoutes from './routes/admin.js';
 import analyticsRoutes from './routes/analytics.js';
 import academyRoutes from './routes/academy.js';
 import gamificationRoutes from './routes/gamification.js';
+import materialRoutes from './routes/materials.js';
+import evidenceRoutes from './routes/evidence.js';
 
 // Services & Config
 import { setupSocket } from './config/socket.js';
@@ -156,6 +158,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/academy', academyRoutes);
 app.use('/api', gamificationRoutes);
+app.use('/api/materials', materialRoutes);
+app.use('/api/evidence', evidenceRoutes);
 
 // Public Config
 app.get('/api/config/public', async (req, res) => {

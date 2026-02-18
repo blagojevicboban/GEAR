@@ -12,7 +12,8 @@ import {
     User,
     ChevronDown,
     Globe,
-    Download
+    Download,
+    Zap
 } from 'lucide-react';
 import { AppView, User as UserType } from '../types';
 
@@ -89,6 +90,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
         { view: 'gallery', label: t('nav.library'), icon: HardHat, id: 'nav-repo' },
         { view: 'lessons', label: t('nav.lessons'), icon: Terminal, id: 'nav-lessons' },
         { view: 'academy', label: t('nav.academy'), icon: LayoutDashboard, id: 'nav-academy' },
+        { view: 'materials', label: t('nav.materials'), icon: Zap, id: 'nav-materials' },
         { view: 'help', label: t('nav.help'), icon: HelpCircle, id: 'nav-help' },
     ];
 

@@ -445,6 +445,42 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
 
                     <div>
                         <label className="block text-sm font-bold text-slate-300 mb-2">
+                            Materials Project API Key
+                        </label>
+                        <div className="relative">
+                            <input
+                                type="password"
+                                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                placeholder="..."
+                                value={config.material_project_api_key || ''}
+                                onChange={(e) =>
+                                    setConfig({
+                                        ...config,
+                                        material_project_api_key: e.target.value,
+                                    })
+                                }
+                            />
+                            <div className="absolute right-4 top-3 text-xs text-slate-500 pointer-events-none">
+                                {config.material_project_api_key
+                                    ? 'Encrypted (Client-Side)'
+                                    : 'Not Set'}
+                            </div>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1">
+                            Required for Real Material Data (Materials Project Next-Gen).
+                            <a
+                                href="https://next-gen.materialsproject.org/api"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-indigo-400 hover:text-indigo-300 ml-1"
+                            >
+                                Get Key
+                            </a>
+                        </p>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-bold text-slate-300 mb-2">
                             {t('admin.config.branding.label')}
                         </label>
                         <div className="space-y-3">

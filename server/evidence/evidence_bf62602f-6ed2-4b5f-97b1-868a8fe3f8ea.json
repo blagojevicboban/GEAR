@@ -1,0 +1,24 @@
+{
+  "header": {
+    "standard": "Erasmus+ VET Evidence v1.0",
+    "timestamp": "2026-02-18T00:25:30.183Z",
+    "session_id": "bf62602f-6ed2-4b5f-97b1-868a8fe3f8ea",
+    "integrity_hash_algo": "HMAC-SHA256"
+  },
+  "student": {
+    "user_id": "student-demo-123"
+  },
+  "simulation": {
+    "id": "sim-laser-cutter-01",
+    "parameters": {
+      "material": "Birch Plywood",
+      "thickness": 3,
+      "power": 80
+    },
+    "result": {
+      "estimatedSpeed": 995,
+      "efficiency": 26.666666666666668
+    }
+  },
+  "signature": "a0d356ff508fae03f8ff88becf0a61848df689debfb12d423f11092b01fffdb5"
+}

@@ -398,6 +398,27 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                     </div>
                 </div>
 
+                {/* Section: Materials Engine */}
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
+                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <span className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center">
+                            🎨
+                        </span>
+                        {t('materials.title')}
+                    </h2>
+                    <div className="space-y-6 text-slate-400">
+                        <div>
+                            <strong className="text-white block mb-1">
+                                {t('materials.desc_title')}
+                            </strong>
+                            {t('materials.desc')}
+                        </div>
+                        <p className="text-sm bg-slate-950/50 p-3 rounded-lg border-l-4 border-orange-500">
+                            <strong>Tip:</strong> {t('materials.usage')}
+                        </p>
+                    </div>
+                </div>
+
                 {/* Section 6: 3D Analytics & Heatmaps */}
                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
                     <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
@@ -483,6 +504,34 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                                     </span>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Section: Erasmus+ Evidence */}
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
+                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <span className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+                            📜
+                        </span>
+                        {t('evidence.title')}
+                    </h2>
+                    <div className="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 className="font-bold text-blue-400 mb-4">
+                                {t('evidence.subtitle')}
+                            </h3>
+                            <p className="text-slate-400 mb-4">
+                                {t('evidence.desc')}
+                            </p>
+                        </div>
+                        <div className="flex flex-col gap-3 justify-center">
+                            <button className="px-4 py-2 bg-slate-800 text-slate-400 rounded-lg border border-slate-700 cursor-not-allowed opacity-75">
+                                🔒 {t('evidence.generate_btn')}
+                            </button>
+                            <button className="px-4 py-2 bg-slate-800 text-slate-400 rounded-lg border border-slate-700 cursor-not-allowed opacity-75">
+                                🔒 {t('evidence.download_btn')}
+                            </button>
                         </div>
                     </div>
                 </div>

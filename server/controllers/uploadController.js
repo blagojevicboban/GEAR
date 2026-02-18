@@ -14,8 +14,8 @@ export const uploadFile = async (req, res) => {
 
         if (req.file.size > maxSizeBytes) {
             fs.unlinkSync(req.file.path); // Delete the temp file
-            return res.status(400).json({ 
-                error: `File is too large. Maximum size allowed is ${maxSizeMb}MB.` 
+            return res.status(400).json({
+                error: `File is too large. Maximum size allowed is ${maxSizeMb}MB.`,
             });
         }
     } catch (err) {

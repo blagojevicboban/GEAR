@@ -1,4 +1,3 @@
-
 import pool from '../db.js';
 
 const addLanguageColumn = async () => {

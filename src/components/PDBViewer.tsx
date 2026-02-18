@@ -518,7 +518,6 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
         let menuMesh: any = null;
         const menuElement = document.getElementById('ar-menu');
         if (menuElement) {
-            // @ts-ignore
             const interactionGroup = new InteractiveGroup(renderer, camera);
             scene.add(interactionGroup as any);
 
@@ -595,7 +594,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
             if (menuMesh) {
                 const isPresenting = renderer.xr.isPresenting;
                 menuMesh.visible = isPresenting;
-                
+
                 if (isPresenting && controller1) {
                     // Smoothly follow controller
                     const targetPos = new THREE.Vector3();
@@ -775,7 +774,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
         recognition.lang = 'en-US';
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
-        
+
         let isIntentionalStop = false;
 
         recognition.onstart = () => {
@@ -835,7 +834,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
         recognition.onerror = (event: any) => {
             if (event.error === 'no-speech') {
                 // Ignore no-speech, it just means silence
-                return; 
+                return;
             }
             if (event.error === 'aborted') {
                 console.warn('Speech Recognition Aborted');
@@ -845,14 +844,14 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
         };
 
         recognition.onend = () => {
-             if (!isIntentionalStop) {
-                 // Auto-restart if it stopped unexpectedly
-                 try {
-                     recognition.start();
-                 } catch (e) {
-                     // ignore if already started
-                 }
-             }
+            if (!isIntentionalStop) {
+                // Auto-restart if it stopped unexpectedly
+                try {
+                    recognition.start();
+                } catch (e) {
+                    // ignore if already started
+                }
+            }
         };
 
         // Start listening
@@ -886,11 +885,13 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
 
             {/* Settings Toggle Button */}
             {!arSessionActive && (
-                <button 
+                <button
                     onClick={() => setShowControls(!showControls)}
                     className="fixed top-4 right-4 z-[50] p-2.5 bg-slate-800/80 backdrop-blur-md rounded-xl border border-white/10 text-blue-400 hover:text-white transition-all active:scale-95 shadow-lg"
                 >
-                    <Settings className={`w-5 h-5 ${showControls ? 'rotate-90' : ''} transition-transform duration-500`} />
+                    <Settings
+                        className={`w-5 h-5 ${showControls ? 'rotate-90' : ''} transition-transform duration-500`}
+                    />
                 </button>
             )}
 
@@ -915,90 +916,103 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
                             : 'opacity-100 scale-100'
                     }`}
                 >
-                <div className="w-64 p-5 bg-slate-900/40 backdrop-blur-xl text-white rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)] flex flex-col gap-3 group transition-all hover:bg-slate-900/50 hover:border-blue-500/30">
-                    <div className="flex items-center justify-between border-b border-white/5 pb-3">
-                        <h3 className="text-lg font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
-                            Controls
-                        </h3>
-                        <div className="flex gap-1">
-                            <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse delay-75"></div>
+                    <div className="w-64 p-5 bg-slate-900/40 backdrop-blur-xl text-white rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)] flex flex-col gap-3 group transition-all hover:bg-slate-900/50 hover:border-blue-500/30">
+                        <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                            <h3 className="text-lg font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+                                Controls
+                            </h3>
+                            <div className="flex gap-1">
+                                <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse delay-75"></div>
+                            </div>
+                        </div>
+
+                        <button
+                            id="btn-reset"
+                            className="w-full px-4 py-2.5 bg-blue-600/80 hover:bg-blue-500 rounded-xl text-center font-semibold transition-all shadow-lg shadow-blue-900/20 active:scale-[0.98]"
+                            onClick={() =>
+                                window.dispatchEvent(
+                                    new CustomEvent('gear-reset-view')
+                                )
+                            }
+                        >
+                            Reset View
+                        </button>
+
+                        <div className="grid grid-cols-3 gap-2 mt-1">
+                            <button
+                                id="btn-style-bs"
+                                className={`px-2 py-2 rounded-lg transition-all border ${
+                                    visualStyle === 'ball-stick'
+                                        ? 'bg-slate-700/80 border-blue-400/50'
+                                        : 'bg-slate-800/40 border-transparent hover:bg-slate-800/60'
+                                }`}
+                                onClick={() => setVisualStyle('ball-stick')}
+                            >
+                                <span className="text-xs font-medium">B&S</span>
+                            </button>
+                            <button
+                                id="btn-style-sf"
+                                className={`px-2 py-2 rounded-lg transition-all border ${
+                                    visualStyle === 'spacefill'
+                                        ? 'bg-slate-700/80 border-blue-400/50'
+                                        : 'bg-slate-800/40 border-transparent hover:bg-slate-800/60'
+                                }`}
+                                onClick={() => setVisualStyle('spacefill')}
+                            >
+                                <span className="text-xs font-medium">
+                                    Space
+                                </span>
+                            </button>
+                            <button
+                                id="btn-style-bb"
+                                className={`px-2 py-2 rounded-lg transition-all border ${
+                                    visualStyle === 'backbone'
+                                        ? 'bg-slate-700/80 border-blue-400/50'
+                                        : 'bg-slate-800/40 border-transparent hover:bg-slate-800/60'
+                                }`}
+                                onClick={() => setVisualStyle('backbone')}
+                            >
+                                <span className="text-xs font-medium">
+                                    Bone
+                                </span>
+                            </button>
+                        </div>
+
+                        <div className="mt-1">
+                            <button
+                                id="btn-mode-toggle"
+                                className={`w-full px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-lg ${
+                                    interactionMode === 'manipulate'
+                                        ? 'bg-emerald-600/80 hover:bg-emerald-500 shadow-emerald-900/20'
+                                        : 'bg-amber-600/80 hover:bg-amber-500 shadow-amber-900/20'
+                                }`}
+                                onClick={() => {
+                                    const newMode =
+                                        interactionMode === 'manipulate'
+                                            ? 'annotate'
+                                            : 'manipulate';
+                                    setInteractionMode(newMode);
+                                    setVoiceStatus(
+                                        `Mode: ${newMode.toUpperCase()}`
+                                    );
+                                    setTimeout(() => setVoiceStatus(''), 1500);
+                                }}
+                            >
+                                Mode:{' '}
+                                {interactionMode === 'manipulate'
+                                    ? 'Manipulate'
+                                    : 'Annotate'}
+                            </button>
+                        </div>
+
+                        <div className="text-[10px] text-slate-400/80 text-center mt-1 flex flex-col gap-0.5 leading-tight italic">
+                            <span>Grab/Pinch to Move</span>
+                            <span>Stick to Zoom</span>
                         </div>
                     </div>
-
-                    <button
-                        id="btn-reset"
-                        className="w-full px-4 py-2.5 bg-blue-600/80 hover:bg-blue-500 rounded-xl text-center font-semibold transition-all shadow-lg shadow-blue-900/20 active:scale-[0.98]"
-                        onClick={() => window.dispatchEvent(new CustomEvent('gear-reset-view'))}
-                    >
-                        Reset View
-                    </button>
-
-                    <div className="grid grid-cols-3 gap-2 mt-1">
-                        <button
-                            id="btn-style-bs"
-                            className={`px-2 py-2 rounded-lg transition-all border ${
-                                visualStyle === 'ball-stick'
-                                    ? 'bg-slate-700/80 border-blue-400/50'
-                                    : 'bg-slate-800/40 border-transparent hover:bg-slate-800/60'
-                            }`}
-                            onClick={() => setVisualStyle('ball-stick')}
-                        >
-                            <span className="text-xs font-medium">B&S</span>
-                        </button>
-                        <button
-                            id="btn-style-sf"
-                            className={`px-2 py-2 rounded-lg transition-all border ${
-                                visualStyle === 'spacefill'
-                                    ? 'bg-slate-700/80 border-blue-400/50'
-                                    : 'bg-slate-800/40 border-transparent hover:bg-slate-800/60'
-                            }`}
-                            onClick={() => setVisualStyle('spacefill')}
-                        >
-                            <span className="text-xs font-medium">Space</span>
-                        </button>
-                        <button
-                            id="btn-style-bb"
-                            className={`px-2 py-2 rounded-lg transition-all border ${
-                                visualStyle === 'backbone'
-                                    ? 'bg-slate-700/80 border-blue-400/50'
-                                    : 'bg-slate-800/40 border-transparent hover:bg-slate-800/60'
-                            }`}
-                            onClick={() => setVisualStyle('backbone')}
-                        >
-                            <span className="text-xs font-medium">Bone</span>
-                        </button>
-                    </div>
-
-                    <div className="mt-1">
-                        <button
-                            id="btn-mode-toggle"
-                            className={`w-full px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-lg ${
-                                interactionMode === 'manipulate'
-                                    ? 'bg-emerald-600/80 hover:bg-emerald-500 shadow-emerald-900/20'
-                                    : 'bg-amber-600/80 hover:bg-amber-500 shadow-amber-900/20'
-                            }`}
-                            onClick={() => {
-                                const newMode =
-                                    interactionMode === 'manipulate'
-                                        ? 'annotate'
-                                        : 'manipulate';
-                                setInteractionMode(newMode);
-                                setVoiceStatus(`Mode: ${newMode.toUpperCase()}`);
-                                setTimeout(() => setVoiceStatus(''), 1500);
-                            }}
-                        >
-                            Mode: {interactionMode === 'manipulate' ? 'Manipulate' : 'Annotate'}
-                        </button>
-                    </div>
-
-                    <div className="text-[10px] text-slate-400/80 text-center mt-1 flex flex-col gap-0.5 leading-tight italic">
-                        <span>Grab/Pinch to Move</span>
-                        <span>Stick to Zoom</span>
-                    </div>
                 </div>
-            </div>
-        )}
+            )}
 
             {loading && (
                 <div className="absolute inset-0 z-20 flex items-center justify-center text-white bg-black/50">

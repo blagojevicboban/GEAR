@@ -16,7 +16,6 @@ if (!fs.existsSync(tempDir)) {
     fs.mkdirSync(tempDir, { recursive: true });
 }
 
-
 const getUserRole = async (username) => {
     if (!username) return null;
     const [users] = await pool.query(
@@ -99,8 +98,9 @@ export const getBackup = async (req, res) => {
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
             const workDir = path.join(tempDir, `backup_${timestamp}`);
             const sqlFile = path.join(workDir, 'database.sql');
-            
-            if (!fs.existsSync(workDir)) fs.mkdirSync(workDir, { recursive: true });
+
+            if (!fs.existsSync(workDir))
+                fs.mkdirSync(workDir, { recursive: true });
 
             // 1. Dump Database
             const dbHost = process.env.DB_HOST || 'localhost';
@@ -120,11 +120,14 @@ export const getBackup = async (req, res) => {
                 const fileStream = fs.createWriteStream(sqlFile);
                 dump.stdout.pipe(fileStream);
 
-                dump.stderr.on('data', (data) => console.error(`mysqldump stderr: ${data}`));
+                dump.stderr.on('data', (data) =>
+                    console.error(`mysqldump stderr: ${data}`)
+                );
 
                 dump.on('close', (code) => {
                     if (code === 0) resolve();
-                    else reject(new Error(`mysqldump exited with code ${code}`));
+                    else
+                        reject(new Error(`mysqldump exited with code ${code}`));
                 });
             });
 
@@ -132,56 +135,98 @@ export const getBackup = async (req, res) => {
             if (token) {
                 res.cookie('backup_download_started', token, {
                     path: '/',
-                    maxAge: 1000 * 60 * 5 // 5 minutes
+                    maxAge: 1000 * 60 * 5, // 5 minutes
                 });
             }
 
             if (format === 'full') {
                 // Full System Backup (ZIP)
-                const zipFile = path.join(tempDir, `gear_full_backup_${timestamp}.zip`);
-                
+                const zipFile = path.join(
+                    tempDir,
+                    `gear_full_backup_${timestamp}.zip`
+                );
+
                 // 2. Zip database.sql
                 console.log('Zipping SQL...');
                 await new Promise((resolve, reject) => {
-                    const zip = spawn('zip', ['-q', zipFile, 'database.sql'], { cwd: workDir });
-                    zip.on('close', code => code === 0 ? resolve() : reject(new Error(`zip sql failed: ${code}`)));
+                    const zip = spawn('zip', ['-q', zipFile, 'database.sql'], {
+                        cwd: workDir,
+                    });
+                    zip.on('close', (code) =>
+                        code === 0
+                            ? resolve()
+                            : reject(new Error(`zip sql failed: ${code}`))
+                    );
                     zip.on('error', reject);
                 });
 
                 // 3. Add Uploads directory
                 const uploadsParent = path.dirname(uploadsDir);
                 const uploadsBase = path.basename(uploadsDir);
-                
+
                 console.log('Adding Uploads to Zip...');
                 if (fs.existsSync(uploadsDir)) {
                     await new Promise((resolve, reject) => {
-                        const zip = spawn('zip', ['-urq', zipFile, uploadsBase], { cwd: uploadsParent });
-                        zip.on('close', code => code === 0 ? resolve() : reject(new Error(`zip uploads failed: ${code}`)));
+                        const zip = spawn(
+                            'zip',
+                            ['-urq', zipFile, uploadsBase],
+                            { cwd: uploadsParent }
+                        );
+                        zip.on('close', (code) =>
+                            code === 0
+                                ? resolve()
+                                : reject(
+                                      new Error(`zip uploads failed: ${code}`)
+                                  )
+                        );
                         zip.on('error', reject);
                     });
                 }
 
-                res.download(zipFile, `gear_full_backup_${timestamp}.zip`, (err) => {
-                    if (err) console.error('Error sending file:', err);
-                    try {
-                        fs.rmSync(workDir, { recursive: true, force: true });
-                        fs.unlinkSync(zipFile);
-                    } catch (e) { console.error('Cleanup error:', e); }
-                });
+                res.download(
+                    zipFile,
+                    `gear_full_backup_${timestamp}.zip`,
+                    (err) => {
+                        if (err) console.error('Error sending file:', err);
+                        try {
+                            fs.rmSync(workDir, {
+                                recursive: true,
+                                force: true,
+                            });
+                            fs.unlinkSync(zipFile);
+                        } catch (e) {
+                            console.error('Cleanup error:', e);
+                        }
+                    }
+                );
             } else {
                 // SQL Only (Database)
-                res.download(sqlFile, `gear_db_backup_${timestamp}.sql`, (err) => {
-                    if (err) console.error('Error sending file:', err);
-                    try {
-                        fs.rmSync(workDir, { recursive: true, force: true });
-                    } catch (e) { console.error('Cleanup error:', e); }
-                });
+                res.download(
+                    sqlFile,
+                    `gear_db_backup_${timestamp}.sql`,
+                    (err) => {
+                        if (err) console.error('Error sending file:', err);
+                        try {
+                            fs.rmSync(workDir, {
+                                recursive: true,
+                                force: true,
+                            });
+                        } catch (e) {
+                            console.error('Cleanup error:', e);
+                        }
+                    }
+                );
             }
-
         } else {
             // Default JSON (Database Only)
-             const tables = [
-                'users', 'models', 'workshops', 'sectors', 'lessons', 'hotspots', 'system_settings'
+            const tables = [
+                'users',
+                'models',
+                'workshops',
+                'sectors',
+                'lessons',
+                'hotspots',
+                'system_settings',
             ];
             const backupData = {
                 timestamp: new Date().toISOString(),
@@ -193,7 +238,9 @@ export const getBackup = async (req, res) => {
                     const [rows] = await pool.query(`SELECT * FROM ${table}`);
                     backupData.tables[table] = rows;
                 } catch (e) {
-                    console.warn(`Skipping table ${table} in backup: ${e.message}`);
+                    console.warn(
+                        `Skipping table ${table} in backup: ${e.message}`
+                    );
                 }
             }
 
@@ -201,11 +248,14 @@ export const getBackup = async (req, res) => {
             if (token) {
                 res.cookie('backup_download_started', token, {
                     path: '/',
-                    maxAge: 1000 * 60 * 5
+                    maxAge: 1000 * 60 * 5,
                 });
             }
 
-            res.setHeader('Content-Disposition', `attachment; filename="gear_backup_${Date.now()}.json"`);
+            res.setHeader(
+                'Content-Disposition',
+                `attachment; filename="gear_backup_${Date.now()}.json"`
+            );
             res.setHeader('Content-Type', 'application/json');
             res.send(JSON.stringify(backupData, null, 2));
         }
@@ -230,52 +280,92 @@ export const restoreBackup = async (req, res) => {
         }
 
         const ext = path.extname(req.file.originalname).toLowerCase();
-        
-        if (ext === '.zip' || ext === '.sql') {
-             // SQL-based Restore (Full ZIP or SQL file)
-             const dbHost = process.env.DB_HOST || 'localhost';
-             const dbUser = process.env.DB_USER || 'gear';
-             const dbPass = process.env.DB_PASSWORD || 'Tsp-2024';
-             const dbName = process.env.DB_NAME || 'gear';
 
-             if (ext === '.zip') {
+        if (ext === '.zip' || ext === '.sql') {
+            // SQL-based Restore (Full ZIP or SQL file)
+            const dbHost = process.env.DB_HOST || 'localhost';
+            const dbUser = process.env.DB_USER || 'gear';
+            const dbPass = process.env.DB_PASSWORD || 'Tsp-2024';
+            const dbName = process.env.DB_NAME || 'gear';
+
+            if (ext === '.zip') {
                 // Full System Restore
                 const zipPath = req.file.path;
                 const extractPath = path.join(tempDir, `restore_${Date.now()}`);
-                if (!fs.existsSync(extractPath)) fs.mkdirSync(extractPath, { recursive: true });
+                if (!fs.existsSync(extractPath))
+                    fs.mkdirSync(extractPath, { recursive: true });
 
                 try {
-                    await execAsync(`unzip -q "${zipPath}" -d "${extractPath}"`);
+                    await execAsync(
+                        `unzip -q "${zipPath}" -d "${extractPath}"`
+                    );
                     const sqlFile = path.join(extractPath, 'database.sql');
                     if (fs.existsSync(sqlFile)) {
                         await new Promise((resolve, reject) => {
-                            const restore = spawn('mysql', [`-h${dbHost}`, `-u${dbUser}`, `--password=${dbPass}`, dbName]);
+                            const restore = spawn('mysql', [
+                                `-h${dbHost}`,
+                                `-u${dbUser}`,
+                                `--password=${dbPass}`,
+                                dbName,
+                            ]);
                             fs.createReadStream(sqlFile).pipe(restore.stdin);
-                            restore.on('close', code => code === 0 ? resolve() : reject(new Error(`mysql exited with ${code}`)));
-                            restore.stderr.on('data', d => console.error('mysql err:', d.toString()));
+                            restore.on('close', (code) =>
+                                code === 0
+                                    ? resolve()
+                                    : reject(
+                                          new Error(`mysql exited with ${code}`)
+                                      )
+                            );
+                            restore.stderr.on('data', (d) =>
+                                console.error('mysql err:', d.toString())
+                            );
                         });
                     }
                     const uploadsInZip = path.join(extractPath, 'uploads');
                     if (fs.existsSync(uploadsInZip)) {
-                        const fallbackPath = path.join(path.dirname(uploadsDir), `uploads_backup_${Date.now()}`);
-                        if (fs.existsSync(uploadsDir)) fs.renameSync(uploadsDir, fallbackPath);
+                        const fallbackPath = path.join(
+                            path.dirname(uploadsDir),
+                            `uploads_backup_${Date.now()}`
+                        );
+                        if (fs.existsSync(uploadsDir))
+                            fs.renameSync(uploadsDir, fallbackPath);
                         fs.renameSync(uploadsInZip, uploadsDir);
                     }
-                    res.json({ success: true, message: 'Full system restore completed.' });
+                    res.json({
+                        success: true,
+                        message: 'Full system restore completed.',
+                    });
                 } finally {
-                    if (fs.existsSync(extractPath)) fs.rmSync(extractPath, { recursive: true, force: true });
+                    if (fs.existsSync(extractPath))
+                        fs.rmSync(extractPath, {
+                            recursive: true,
+                            force: true,
+                        });
                 }
-             } else {
+            } else {
                 // SQL Only Restore
                 await new Promise((resolve, reject) => {
-                    const restore = spawn('mysql', [`-h${dbHost}`, `-u${dbUser}`, `--password=${dbPass}`, dbName]);
+                    const restore = spawn('mysql', [
+                        `-h${dbHost}`,
+                        `-u${dbUser}`,
+                        `--password=${dbPass}`,
+                        dbName,
+                    ]);
                     fs.createReadStream(req.file.path).pipe(restore.stdin);
-                    restore.on('close', (code) => code === 0 ? resolve() : reject(new Error(`mysql exited with ${code}`)));
-                    restore.stderr.on('data', d => console.error('mysql err:', d.toString()));
+                    restore.on('close', (code) =>
+                        code === 0
+                            ? resolve()
+                            : reject(new Error(`mysql exited with ${code}`))
+                    );
+                    restore.stderr.on('data', (d) =>
+                        console.error('mysql err:', d.toString())
+                    );
                 });
-                res.json({ success: true, message: 'Database restored successfully from SQL.' });
-             }
-
+                res.json({
+                    success: true,
+                    message: 'Database restored successfully from SQL.',
+                });
+            }
         } else if (ext === '.json') {
             const jsonContent = fs.readFileSync(req.file.path, 'utf8');
             const data = JSON.parse(jsonContent);

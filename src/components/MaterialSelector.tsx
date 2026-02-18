@@ -15,7 +15,9 @@ interface Material {
 const MaterialSelector: React.FC = () => {
     const { t } = useTranslation();
     const [materials, setMaterials] = useState<Material[]>([]);
-    const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null);
+    const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(
+        null
+    );
     const [thickness, setThickness] = useState<number>(3); // mm
     const [power, setPower] = useState<number>(80); // Watts
     const [cuttingSpeed, setCuttingSpeed] = useState<number | null>(null);
@@ -28,8 +30,8 @@ const MaterialSelector: React.FC = () => {
         setLoading(true);
         setApiError(null);
         fetch(`/api/materials/search?query=${query}`)
-            .then(res => res.json())
-            .then(data => {
+            .then((res) => res.json())
+            .then((data) => {
                 if (data.error) {
                     setApiError(data.error);
                 }
@@ -43,22 +45,23 @@ const MaterialSelector: React.FC = () => {
                             density: m.density,
                             thermalConductivity: 150, // Default fallback as API might not return it
                             meltingPoint: 1400, // Default fallback
-                            elasticity: 0 // Default
-                        }
+                            elasticity: 0, // Default
+                        },
                     }));
                     setMaterials(mappedMaterials);
-                    if (mappedMaterials.length > 0) setSelectedMaterial(mappedMaterials[0]);
+                    if (mappedMaterials.length > 0)
+                        setSelectedMaterial(mappedMaterials[0]);
                 }
                 setLoading(false);
             })
-            .catch(err => {
-                console.error("Failed to fetch materials:", err);
+            .catch((err) => {
+                console.error('Failed to fetch materials:', err);
                 setLoading(false);
             });
     };
 
     useEffect(() => {
-        fetchMaterials(searchQuery);
+        fetchMaterials(searchQuery); // eslint-disable-line react-hooks/set-state-in-effect
     }, []);
 
     useEffect(() => {
@@ -68,10 +71,10 @@ const MaterialSelector: React.FC = () => {
                 {
                     power: power,
                     speed: 0, // Not used in input, calculated output
-                    thickness: thickness
+                    thickness: thickness,
                 }
             );
-            setCuttingSpeed(speed);
+            setCuttingSpeed(speed); // eslint-disable-line react-hooks/set-state-in-effect
         }
     }, [selectedMaterial, thickness, power]);
 
@@ -90,12 +93,12 @@ const MaterialSelector: React.FC = () => {
                 parameters: {
                     material: selectedMaterial.name,
                     thickness: thickness,
-                    power: power
+                    power: power,
                 },
                 result: {
                     estimatedSpeed: cuttingSpeed,
-                    efficiency: power / thickness // rough metric
-                }
+                    efficiency: power / thickness, // rough metric
+                },
             });
             setReceipt(result);
         } catch (e) {
@@ -108,18 +111,18 @@ const MaterialSelector: React.FC = () => {
             <h2 className="text-2xl font-bold text-teal-400 mb-4 tracking-wider flex items-center gap-2">
                 {t('materials.title')}
             </h2>
-            
+
             {/* Search Box */}
             <form onSubmit={handleSearch} className="mb-4 relative">
-                <input 
-                    type="text" 
+                <input
+                    type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search Formula (e.g. SiO2, Au)"
                     className="w-full bg-gray-800 text-white rounded p-2 pl-9 border border-gray-700 focus:border-teal-500 outline-none uppercase"
                 />
                 <Search className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
-                <button 
+                <button
                     type="submit"
                     className="absolute right-2 top-2 bg-teal-600 hover:bg-teal-500 text-white text-xs px-2 py-1 rounded"
                 >
@@ -133,7 +136,9 @@ const MaterialSelector: React.FC = () => {
                         <ShieldCheck className="w-4 h-4 text-red-400" />
                     </div>
                     <div>
-                        <h4 className="text-red-400 text-sm font-bold">API Error (Using Mock Data)</h4>
+                        <h4 className="text-red-400 text-sm font-bold">
+                            API Error (Using Mock Data)
+                        </h4>
                         <p className="text-red-300 text-xs mt-1">{apiError}</p>
                     </div>
                 </div>
@@ -146,13 +151,21 @@ const MaterialSelector: React.FC = () => {
             ) : (
                 <>
                     <div className="mb-4">
-                        <label className="block text-gray-400 text-sm mb-2">{t('materials.usage')}</label>
-                        <select 
+                        <label className="block text-gray-400 text-sm mb-2">
+                            {t('materials.usage')}
+                        </label>
+                        <select
                             className="w-full bg-gray-800 text-white rounded p-2 border border-gray-700 focus:border-teal-500 outline-none"
                             value={selectedMaterial?.id || ''}
-                            onChange={(e) => setSelectedMaterial(materials.find(m => m.id === e.target.value) || null)}
+                            onChange={(e) =>
+                                setSelectedMaterial(
+                                    materials.find(
+                                        (m) => m.id === e.target.value
+                                    ) || null
+                                )
+                            }
                         >
-                            {materials.map(m => (
+                            {materials.map((m) => (
                                 <option key={m.id} value={m.id}>
                                     {m.name} ({m.formula}) - [{m.id}]
                                 </option>
@@ -161,46 +174,68 @@ const MaterialSelector: React.FC = () => {
                     </div>
 
                     {/* Crystal Structure Viewer & Integrated Calculator */}
-                    {selectedMaterial && selectedMaterial.id.startsWith('mp-') && (
-                        <div className="mb-4">
-                            <CrystalStructureViewer
-                                materialId={selectedMaterial.id}
-                                formula={selectedMaterial.formula}
-                                onSpeedChange={(speed) => setCuttingSpeed(speed)}
-                            />
-                        </div>
-                    )}
+                    {selectedMaterial &&
+                        selectedMaterial.id.startsWith('mp-') && (
+                            <div className="mb-4">
+                                <CrystalStructureViewer
+                                    materialId={selectedMaterial.id}
+                                    formula={selectedMaterial.formula}
+                                    onSpeedChange={(speed) =>
+                                        setCuttingSpeed(speed)
+                                    }
+                                />
+                            </div>
+                        )}
 
                     {!selectedMaterial?.id.startsWith('mp-') && (
                         <>
                             <div className="grid grid-cols-2 gap-4 mb-4">
                                 <div>
-                                    <label className="block text-gray-400 text-sm mb-2">Thickness (mm)</label>
-                                    <input 
-                                        type="number" 
-                                        min="1" max="20"
+                                    <label className="block text-gray-400 text-sm mb-2">
+                                        Thickness (mm)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        max="20"
                                         className="w-full bg-gray-800 text-white rounded p-2 border border-gray-700"
                                         value={thickness}
-                                        onChange={(e) => setThickness(Number(e.target.value))}
+                                        onChange={(e) =>
+                                            setThickness(Number(e.target.value))
+                                        }
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-gray-400 text-sm mb-2">Laser Power (W)</label>
-                                    <input 
-                                        type="range" 
-                                        min="10" max="150"
+                                    <label className="block text-gray-400 text-sm mb-2">
+                                        Laser Power (W)
+                                    </label>
+                                    <input
+                                        type="range"
+                                        min="10"
+                                        max="150"
                                         className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-teal-500 mt-3"
                                         value={power}
-                                        onChange={(e) => setPower(Number(e.target.value))}
+                                        onChange={(e) =>
+                                            setPower(Number(e.target.value))
+                                        }
                                     />
-                                    <div className="text-right text-xs text-teal-400 mt-1">{power} W</div>
+                                    <div className="text-right text-xs text-teal-400 mt-1">
+                                        {power} W
+                                    </div>
                                 </div>
                             </div>
 
                             <div className="bg-black/50 rounded p-4 mt-6 border-l-4 border-teal-500 mb-6 text-center">
-                                <div className="text-gray-400 text-xs uppercase tracking-widest mb-1">Calculated Cutting Speed</div>
+                                <div className="text-gray-400 text-xs uppercase tracking-widest mb-1">
+                                    Calculated Cutting Speed
+                                </div>
                                 <div className="text-3xl font-mono text-white">
-                                    {cuttingSpeed ? cuttingSpeed.toFixed(2) : '---'} <span className="text-sm text-gray-500">mm/s</span>
+                                    {cuttingSpeed
+                                        ? cuttingSpeed.toFixed(2)
+                                        : '---'}{' '}
+                                    <span className="text-sm text-gray-500">
+                                        mm/s
+                                    </span>
                                 </div>
                             </div>
                         </>

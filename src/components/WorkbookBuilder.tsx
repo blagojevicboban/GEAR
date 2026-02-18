@@ -43,7 +43,6 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
         lessonToEdit?.description || ''
     );
     const [sector, setSector] = useState(
-
         lessonToEdit?.sector || availableSectors[0] || 'Mechatronics'
     );
     const [imageUrl, setImageUrl] = useState(lessonToEdit?.image_url || '');
@@ -68,7 +67,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
     // --- Initialization ---
     useEffect(() => {
         if (lessonToEdit && lessonToEdit.steps) {
-            setSteps(lessonToEdit.steps);
+            setSteps(lessonToEdit.steps); // eslint-disable-line react-hooks/set-state-in-effect
             if (lessonToEdit.image_url) setImageUrl(lessonToEdit.image_url);
         } else if (lessonToEdit) {
             // Fetch full details
@@ -149,7 +148,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
         if (!file) return;
 
         setImageUrl(''); // Clear current preview/url while uploading (optional UI feedback)
-        
+
         try {
             const url = await handleUploadFile(file);
             if (url) {
@@ -376,7 +375,6 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                             placeholder={t('builder.short_description')}
                         />
 
-
                         {/* Sector & Image Controls */}
                         <div className="grid grid-cols-2 gap-2">
                             <select
@@ -385,15 +383,25 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                 className="w-full bg-slate-900 rounded p-2 text-xs text-slate-400 outline-none focus:ring-1 focus:ring-slate-700 cursor-pointer"
                             >
                                 {availableSectors.map((s) => (
-                                    <option key={s} value={s}>{s}</option>
+                                    <option key={s} value={s}>
+                                        {s}
+                                    </option>
                                 ))}
                             </select>
 
                             <div className="relative group">
                                 <button
-                                    onClick={() => document.getElementById('lesson-meta-img')?.click()}
+                                    onClick={() =>
+                                        document
+                                            .getElementById('lesson-meta-img')
+                                            ?.click()
+                                    }
                                     className="w-full bg-slate-900 rounded p-2 text-xs text-slate-400 hover:text-white flex items-center justify-center gap-2 border border-transparent hover:border-slate-700 transition-all truncate"
-                                    title={imageUrl ? 'Change Cover Image' : 'Upload Cover Image'}
+                                    title={
+                                        imageUrl
+                                            ? 'Change Cover Image'
+                                            : 'Upload Cover Image'
+                                    }
                                 >
                                     <ImageIcon size={14} />
                                     {imageUrl ? 'Change Cover' : 'Upload Cover'}
@@ -407,7 +415,11 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                 />
                                 {imageUrl && (
                                     <div className="absolute bottom-full left-0 mb-2 w-32 h-20 bg-slate-900 rounded shadow-xl border border-slate-700 overflow-hidden hidden group-hover:block z-50">
-                                        <img src={fixAssetUrl(imageUrl)} className="w-full h-full object-cover" alt="Cover Preview" />
+                                        <img
+                                            src={fixAssetUrl(imageUrl)}
+                                            className="w-full h-full object-cover"
+                                            alt="Cover Preview"
+                                        />
                                     </div>
                                 )}
                             </div>
@@ -978,7 +990,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                                 <p className="text-[9px] text-slate-500 italic leading-tight">
                                                     Must match the mesh ID in
                                                     the 3D model (e.g.
-                                                    'Engine_Block').
+                                                    {"'Engine_Block'"}.
                                                 </p>
                                             </div>
                                         );

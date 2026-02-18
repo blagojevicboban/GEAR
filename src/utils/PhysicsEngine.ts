@@ -28,16 +28,19 @@ export const PhysicsEngine = {
         config: LaserConfig
     ): number => {
         const efficiency = 0.85; // Machine efficiency factor
-        
+
         // Energy required to vaporize/melt a unit volume approx proportional to Density * HeatCapacity
         // We add a baseline resistance based on thickness squared for non-linear cutting difficulty
         const materialResistance = properties.density * properties.heatCapacity;
-        
+
         // Base speed calculation
         // Speed = Power / (Thickness * Resistance) * ScalingFactor
         const scalingFactor = 50; // Calibration constant to match real-world mm/s
-        
-        let estimatedSpeed = (config.power * efficiency) / (config.thickness * materialResistance) * scalingFactor;
+
+        let estimatedSpeed =
+            ((config.power * efficiency) /
+                (config.thickness * materialResistance)) *
+            scalingFactor;
 
         // Thermal conductivity penalty (heat dissipates instead of cutting)
         if (properties.thermalConductivity > 100) {
@@ -51,7 +54,10 @@ export const PhysicsEngine = {
      * Estimates UV Curing time for printing.
      * Stub for future implementation.
      */
-    calculateUVCuringTime: (layerThickness: number, uvIntensity: number): number => {
+    calculateUVCuringTime: (
+        layerThickness: number,
+        uvIntensity: number
+    ): number => {
         return (layerThickness * 10) / uvIntensity;
-    }
+    },
 };

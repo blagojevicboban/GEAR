@@ -78,7 +78,12 @@ export const createLesson = async (req, res) => {
         const id = 'lesson-' + Date.now();
 
         // Organize assets
-        const consolidated = fileService.consolidateLessonFiles(id, title, image_url, steps);
+        const consolidated = fileService.consolidateLessonFiles(
+            id,
+            title,
+            image_url,
+            steps
+        );
         const finalImageUrl = consolidated.imageUrl;
         const finalSteps = consolidated.steps;
 
@@ -152,7 +157,12 @@ export const updateLesson = async (req, res) => {
         }
 
         // Organize assets
-        const consolidated = fileService.consolidateLessonFiles(id, title, image_url, steps);
+        const consolidated = fileService.consolidateLessonFiles(
+            id,
+            title,
+            image_url,
+            steps
+        );
         const finalImageUrl = consolidated.imageUrl;
         const finalSteps = consolidated.steps;
 
@@ -223,13 +233,16 @@ export const deleteLesson = async (req, res) => {
         }
 
         // Delete Lesson Files
-        const [lessonRows] = await pool.query('SELECT image_url FROM lessons WHERE id = ?', [id]);
+        const [lessonRows] = await pool.query(
+            'SELECT image_url FROM lessons WHERE id = ?',
+            [id]
+        );
         if (lessonRows.length > 0 && lessonRows[0].image_url) {
-             const imgUrl = lessonRows[0].image_url;
-             if (imgUrl.startsWith('/api/uploads/')) {
-                 // This should delete the lesson folder because it's not protected
-                 fileService.deleteFile(imgUrl.replace('/api/uploads/', ''));
-             }
+            const imgUrl = lessonRows[0].image_url;
+            if (imgUrl.startsWith('/api/uploads/')) {
+                // This should delete the lesson folder because it's not protected
+                fileService.deleteFile(imgUrl.replace('/api/uploads/', ''));
+            }
         }
 
         await pool.query('DELETE FROM lessons WHERE id = ?', [id]); // Cascades to steps

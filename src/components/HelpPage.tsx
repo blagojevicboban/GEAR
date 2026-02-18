@@ -23,7 +23,7 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
         // Check Browser Name
         const userAgent = navigator.userAgent;
         if (userAgent.match(/OculusBrowser/i)) {
-            setBrowserName('Meta Quest Browser');
+            setBrowserName('Meta Quest Browser'); // eslint-disable-line react-hooks/set-state-in-effect
         } else if (userAgent.match(/Chrome/i)) {
             setBrowserName('Chrome / Chromium');
         } else if (userAgent.match(/Firefox/i)) {
@@ -36,8 +36,7 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
 
         // Check WebXR Support
         if ('xr' in navigator) {
-            // @ts-ignore
-            navigator.xr
+            (navigator as any).xr
                 .isSessionSupported('immersive-vr')
                 .then((supported: boolean) => setXrSupported(supported))
                 .catch(() => setXrSupported(false));
@@ -197,15 +196,9 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                         {t('help.sections.tts.description')}
                     </p>
                     <ul className="list-disc list-inside text-slate-400 space-y-2">
-                        <li>
-                            {t('help.sections.tts.list.tasks')}
-                        </li>
-                        <li>
-                            {t('help.sections.tts.list.hotspots')}
-                        </li>
-                        <li>
-                            {t('help.sections.tts.list.languages')}
-                        </li>
+                        <li>{t('help.sections.tts.list.tasks')}</li>
+                        <li>{t('help.sections.tts.list.hotspots')}</li>
+                        <li>{t('help.sections.tts.list.languages')}</li>
                     </ul>
                 </div>
 
@@ -617,8 +610,13 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                                         returnObjects: true,
                                     }) as string[]
                                 ).map((feature, i) => (
-                                    <li key={i} className="flex items-start gap-2">
-                                        <span className="text-indigo-500">•</span>
+                                    <li
+                                        key={i}
+                                        className="flex items-start gap-2"
+                                    >
+                                        <span className="text-indigo-500">
+                                            •
+                                        </span>
                                         {feature}
                                     </li>
                                 ))}

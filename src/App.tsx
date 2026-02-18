@@ -30,7 +30,7 @@ const App: React.FC = () => {
     const { t } = useTranslation();
     const { config } = useConfig();
     const [currentView, setCurrentView] = useState<AppView>('home');
-    const [models, setModels] = useState<VETModel[]>([]); 
+    const [models, setModels] = useState<VETModel[]>([]);
     const [selectedModel, setSelectedModel] = useState<VETModel | null>(null);
     const [modelToEdit, setModelToEdit] = useState<VETModel | null>(null);
     const [isWorkshopMode, setIsWorkshopMode] = useState(false);
@@ -338,9 +338,7 @@ const App: React.FC = () => {
             if (res.ok) {
                 const savedModel = await res.json();
                 setModels((prev) =>
-                    prev.map((m) =>
-                        m.id === savedModel.id ? savedModel : m
-                    )
+                    prev.map((m) => (m.id === savedModel.id ? savedModel : m))
                 );
 
                 // Optimistically add new custom sector if it exists
@@ -350,7 +348,7 @@ const App: React.FC = () => {
                         return [...prev, updatedModel.sector].sort();
                     });
                 }
-                
+
                 // If we are in edit view, go back. If called from Admin, we might not want to switch view.
                 if (currentView === 'edit') {
                     setCurrentView('gallery');
@@ -401,7 +399,8 @@ const App: React.FC = () => {
                     const err = await res.json();
                     errorMsg = err.error || JSON.stringify(err);
                 } catch (e) {
-                    errorMsg = `Server error (${res.status}): ` + await res.text();
+                    errorMsg =
+                        `Server error (${res.status}): ` + (await res.text());
                 }
                 alert(`Clone failed: ${errorMsg}`);
             }
@@ -414,7 +413,6 @@ const App: React.FC = () => {
         setCurrentUser(updatedUser);
         setCurrentView('home');
     };
-
 
     const handleExitViewer = () => {
         setCurrentView('gallery');
@@ -526,9 +524,12 @@ const App: React.FC = () => {
             )}
 
             {config.global_announcement && (
-                <div 
+                <div
                     className="py-2 px-4 text-center text-sm font-medium animate-in slide-in-from-top duration-500"
-                    style={{ backgroundColor: 'var(--brand-primary)', color: 'white' }}
+                    style={{
+                        backgroundColor: 'var(--brand-primary)',
+                        color: 'white',
+                    }}
                 >
                     {config.global_announcement}
                 </div>
@@ -612,9 +613,9 @@ const App: React.FC = () => {
                 )}
 
                 {currentView === 'admin-settings' && currentUser && (
-                    <AdminSettings 
-                        currentUser={currentUser} 
-                        models={models} 
+                    <AdminSettings
+                        currentUser={currentUser}
+                        models={models}
                         onDeleteModel={handleDeleteModel}
                         onUpdateModel={handleUpdate}
                         onCloneModel={handleCloneModel}
@@ -637,14 +638,14 @@ const App: React.FC = () => {
                 {currentView === 'viewer' &&
                     selectedModel &&
                     (selectedModel.modelUrl.toLowerCase().endsWith('.pdb') ||
-                        selectedModel.modelUrl.includes('#pdb') ? (
+                    selectedModel.modelUrl.includes('#pdb') ? (
                         <PDBViewer
                             pdbUrl={selectedModel.modelUrl.replace('#pdb', '')}
                             onExit={handleExitViewer}
                         />
                     ) : selectedModel.modelUrl.toLowerCase().endsWith('.stp') ||
-                        selectedModel.modelUrl.toLowerCase().endsWith('.step') ||
-                        selectedModel.modelUrl.includes('#step') ? (
+                      selectedModel.modelUrl.toLowerCase().endsWith('.step') ||
+                      selectedModel.modelUrl.includes('#step') ? (
                         <CADViewer
                             fileUrl={selectedModel.modelUrl.replace(
                                 '#step',
@@ -654,9 +655,9 @@ const App: React.FC = () => {
                             fileName={selectedModel.name}
                         />
                     ) : selectedModel.modelUrl
-                        .toLowerCase()
-                        .endsWith?.('.stl') ||
-                        selectedModel.modelUrl.includes('#stl') ? (
+                          .toLowerCase()
+                          .endsWith?.('.stl') ||
+                      selectedModel.modelUrl.includes('#stl') ? (
                         <VRViewer
                             model={selectedModel}
                             workshopMode={isWorkshopMode}
@@ -705,19 +706,19 @@ const App: React.FC = () => {
 
             {(currentView === 'lessons' ||
                 (currentView === 'my-lessons' && currentUser)) && (
-                    <LessonsList
-                        currentUser={currentUser}
-                        onViewLesson={handleViewLesson}
-                        onEditLesson={handeEditLesson}
-                        onCreateLesson={handleCreateLesson}
-                        onViewUser={setViewingProfileUser}
-                        initialAuthorFilter={
-                            currentView === 'my-lessons'
-                                ? currentUser?.username
-                                : undefined
-                        }
-                    />
-                )}
+                <LessonsList
+                    currentUser={currentUser}
+                    onViewLesson={handleViewLesson}
+                    onEditLesson={handeEditLesson}
+                    onCreateLesson={handleCreateLesson}
+                    onViewUser={setViewingProfileUser}
+                    initialAuthorFilter={
+                        currentView === 'my-lessons'
+                            ? currentUser?.username
+                            : undefined
+                    }
+                />
+            )}
 
             {currentView === 'lesson-view' && selectedLesson && (
                 <LessonViewer
@@ -741,8 +742,8 @@ const App: React.FC = () => {
             {currentView !== 'viewer' && (
                 <footer className="bg-slate-900 border-t border-slate-800 py-6 text-center text-slate-500 text-sm">
                     <p id="footer-brand-name">
-                        &copy; 2026 {config.brand_name} - Open Source VET WebXR Platform.
-                        Optimized for Meta Quest.
+                        &copy; 2026 {config.brand_name} - Open Source VET WebXR
+                        Platform. Optimized for Meta Quest.
                     </p>
                 </footer>
             )}

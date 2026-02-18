@@ -88,7 +88,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 
             if (!res.ok) {
                 const errJson = await res.json().catch(() => ({}));
-                throw new Error(errJson.error || t('profile.form.errors.update_failed'));
+                throw new Error(
+                    errJson.error || t('profile.form.errors.update_failed')
+                );
             }
             const updatedUser = await res.json();
 
@@ -117,7 +119,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                 ...user,
                 ...updatedUser,
             });
-            alert(t('profile.form.success_update')); 
+            alert(t('profile.form.success_update'));
         } catch (err: any) {
             console.error(err);
             alert(err.message || t('profile.form.errors.update_failed'));
@@ -262,7 +264,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                         </div>
 
                         <div className="space-y-2">
-                             <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">
+                            <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">
                                 {t('nav.language')}
                             </label>
                             <select
@@ -283,7 +285,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                                 <option value="tr">Türkçe</option>
                             </select>
                         </div>
-                        
+
                         <div className="space-y-2">
                             <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">
                                 {t('profile.form.bio')}
@@ -305,7 +307,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                         <div className="border-t border-slate-800 pt-6">
                             <button
                                 type="button"
-                                onClick={() => setShowPasswordSection(!showPasswordSection)}
+                                onClick={() =>
+                                    setShowPasswordSection(!showPasswordSection)
+                                }
                                 className="text-indigo-400 text-sm font-bold hover:text-indigo-300 flex items-center gap-2"
                             >
                                 <svg
@@ -337,7 +341,8 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                                             onChange={(e) =>
                                                 setPasswordData({
                                                     ...passwordData,
-                                                    currentPassword: e.target.value,
+                                                    currentPassword:
+                                                        e.target.value,
                                                 })
                                             }
                                         />
@@ -354,7 +359,8 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                                                 onChange={(e) =>
                                                     setPasswordData({
                                                         ...passwordData,
-                                                        newPassword: e.target.value,
+                                                        newPassword:
+                                                            e.target.value,
                                                     })
                                                 }
                                             />
@@ -366,11 +372,14 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                                             <input
                                                 type="password"
                                                 className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-white"
-                                                value={passwordData.confirmPassword}
+                                                value={
+                                                    passwordData.confirmPassword
+                                                }
                                                 onChange={(e) =>
                                                     setPasswordData({
                                                         ...passwordData,
-                                                        confirmPassword: e.target.value,
+                                                        confirmPassword:
+                                                            e.target.value,
                                                     })
                                                 }
                                             />

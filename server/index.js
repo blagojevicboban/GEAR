@@ -19,7 +19,7 @@ console.log('SERVER STARTING - DEBUG MODE');
 console.log('DB Config:', {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
-    db: process.env.DB_NAME
+    db: process.env.DB_NAME,
 });
 console.log('---------------------------------------------------');
 import userRoutes from './routes/users.js';
@@ -55,14 +55,28 @@ const corsOptions = {
     origin: async function (origin, callback) {
         // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
-        
+
         try {
             const dbOriginsStr = await getSetting('allowed_origins', '');
-            const dbOrigins = dbOriginsStr.split(',').map(o => o.trim()).filter(Boolean);
-            const envOrigins = (process.env.CLIENT_URL || 'http://localhost:3000').split(',').map(o => o.trim());
-            
-            const allAllowed = [...new Set([...dbOrigins, ...envOrigins, 'http://localhost:3001', 'https://gear.tsp.edu.rs'])];
-            
+            const dbOrigins = dbOriginsStr
+                .split(',')
+                .map((o) => o.trim())
+                .filter(Boolean);
+            const envOrigins = (
+                process.env.CLIENT_URL || 'http://localhost:3000'
+            )
+                .split(',')
+                .map((o) => o.trim());
+
+            const allAllowed = [
+                ...new Set([
+                    ...dbOrigins,
+                    ...envOrigins,
+                    'http://localhost:3001',
+                    'https://gear.tsp.edu.rs',
+                ]),
+            ];
+
             if (allAllowed.indexOf(origin) !== -1) {
                 callback(null, true);
             } else {
@@ -71,10 +85,20 @@ const corsOptions = {
                 callback(new Error('Not allowed by CORS'));
             }
         } catch (err) {
-            console.error('CORS database check failed, falling back to ENV:', err);
+            console.error(
+                'CORS database check failed, falling back to ENV:',
+                err
+            );
             // Fallback to env only in case of DB failure
-            const envOrigins = (process.env.CLIENT_URL || 'http://localhost:3000').split(',').map(o => o.trim());
-            if (envOrigins.indexOf(origin) !== -1 || origin === 'https://gear.tsp.edu.rs') {
+            const envOrigins = (
+                process.env.CLIENT_URL || 'http://localhost:3000'
+            )
+                .split(',')
+                .map((o) => o.trim());
+            if (
+                envOrigins.indexOf(origin) !== -1 ||
+                origin === 'https://gear.tsp.edu.rs'
+            ) {
                 callback(null, true);
             } else {
                 callback(new Error('Not allowed by CORS (Fallback)'));
@@ -89,7 +113,7 @@ const corsOptions = {
 // Let's use a function for socket.io too if possible, but standard is just origin list.
 // To keep it simple and consistent, we'll allow all for socket.io or use same logic.
 const io = new Server(httpServer, {
-    cors: corsOptions
+    cors: corsOptions,
 });
 
 const PORT = process.env.PORT || 3001;

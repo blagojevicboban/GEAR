@@ -16,7 +16,7 @@ async function check() {
     console.log('Connecting to DB with:', { ...config, password: '***' });
     try {
         const conn = await mysql.createConnection(config);
-        
+
         console.log('\n--- Lessons Table ---');
         const [lessons] = await conn.query('DESCRIBE lessons');
         console.table(lessons);
@@ -24,7 +24,7 @@ async function check() {
         console.log('\n--- Lesson Steps Table ---');
         const [steps] = await conn.query('DESCRIBE lesson_steps');
         console.table(steps);
-        
+
         console.log('\n--- Lesson Attempts Table ---');
         const [attempts] = await conn.query('DESCRIBE lesson_attempts');
         console.table(attempts);

@@ -1,4 +1,3 @@
-// @ts-ignore
 import { TransformControls } from '../lib/TransformControls.js';
 
 // We need to extend the Window interface to include AFRAME
@@ -12,7 +11,9 @@ declare global {
 const AFRAME = typeof window !== 'undefined' ? window.AFRAME : null;
 const THREE =
     typeof window !== 'undefined'
-        ? (AFRAME && AFRAME.THREE ? AFRAME.THREE : window.THREE)
+        ? AFRAME && AFRAME.THREE
+            ? AFRAME.THREE
+            : window.THREE
         : null;
 
 if (AFRAME && THREE) {
@@ -253,7 +254,9 @@ if (AFRAME && THREE) {
             resetAll: function () {
                 this.deselect();
                 this.originalTransforms.forEach((data: any, uuid: string) => {
-                    const modelEl = document.querySelector('.interactable-model');
+                    const modelEl = document.querySelector(
+                        '.interactable-model'
+                    );
                     if (modelEl) {
                         (modelEl as any).object3D.traverse((node: any) => {
                             if (node.isMesh && node.uuid === uuid) {
@@ -284,14 +287,19 @@ if (AFRAME && THREE) {
                 const duration = 1000; // ms
                 const startTime = Date.now();
 
-                 // Store target positions
+                // Store target positions
                 const targets = new Map();
                 this.originalTransforms.forEach((data: any, uuid: string) => {
-                    const direction = new THREE.Vector3().subVectors(data.position, center);
+                    const direction = new THREE.Vector3().subVectors(
+                        data.position,
+                        center
+                    );
                     // If direction is near zero (part is at center), push it up or random
                     if (direction.lengthSq() < 0.001) direction.set(0, 1, 0);
-                    
-                    const targetPos = new THREE.Vector3().copy(data.position).add(direction.multiplyScalar(scale));
+
+                    const targetPos = new THREE.Vector3()
+                        .copy(data.position)
+                        .add(direction.multiplyScalar(scale));
                     targets.set(uuid, targetPos);
                 });
 
@@ -302,11 +310,20 @@ if (AFRAME && THREE) {
                     const ease = progress * (2 - progress);
 
                     (modelEl as any).object3D.traverse((node: any) => {
-                        if (node.isMesh && this.originalTransforms.has(node.uuid)) {
-                            const original = this.originalTransforms.get(node.uuid);
+                        if (
+                            node.isMesh &&
+                            this.originalTransforms.has(node.uuid)
+                        ) {
+                            const original = this.originalTransforms.get(
+                                node.uuid
+                            );
                             const target = targets.get(node.uuid);
                             if (target) {
-                                node.position.lerpVectors(original.position, target, ease);
+                                node.position.lerpVectors(
+                                    original.position,
+                                    target,
+                                    ease
+                                );
                             }
                         }
                     });
@@ -320,7 +337,7 @@ if (AFRAME && THREE) {
 
             collapse: function () {
                 this.deselect();
-                 const modelEl = document.querySelector('.interactable-model');
+                const modelEl = document.querySelector('.interactable-model');
                 if (!modelEl) return;
 
                 const duration = 1000;
@@ -329,29 +346,38 @@ if (AFRAME && THREE) {
                 // Current positions are start, originals are target
                 // We need to capture current positions because they might be mid-move or manually moved?
                 // Actually, let's just lerp from wherever they are to original.
-                
+
                 const startPositions = new Map();
                 (modelEl as any).object3D.traverse((node: any) => {
-                     if (node.isMesh && this.originalTransforms.has(node.uuid)) {
-                         startPositions.set(node.uuid, node.position.clone());
-                     }
+                    if (node.isMesh && this.originalTransforms.has(node.uuid)) {
+                        startPositions.set(node.uuid, node.position.clone());
+                    }
                 });
 
                 const animate = () => {
                     const now = Date.now();
                     const progress = Math.min((now - startTime) / duration, 1);
-                     const ease = progress * (2 - progress);
+                    const ease = progress * (2 - progress);
 
                     (modelEl as any).object3D.traverse((node: any) => {
-                        if (node.isMesh && this.originalTransforms.has(node.uuid)) {
+                        if (
+                            node.isMesh &&
+                            this.originalTransforms.has(node.uuid)
+                        ) {
                             const start = startPositions.get(node.uuid);
-                            const original = this.originalTransforms.get(node.uuid);
+                            const original = this.originalTransforms.get(
+                                node.uuid
+                            );
                             if (start && original) {
-                                node.position.lerpVectors(start, original.position, ease);
+                                node.position.lerpVectors(
+                                    start,
+                                    original.position,
+                                    ease
+                                );
                                 // Also restore rotation/scale just in case
                                 if (progress === 1) {
-                                     node.quaternion.copy(original.quaternion);
-                                     node.scale.copy(original.scale);
+                                    node.quaternion.copy(original.quaternion);
+                                    node.scale.copy(original.scale);
                                 }
                             }
                         }
@@ -362,7 +388,7 @@ if (AFRAME && THREE) {
                     }
                 };
                 animate();
-            }
+            },
         });
     }
 

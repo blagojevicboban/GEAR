@@ -213,9 +213,12 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({
                                             e.stopPropagation();
                                             if (
                                                 window.confirm(
-                                                    t('gallery.confirm_delete', {
-                                                        name: model.name,
-                                                    })
+                                                    t(
+                                                        'gallery.confirm_delete',
+                                                        {
+                                                            name: model.name,
+                                                        }
+                                                    )
                                                 )
                                             ) {
                                                 onDeleteModel(model.id);

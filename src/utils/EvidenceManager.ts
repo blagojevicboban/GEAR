@@ -24,9 +24,9 @@ export const EvidenceManager = {
             const response = await fetch('/api/evidence', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
             });
 
             if (!response.ok) {
@@ -38,5 +38,5 @@ export const EvidenceManager = {
             console.error('[EvidenceManager] Submission Error:', error);
             throw error;
         }
-    }
+    },
 };

@@ -23,7 +23,6 @@ const TourOverlay: React.FC<TourOverlayProps> = ({
     const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
     const currentStep = steps[currentStepIndex];
 
-
     const updatePosition = useCallback(() => {
         if (!currentStep) return;
 

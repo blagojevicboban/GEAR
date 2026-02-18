@@ -16,7 +16,9 @@ interface ConfigContextType {
 
 const ConfigContext = createContext<ConfigContextType | undefined>(undefined);
 
-export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({
+    children,
+}) => {
     const [config, setConfig] = useState<PublicConfig>({
         brand_name: 'THE GEAR',
         brand_color: '#4f46e5',
@@ -47,9 +49,15 @@ export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // Apply primary color to CSS variable
     useEffect(() => {
         if (config.brand_color) {
-            document.documentElement.style.setProperty('--brand-primary', config.brand_color);
+            document.documentElement.style.setProperty(
+                '--brand-primary',
+                config.brand_color
+            );
             // Also generate a glow/secondary color if needed
-            document.documentElement.style.setProperty('--brand-primary-glow', `${config.brand_color}33`); // 20% alpha
+            document.documentElement.style.setProperty(
+                '--brand-primary-glow',
+                `${config.brand_color}33`
+            ); // 20% alpha
         }
     }, [config.brand_color]);
 

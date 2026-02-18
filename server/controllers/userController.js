@@ -117,52 +117,78 @@ export const updateProfile = async (req, res) => {
     // Fetch current user first to handle old file deletion later
     let oldProfilePicUrl = null;
     try {
-        const [users] = await pool.query('SELECT profilePicUrl FROM users WHERE id = ?', [id]);
+        const [users] = await pool.query(
+            'SELECT profilePicUrl FROM users WHERE id = ?',
+            [id]
+        );
         if (users.length > 0) oldProfilePicUrl = users[0].profilePicUrl;
-    } catch(e) { console.error('Error fetching old user', e); }
+    } catch (e) {
+        console.error('Error fetching old user', e);
+    }
 
     try {
         let finalProfilePicUrl = profilePicUrl;
-        
+
         // Consolidate profile picture
         try {
             if (profilePicUrl && profilePicUrl.startsWith('/api/uploads/')) {
                 const profilesDir = '/api/uploads/profile_pictures/';
                 if (!profilePicUrl.startsWith(profilesDir)) {
-                     finalProfilePicUrl = fileService.moveFileToFolder(profilePicUrl, profilesDir);
+                    finalProfilePicUrl = fileService.moveFileToFolder(
+                        profilePicUrl,
+                        profilesDir
+                    );
                 }
             }
         } catch (moveErr) {
-             console.error(`Move failed: ${moveErr.message}`);
+            console.error(`Move failed: ${moveErr.message}`);
         }
 
         await pool.query(
             'UPDATE users SET username=?, institution=?, bio=?, profilePicUrl=?, language=? WHERE id=?',
-            [username, institution, bio, finalProfilePicUrl, req.body.language || 'en', id]
+            [
+                username,
+                institution,
+                bio,
+                finalProfilePicUrl,
+                req.body.language || 'en',
+                id,
+            ]
         );
 
         // Delete old profile picture if it changed and exists
         // We wrap this in a try-catch so that if cleanup fails, the user update still succeeds
         try {
-            if (oldProfilePicUrl && oldProfilePicUrl !== finalProfilePicUrl && oldProfilePicUrl.startsWith('/api/uploads/')) {
-                fileService.deleteFile(oldProfilePicUrl.replace('/api/uploads/', ''));
+            if (
+                oldProfilePicUrl &&
+                oldProfilePicUrl !== finalProfilePicUrl &&
+                oldProfilePicUrl.startsWith('/api/uploads/')
+            ) {
+                fileService.deleteFile(
+                    oldProfilePicUrl.replace('/api/uploads/', '')
+                );
             }
         } catch (cleanupErr) {
-            console.error('Failed to clean up old profile picture:', cleanupErr);
+            console.error(
+                'Failed to clean up old profile picture:',
+                cleanupErr
+            );
             // Non-critical error, proceed
         }
 
-        res.json({ 
-            id, 
-            username, 
-            institution, 
-            bio, 
-            profilePicUrl: finalProfilePicUrl, 
-            language: req.body.language || 'en' 
+        res.json({
+            id,
+            username,
+            institution,
+            bio,
+            profilePicUrl: finalProfilePicUrl,
+            language: req.body.language || 'en',
         });
     } catch (err) {
         console.error('Profile update main error:', err);
-        res.status(500).json({ error: 'Failed to update profile: ' + (err.message || err) });
+        res.status(500).json({
+            error: 'Failed to update profile: ' + (err.message || err),
+        });
     }
 };
 
@@ -186,7 +212,9 @@ export const changePassword = async (req, res) => {
         // 2. Verify current password
         const valid = await bcrypt.compare(currentPassword, user.password);
         if (!valid) {
-            return res.status(401).json({ error: 'Incorrect current password' });
+            return res
+                .status(401)
+                .json({ error: 'Incorrect current password' });
         }
 
         // 3. Hash new password
@@ -230,7 +258,10 @@ export const deleteUser = async (req, res) => {
         }
 
         // Delete Profile Picture
-        const [userRows] = await pool.query('SELECT profilePicUrl FROM users WHERE id = ?', [id]);
+        const [userRows] = await pool.query(
+            'SELECT profilePicUrl FROM users WHERE id = ?',
+            [id]
+        );
         if (userRows.length > 0 && userRows[0].profilePicUrl) {
             const picUrl = userRows[0].profilePicUrl;
             if (picUrl.startsWith('/api/uploads/')) {

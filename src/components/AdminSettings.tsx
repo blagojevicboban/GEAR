@@ -197,19 +197,23 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
         // All backup types now use direct download with spinner support
         setBackingUp(true);
         const token = Date.now().toString();
-        
+
         // Polling for completion cookie
         const interval = setInterval(() => {
-            const cookies = document.cookie.split(';').reduce((acc, cookie) => {
-                const [key, val] = cookie.trim().split('=');
-                if (key && val) acc[key.trim()] = val.trim();
-                return acc;
-            }, {} as Record<string, string>);
+            const cookies = document.cookie.split(';').reduce(
+                (acc, cookie) => {
+                    const [key, val] = cookie.trim().split('=');
+                    if (key && val) acc[key.trim()] = val.trim();
+                    return acc;
+                },
+                {} as Record<string, string>
+            );
 
             if (cookies['backup_download_started'] === token) {
                 clearInterval(interval);
                 setBackingUp(false);
-                document.cookie = 'backup_download_started=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+                document.cookie =
+                    'backup_download_started=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
             }
         }, 1000);
 
@@ -222,25 +226,28 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
             <div className="text-slate-400">{t('admin.config.loading')}</div>
         );
 
-
     const renderOverlay = () => {
         if (!backingUp && !restoring) return null;
-        
+
         const isRestore = restoring;
-        const title = isRestore ? "Restoring System..." : "Preparing Backup...";
-        const desc = isRestore 
-            ? "Overwriting existing data. This may take several minutes." 
-            : "Generating backup file. Please wait while the server prepares your download.";
+        const title = isRestore ? 'Restoring System...' : 'Preparing Backup...';
+        const desc = isRestore
+            ? 'Overwriting existing data. This may take several minutes.'
+            : 'Generating backup file. Please wait while the server prepares your download.';
 
         return (
             <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm">
                 <div className="bg-slate-900 border border-slate-700 p-8 rounded-2xl shadow-2xl flex flex-col items-center max-w-sm text-center">
                     <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-6"></div>
-                    <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
+                    <h3 className="text-xl font-bold text-white mb-2">
+                        {title}
+                    </h3>
                     <p className="text-slate-400 text-sm">
                         {desc}
                         <br />
-                        <span className="text-indigo-400 mt-2 block">Please do not close this window.</span>
+                        <span className="text-indigo-400 mt-2 block">
+                            Please do not close this window.
+                        </span>
                     </p>
                 </div>
             </div>
@@ -267,16 +274,16 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                 </span>
                             </div>
                             <div
-                                 className={`w-12 h-6 rounded-full p-1 transition-colors ${config.maintenance_mode === 'true' ? 'bg-indigo-600' : 'bg-slate-600'}`}
-                                 onClick={() =>
-                                     setConfig({
-                                         ...config,
-                                         maintenance_mode:
-                                             config.maintenance_mode === 'true'
-                                                 ? 'false'
-                                                 : 'true',
-                                     })
-                                 }
+                                className={`w-12 h-6 rounded-full p-1 transition-colors ${config.maintenance_mode === 'true' ? 'bg-indigo-600' : 'bg-slate-600'}`}
+                                onClick={() =>
+                                    setConfig({
+                                        ...config,
+                                        maintenance_mode:
+                                            config.maintenance_mode === 'true'
+                                                ? 'false'
+                                                : 'true',
+                                    })
+                                }
                             >
                                 <div
                                     className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform ${config.maintenance_mode === 'true' ? 'translate-x-6' : ''}`}
@@ -301,7 +308,8 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                     setConfig({
                                         ...config,
                                         allow_public_registration:
-                                            config.allow_public_registration === 'true'
+                                            config.allow_public_registration ===
+                                            'true'
                                                 ? 'false'
                                                 : 'true',
                                     })
@@ -352,14 +360,25 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                             <label className="block text-xs font-bold text-indigo-300 uppercase mb-2">
                                 {t('admin.config.ai_tweaks.model_label')}
                             </label>
-                            <select 
+                            <select
                                 className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                                 value={config.ai_model || 'gemini-2.0-flash'}
-                                onChange={(e) => setConfig({ ...config, ai_model: e.target.value })}
+                                onChange={(e) =>
+                                    setConfig({
+                                        ...config,
+                                        ai_model: e.target.value,
+                                    })
+                                }
                             >
-                                <option value="gemini-2.0-flash">Gemini 2.0 Flash (Fast & Balanced)</option>
-                                <option value="gemini-1.5-pro">Gemini 1.5 Pro (Deep Reasoning)</option>
-                                <option value="gemini-2.0-flash-lite-preview-02-05">Gemini 2.0 Flash Lite (Speed focus)</option>
+                                <option value="gemini-2.0-flash">
+                                    Gemini 2.0 Flash (Fast & Balanced)
+                                </option>
+                                <option value="gemini-1.5-pro">
+                                    Gemini 1.5 Pro (Deep Reasoning)
+                                </option>
+                                <option value="gemini-2.0-flash-lite-preview-02-05">
+                                    Gemini 2.0 Flash Lite (Speed focus)
+                                </option>
                             </select>
                         </div>
 
@@ -368,17 +387,26 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                 <label className="block text-xs font-bold text-indigo-300 uppercase mb-2">
                                     {t('admin.config.ai_tweaks.language_label')}
                                 </label>
-                                <select 
+                                <select
                                     className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                                     value={config.ai_language || 'Auto'}
-                                    onChange={(e) => setConfig({ ...config, ai_language: e.target.value })}
+                                    onChange={(e) =>
+                                        setConfig({
+                                            ...config,
+                                            ai_language: e.target.value,
+                                        })
+                                    }
                                 >
-                                    <option value="Auto">Auto (Browser Lang)</option>
+                                    <option value="Auto">
+                                        Auto (Browser Lang)
+                                    </option>
                                     <option value="Serbian">Srpski</option>
                                     <option value="English">English</option>
                                     <option value="Italian">Italiano</option>
                                     <option value="Greek">Greek</option>
-                                    <option value="Portuguese">Portuguese</option>
+                                    <option value="Portuguese">
+                                        Portuguese
+                                    </option>
                                     <option value="Turkish">Turkish</option>
                                 </select>
                             </div>
@@ -387,16 +415,23 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                     {t('admin.config.ai_tweaks.temp_label')}
                                 </label>
                                 <div className="flex items-center gap-3">
-                                    <input 
+                                    <input
                                         type="range"
                                         min="0"
                                         max="1"
                                         step="0.1"
                                         className="flex-1 accent-indigo-500"
                                         value={config.ai_temperature || '0.7'}
-                                        onChange={(e) => setConfig({ ...config, ai_temperature: e.target.value })}
+                                        onChange={(e) =>
+                                            setConfig({
+                                                ...config,
+                                                ai_temperature: e.target.value,
+                                            })
+                                        }
                                     />
-                                    <span className="text-white font-mono w-8 text-right">{config.ai_temperature}</span>
+                                    <span className="text-white font-mono w-8 text-right">
+                                        {config.ai_temperature}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -456,7 +491,8 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                 onChange={(e) =>
                                     setConfig({
                                         ...config,
-                                        material_project_api_key: e.target.value,
+                                        material_project_api_key:
+                                            e.target.value,
                                     })
                                 }
                             />
@@ -467,7 +503,8 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                             </div>
                         </div>
                         <p className="text-xs text-slate-500 mt-1">
-                            Required for Real Material Data (Materials Project Next-Gen).
+                            Required for Real Material Data (Materials Project
+                            Next-Gen).
                             <a
                                 href="https://next-gen.materialsproject.org/api"
                                 target="_blank"
@@ -487,7 +524,9 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                             <input
                                 type="text"
                                 className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
-                                placeholder={t('admin.config.branding.name_label')}
+                                placeholder={t(
+                                    'admin.config.branding.name_label'
+                                )}
                                 id="config-brand-name"
                                 value={config.brand_name || ''}
                                 onChange={(e) =>
@@ -549,15 +588,20 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                     className="w-1/3 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 outline-none"
                                     id="config-challenge-days"
                                     placeholder="7"
-                                    value={config.challenge_duration_days || '7'}
+                                    value={
+                                        config.challenge_duration_days || '7'
+                                    }
                                     onChange={(e) =>
                                         setConfig({
                                             ...config,
-                                            challenge_duration_days: e.target.value,
+                                            challenge_duration_days:
+                                                e.target.value,
                                         })
                                     }
                                 />
-                                <span className="text-slate-400 font-bold">{t('common.days') || 'Days'}</span>
+                                <span className="text-slate-400 font-bold">
+                                    {t('common.days') || 'Days'}
+                                </span>
                             </div>
                         </div>
 
@@ -565,7 +609,9 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                             <label className="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl border border-slate-700 cursor-pointer hover:bg-slate-800 transition-colors">
                                 <div>
                                     <span className="block font-bold text-white">
-                                        {t('admin.config.gamification.leaderboard_label')}
+                                        {t(
+                                            'admin.config.gamification.leaderboard_label'
+                                        )}
                                     </span>
                                 </div>
                                 <div
@@ -575,7 +621,8 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                         setConfig({
                                             ...config,
                                             show_leaderboard:
-                                                config.show_leaderboard === 'true'
+                                                config.show_leaderboard ===
+                                                'true'
                                                     ? 'false'
                                                     : 'true',
                                         })
@@ -613,7 +660,9 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                             <input
                                 type="text"
                                 className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
-                                placeholder={t('admin.config.moodle.client_id_label')}
+                                placeholder={t(
+                                    'admin.config.moodle.client_id_label'
+                                )}
                                 value={config.moodle_client_id || ''}
                                 onChange={(e) =>
                                     setConfig({

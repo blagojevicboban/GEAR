@@ -21,7 +21,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        setLoading(true);
+        setLoading(true); // eslint-disable-line react-hooks/set-state-in-effect
         Promise.all([
             fetch(`/api/users/public/${username}`).then((res) =>
                 res.ok ? res.json() : null

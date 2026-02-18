@@ -30,8 +30,13 @@ const moveFile = (fileUrl, targetDir) => {
         const relativePath = fileUrl.replace('/api/uploads/', '');
         // Handle URL fragments
         const cleanRelativePath = relativePath.split('#')[0];
-        const hashPart = relativePath.includes('#') ? '#' + relativePath.split('#')[1] : '';
-        const sourcePath = path.join(uploadDir, decodeURIComponent(cleanRelativePath));
+        const hashPart = relativePath.includes('#')
+            ? '#' + relativePath.split('#')[1]
+            : '';
+        const sourcePath = path.join(
+            uploadDir,
+            decodeURIComponent(cleanRelativePath)
+        );
 
         if (!fs.existsSync(sourcePath)) {
             // console.warn(`File not found: ${sourcePath}`);
@@ -47,13 +52,13 @@ const moveFile = (fileUrl, targetDir) => {
         // Move
         if (fs.existsSync(destPath)) {
             // Rename if collision
-             const ext = path.extname(fileName);
-             const name = path.basename(fileName, ext);
-             const newName = `${name}_${Date.now()}${ext}`;
-             const newDestPath = path.join(targetDir, newName);
-             fs.renameSync(sourcePath, newDestPath);
-             const folderName = path.basename(targetDir);
-             return `/api/uploads/${folderName}/${newName}${hashPart}`;
+            const ext = path.extname(fileName);
+            const name = path.basename(fileName, ext);
+            const newName = `${name}_${Date.now()}${ext}`;
+            const newDestPath = path.join(targetDir, newName);
+            fs.renameSync(sourcePath, newDestPath);
+            const folderName = path.basename(targetDir);
+            return `/api/uploads/${folderName}/${newName}${hashPart}`;
         } else {
             fs.renameSync(sourcePath, destPath);
         }
@@ -61,13 +66,15 @@ const moveFile = (fileUrl, targetDir) => {
         // Cleanup old folder
         const sourceDir = path.dirname(sourcePath);
         if (sourceDir !== uploadDir && sourceDir.includes('uploads')) {
-             try {
-                 if (fs.readdirSync(sourceDir).length === 0) {
-                     fs.rmdirSync(sourceDir);
-                 }
-             } catch (e) {}
+            try {
+                if (fs.readdirSync(sourceDir).length === 0) {
+                    fs.rmdirSync(sourceDir);
+                }
+            } catch (e) {
+                /* ignore cleanup errors */
+            }
         }
-        
+
         const folderName = path.basename(targetDir);
         return `/api/uploads/${folderName}/${fileName}${hashPart}`;
     } catch (err) {
@@ -86,9 +93,11 @@ const migrateLessons = async () => {
 
         for (const lesson of lessons) {
             console.log(`Processing lesson: ${lesson.title}`);
-            
+
             // 1. Determine Folder Name
-            const safeTitle = lesson.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            const safeTitle = lesson.title
+                .replace(/[^a-z0-9]/gi, '_')
+                .toLowerCase();
             const hash = lesson.id.split('-').pop(); // simple hash from id
             const folderName = `lesson_${safeTitle}_${hash}`;
             const targetDir = path.join(uploadDir, folderName);
@@ -98,7 +107,7 @@ const migrateLessons = async () => {
             }
 
             let lessonUpdates = {};
-            
+
             // 2. Migrate Main Image
             if (lesson.image_url) {
                 const newUrl = moveFile(lesson.image_url, targetDir);
@@ -108,11 +117,14 @@ const migrateLessons = async () => {
             }
 
             // 3. Migrate Steps
-            const [steps] = await connection.query('SELECT * FROM lesson_steps WHERE lesson_id = ?', [lesson.id]);
-            
+            const [steps] = await connection.query(
+                'SELECT * FROM lesson_steps WHERE lesson_id = ?',
+                [lesson.id]
+            );
+
             for (const step of steps) {
                 let stepUpdates = {};
-                
+
                 // Step Image
                 if (step.image_url) {
                     const newStepUrl = moveFile(step.image_url, targetDir);
@@ -129,21 +141,24 @@ const migrateLessons = async () => {
                     const regex = /src="(\/api\/uploads\/[^"]+)"/g;
                     let match;
                     let replaced = false;
-                    
+
                     // We gather updates first to avoid regex iteration issues
                     const replacements = [];
-                    
+
                     while ((match = regex.exec(step.content)) !== null) {
                         const originalUrl = match[1];
                         const newUrl = moveFile(originalUrl, targetDir);
                         if (newUrl !== originalUrl) {
-                            replacements.push({ original: originalUrl, new: newUrl });
+                            replacements.push({
+                                original: originalUrl,
+                                new: newUrl,
+                            });
                         }
                     }
 
                     for (const rep of replacements) {
-                         newContent = newContent.replace(rep.original, rep.new);
-                         replaced = true;
+                        newContent = newContent.replace(rep.original, rep.new);
+                        replaced = true;
                     }
 
                     if (replaced) {
@@ -152,30 +167,41 @@ const migrateLessons = async () => {
                 }
 
                 if (Object.keys(stepUpdates).length > 0) {
-                     const setClause = Object.keys(stepUpdates).map(k => `${k} = ?`).join(', ');
-                     const values = [...Object.values(stepUpdates), step.id];
-                     await connection.query(`UPDATE lesson_steps SET ${setClause} WHERE id = ?`, values);
-                     console.log(`Updated step ${step.id}`);
+                    const setClause = Object.keys(stepUpdates)
+                        .map((k) => `${k} = ?`)
+                        .join(', ');
+                    const values = [...Object.values(stepUpdates), step.id];
+                    await connection.query(
+                        `UPDATE lesson_steps SET ${setClause} WHERE id = ?`,
+                        values
+                    );
+                    console.log(`Updated step ${step.id}`);
                 }
             }
 
             // Update Lesson
             if (Object.keys(lessonUpdates).length > 0) {
-                 const setClause = Object.keys(lessonUpdates).map(k => `${k} = ?`).join(', ');
-                 const values = [...Object.values(lessonUpdates), lesson.id];
-                 await connection.query(`UPDATE lessons SET ${setClause} WHERE id = ?`, values);
-                 console.log(`Updated lesson ${lesson.id}`);
+                const setClause = Object.keys(lessonUpdates)
+                    .map((k) => `${k} = ?`)
+                    .join(', ');
+                const values = [...Object.values(lessonUpdates), lesson.id];
+                await connection.query(
+                    `UPDATE lessons SET ${setClause} WHERE id = ?`,
+                    values
+                );
+                console.log(`Updated lesson ${lesson.id}`);
             }
-            
+
             // Cleanup empty folder if we didn't use it?
             // Actually, if we created it but moved nothing, maybe remove it.
-             try {
-                 if (fs.readdirSync(targetDir).length === 0) {
-                     fs.rmdirSync(targetDir);
-                 }
-             } catch(e) {}
+            try {
+                if (fs.readdirSync(targetDir).length === 0) {
+                    fs.rmdirSync(targetDir);
+                }
+            } catch (e) {
+                /* ignore cleanup errors */
+            }
         }
-
     } catch (err) {
         console.error('Migration failed:', err);
     } finally {

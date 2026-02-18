@@ -10,7 +10,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const EVIDENCE_DIR = path.join(__dirname, '../evidence');
-const SECRET_KEY = process.env.EVIDENCE_SECRET || 'erasmus_super_secret_key_2026';
+const SECRET_KEY =
+    process.env.EVIDENCE_SECRET || 'erasmus_super_secret_key_2026';
 
 // Ensure evidence directory exists
 if (!fs.existsSync(EVIDENCE_DIR)) {
@@ -32,10 +33,10 @@ router.post('/', (req, res) => {
         // Construct the immutable log entry
         const logEntry = {
             header: {
-                standard: "Erasmus+ VET Evidence v1.0",
+                standard: 'Erasmus+ VET Evidence v1.0',
                 timestamp: timestamp,
                 session_id: sessionId,
-                integrity_hash_algo: "HMAC-SHA256"
+                integrity_hash_algo: 'HMAC-SHA256',
             },
             student: {
                 user_id: userId,
@@ -44,8 +45,8 @@ router.post('/', (req, res) => {
             simulation: {
                 id: simulationId,
                 parameters: parameters,
-                result: result
-            }
+                result: result,
+            },
         };
 
         // Create Cryptographic Signature
@@ -58,13 +59,13 @@ router.post('/', (req, res) => {
 
         const finalRecord = {
             ...logEntry,
-            signature: signature
+            signature: signature,
         };
 
         // Save to Disk (Immutable WORM simulation)
         const filename = `evidence_${sessionId}.json`;
         const filePath = path.join(EVIDENCE_DIR, filename);
-        
+
         fs.writeFileSync(filePath, JSON.stringify(finalRecord, null, 2));
 
         console.log(`[Evidence] Generated proof for session ${sessionId}`);
@@ -73,9 +74,8 @@ router.post('/', (req, res) => {
             success: true,
             sessionId: sessionId,
             signature: signature,
-            downloadUrl: `/api/evidence/${filename}` // In a real app, this would be a protected route
+            downloadUrl: `/api/evidence/${filename}`, // In a real app, this would be a protected route
         });
-
     } catch (err) {
         console.error('[Evidence] Generation failed:', err);
         res.status(500).json({ error: 'Failed to generate evidence' });

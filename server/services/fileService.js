@@ -16,7 +16,7 @@ export const extractZip = async (filePath, originalName) => {
     try {
         const AdmZip = (await import('adm-zip')).default;
         const zip = new AdmZip(filePath);
-        
+
         // Extract to the same directory where the ZIP is located (already unique from Multer)
         const extractDir = path.dirname(filePath);
 
@@ -27,14 +27,18 @@ export const extractZip = async (filePath, originalName) => {
         // Flatten logic: if the ZIP contained a single folder, move its contents up
         // First, get list of items in extractDir excluding the ZIP file itself
         const zipFileName = path.basename(filePath);
-        const items = fs.readdirSync(extractDir).filter(item => item !== zipFileName);
-        
+        const items = fs
+            .readdirSync(extractDir)
+            .filter((item) => item !== zipFileName);
+
         if (items.length === 1) {
             const singleItemPath = path.join(extractDir, items[0]);
             if (fs.statSync(singleItemPath).isDirectory()) {
-                console.log(`Found single directory "${items[0]}" in ZIP, flattening...`);
+                console.log(
+                    `Found single directory "${items[0]}" in ZIP, flattening...`
+                );
                 const subItems = fs.readdirSync(singleItemPath);
-                subItems.forEach(subItem => {
+                subItems.forEach((subItem) => {
                     const oldPath = path.join(singleItemPath, subItem);
                     const newPath = path.join(extractDir, subItem);
                     // Handle potential conflicts (though unlikely in a fresh extract)
@@ -42,7 +46,10 @@ export const extractZip = async (filePath, originalName) => {
                         if (fs.statSync(newPath).isDirectory()) {
                             // If it's a directory, we might need recursive merge, but for CAD/3D usually simple is fine
                             // For simplicity, we just rename with timestamp if conflict
-                            const conflictPath = path.join(extractDir, `${subItem}_${Date.now()}`);
+                            const conflictPath = path.join(
+                                extractDir,
+                                `${subItem}_${Date.now()}`
+                            );
                             fs.renameSync(oldPath, conflictPath);
                         } else {
                             fs.renameSync(oldPath, newPath);
@@ -108,9 +115,14 @@ export const extractZip = async (filePath, originalName) => {
         // Fallback to parts
         if (!mainFile) {
             const parts = allFiles.filter((f) =>
-                ['.sldprt', '.ipt', '.prt', '.catpart', '.stl', '.obj'].includes(
-                    path.extname(f).toLowerCase()
-                )
+                [
+                    '.sldprt',
+                    '.ipt',
+                    '.prt',
+                    '.catpart',
+                    '.stl',
+                    '.obj',
+                ].includes(path.extname(f).toLowerCase())
             );
             if (parts.length > 0) mainFile = parts[0];
         }
@@ -156,7 +168,9 @@ export const deleteFile = (relativePath) => {
             const stats = fs.statSync(pathToDelete);
             if (stats.isDirectory()) {
                 if (isProtected) {
-                    console.warn(`Skiping deletion of protected directory: ${pathToDelete}`);
+                    console.warn(
+                        `Skiping deletion of protected directory: ${pathToDelete}`
+                    );
                 } else {
                     fs.rmSync(pathToDelete, { recursive: true, force: true });
                     console.log(`Deleted directory: ${pathToDelete}`);
@@ -178,23 +192,25 @@ export const copyFile = (sourceUrl) => {
         const relativePath = sourceUrl.replace('/api/uploads/', '');
         // Handle URL fragments if any (like #test)
         const cleanRelativePath = relativePath.split('#')[0];
-        const fragment = relativePath.includes('#') ? '#' + relativePath.split('#')[1] : '';
+        const fragment = relativePath.includes('#')
+            ? '#' + relativePath.split('#')[1]
+            : '';
 
         const sourcePath = path.join(uploadDir, cleanRelativePath);
-        
+
         if (!fs.existsSync(sourcePath)) {
             console.warn(`Source file not found for copy: ${sourcePath}`);
-            return sourceUrl; 
+            return sourceUrl;
         }
 
         const pathParts = cleanRelativePath.split('/');
-        
+
         // If it looks like a folder structure (length > 1), we treat the top-level folder as the unit to copy
         // This matches deleteFile logic where we delete the whole extracted folder
         if (pathParts.length > 1) {
             const rootFolderName = pathParts[0];
             const sourceDir = path.join(uploadDir, rootFolderName);
-            
+
             // Generate new folder name
             const newDirName = `${rootFolderName}_copy_${Date.now()}`;
             const newDir = path.join(uploadDir, newDirName);
@@ -223,46 +239,57 @@ export const copyFile = (sourceUrl) => {
 };
 
 export const moveFileToFolder = (fileUrl, targetUrl) => {
-    if (!fileUrl || !fileUrl.startsWith('/api/uploads/') || !targetUrl || !targetUrl.startsWith('/api/uploads/')) {
+    if (
+        !fileUrl ||
+        !fileUrl.startsWith('/api/uploads/') ||
+        !targetUrl ||
+        !targetUrl.startsWith('/api/uploads/')
+    ) {
         return fileUrl;
     }
 
     try {
         const fileRel = fileUrl.replace('/api/uploads/', '');
         const targetRel = targetUrl.replace('/api/uploads/', '');
-        
+
         // Target folder is the first part of the target path
         const targetParts = targetRel.split('/');
         if (targetParts.length < 2) return fileUrl; // Target is in root, cannot consolidate to folder
-        
+
         const targetFolder = targetParts[0];
         const targetDir = path.join(uploadDir, targetFolder);
-        
+
         // File details
         const fileParts = fileRel.split('/');
         // If file is already in the target folder, do nothing
-        if (fileParts.length > 1 && fileParts[0] === targetFolder) return fileUrl;
+        if (fileParts.length > 1 && fileParts[0] === targetFolder)
+            return fileUrl;
 
         // Current location
         const fileCleanRel = fileRel.split('#')[0]; // removal hash
-        const fileHash = fileRel.includes('#') ? '#' + fileRel.split('#')[1] : '';
-        const sourcePath = path.join(uploadDir, decodeURIComponent(fileCleanRel));
-        
+        const fileHash = fileRel.includes('#')
+            ? '#' + fileRel.split('#')[1]
+            : '';
+        const sourcePath = path.join(
+            uploadDir,
+            decodeURIComponent(fileCleanRel)
+        );
+
         if (!fs.existsSync(sourcePath)) return fileUrl;
 
         // Move
         const fileName = path.basename(sourcePath);
         const destPath = path.join(targetDir, fileName);
-        
+
         // Avoid overwrite if name conflict
         if (fs.existsSync(destPath)) {
             // Add a suffix
-             const ext = path.extname(fileName);
-             const name = path.basename(fileName, ext);
-             const newName = `${name}_${Date.now()}${ext}`;
-             const newDestPath = path.join(targetDir, newName);
-             fs.renameSync(sourcePath, newDestPath);
-             return `/api/uploads/${targetFolder}/${newName}${fileHash}`;
+            const ext = path.extname(fileName);
+            const name = path.basename(fileName, ext);
+            const newName = `${name}_${Date.now()}${ext}`;
+            const newDestPath = path.join(targetDir, newName);
+            fs.renameSync(sourcePath, newDestPath);
+            return `/api/uploads/${targetFolder}/${newName}${fileHash}`;
         } else {
             fs.renameSync(sourcePath, destPath);
         }
@@ -270,12 +297,14 @@ export const moveFileToFolder = (fileUrl, targetUrl) => {
         // Cleanup old folder if empty
         const sourceDir = path.dirname(sourcePath);
         if (sourceDir !== uploadDir) {
-             try {
-                 if (fs.readdirSync(sourceDir).length === 0) {
-                     fs.rmdirSync(sourceDir);
-                     console.log(`Cleaned up empty folder: ${sourceDir}`);
-                 }
-             } catch (e) { /* ignore */ }
+            try {
+                if (fs.readdirSync(sourceDir).length === 0) {
+                    fs.rmdirSync(sourceDir);
+                    console.log(`Cleaned up empty folder: ${sourceDir}`);
+                }
+            } catch (e) {
+                /* ignore */
+            }
         }
 
         return `/api/uploads/${targetFolder}/${fileName}${fileHash}`;
@@ -298,12 +327,17 @@ export const consolidateLessonFiles = (lessonId, title, imageUrl, steps) => {
 
     const moveResult = (fileUrl) => {
         if (!fileUrl || !fileUrl.startsWith('/api/uploads/')) return fileUrl;
-        
+
         try {
             const relativePath = fileUrl.replace('/api/uploads/', '');
             const cleanRelativePath = relativePath.split('#')[0];
-            const hashPart = relativePath.includes('#') ? '#' + relativePath.split('#')[1] : '';
-            const sourcePath = path.join(uploadDir, decodeURIComponent(cleanRelativePath));
+            const hashPart = relativePath.includes('#')
+                ? '#' + relativePath.split('#')[1]
+                : '';
+            const sourcePath = path.join(
+                uploadDir,
+                decodeURIComponent(cleanRelativePath)
+            );
 
             if (!fs.existsSync(sourcePath)) return fileUrl;
 
@@ -315,23 +349,25 @@ export const consolidateLessonFiles = (lessonId, title, imageUrl, steps) => {
             const destPath = path.join(targetDir, fileName);
 
             if (fs.existsSync(destPath) && sourcePath !== destPath) {
-                 // Rename
-                 const ext = path.extname(fileName);
-                 const name = path.basename(fileName, ext);
-                 const newName = `${name}_${Date.now()}${ext}`;
-                 fs.renameSync(sourcePath, path.join(targetDir, newName));
-                 return `/api/uploads/${folderName}/${newName}${hashPart}`;
+                // Rename
+                const ext = path.extname(fileName);
+                const name = path.basename(fileName, ext);
+                const newName = `${name}_${Date.now()}${ext}`;
+                fs.renameSync(sourcePath, path.join(targetDir, newName));
+                return `/api/uploads/${folderName}/${newName}${hashPart}`;
             } else if (sourcePath !== destPath) {
                 fs.renameSync(sourcePath, destPath);
             }
-            
+
             // Cleanup source dir if empty
             if (path.dirname(sourcePath) !== uploadDir) {
-                 try {
-                     if (fs.readdirSync(path.dirname(sourcePath)).length === 0) {
-                         fs.rmdirSync(path.dirname(sourcePath));
-                     }
-                 } catch(e) {}
+                try {
+                    if (fs.readdirSync(path.dirname(sourcePath)).length === 0) {
+                        fs.rmdirSync(path.dirname(sourcePath));
+                    }
+                } catch (e) {
+                    /* ignore cleanup errors */
+                }
             }
 
             return `/api/uploads/${folderName}/${fileName}${hashPart}`;
@@ -348,9 +384,9 @@ export const consolidateLessonFiles = (lessonId, title, imageUrl, steps) => {
 
     let newSteps = steps;
     if (steps && Array.isArray(steps)) {
-        newSteps = steps.map(step => {
+        newSteps = steps.map((step) => {
             let updatedStep = { ...step };
-            
+
             // Step Image
             if (step.image_url) {
                 updatedStep.image_url = moveResult(step.image_url);
@@ -359,10 +395,13 @@ export const consolidateLessonFiles = (lessonId, title, imageUrl, steps) => {
             // Step Content
             if (step.content && step.content.includes('/api/uploads/')) {
                 const regex = /src="(\/api\/uploads\/[^"]+)"/g;
-                updatedStep.content = step.content.replace(regex, (match, url) => {
-                    const newUrl = moveResult(url);
-                    return `src="${newUrl}"`;
-                });
+                updatedStep.content = step.content.replace(
+                    regex,
+                    (match, url) => {
+                        const newUrl = moveResult(url);
+                        return `src="${newUrl}"`;
+                    }
+                );
             }
             return updatedStep;
         });
@@ -375,9 +414,9 @@ export const checkFileExists = (fileUrl) => {
     if (!fileUrl) return false;
     if (fileUrl.startsWith('http')) return true; // Remote files are assumed to exist
     if (!fileUrl.startsWith('/api/uploads/')) return false;
-    
+
     const relativePath = fileUrl.replace('/api/uploads/', '').split('#')[0];
     const fullPath = path.join(uploadDir, decodeURIComponent(relativePath));
-    
+
     return fs.existsSync(fullPath);
 };

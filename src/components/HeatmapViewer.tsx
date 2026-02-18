@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { VETModel } from '../types';
 import { fixAssetUrl } from '../utils/urlUtils';
-// @ts-ignore
 import { STLLoader } from '../lib/three-examples/loaders/STLLoader.js';
 
 interface HeatmapViewerProps {

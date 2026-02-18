@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { 
-    LayoutDashboard, 
-    HardHat, 
-    Settings, 
-    HelpCircle, 
-    LogOut, 
-    Menu, 
-    X, 
+import {
+    LayoutDashboard,
+    HardHat,
+    Settings,
+    HelpCircle,
+    LogOut,
+    Menu,
+    X,
     Terminal,
     User,
     ChevronDown,
     Globe,
     Download,
-    Zap
+    Zap,
 } from 'lucide-react';
 import { AppView, User as UserType } from '../types';
 
@@ -26,12 +26,17 @@ interface NavbarProps {
 
 import { useConfig } from '../context/ConfigContext';
 
-const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLogout }) => {
+const Navbar: React.FC<NavbarProps> = ({
+    currentView,
+    setView,
+    currentUser,
+    onLogout,
+}) => {
     const { t, i18n } = useTranslation();
     const { config } = useConfig();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showLangDropdown, setShowLangDropdown] = useState(false);
-    
+
     // Separate refs to avoid collision between desktop and mobile versions
     const langRefDesktop = useRef<HTMLDivElement>(null);
     const langRefMobile = useRef<HTMLDivElement>(null);
@@ -42,21 +47,23 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
         { code: 'it', name: 'Italiano' },
         { code: 'el', name: 'Ελληνικά' },
         { code: 'pt', name: 'Português' },
-        { code: 'tr', name: 'Türkçe' }
+        { code: 'tr', name: 'Türkçe' },
     ];
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             const target = event.target as Node;
-            const clickedInsideDesktop = langRefDesktop.current?.contains(target);
+            const clickedInsideDesktop =
+                langRefDesktop.current?.contains(target);
             const clickedInsideMobile = langRefMobile.current?.contains(target);
-            
+
             if (!clickedInsideDesktop && !clickedInsideMobile) {
                 setShowLangDropdown(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        return () =>
+            document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
     const handleLanguageChange = (code: string, e: React.MouseEvent) => {
@@ -86,38 +93,72 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
         }
     };
 
-    const navItems: { view: AppView; label: string; icon: any; id?: string }[] = [
-        { view: 'gallery', label: t('nav.library'), icon: HardHat, id: 'nav-repo' },
-        { view: 'lessons', label: t('nav.lessons'), icon: Terminal, id: 'nav-lessons' },
-        { view: 'academy', label: t('nav.academy'), icon: LayoutDashboard, id: 'nav-academy' },
-        { view: 'materials', label: t('nav.materials'), icon: Zap, id: 'nav-materials' },
-        { view: 'help', label: t('nav.help'), icon: HelpCircle, id: 'nav-help' },
-    ];
+    const navItems: { view: AppView; label: string; icon: any; id?: string }[] =
+        [
+            {
+                view: 'gallery',
+                label: t('nav.library'),
+                icon: HardHat,
+                id: 'nav-repo',
+            },
+            {
+                view: 'lessons',
+                label: t('nav.lessons'),
+                icon: Terminal,
+                id: 'nav-lessons',
+            },
+            {
+                view: 'academy',
+                label: t('nav.academy'),
+                icon: LayoutDashboard,
+                id: 'nav-academy',
+            },
+            {
+                view: 'materials',
+                label: t('nav.materials'),
+                icon: Zap,
+                id: 'nav-materials',
+            },
+            {
+                view: 'help',
+                label: t('nav.help'),
+                icon: HelpCircle,
+                id: 'nav-help',
+            },
+        ];
 
     if (currentUser?.role === 'admin') {
-        navItems.push({ view: 'admin-settings', label: t('nav.user_menu.admin_settings'), icon: Settings, id: 'nav-admin-settings' });
+        navItems.push({
+            view: 'admin-settings',
+            label: t('nav.user_menu.admin_settings'),
+            icon: Settings,
+            id: 'nav-admin-settings',
+        });
     }
 
     const currentLangCode = i18n.language?.split('-')[0] || 'en';
-    const currentLang = languages.find(l => l.code === currentLangCode) || languages[0];
+    const currentLang =
+        languages.find((l) => l.code === currentLangCode) || languages[0];
 
     return (
         <nav className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     <div className="flex items-center gap-8">
-                        <button 
+                        <button
                             onClick={() => setView('home')}
                             className="flex items-center gap-2 group text-left"
                             id="nav-logo"
                         >
-                            <div 
+                            <div
                                 className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                                style={{ backgroundColor: 'var(--brand-primary)' }}
+                                style={{
+                                    backgroundColor: 'var(--brand-primary)',
+                                }}
                             >
                                 <HardHat className="text-white w-5 h-5" />
                             </div>
-                            <span 
+                            <span
                                 id="navbar-logo-text"
                                 className="text-xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent"
                             >
@@ -157,7 +198,9 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
                         {/* Language Selector Dropdown (Desktop) */}
                         <div className="relative" ref={langRefDesktop}>
                             <button
-                                onClick={() => setShowLangDropdown(!showLangDropdown)}
+                                onClick={() =>
+                                    setShowLangDropdown(!showLangDropdown)
+                                }
                                 className="flex items-center gap-2 text-xs font-bold bg-slate-800 text-slate-300 px-3 py-1.5 rounded border border-slate-700 hover:border-slate-500 transition-all uppercase min-w-[60px] justify-between"
                                 title={t('nav.language')}
                             >
@@ -165,7 +208,9 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
                                     <Globe className="w-3.5 h-3.5" />
                                     {currentLang.code}
                                 </span>
-                                <ChevronDown className={`w-3 h-3 transition-transform ${showLangDropdown ? 'rotate-180' : ''}`} />
+                                <ChevronDown
+                                    className={`w-3 h-3 transition-transform ${showLangDropdown ? 'rotate-180' : ''}`}
+                                />
                             </button>
 
                             {showLangDropdown && (
@@ -174,15 +219,23 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
                                         {languages.map((lang) => (
                                             <button
                                                 key={lang.code}
-                                                onClick={(e) => handleLanguageChange(lang.code, e)}
+                                                onClick={(e) =>
+                                                    handleLanguageChange(
+                                                        lang.code,
+                                                        e
+                                                    )
+                                                }
                                                 className={`w-full text-left px-4 py-2 text-sm transition-colors flex items-center justify-between ${
-                                                    currentLang.code === lang.code
+                                                    currentLang.code ===
+                                                    lang.code
                                                         ? 'bg-blue-600/20 text-blue-400 font-bold'
                                                         : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                                                 }`}
                                             >
                                                 <span>{lang.name}</span>
-                                                <span className="text-[10px] opacity-50 uppercase">{lang.code}</span>
+                                                <span className="text-[10px] opacity-50 uppercase">
+                                                    {lang.code}
+                                                </span>
                                             </button>
                                         ))}
                                     </div>
@@ -195,7 +248,9 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
                                 <button
                                     onClick={() => setView('profile')}
                                     className={`p-2 transition-colors ${
-                                        currentView === 'profile' ? 'text-blue-400' : 'text-slate-400 hover:text-white'
+                                        currentView === 'profile'
+                                            ? 'text-blue-400'
+                                            : 'text-slate-400 hover:text-white'
                                     }`}
                                     title={t('nav.profile')}
                                     id="nav-profile"
@@ -235,20 +290,27 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
                         {/* Mobile Language Selector */}
                         <div className="relative" ref={langRefMobile}>
                             <button
-                                onClick={() => setShowLangDropdown(!showLangDropdown)}
+                                onClick={() =>
+                                    setShowLangDropdown(!showLangDropdown)
+                                }
                                 className="flex items-center gap-1.5 text-[10px] font-bold bg-slate-800 text-slate-300 px-2 py-1 rounded border border-slate-700 uppercase"
                             >
                                 <Globe className="w-3 h-3" />
                                 {currentLang.code}
                                 <ChevronDown className="w-2.5 h-2.5" />
                             </button>
-                            
+
                             {showLangDropdown && (
                                 <div className="absolute right-0 mt-2 w-32 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl overflow-hidden z-[70]">
                                     {languages.map((lang) => (
                                         <button
                                             key={lang.code}
-                                            onClick={(e) => handleLanguageChange(lang.code, e)}
+                                            onClick={(e) =>
+                                                handleLanguageChange(
+                                                    lang.code,
+                                                    e
+                                                )
+                                            }
                                             className="w-full text-left px-3 py-2 text-xs text-slate-300 hover:bg-slate-800"
                                         >
                                             {lang.name}
@@ -262,7 +324,11 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                             className="text-slate-400 hover:text-white transition-colors"
                         >
-                            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                            {isMenuOpen ? (
+                                <X className="w-6 h-6" />
+                            ) : (
+                                <Menu className="w-6 h-6" />
+                            )}
                         </button>
                     </div>
                 </div>
@@ -297,7 +363,9 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, setView, currentUser, onLo
                                         setIsMenuOpen(false);
                                     }}
                                     className={`flex w-full items-center gap-3 px-3 py-3 rounded-md text-base font-medium ${
-                                        currentView === 'profile' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                                        currentView === 'profile'
+                                            ? 'bg-slate-800 text-white'
+                                            : 'text-slate-400 hover:text-white hover:bg-slate-800'
                                     }`}
                                 >
                                     <User className="w-5 h-5" />

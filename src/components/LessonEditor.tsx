@@ -333,74 +333,72 @@ const LessonEditor: React.FC<LessonEditorProps> = ({
                             ))}
                         </select>
                     </div>
-                        <label className="block text-sm font-medium text-slate-400 mb-1">
-                            {t('lessons.editor.image')}
-                        </label>
-                        <div className="space-y-3">
-                            {imageUrl ? (
-                                <div className="relative w-full h-48 bg-slate-950 rounded-lg overflow-hidden border border-slate-700 group">
-                                    <img
-                                        src={fixAssetUrl(imageUrl)}
-                                        alt="Preview"
-                                        className="w-full h-full object-cover"
-                                    />
-                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity gap-3">
-                                        <button
-                                            onClick={() =>
-                                                document
-                                                    .getElementById(
-                                                        'lesson-cover-upload'
-                                                    )
-                                                    ?.click()
-                                            }
-                                            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-bold shadow-lg transition-all"
-                                        >
-                                            Change Image
-                                        </button>
-                                        <button
-                                            onClick={() => setImageUrl('')}
-                                            className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-sm font-bold shadow-lg transition-all"
-                                        >
-                                            Remove
-                                        </button>
-                                    </div>
+                    <label className="block text-sm font-medium text-slate-400 mb-1">
+                        {t('lessons.editor.image')}
+                    </label>
+                    <div className="space-y-3">
+                        {imageUrl ? (
+                            <div className="relative w-full h-48 bg-slate-950 rounded-lg overflow-hidden border border-slate-700 group">
+                                <img
+                                    src={fixAssetUrl(imageUrl)}
+                                    alt="Preview"
+                                    className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity gap-3">
+                                    <button
+                                        onClick={() =>
+                                            document
+                                                .getElementById(
+                                                    'lesson-cover-upload'
+                                                )
+                                                ?.click()
+                                        }
+                                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-bold shadow-lg transition-all"
+                                    >
+                                        Change Image
+                                    </button>
+                                    <button
+                                        onClick={() => setImageUrl('')}
+                                        className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-sm font-bold shadow-lg transition-all"
+                                    >
+                                        Remove
+                                    </button>
                                 </div>
-                            ) : (
-                                <div
-                                    onClick={() =>
-                                        document
-                                            .getElementById(
-                                                'lesson-cover-upload'
-                                            )
-                                            ?.click()
-                                    }
-                                    className="w-full h-32 border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-lg flex flex-col items-center justify-center cursor-pointer transition-colors bg-slate-950/30 hover:bg-slate-950/50 group"
-                                >
-                                    <div className="p-3 bg-slate-900 rounded-full mb-2 group-hover:scale-110 transition-transform">
-                                        <Plus className="text-slate-400" />
-                                    </div>
-                                    <p className="text-xs text-slate-400 font-medium">
-                                        Click to upload cover image
-                                    </p>
+                            </div>
+                        ) : (
+                            <div
+                                onClick={() =>
+                                    document
+                                        .getElementById('lesson-cover-upload')
+                                        ?.click()
+                                }
+                                className="w-full h-32 border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-lg flex flex-col items-center justify-center cursor-pointer transition-colors bg-slate-950/30 hover:bg-slate-950/50 group"
+                            >
+                                <div className="p-3 bg-slate-900 rounded-full mb-2 group-hover:scale-110 transition-transform">
+                                    <Plus className="text-slate-400" />
                                 </div>
-                            )}
+                                <p className="text-xs text-slate-400 font-medium">
+                                    Click to upload cover image
+                                </p>
+                            </div>
+                        )}
 
-                            <input
-                                id="lesson-cover-upload"
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageUpload}
-                                className="hidden"
-                            />
+                        <input
+                            id="lesson-cover-upload"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                        />
 
-                            {isUploading && (
-                                <div className="text-center py-2">
-                                    <p className="text-xs text-indigo-400 animate-pulse font-bold">
-                                        {t('lessons.editor.uploading')}
-                                    </p>
-                                </div>
-                            )}
-                        </div>
+                        {isUploading && (
+                            <div className="text-center py-2">
+                                <p className="text-xs text-indigo-400 animate-pulse font-bold">
+                                    {t('lessons.editor.uploading')}
+                                </p>
+                            </div>
+                        )}
+                    </div>
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-slate-400 mb-1">

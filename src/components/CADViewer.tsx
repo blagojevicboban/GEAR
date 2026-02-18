@@ -2,9 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import type * as THREE_TYPES from 'three';
 const THREE = (window as any).THREE as typeof THREE_TYPES;
 
-// @ts-ignore
 import { OrbitControls } from '../lib/three-examples/controls/OrbitControls.js';
-// @ts-ignore
+// @ts-expect-error opencascade.js has no type declarations
 import initOpenCascade from 'opencascade.js';
 
 interface CADViewerProps {

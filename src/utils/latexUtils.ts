@@ -50,7 +50,7 @@ export const renderLatexInHtml = (html: string): string => {
     // We should avoid matching $ in price $100. So we usually require $...$ to not have space at inner edges?
     // Or just simplistic $...$.
     // Let's use simplistic but ensure it's not empty.
-    processed = processed.replace(/\$([^\$\n]+?)\$/g, (_, tex) => {
+    processed = processed.replace(/\$([^$\n]+?)\$/g, (_, tex) => {
         // If it starts with a space and ends with a space, maybe it is just text?
         // LaTeX usually discourages $ math $ (spaces).
         // But users might type it.

@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { VETModel, Hotspot } from '../types';
 import { analyzeModelDescription } from '../services/geminiService';
 import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
-// @ts-ignore
 import { STLLoader } from '../lib/three-examples/loaders/STLLoader.js';
 import { io, Socket } from 'socket.io-client';
 import './AssemblyManager'; // Register Assembly Mode components
@@ -13,7 +12,9 @@ import { LODManager, PerformanceTier } from '../utils/LODManager';
 
 // A-Frame types
 declare global {
+    // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace React {
+        // eslint-disable-next-line @typescript-eslint/no-namespace
         namespace JSX {
             interface IntrinsicElements {
                 'a-scene': any;
@@ -173,7 +174,7 @@ if (typeof window !== 'undefined' && (window as any).AFRAME) {
                         }
                     }
                 });
-            }
+            },
         });
     }
 
@@ -181,37 +182,46 @@ if (typeof window !== 'undefined' && (window as any).AFRAME) {
         AFRAME.registerComponent('renderer-settings', {
             schema: {
                 exposure: { type: 'number', default: 1.0 },
-                toneMapping: { type: 'string', default: 'ACESFilmicToneMapping' }
+                toneMapping: {
+                    type: 'string',
+                    default: 'ACESFilmicToneMapping',
+                },
             },
-            init: function() {
+            init: function () {
                 this.applySettings = this.applySettings.bind(this);
-                this.el.sceneEl.addEventListener('render-target-loaded', this.applySettings);
+                this.el.sceneEl.addEventListener(
+                    'render-target-loaded',
+                    this.applySettings
+                );
             },
             update: function () {
                 this.applySettings();
             },
-            applySettings: function() {
+            applySettings: function () {
                 const renderer = this.el.sceneEl.renderer;
                 if (!renderer) return;
 
                 renderer.toneMappingExposure = this.data.exposure;
-                
+
                 const THREE = (window as any).THREE;
                 const mapping: any = {
-                    'NoToneMapping': THREE.NoToneMapping,
-                    'LinearToneMapping': THREE.LinearToneMapping,
-                    'ReinhardToneMapping': THREE.ReinhardToneMapping,
-                    'CineonToneMapping': THREE.CineonToneMapping,
-                    'ACESFilmicToneMapping': THREE.ACESFilmicToneMapping
+                    NoToneMapping: THREE.NoToneMapping,
+                    LinearToneMapping: THREE.LinearToneMapping,
+                    ReinhardToneMapping: THREE.ReinhardToneMapping,
+                    CineonToneMapping: THREE.CineonToneMapping,
+                    ACESFilmicToneMapping: THREE.ACESFilmicToneMapping,
                 };
-                
+
                 if (mapping[this.data.toneMapping] !== undefined) {
                     renderer.toneMapping = mapping[this.data.toneMapping];
                 }
             },
-            remove: function() {
-                this.el.sceneEl.removeEventListener('render-target-loaded', this.applySettings);
-            }
+            remove: function () {
+                this.el.sceneEl.removeEventListener(
+                    'render-target-loaded',
+                    this.applySettings
+                );
+            },
         });
     }
 
@@ -221,8 +231,9 @@ if (typeof window !== 'undefined' && (window as any).AFRAME) {
             tick: function (_t: any, dt: number) {
                 if (!this.data.enabled) return;
                 // Use Object3D rotation directly for performance and to avoid sync issues
-                this.el.object3D.rotation.y += (dt / 1000) * (this.data.speed * (Math.PI / 180));
-            }
+                this.el.object3D.rotation.y +=
+                    (dt / 1000) * (this.data.speed * (Math.PI / 180));
+            },
         });
     }
 }
@@ -322,9 +333,13 @@ const VRViewer: React.FC<VRViewerProps> = ({
     // --- Teacher Sync & Pointer State ---
     const [isTeacherSyncActive, setIsTeacherSyncActive] = useState(false);
     const [isTeacherPointerActive, setIsTeacherPointerActive] = useState(false);
-    const [teacherPointer, setTeacherPointer] = useState<{ origin: any, target: any, active?: boolean } | null>(null);
+    const [teacherPointer, setTeacherPointer] = useState<{
+        origin: any;
+        target: any;
+        active?: boolean;
+    } | null>(null);
 
-    const activePointerRef = useRef<{ origin: any, target: any } | null>(null);
+    const activePointerRef = useRef<{ origin: any; target: any } | null>(null);
 
     const socketRef = useRef<Socket | null>(null);
 
@@ -342,37 +357,41 @@ const VRViewer: React.FC<VRViewerProps> = ({
     const { t, i18n } = useTranslation();
     const modelEntityRef = useRef<any>(null);
     const [isExploded, setIsExploded] = useState(false);
-    
+
     // Contextual Gaze State
     const [activePartName, setActivePartName] = useState<string | null>(null);
     const lastContextSentRef = useRef<string | null>(null);
 
     // --- LOD / Optimization State ---
-    const [performanceTier, setPerformanceTier] = useState<PerformanceTier>(PerformanceTier.HIGH);
-    
+    const [performanceTier, setPerformanceTier] = useState<PerformanceTier>(
+        PerformanceTier.HIGH
+    );
+
     useEffect(() => {
         const tier = LODManager.getTier();
         setPerformanceTier(tier);
         const config = LODManager.getConfig(tier);
-        
+
         console.log(`[Antigravity] Device Tier: ${tier}`, config);
 
         // Apply global renderer settings if possible, or store for A-Frame components
         // We can't easily set renderer.pixelRatio directly in React, it's handled by A-Frame
         // But we can limit the resolution or disable expensive effects.
-        
+
         // Setup initial studio config based on tier
-        setStudioConfig(prev => ({
+        setStudioConfig((prev) => ({
             ...prev,
             exposure: tier === PerformanceTier.ECO ? 0.8 : 1.0, // Lower exposure on low-end
-            toneMapping: tier === PerformanceTier.HIGH ? 'ACESFilmic' : 'NoToneMapping' // Cheaper tone mapping
+            toneMapping:
+                tier === PerformanceTier.HIGH ? 'ACESFilmic' : 'NoToneMapping', // Cheaper tone mapping
         }));
-        
     }, []);
 
     // --- Gamification State ---
     const [challengeMode, setChallengeMode] = useState(false);
-    const [challengeStartTime, setChallengeStartTime] = useState<number | null>(null);
+    const [challengeStartTime, setChallengeStartTime] = useState<number | null>(
+        null
+    );
     const [challengeTime, setChallengeTime] = useState(0); // ms
     const [isChallengeComplete, setIsChallengeComplete] = useState(false);
     const [showLeaderboard, setShowLeaderboard] = useState(false);
@@ -387,16 +406,18 @@ const VRViewer: React.FC<VRViewerProps> = ({
         toneMapping: 'ACESFilmic',
         wireframe: false,
         showBoundingBox: false,
-        autoRotate: false
+        autoRotate: false,
     });
     const [modelStats, setModelStats] = useState({
         vertices: 0,
         triangles: 0,
         meshes: 0,
-        materials: 0
+        materials: 0,
     });
 
-    const assemblySystem = (window as any).AFRAME?.systems['assembly-mode-system'];
+    const assemblySystem = (window as any).AFRAME?.systems[
+        'assembly-mode-system'
+    ];
 
     // Load leaderboard
     const fetchLeaderboard = useCallback(async () => {
@@ -407,7 +428,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
                 setLeaderboardData(data);
             }
         } catch (e) {
-            console.error("Failed to fetch leaderboard", e);
+            console.error('Failed to fetch leaderboard', e);
         }
     }, [model.id]);
 
@@ -435,28 +456,42 @@ const VRViewer: React.FC<VRViewerProps> = ({
 
     // Check Completion
     useEffect(() => {
-        if (challengeMode && !isChallengeComplete && challengeStartTime && trainingTasks.length > 0) {
-            const allComplete = trainingTasks.every(t => t.status === 'completed');
+        if (
+            challengeMode &&
+            !isChallengeComplete &&
+            challengeStartTime &&
+            trainingTasks.length > 0
+        ) {
+            const allComplete = trainingTasks.every(
+                (t) => t.status === 'completed'
+            );
             if (allComplete) {
                 setIsChallengeComplete(true);
                 const finalTime = (Date.now() - challengeStartTime) / 1000;
                 // Save Score
                 fetch('/api/scores', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         userId: user?.id || 1, // Fallback for dev
                         username: user?.username || 'Guest',
                         modelId: model.id,
-                        timeSeconds: finalTime
-                    })
+                        timeSeconds: finalTime,
+                    }),
                 }).then(() => {
-                     playSound('success');
-                     setShowLeaderboard(true);
+                    playSound('success');
+                    setShowLeaderboard(true);
                 });
             }
         }
-    }, [challengeMode, isChallengeComplete, challengeStartTime, trainingTasks, user, model.id]);
+    }, [
+        challengeMode,
+        isChallengeComplete,
+        challengeStartTime,
+        trainingTasks,
+        user,
+        model.id,
+    ]);
 
     const playSound = useCallback(
         (type: 'click' | 'ping' | 'dismiss' | 'success') => {
@@ -576,7 +611,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
             const system = bgSceneRef.current?.systems['assembly-mode-system'];
             if (system) {
                 console.log('Assembly System Found');
-                
+
                 let vertices = 0;
                 let triangles = 0;
                 let meshes = 0;
@@ -589,23 +624,29 @@ const VRViewer: React.FC<VRViewerProps> = ({
                 box.getSize(size);
                 const center = new THREE.Vector3();
                 box.getCenter(center);
-                
+
                 const maxDim = Math.max(size.x, size.y, size.z);
                 console.log('Model dimensions:', size, 'Max dim:', maxDim);
-                
+
                 if (maxDim > 0) {
                     // We want the model to be roughly 1.5 - 2 meters in size for comfortable viewing
                     const targetSize = 2.0;
                     const scaleFactor = targetSize / maxDim;
-                    
+
                     // Apply scale to the GLTF model instance
-                    evt.target.setAttribute('scale', `${scaleFactor} ${scaleFactor} ${scaleFactor}`);
-                    
+                    evt.target.setAttribute(
+                        'scale',
+                        `${scaleFactor} ${scaleFactor} ${scaleFactor}`
+                    );
+
                     // Center the model relative to its entity origin
                     // We compensate for the offset
                     const offset = center.multiplyScalar(-scaleFactor);
                     model.position.set(offset.x, offset.y, offset.z);
-                    console.log(`Auto-scaled by ${scaleFactor.toFixed(4)}, centered at offset:`, offset);
+                    console.log(
+                        `Auto-scaled by ${scaleFactor.toFixed(4)}, centered at offset:`,
+                        offset
+                    );
                 }
 
                 model.traverse((node: any) => {
@@ -617,24 +658,27 @@ const VRViewer: React.FC<VRViewerProps> = ({
                             if (node.geometry.index) {
                                 triangles += node.geometry.index.count / 3;
                             } else {
-                                triangles += node.geometry.attributes.position.count / 3;
+                                triangles +=
+                                    node.geometry.attributes.position.count / 3;
                             }
                         }
                         if (node.material) {
                             if (Array.isArray(node.material)) {
-                                node.material.forEach((m: any) => materials.add(m.uuid));
+                                node.material.forEach((m: any) =>
+                                    materials.add(m.uuid)
+                                );
                             } else {
                                 materials.add(node.material.uuid);
                             }
                         }
                     }
                 });
-                
+
                 setModelStats({
                     vertices,
                     triangles: Math.floor(triangles),
                     meshes,
-                    materials: materials.size
+                    materials: materials.size,
                 });
 
                 console.log('Assembly Mode: Parts Registered');
@@ -990,19 +1034,23 @@ const VRViewer: React.FC<VRViewerProps> = ({
                 // For now, FORCE sync if feature is active
                 const rig = document.querySelector('#rig');
                 const cam = document.querySelector('[camera]');
-                
+
                 if (rig && camera) {
                     // Update Rig Position
                     rig.setAttribute('position', camera.position);
-                    
+
                     // Update Camera Rotation (LookControls might fight this)
                     // We might need to disable look-controls momentarily or use look-controls API
                     if (cam) {
-                         const lookControls = (cam as any).components['look-controls'];
-                         if (lookControls) {
-                             lookControls.yawObject.rotation.y = camera.rotation.y * (Math.PI / 180);
-                             lookControls.pitchObject.rotation.x = camera.rotation.x * (Math.PI / 180);
-                         }
+                        const lookControls = (cam as any).components[
+                            'look-controls'
+                        ];
+                        if (lookControls) {
+                            lookControls.yawObject.rotation.y =
+                                camera.rotation.y * (Math.PI / 180);
+                            lookControls.pitchObject.rotation.x =
+                                camera.rotation.x * (Math.PI / 180);
+                        }
                     }
                 }
             }
@@ -1052,65 +1100,74 @@ const VRViewer: React.FC<VRViewerProps> = ({
                         z: (euler.z * 180) / Math.PI,
                     },
                 };
-                
+
                 // Teacher Sync Emission
                 if (isTeacherSyncActive) {
-                     socketRef.current.emit('teacher-sync-update', {
+                    socketRef.current.emit('teacher-sync-update', {
                         workshopId,
                         camera: {
                             position: { x: pos.x, y: pos.y - 1.6, z: pos.z }, // Offset for rig?
-                            rotation: transforms.head.rot
-                        }
+                            rotation: transforms.head.rot,
+                        },
                     });
                 }
 
                 // Teacher Pointer Logic
                 if (isTeacherPointerActive) {
-                     // Raycast from camera center
-                     // We can reuse the cursor raycaster or create a math one
-                     const raycaster = new (window as any).THREE.Raycaster();
-                     raycaster.setFromCamera({ x: 0, y: 0 }, camera); // Center of screen
-                     
-                     // Ray length 10m
-                     const farPoint = new (window as any).THREE.Vector3();
-                     raycaster.ray.at(10, farPoint);
-                     
-                     // Check intersection with model
-                     const modelEl = document.querySelector('.interactable-model');
-                     let target = farPoint;
-                     
-                     if (modelEl) {
-                         const intersects = raycaster.intersectObject((modelEl as any).object3D, true);
-                         if (intersects.length > 0) {
-                             target = intersects[0].point;
-                         }
-                     }
-                     
-                     // Emit
-                     const pointerData = {
-                         active: true,
-                         origin: pos,
-                         target: target
-                     };
-                     
-                     // Update local visual instantly
-                     setTeacherPointer(pointerData as any); 
+                    // Raycast from camera center
+                    // We can reuse the cursor raycaster or create a math one
+                    const raycaster = new (window as any).THREE.Raycaster();
+                    raycaster.setFromCamera({ x: 0, y: 0 }, camera); // Center of screen
 
-                     socketRef.current.emit('teacher-pointer-move', {
+                    // Ray length 10m
+                    const farPoint = new (window as any).THREE.Vector3();
+                    raycaster.ray.at(10, farPoint);
+
+                    // Check intersection with model
+                    const modelEl = document.querySelector(
+                        '.interactable-model'
+                    );
+                    let target = farPoint;
+
+                    if (modelEl) {
+                        const intersects = raycaster.intersectObject(
+                            (modelEl as any).object3D,
+                            true
+                        );
+                        if (intersects.length > 0) {
+                            target = intersects[0].point;
+                        }
+                    }
+
+                    // Emit
+                    const pointerData = {
+                        active: true,
+                        origin: pos,
+                        target: target,
+                    };
+
+                    // Update local visual instantly
+                    setTeacherPointer(pointerData as any);
+
+                    socketRef.current.emit('teacher-pointer-move', {
                         workshopId,
-                        pointer: pointerData
+                        pointer: pointerData,
                     });
-                } else if (!isTeacherPointerActive && activePointerRef.current) {
-                     // Send clear signal once
-                     socketRef.current.emit('teacher-pointer-move', {
+                } else if (
+                    !isTeacherPointerActive &&
+                    activePointerRef.current
+                ) {
+                    // Send clear signal once
+                    socketRef.current.emit('teacher-pointer-move', {
                         workshopId,
-                        pointer: { active: false }
+                        pointer: { active: false },
                     });
                     activePointerRef.current = null;
                     setTeacherPointer(null);
                 }
-                
-                if (isTeacherPointerActive) activePointerRef.current = {} as any; // Mark as active
+
+                if (isTeacherPointerActive)
+                    activePointerRef.current = {} as any; // Mark as active
             }
 
             const leftHand = document.querySelector(
@@ -1198,7 +1255,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
 
     useEffect(() => {
         if (isEditMode) return;
-        
+
         let lastLookedObject: any = null;
         let lookDuration = 0;
 
@@ -1209,15 +1266,14 @@ const VRViewer: React.FC<VRViewerProps> = ({
 
             if (!scene || !cursor || !modelEl) return;
 
-            // @ts-ignore
             const raycaster = (cursor as any).components.raycaster;
             if (!raycaster) return;
 
             const intersections = raycaster.getIntersection(modelEl.object3D);
-            
+
             if (intersections) {
                 const object = intersections.object;
-                
+
                 // Track sustained gaze (debounce)
                 if (object === lastLookedObject) {
                     lookDuration += 1000;
@@ -1228,23 +1284,30 @@ const VRViewer: React.FC<VRViewerProps> = ({
 
                 // If looked at for > 1s, update context
                 if (lookDuration >= 1000) {
-                     // Try to get meaningful name
-                     const name = object.userData?.name || object.name || 'Unknown Part';
-                     // Filter out generic names if possible or mapping
-                     if (name !== activePartName && name !== 'Scene') {
-                         setActivePartName(name);
-                     }
+                    // Try to get meaningful name
+                    const name =
+                        object.userData?.name || object.name || 'Unknown Part';
+                    // Filter out generic names if possible or mapping
+                    if (name !== activePartName && name !== 'Scene') {
+                        setActivePartName(name);
+                    }
                 }
 
                 // Telemetry Logic (Existing)
                 const worldPoint = intersections.point;
-                const localPoint = modelEl.object3D.worldToLocal(worldPoint.clone());
-                 telemetryBuffer.current.push({
+                const localPoint = modelEl.object3D.worldToLocal(
+                    worldPoint.clone()
+                );
+                telemetryBuffer.current.push({
                     userId: user?.id,
                     lessonId: (window as any).currentLessonId || 'free-view',
                     modelId: model.id,
                     position: { x: 0, y: 0, z: 0 },
-                    target: { x: localPoint.x, y: localPoint.y, z: localPoint.z },
+                    target: {
+                        x: localPoint.x,
+                        y: localPoint.y,
+                        z: localPoint.z,
+                    },
                     duration: 1000,
                 });
             } else {
@@ -1253,28 +1316,39 @@ const VRViewer: React.FC<VRViewerProps> = ({
                 if (activePartName) setActivePartName(null);
             }
 
-             // Flush Telemetry
-            if (telemetryBuffer.current.length > 10 || Date.now() - lastFlushTime.current > 10000) {
+            // Flush Telemetry
+            if (
+                telemetryBuffer.current.length > 10 ||
+                Date.now() - lastFlushTime.current > 10000
+            ) {
                 flushTelemetry();
             }
-
         }, 1000);
 
         return () => {
-             clearInterval(interval);
-             flushTelemetry();
+            clearInterval(interval);
+            flushTelemetry();
         };
     }, [model.id, user, isEditMode, flushTelemetry]);
 
     // Send Context to Gemini
     useEffect(() => {
-        if (activePartName && isVoiceActive && sessionRef.current && activePartName !== lastContextSentRef.current) {
+        if (
+            activePartName &&
+            isVoiceActive &&
+            sessionRef.current &&
+            activePartName !== lastContextSentRef.current
+        ) {
             console.log('Sending Context to AI:', activePartName);
             // Send text context frame
             // Using "User" role to simulate user context, or "System" if supported.
             // For live API, mostly we send "Content".
             sessionRef.current.send({
-                parts: [{ text: `[System Context Update] User is now looking at: ${activePartName}. If they ask "What is this?", refer to this part.` }]
+                parts: [
+                    {
+                        text: `[System Context Update] User is now looking at: ${activePartName}. If they ask "What is this?", refer to this part.`,
+                    },
+                ],
             });
             lastContextSentRef.current = activePartName;
         }
@@ -1288,12 +1362,13 @@ const VRViewer: React.FC<VRViewerProps> = ({
                     {/* Challenge Feedback Overlay */}
                     {challengeFeedback && (
                         <div
-                            className={`absolute top-0 left-0 right-0 p-4 rounded-xl mb-4 font-bold text-center animate-bounce shadow-xl border ${challengeFeedback.type === 'success'
+                            className={`absolute top-0 left-0 right-0 p-4 rounded-xl mb-4 font-bold text-center animate-bounce shadow-xl border ${
+                                challengeFeedback.type === 'success'
                                     ? 'bg-green-600 border-green-400 text-white'
                                     : challengeFeedback.type === 'error'
-                                        ? 'bg-rose-600 border-rose-400 text-white'
-                                        : 'bg-blue-600 text-white'
-                                }`}
+                                      ? 'bg-rose-600 border-rose-400 text-white'
+                                      : 'bg-blue-600 text-white'
+                            }`}
                         >
                             {challengeFeedback.msg}
                         </div>
@@ -1331,13 +1406,33 @@ const VRViewer: React.FC<VRViewerProps> = ({
                                 title="Studio Settings (glTF Sample Viewer style)"
                                 className={`p-2 rounded-lg transition-all ${isStudioOpen ? 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]' : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'}`}
                             >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <svg
+                                    className="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                                    />
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                    />
                                 </svg>
                             </button>
                             <button
-                                onClick={() => window.open(`https://gltf-viewer.donmccurdy.com/?model=${window.location.origin}${activeModelUrl}`, '_blank')}
+                                onClick={() =>
+                                    window.open(
+                                        `https://gltf-viewer.donmccurdy.com/?model=${window.location.origin}${activeModelUrl}`,
+                                        '_blank'
+                                    )
+                                }
                                 title="Open in External glTF Viewer"
                                 className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white transition-all text-xs"
                             >
@@ -1345,16 +1440,36 @@ const VRViewer: React.FC<VRViewerProps> = ({
                             </button>
                             <button
                                 onClick={() => setIsMinimized(!isMinimized)}
-                                title={isMinimized ? "Maximize" : "Minimize"}
+                                title={isMinimized ? 'Maximize' : 'Minimize'}
                                 className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white transition-all"
                             >
                                 {isMinimized ? (
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                    <svg
+                                        className="w-5 h-5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M19 9l-7 7-7-7"
+                                        />
                                     </svg>
                                 ) : (
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4" />
+                                    <svg
+                                        className="w-5 h-5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M20 12H4"
+                                        />
                                     </svg>
                                 )}
                             </button>
@@ -1381,202 +1496,239 @@ const VRViewer: React.FC<VRViewerProps> = ({
 
                     {!isMinimized && (
                         <div className="animate-in fade-in duration-300">
-
-                    {/* Assembly Mode Controls */}
-                    <div className="flex gap-2 mb-4">
-                        <button
-                            onClick={() => setIsAssemblyMode(!isAssemblyMode)}
-                            className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${isAssemblyMode
-                                    ? 'bg-amber-600 border-amber-500 text-white shadow-[0_0_10px_rgba(245,158,11,0.5)]'
-                                    : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500'
-                                }`}
-                        >
-                            {isAssemblyMode
-                                ? t('assembly.mode_active')
-                                : t('assembly.mode_inactive')}
-                        </button>
-
-                        {model.optimized && (
-                            <button
-                                onClick={() => setUseOptimized(!useOptimized)}
-                                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${useOptimized
-                                        ? 'bg-emerald-600 border-emerald-500 text-white shadow-[0_0_10px_rgba(16,185,129,0.5)]'
-                                        : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500'
-                                    }`}
-                            >
-                                {useOptimized
-                                    ? `✨ ${t('assets.optimized')}`
-                                    : `📦 ${t('assets.original')}`}
-                            </button>
-                        )}
-                    </div>
-
-                    {/* Teacher Controls */}
-                     {user?.role === 'teacher' && workshopMode && (
-                        <div className="flex gap-2 mb-4 p-3 bg-indigo-900/30 rounded-lg border border-indigo-500/30">
-                            <div className="text-[10px] font-bold text-indigo-300 uppercase writing-mode-vertical rotate-180 flex items-center justify-center">
-                                {t('workshop.teacher_controls')}
-                            </div>
-                            <div className="flex-1 flex flex-col gap-2">
+                            {/* Assembly Mode Controls */}
+                            <div className="flex gap-2 mb-4">
                                 <button
-                                    onClick={() => setIsTeacherSyncActive(!isTeacherSyncActive)}
-                                    className={`w-full py-1.5 px-2 rounded text-xs font-bold transition-all border ${isTeacherSyncActive
-                                            ? 'bg-red-600 border-red-500 text-white animate-pulse'
-                                            : 'bg-slate-800 border-slate-700 text-slate-300'
-                                        }`}
-                                >
-                                    {isTeacherSyncActive ? `👁 ${t('workshop.sync_active')}` : `👁 ${t('workshop.sync_inactive')}`}
-                                </button>
-                                <button
-                                    onClick={() => setIsTeacherPointerActive(!isTeacherPointerActive)}
-                                    className={`w-full py-1.5 px-2 rounded text-xs font-bold transition-all border ${isTeacherPointerActive
-                                            ? 'bg-red-600 border-red-500 text-white'
-                                            : 'bg-slate-800 border-slate-700 text-slate-300'
-                                        }`}
-                                >
-                                    {isTeacherPointerActive ? `🔦 ${t('workshop.pointer_active')}` : `🔦 ${t('workshop.pointer_inactive')}`}
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {isAssemblyMode && (
-                        <div className="flex gap-2 mb-4 animate-in fade-in slide-in-from-top-2">
-                             <button
-                                onClick={() => {
-                                    if (isExploded) {
-                                         assemblySystem?.collapse();
-                                         setIsExploded(false);
-                                    } else {
-                                         // Ensure parts are registered before exploding
-                                         assemblySystem?.registerAllParts();
-                                         assemblySystem?.explode();
-                                         setIsExploded(true);
+                                    onClick={() =>
+                                        setIsAssemblyMode(!isAssemblyMode)
                                     }
-                                }}
-                                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
-                                    isExploded 
-                                    ? 'bg-rose-600 border-rose-500 text-white' 
-                                    : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300'
-                                }`}
-                            >
-                                {isExploded ? t('assembly.collapse') : t('assembly.explode')}
-                            </button>
-                            <button
-                                onClick={() => assemblySystem?.resetAll()}
-                                className="flex-1 py-1.5 px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-bold text-slate-300 transition-colors"
-                            >
-                                {t('assembly.reset')}
-                            </button>
-                        </div>
-                    )}
-
-                    {/* Challenge Mode Toggle */}
-                    <button
-                        onClick={() => {
-                            setChallengeMode(!challengeMode);
-                            setChallengeTime(0);
-                            setChallengeStartTime(null);
-                            setIsChallengeComplete(false);
-                            setActiveTaskId(null);
-                        }}
-                        className={`w-full py-2 mb-4 rounded-lg backdrop-blur-md transition-all font-bold flex items-center justify-center gap-2 border ${challengeMode
-                                ? 'bg-amber-500/80 border-amber-400 text-white shadow-[0_0_15px_rgba(245,158,11,0.5)]'
-                                : 'bg-slate-900/80 border-slate-600 text-slate-300 hover:bg-slate-800'
-                            }`}
-                    >
-                        <span>🏆</span>
-                        {t('nav.gamification.challenge_mode')}
-                    </button>
-
-                    <div className="flex flex-col gap-2 mb-4">
-                        <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                                {model.sector}
-                            </span>
-                            <span className="text-[10px] text-slate-400 italic">
-                                Author: {model.uploadedBy}
-                            </span>
-                        </div>
-                    </div>
-
-                    <p className="text-xs text-slate-400 mb-6">
-                        {model.description}
-                    </p>
-
-                    <div className="space-y-3 max-h-[30vh] overflow-y-auto pr-2 custom-scrollbar pointer-events-auto">
-                        <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-                            Training Tasks
-                        </h4>
-                        {isLoadingTasks ? (
-                            <div className="text-xs animate-pulse">
-                                Generating tasks...
-                            </div>
-                        ) : (
-                            trainingTasks.map((t, i) => (
-                                <div
-                                    key={`task-${i}`}
-                                    className={`p-3 rounded-xl border transition-all ${t.status === 'completed'
-                                            ? 'bg-green-900/40 border-green-500/50'
-                                            : activeTaskId === t.id
-                                                ? 'bg-indigo-900/60 border-indigo-400 shadow-[0_0_10px_rgba(99,102,241,0.3)]'
-                                                : 'bg-slate-950 border-slate-800'
-                                        }`}
+                                    className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
+                                        isAssemblyMode
+                                            ? 'bg-amber-600 border-amber-500 text-white shadow-[0_0_10px_rgba(245,158,11,0.5)]'
+                                            : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500'
+                                    }`}
                                 >
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <p
-                                                className={`text-xs font-bold mb-1 ${t.status === 'completed' ? 'text-green-400 line-through' : 'text-white'}`}
-                                            >
-                                                {t.taskName || 'Instruction'}
-                                            </p>
-                                            <p className="text-[10px] text-slate-500">
-                                                {t.description ||
-                                                    'No description provided.'}
-                                            </p>
-                                        </div>
+                                    {isAssemblyMode
+                                        ? t('assembly.mode_active')
+                                        : t('assembly.mode_inactive')}
+                                </button>
 
-                                        {t.status === 'completed' ? (
-                                            <span className="text-green-400">
-                                                ✓
-                                            </span>
-                                        ) : (
-                                            <button
-                                                onClick={() => {
-                                                    playSound('click');
-                                                    setActiveTaskId(
-                                                        activeTaskId === t.id
-                                                            ? null
-                                                            : t.id
-                                                    );
-                                                    if (!isAssemblyMode)
-                                                        setIsAssemblyMode(true); // Auto-enable assembly
-                                                }}
-                                                className={`text-[10px] px-2 py-1 rounded border ${activeTaskId === t.id
-                                                        ? 'bg-indigo-600 text-white border-indigo-500'
-                                                        : 'bg-slate-800 text-slate-400 hover:text-white border-slate-700'
-                                                    }`}
-                                            >
-                                                {activeTaskId === t.id
-                                                    ? 'STOP'
-                                                    : 'START'}
-                                            </button>
-                                        )}
+                                {model.optimized && (
+                                    <button
+                                        onClick={() =>
+                                            setUseOptimized(!useOptimized)
+                                        }
+                                        className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
+                                            useOptimized
+                                                ? 'bg-emerald-600 border-emerald-500 text-white shadow-[0_0_10px_rgba(16,185,129,0.5)]'
+                                                : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500'
+                                        }`}
+                                    >
+                                        {useOptimized
+                                            ? `✨ ${t('assets.optimized')}`
+                                            : `📦 ${t('assets.original')}`}
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Teacher Controls */}
+                            {user?.role === 'teacher' && workshopMode && (
+                                <div className="flex gap-2 mb-4 p-3 bg-indigo-900/30 rounded-lg border border-indigo-500/30">
+                                    <div className="text-[10px] font-bold text-indigo-300 uppercase writing-mode-vertical rotate-180 flex items-center justify-center">
+                                        {t('workshop.teacher_controls')}
+                                    </div>
+                                    <div className="flex-1 flex flex-col gap-2">
                                         <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                speak(t.taskName + '. ' + (t.description || ''), i18n.language);
-                                            }}
-                                            className="ml-2 text-[10px] px-2 py-1 rounded bg-slate-800 text-slate-400 hover:text-white border border-slate-700"
-                                            title="Read Aloud"
+                                            onClick={() =>
+                                                setIsTeacherSyncActive(
+                                                    !isTeacherSyncActive
+                                                )
+                                            }
+                                            className={`w-full py-1.5 px-2 rounded text-xs font-bold transition-all border ${
+                                                isTeacherSyncActive
+                                                    ? 'bg-red-600 border-red-500 text-white animate-pulse'
+                                                    : 'bg-slate-800 border-slate-700 text-slate-300'
+                                            }`}
                                         >
-                                            🔊
+                                            {isTeacherSyncActive
+                                                ? `👁 ${t('workshop.sync_active')}`
+                                                : `👁 ${t('workshop.sync_inactive')}`}
+                                        </button>
+                                        <button
+                                            onClick={() =>
+                                                setIsTeacherPointerActive(
+                                                    !isTeacherPointerActive
+                                                )
+                                            }
+                                            className={`w-full py-1.5 px-2 rounded text-xs font-bold transition-all border ${
+                                                isTeacherPointerActive
+                                                    ? 'bg-red-600 border-red-500 text-white'
+                                                    : 'bg-slate-800 border-slate-700 text-slate-300'
+                                            }`}
+                                        >
+                                            {isTeacherPointerActive
+                                                ? `🔦 ${t('workshop.pointer_active')}`
+                                                : `🔦 ${t('workshop.pointer_inactive')}`}
                                         </button>
                                     </div>
                                 </div>
-                            ))
-                        )}
-                        </div>
+                            )}
+
+                            {isAssemblyMode && (
+                                <div className="flex gap-2 mb-4 animate-in fade-in slide-in-from-top-2">
+                                    <button
+                                        onClick={() => {
+                                            if (isExploded) {
+                                                assemblySystem?.collapse();
+                                                setIsExploded(false);
+                                            } else {
+                                                // Ensure parts are registered before exploding
+                                                assemblySystem?.registerAllParts();
+                                                assemblySystem?.explode();
+                                                setIsExploded(true);
+                                            }
+                                        }}
+                                        className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all border ${
+                                            isExploded
+                                                ? 'bg-rose-600 border-rose-500 text-white'
+                                                : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300'
+                                        }`}
+                                    >
+                                        {isExploded
+                                            ? t('assembly.collapse')
+                                            : t('assembly.explode')}
+                                    </button>
+                                    <button
+                                        onClick={() =>
+                                            assemblySystem?.resetAll()
+                                        }
+                                        className="flex-1 py-1.5 px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-bold text-slate-300 transition-colors"
+                                    >
+                                        {t('assembly.reset')}
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Challenge Mode Toggle */}
+                            <button
+                                onClick={() => {
+                                    setChallengeMode(!challengeMode);
+                                    setChallengeTime(0);
+                                    setChallengeStartTime(null);
+                                    setIsChallengeComplete(false);
+                                    setActiveTaskId(null);
+                                }}
+                                className={`w-full py-2 mb-4 rounded-lg backdrop-blur-md transition-all font-bold flex items-center justify-center gap-2 border ${
+                                    challengeMode
+                                        ? 'bg-amber-500/80 border-amber-400 text-white shadow-[0_0_15px_rgba(245,158,11,0.5)]'
+                                        : 'bg-slate-900/80 border-slate-600 text-slate-300 hover:bg-slate-800'
+                                }`}
+                            >
+                                <span>🏆</span>
+                                {t('nav.gamification.challenge_mode')}
+                            </button>
+
+                            <div className="flex flex-col gap-2 mb-4">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                        {model.sector}
+                                    </span>
+                                    <span className="text-[10px] text-slate-400 italic">
+                                        Author: {model.uploadedBy}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <p className="text-xs text-slate-400 mb-6">
+                                {model.description}
+                            </p>
+
+                            <div className="space-y-3 max-h-[30vh] overflow-y-auto pr-2 custom-scrollbar pointer-events-auto">
+                                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                                    Training Tasks
+                                </h4>
+                                {isLoadingTasks ? (
+                                    <div className="text-xs animate-pulse">
+                                        Generating tasks...
+                                    </div>
+                                ) : (
+                                    trainingTasks.map((t, i) => (
+                                        <div
+                                            key={`task-${i}`}
+                                            className={`p-3 rounded-xl border transition-all ${
+                                                t.status === 'completed'
+                                                    ? 'bg-green-900/40 border-green-500/50'
+                                                    : activeTaskId === t.id
+                                                      ? 'bg-indigo-900/60 border-indigo-400 shadow-[0_0_10px_rgba(99,102,241,0.3)]'
+                                                      : 'bg-slate-950 border-slate-800'
+                                            }`}
+                                        >
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <p
+                                                        className={`text-xs font-bold mb-1 ${t.status === 'completed' ? 'text-green-400 line-through' : 'text-white'}`}
+                                                    >
+                                                        {t.taskName ||
+                                                            'Instruction'}
+                                                    </p>
+                                                    <p className="text-[10px] text-slate-500">
+                                                        {t.description ||
+                                                            'No description provided.'}
+                                                    </p>
+                                                </div>
+
+                                                {t.status === 'completed' ? (
+                                                    <span className="text-green-400">
+                                                        ✓
+                                                    </span>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => {
+                                                            playSound('click');
+                                                            setActiveTaskId(
+                                                                activeTaskId ===
+                                                                    t.id
+                                                                    ? null
+                                                                    : t.id
+                                                            );
+                                                            if (!isAssemblyMode)
+                                                                setIsAssemblyMode(
+                                                                    true
+                                                                ); // Auto-enable assembly
+                                                        }}
+                                                        className={`text-[10px] px-2 py-1 rounded border ${
+                                                            activeTaskId ===
+                                                            t.id
+                                                                ? 'bg-indigo-600 text-white border-indigo-500'
+                                                                : 'bg-slate-800 text-slate-400 hover:text-white border-slate-700'
+                                                        }`}
+                                                    >
+                                                        {activeTaskId === t.id
+                                                            ? 'STOP'
+                                                            : 'START'}
+                                                    </button>
+                                                )}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        speak(
+                                                            t.taskName +
+                                                                '. ' +
+                                                                (t.description ||
+                                                                    ''),
+                                                            i18n.language
+                                                        );
+                                                    }}
+                                                    className="ml-2 text-[10px] px-2 py-1 rounded bg-slate-800 text-slate-400 hover:text-white border border-slate-700"
+                                                    title="Read Aloud"
+                                                >
+                                                    🔊
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>
@@ -1618,9 +1770,9 @@ const VRViewer: React.FC<VRViewerProps> = ({
                                         {activeHotspot.mediaUrl.includes(
                                             'youtube'
                                         ) ||
-                                            activeHotspot.mediaUrl.includes(
-                                                'vimeo'
-                                            ) ? (
+                                        activeHotspot.mediaUrl.includes(
+                                            'vimeo'
+                                        ) ? (
                                             <iframe
                                                 src={activeHotspot.mediaUrl}
                                                 className="w-full h-full"
@@ -1658,7 +1810,14 @@ const VRViewer: React.FC<VRViewerProps> = ({
                                 <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                                     {activeHotspot.title}
                                     <button
-                                        onClick={() => speak(activeHotspot.title + '. ' + activeHotspot.description, i18n.language)}
+                                        onClick={() =>
+                                            speak(
+                                                activeHotspot.title +
+                                                    '. ' +
+                                                    activeHotspot.description,
+                                                i18n.language
+                                            )
+                                        }
                                         className="p-2 rounded-full bg-indigo-500/20 hover:bg-indigo-500 text-white transition-colors text-sm"
                                         title="Read Aloud"
                                     >
@@ -1687,27 +1846,64 @@ const VRViewer: React.FC<VRViewerProps> = ({
                     <div className="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-950/50">
                         <h2 className="text-xl font-bold text-white flex items-center gap-2">
                             <span className="text-indigo-400">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <svg
+                                    className="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                                    />
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                    />
                                 </svg>
-                            </span> {t('studio.title')}
+                            </span>{' '}
+                            {t('studio.title')}
                         </h2>
-                        <button onClick={() => setIsStudioOpen(false)} className="text-slate-400 hover:text-white transition-colors">✕</button>
+                        <button
+                            onClick={() => setIsStudioOpen(false)}
+                            className="text-slate-400 hover:text-white transition-colors"
+                        >
+                            ✕
+                        </button>
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
                         {/* Environment Section */}
                         <section className="space-y-4">
-                            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">{t('studio.lighting_env')}</h3>
+                            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
+                                {t('studio.lighting_env')}
+                            </h3>
                             <div className="grid grid-cols-2 gap-2">
-                                {['none', 'contact', 'egypt', 'forest', 'goaland', 'yosemite', 'tron'].map((env) => (
+                                {[
+                                    'none',
+                                    'contact',
+                                    'egypt',
+                                    'forest',
+                                    'goaland',
+                                    'yosemite',
+                                    'tron',
+                                ].map((env) => (
                                     <button
                                         key={env}
-                                        onClick={() => setStudioConfig({...studioConfig, environment: env})}
+                                        onClick={() =>
+                                            setStudioConfig({
+                                                ...studioConfig,
+                                                environment: env,
+                                            })
+                                        }
                                         className={`px-3 py-2 text-xs rounded-lg border transition-all ${studioConfig.environment === env ? 'bg-indigo-600 border-indigo-500 text-white font-bold' : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'}`}
                                     >
-                                        {env.charAt(0).toUpperCase() + env.slice(1)}
+                                        {env.charAt(0).toUpperCase() +
+                                            env.slice(1)}
                                     </button>
                                 ))}
                             </div>
@@ -1715,52 +1911,105 @@ const VRViewer: React.FC<VRViewerProps> = ({
 
                         {/* Rendering Controls */}
                         <section className="space-y-4">
-                            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">{t('studio.rendering')}</h3>
-                            
+                            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
+                                {t('studio.rendering')}
+                            </h3>
+
                             <div className="space-y-3">
                                 <div className="flex justify-between items-center">
-                                    <label className="text-xs text-slate-300">{t('studio.exposure')}</label>
-                                    <span className="text-[10px] font-mono text-indigo-400">{studioConfig.exposure.toFixed(1)}</span>
+                                    <label className="text-xs text-slate-300">
+                                        {t('studio.exposure')}
+                                    </label>
+                                    <span className="text-[10px] font-mono text-indigo-400">
+                                        {studioConfig.exposure.toFixed(1)}
+                                    </span>
                                 </div>
                                 <input
-                                    type="range" min="0.1" max="5.0" step="0.1"
+                                    type="range"
+                                    min="0.1"
+                                    max="5.0"
+                                    step="0.1"
                                     value={studioConfig.exposure}
-                                    onChange={(e) => setStudioConfig({...studioConfig, exposure: parseFloat(e.target.value)})}
+                                    onChange={(e) =>
+                                        setStudioConfig({
+                                            ...studioConfig,
+                                            exposure: parseFloat(
+                                                e.target.value
+                                            ),
+                                        })
+                                    }
                                     className="w-full accent-indigo-500 bg-slate-800 h-1 rounded-full appearance-none cursor-pointer"
                                 />
 
                                 <div className="flex flex-col gap-1.5 pt-2">
-                                    <label className="text-xs text-slate-300">{t('studio.tone_mapping')}</label>
+                                    <label className="text-xs text-slate-300">
+                                        {t('studio.tone_mapping')}
+                                    </label>
                                     <select
                                         value={studioConfig.toneMapping}
-                                        onChange={(e) => setStudioConfig({...studioConfig, toneMapping: e.target.value})}
+                                        onChange={(e) =>
+                                            setStudioConfig({
+                                                ...studioConfig,
+                                                toneMapping: e.target.value,
+                                            })
+                                        }
                                         className="w-full bg-slate-800 border border-slate-700 text-slate-300 text-[10px] rounded-lg p-2 outline-none focus:border-indigo-500"
                                     >
-                                        <option value="NoToneMapping">None</option>
-                                        <option value="LinearToneMapping">Linear</option>
-                                        <option value="ReinhardToneMapping">Reinhard</option>
-                                        <option value="CineonToneMapping">Cineon</option>
-                                        <option value="ACESFilmicToneMapping">ACES Filmic</option>
+                                        <option value="NoToneMapping">
+                                            None
+                                        </option>
+                                        <option value="LinearToneMapping">
+                                            Linear
+                                        </option>
+                                        <option value="ReinhardToneMapping">
+                                            Reinhard
+                                        </option>
+                                        <option value="CineonToneMapping">
+                                            Cineon
+                                        </option>
+                                        <option value="ACESFilmicToneMapping">
+                                            ACES Filmic
+                                        </option>
                                     </select>
                                 </div>
 
                                 <div className="flex items-center justify-between pt-2">
-                                    <label className="text-xs text-slate-300">{t('studio.wireframe')}</label>
+                                    <label className="text-xs text-slate-300">
+                                        {t('studio.wireframe')}
+                                    </label>
                                     <button
-                                        onClick={() => setStudioConfig({...studioConfig, wireframe: !studioConfig.wireframe})}
+                                        onClick={() =>
+                                            setStudioConfig({
+                                                ...studioConfig,
+                                                wireframe:
+                                                    !studioConfig.wireframe,
+                                            })
+                                        }
                                         className={`w-10 h-5 rounded-full relative transition-colors ${studioConfig.wireframe ? 'bg-indigo-600' : 'bg-slate-700'}`}
                                     >
-                                        <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${studioConfig.wireframe ? 'left-6' : 'left-1'}`}></div>
+                                        <div
+                                            className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${studioConfig.wireframe ? 'left-6' : 'left-1'}`}
+                                        ></div>
                                     </button>
                                 </div>
 
                                 <div className="flex items-center justify-between">
-                                    <label className="text-xs text-slate-300">{t('studio.auto_rotate')}</label>
+                                    <label className="text-xs text-slate-300">
+                                        {t('studio.auto_rotate')}
+                                    </label>
                                     <button
-                                        onClick={() => setStudioConfig({...studioConfig, autoRotate: !studioConfig.autoRotate})}
+                                        onClick={() =>
+                                            setStudioConfig({
+                                                ...studioConfig,
+                                                autoRotate:
+                                                    !studioConfig.autoRotate,
+                                            })
+                                        }
                                         className={`w-10 h-5 rounded-full relative transition-colors ${studioConfig.autoRotate ? 'bg-indigo-600' : 'bg-slate-700'}`}
                                     >
-                                        <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${studioConfig.autoRotate ? 'left-6' : 'left-1'}`}></div>
+                                        <div
+                                            className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${studioConfig.autoRotate ? 'left-6' : 'left-1'}`}
+                                        ></div>
                                     </button>
                                 </div>
                             </div>
@@ -1768,23 +2017,47 @@ const VRViewer: React.FC<VRViewerProps> = ({
 
                         {/* Model Statistics */}
                         <section className="bg-slate-950/50 rounded-2xl p-4 border border-slate-800/50 space-y-3">
-                            <h3 className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">{t('studio.stats')}</h3>
+                            <h3 className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">
+                                {t('studio.stats')}
+                            </h3>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] text-slate-500">{t('studio.vertices')}</span>
-                                    <span className="text-sm font-mono text-slate-200">{(modelStats.vertices / 1000).toFixed(1)}k</span>
+                                    <span className="text-[10px] text-slate-500">
+                                        {t('studio.vertices')}
+                                    </span>
+                                    <span className="text-sm font-mono text-slate-200">
+                                        {(modelStats.vertices / 1000).toFixed(
+                                            1
+                                        )}
+                                        k
+                                    </span>
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] text-slate-500">{t('studio.triangles')}</span>
-                                    <span className="text-sm font-mono text-slate-200">{(modelStats.triangles / 1000).toFixed(1)}k</span>
+                                    <span className="text-[10px] text-slate-500">
+                                        {t('studio.triangles')}
+                                    </span>
+                                    <span className="text-sm font-mono text-slate-200">
+                                        {(modelStats.triangles / 1000).toFixed(
+                                            1
+                                        )}
+                                        k
+                                    </span>
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] text-slate-500">{t('studio.meshes')}</span>
-                                    <span className="text-sm font-mono text-slate-200">{modelStats.meshes}</span>
+                                    <span className="text-[10px] text-slate-500">
+                                        {t('studio.meshes')}
+                                    </span>
+                                    <span className="text-sm font-mono text-slate-200">
+                                        {modelStats.meshes}
+                                    </span>
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] text-slate-500">{t('studio.materials')}</span>
-                                    <span className="text-sm font-mono text-slate-200">{modelStats.materials}</span>
+                                    <span className="text-[10px] text-slate-500">
+                                        {t('studio.materials')}
+                                    </span>
+                                    <span className="text-sm font-mono text-slate-200">
+                                        {modelStats.materials}
+                                    </span>
                                 </div>
                             </div>
                         </section>
@@ -1875,11 +2148,13 @@ const VRViewer: React.FC<VRViewerProps> = ({
 
                 {/* Model and Environment */}
                 {studioConfig.environment !== 'none' ? (
-                    <a-entity environment={`preset: ${studioConfig.environment}; lighting: true; shadow: true; fog: 0; intensity: 0.8`}></a-entity>
+                    <a-entity
+                        environment={`preset: ${studioConfig.environment}; lighting: true; shadow: true; fog: 0; intensity: 0.8`}
+                    ></a-entity>
                 ) : (
                     <a-sky color="#050505"></a-sky>
                 )}
-                
+
                 <a-grid-helper
                     size="20"
                     divisions="20"
@@ -1890,7 +2165,11 @@ const VRViewer: React.FC<VRViewerProps> = ({
                 <a-entity
                     position="0 0 -3"
                     drag-rotate
-                    auto-rotate={studioConfig.autoRotate ? "enabled: true; speed: 20" : "enabled: false"}
+                    auto-rotate={
+                        studioConfig.autoRotate
+                            ? 'enabled: true; speed: 20'
+                            : 'enabled: false'
+                    }
                     animation__rotate="enabled: false"
                     className="interactable-model"
                     assembly-mode-system={`enabled: ${isAssemblyMode}`}
@@ -1944,14 +2223,19 @@ const VRViewer: React.FC<VRViewerProps> = ({
 
                 <a-entity light="type: ambient; intensity: 0.5; color: #ffffff"></a-entity>
                 <a-entity light="type: directional; intensity: 0.8; castShadow: true; position: -1 4 2"></a-entity>
-                
-                 {/* Teacher Visual Pointer */}
+
+                {/* Teacher Visual Pointer */}
                 {teacherPointer && (
                     <a-entity>
-                         <a-entity
+                        <a-entity
                             line={`start: ${teacherPointer.origin.x} ${teacherPointer.origin.y} ${teacherPointer.origin.z}; end: ${teacherPointer.target.x} ${teacherPointer.target.y} ${teacherPointer.target.z}; color: red; opacity: 0.8`}
                         ></a-entity>
-                        <a-sphere position={`${teacherPointer.target.x} ${teacherPointer.target.y} ${teacherPointer.target.z}`} radius="0.05" color="red" opacity="0.8"></a-sphere>
+                        <a-sphere
+                            position={`${teacherPointer.target.x} ${teacherPointer.target.y} ${teacherPointer.target.z}`}
+                            radius="0.05"
+                            color="red"
+                            opacity="0.8"
+                        ></a-sphere>
                     </a-entity>
                 )}
             </a-scene>
@@ -1959,10 +2243,16 @@ const VRViewer: React.FC<VRViewerProps> = ({
             {challengeMode && (
                 <div className="absolute top-24 left-1/2 -translate-x-1/2 bg-black/60 px-8 py-3 rounded-full border border-amber-500/50 backdrop-blur-md z-10 flex flex-col items-center">
                     <div className="flex items-center gap-3">
-                        <span className="text-amber-400 text-2xl animate-pulse">⏱️</span>
+                        <span className="text-amber-400 text-2xl animate-pulse">
+                            ⏱️
+                        </span>
                         <span className="font-mono text-3xl font-bold text-white tracking-wider">
-                            {new Date(challengeTime).toISOString().slice(14, 19)}
-                            <span className="text-sm text-slate-400">.{Math.floor((challengeTime % 1000) / 100)}</span>
+                            {new Date(challengeTime)
+                                .toISOString()
+                                .slice(14, 19)}
+                            <span className="text-sm text-slate-400">
+                                .{Math.floor((challengeTime % 1000) / 100)}
+                            </span>
                         </span>
                     </div>
                     {isChallengeComplete && (
@@ -1983,7 +2273,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
                         >
                             ✕
                         </button>
-                        
+
                         <h2 className="text-2xl font-bold text-amber-500 mb-6 flex items-center gap-2">
                             🏆 {t('gamification.leaderboard')}
                         </h2>
@@ -1991,20 +2281,33 @@ const VRViewer: React.FC<VRViewerProps> = ({
                         <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
                             <div className="grid grid-cols-4 text-xs font-bold text-slate-500 border-b border-slate-800 pb-2 mb-2">
                                 <span>{t('gamification.rank')}</span>
-                                <span className="col-span-2">{t('gamification.user')}</span>
-                                <span className="text-right">{t('gamification.score')}</span>
+                                <span className="col-span-2">
+                                    {t('gamification.user')}
+                                </span>
+                                <span className="text-right">
+                                    {t('gamification.score')}
+                                </span>
                             </div>
                             {leaderboardData.length > 0 ? (
                                 leaderboardData.map((entry, i) => (
-                                    <div key={i} className={`grid grid-cols-4 py-2 border-b border-slate-800/50 items-center ${i < 3 ? 'text-white' : 'text-slate-400'}`}>
+                                    <div
+                                        key={i}
+                                        className={`grid grid-cols-4 py-2 border-b border-slate-800/50 items-center ${i < 3 ? 'text-white' : 'text-slate-400'}`}
+                                    >
                                         <span className="flex items-center gap-2">
                                             {i === 0 && '🥇'}
                                             {i === 1 && '🥈'}
                                             {i === 2 && '🥉'}
-                                            <span className="font-mono text-xs opacity-50">#{i + 1}</span>
+                                            <span className="font-mono text-xs opacity-50">
+                                                #{i + 1}
+                                            </span>
                                         </span>
-                                        <span className="col-span-2 font-medium truncate">{entry.username}</span>
-                                        <span className="text-right font-mono text-amber-400">{entry.time_seconds.toFixed(2)}s</span>
+                                        <span className="col-span-2 font-medium truncate">
+                                            {entry.username}
+                                        </span>
+                                        <span className="text-right font-mono text-amber-400">
+                                            {entry.time_seconds.toFixed(2)}s
+                                        </span>
                                     </div>
                                 ))
                             ) : (

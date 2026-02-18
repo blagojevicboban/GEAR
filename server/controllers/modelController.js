@@ -27,14 +27,19 @@ export const getModels = async (req, res) => {
             if (model.modelUrl) {
                 // We need to fix URL first if it's missing /api/ prefix, similar to urlUtils but server-side
                 let urlToCheck = model.modelUrl;
-                if (urlToCheck.startsWith('/uploads/')) urlToCheck = '/api' + urlToCheck;
-                else if (!urlToCheck.startsWith('/api/') && !urlToCheck.startsWith('http')) urlToCheck = '/api/uploads/' + urlToCheck;
+                if (urlToCheck.startsWith('/uploads/'))
+                    urlToCheck = '/api' + urlToCheck;
+                else if (
+                    !urlToCheck.startsWith('/api/') &&
+                    !urlToCheck.startsWith('http')
+                )
+                    urlToCheck = '/api/uploads/' + urlToCheck;
 
                 if (!fileService.checkFileExists(urlToCheck)) {
                     missingFile = true;
                 }
             }
-            
+
             return {
                 ...model,
                 optimized: !!model.optimized,
@@ -111,13 +116,21 @@ export const createModel = async (req, res) => {
 
         // Post-creation: Consolidate files
         // If we have a local modelUrl and local thumbnailUrl, try to move thumbnail to model folder
-        if (model.modelUrl && model.thumbnailUrl && 
-            model.modelUrl.startsWith('/api/uploads/') && 
-            model.thumbnailUrl.startsWith('/api/uploads/')) {
-            
-            const newThumbUrl = fileService.moveFileToFolder(model.thumbnailUrl, model.modelUrl);
+        if (
+            model.modelUrl &&
+            model.thumbnailUrl &&
+            model.modelUrl.startsWith('/api/uploads/') &&
+            model.thumbnailUrl.startsWith('/api/uploads/')
+        ) {
+            const newThumbUrl = fileService.moveFileToFolder(
+                model.thumbnailUrl,
+                model.modelUrl
+            );
             if (newThumbUrl !== model.thumbnailUrl) {
-                await pool.query('UPDATE models SET thumbnailUrl = ? WHERE id = ?', [newThumbUrl, model.id]);
+                await pool.query(
+                    'UPDATE models SET thumbnailUrl = ? WHERE id = ?',
+                    [newThumbUrl, model.id]
+                );
                 model.thumbnailUrl = newThumbUrl; // Update response
             }
         }
@@ -166,7 +179,9 @@ export const updateModel = async (req, res) => {
                 [model.sector]
             );
             if (sectors.length === 0) {
-                console.log(`[UpdateModel] Auto-creating new sector: ${model.sector}`);
+                console.log(
+                    `[UpdateModel] Auto-creating new sector: ${model.sector}`
+                );
                 await pool.query(
                     'INSERT INTO sectors (id, name, description) VALUES (?, ?, ?)',
                     [model.sector, model.sector, 'Custom User Sector']
@@ -191,14 +206,22 @@ export const updateModel = async (req, res) => {
         );
 
         // Consolidate files on update if paths changed (or just always try, it's safe)
-        if (model.modelUrl && model.thumbnailUrl && 
-            model.modelUrl.startsWith('/api/uploads/') && 
-            model.thumbnailUrl.startsWith('/api/uploads/')) {
-            
-            const newThumbUrl = fileService.moveFileToFolder(model.thumbnailUrl, model.modelUrl);
+        if (
+            model.modelUrl &&
+            model.thumbnailUrl &&
+            model.modelUrl.startsWith('/api/uploads/') &&
+            model.thumbnailUrl.startsWith('/api/uploads/')
+        ) {
+            const newThumbUrl = fileService.moveFileToFolder(
+                model.thumbnailUrl,
+                model.modelUrl
+            );
             if (newThumbUrl !== model.thumbnailUrl) {
                 // Determine if we need to update DB again (slightly inefficient but robust)
-                await pool.query('UPDATE models SET thumbnailUrl = ? WHERE id = ?', [newThumbUrl, id]);
+                await pool.query(
+                    'UPDATE models SET thumbnailUrl = ? WHERE id = ?',
+                    [newThumbUrl, id]
+                );
                 model.thumbnailUrl = newThumbUrl;
             }
         }
@@ -262,11 +285,18 @@ export const deleteModel = async (req, res) => {
             const model = rows[0];
             // Delete Model File (and its folder if applicable)
             if (model.modelUrl && model.modelUrl.startsWith('/api/uploads/')) {
-                fileService.deleteFile(model.modelUrl.replace('/api/uploads/', ''));
+                fileService.deleteFile(
+                    model.modelUrl.replace('/api/uploads/', '')
+                );
             }
             // Delete Thumbnail (if it's in a different folder, it might clean that up too)
-            if (model.thumbnailUrl && model.thumbnailUrl.startsWith('/api/uploads/')) {
-                fileService.deleteFile(model.thumbnailUrl.replace('/api/uploads/', ''));
+            if (
+                model.thumbnailUrl &&
+                model.thumbnailUrl.startsWith('/api/uploads/')
+            ) {
+                fileService.deleteFile(
+                    model.thumbnailUrl.replace('/api/uploads/', '')
+                );
             }
         }
 
@@ -299,16 +329,21 @@ export const generateLesson = async (req, res) => {
     } catch (err) {
         console.error('AI Lesson Gen Error:', err);
         let msg = err.message;
-        
+
         // Handle Gemini 429 Errors gracefully
-        if (msg.includes('429') || msg.includes('quota') || msg.includes('RESOURCE_EXHAUSTED')) {
-            msg = 'AI Usage Limit Exceeded. Please try again in 1-2 minutes, or check your Gemini API quota.';
+        if (
+            msg.includes('429') ||
+            msg.includes('quota') ||
+            msg.includes('RESOURCE_EXHAUSTED')
+        ) {
+            msg =
+                'AI Usage Limit Exceeded. Please try again in 1-2 minutes, or check your Gemini API quota.';
         } else if (msg.includes('JSON')) {
             msg = 'AI response was invalid. Please try again.';
         }
 
         res.status(500).json({
-            error: msg
+            error: msg,
         });
     }
 };
@@ -323,9 +358,10 @@ export const duplicateModel = async (req, res) => {
             return res.status(401).json({ error: 'Unauthorized' });
         }
 
-        const [existing] = await pool.query('SELECT * FROM models WHERE id = ?', [
-            id,
-        ]);
+        const [existing] = await pool.query(
+            'SELECT * FROM models WHERE id = ?',
+            [id]
+        );
         if (existing.length === 0)
             return res.status(404).json({ error: 'Model not found' });
         const original = existing[0];
@@ -386,9 +422,10 @@ export const duplicateModel = async (req, res) => {
             );
         }
 
-        const [newModel] = await pool.query('SELECT * FROM models WHERE id = ?', [
-            newId,
-        ]);
+        const [newModel] = await pool.query(
+            'SELECT * FROM models WHERE id = ?',
+            [newId]
+        );
         res.json(newModel[0]);
     } catch (err) {
         console.error('Duplicate Model Error:', err);

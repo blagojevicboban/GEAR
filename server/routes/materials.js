@@ -1,4 +1,4 @@
-import pool from "../db.js";
+import pool from '../db.js';
 
 import express from 'express';
 import axios from 'axios';
@@ -45,7 +45,6 @@ const getMaterialType = (bandGap) => {
     return 'insulator';
 };
 
-
 // GET /api/materials/search?query=Formula
 router.get('/search', async (req, res) => {
     const { query } = req.query;
@@ -68,8 +67,15 @@ router.get('/search', async (req, res) => {
     }
 
     // 1. Check if API Key is configured
-    if (!API_KEY || API_KEY.trim() === '' || API_KEY === 'your_key_here' || API_KEY === 'YOUR_API_KEY_HERE') {
-        console.warn('[Materials API] No valid API Key found. Using Mock Data.');
+    if (
+        !API_KEY ||
+        API_KEY.trim() === '' ||
+        API_KEY === 'your_key_here' ||
+        API_KEY === 'YOUR_API_KEY_HERE'
+    ) {
+        console.warn(
+            '[Materials API] No valid API Key found. Using Mock Data.'
+        );
         // Filter mock data
         const results = MOCK_MATERIALS.filter(
             (m) =>
@@ -93,8 +99,9 @@ router.get('/search', async (req, res) => {
                     'User-Agent': 'GEAR-App/1.0',
                 },
                 params: {
-                    formula: query, 
-                    _fields: 'material_id,formula_pretty,density,band_gap,volume',
+                    formula: query,
+                    _fields:
+                        'material_id,formula_pretty,density,band_gap,volume',
                 },
             }
         );
@@ -103,7 +110,11 @@ router.get('/search', async (req, res) => {
         // Note: The MP API is strict. We might need to handle element-based search if formula fails.
         // For now, we will stick to exact formula, but adding error handling for 404s to fallback to elements search could be next step.
 
-        if (response.data && response.data.data && response.data.data.length > 0) {
+        if (
+            response.data &&
+            response.data.data &&
+            response.data.data.length > 0
+        ) {
             // Map MP response to our simplified format
             const materials = response.data.data.map((item) => ({
                 id: item.material_id,
@@ -117,41 +128,49 @@ router.get('/search', async (req, res) => {
 
             return res.json({ source: 'api', data: materials });
         } else {
-             // If Exact Formula returned nothing, try fuzzy search in Mock Data as a backup-backup?
-             // Or tell user "No material found".
-             // Let's try to search by elements if the query contains a hyphen or comma
-             if (query.includes('-') || query.includes(',')) {
-                 // Elements search (e.g. Si,O)
-                  const elements = query.split(/[-,\s]+/).join(',');
-                  try {
-                      response = await axios.get(
+            // If Exact Formula returned nothing, try fuzzy search in Mock Data as a backup-backup?
+            // Or tell user "No material found".
+            // Let's try to search by elements if the query contains a hyphen or comma
+            if (query.includes('-') || query.includes(',')) {
+                // Elements search (e.g. Si,O)
+                const elements = query.split(/[-,\s]+/).join(',');
+                try {
+                    response = await axios.get(
                         'https://api.materialsproject.org/materials/summary/',
                         {
                             headers: { 'X-API-KEY': API_KEY },
                             params: {
                                 elements: elements,
-                                _fields: 'material_id,formula_pretty,density,band_gap,volume',
-                                _limit: 5 // Limit results for broad searches
-                            }
+                                _fields:
+                                    'material_id,formula_pretty,density,band_gap,volume',
+                                _limit: 5, // Limit results for broad searches
+                            },
                         }
                     );
-                     if (response.data && response.data.data && response.data.data.length > 0) {
-                             const materials = response.data.data.map((item) => ({
-                                id: item.material_id,
-                                name: item.formula_pretty,
-                                formula: item.formula_pretty,
-                                density: item.density,
-                                type: getMaterialType(item.band_gap),
-                                bandGap: item.band_gap,
-                                volume: item.volume,
-                            }));
-                            return res.json({ source: 'api_elements', data: materials });
-                     }
-                  } catch (e) {
-                      console.log("Elements search failed too");
-                  }
-             }
-            
+                    if (
+                        response.data &&
+                        response.data.data &&
+                        response.data.data.length > 0
+                    ) {
+                        const materials = response.data.data.map((item) => ({
+                            id: item.material_id,
+                            name: item.formula_pretty,
+                            formula: item.formula_pretty,
+                            density: item.density,
+                            type: getMaterialType(item.band_gap),
+                            bandGap: item.band_gap,
+                            volume: item.volume,
+                        }));
+                        return res.json({
+                            source: 'api_elements',
+                            data: materials,
+                        });
+                    }
+                } catch (e) {
+                    console.log('Elements search failed too');
+                }
+            }
+
             return res.json({ source: 'api', data: [] });
         }
     } catch (error) {
@@ -159,10 +178,14 @@ router.get('/search', async (req, res) => {
             '[Materials API] Error fetching from MP:',
             error.response?.data || error.message
         );
-        
+
         let errorMessage = 'API Error';
         // Check for specific API error messages
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+        ) {
             errorMessage = error.response.data.message;
         } else if (error.message) {
             errorMessage = error.message;
@@ -219,12 +242,17 @@ router.get('/structure/:materialId', async (req, res) => {
                 },
                 params: {
                     material_ids: materialId,
-                    _fields: 'material_id,formula_pretty,structure,symmetry,energy_above_hull,band_gap,formation_energy_per_atom,ordering,total_magnetization,is_stable,density,nsites,volume,theoretical',
+                    _fields:
+                        'material_id,formula_pretty,structure,symmetry,energy_above_hull,band_gap,formation_energy_per_atom,ordering,total_magnetization,is_stable,density,nsites,volume,theoretical',
                 },
             }
         );
 
-        if (response.data && response.data.data && response.data.data.length > 0) {
+        if (
+            response.data &&
+            response.data.data &&
+            response.data.data.length > 0
+        ) {
             const item = response.data.data[0];
             const structure = item.structure;
 
@@ -244,28 +272,34 @@ router.get('/structure/:materialId', async (req, res) => {
                 volume: item.volume,
                 theoretical: item.theoretical,
                 // Symmetry
-                symmetry: item.symmetry ? {
-                    crystal_system: item.symmetry.crystal_system,
-                    symbol: item.symmetry.symbol,
-                    number: item.symmetry.number,
-                    point_group: item.symmetry.point_group,
-                } : null,
+                symmetry: item.symmetry
+                    ? {
+                          crystal_system: item.symmetry.crystal_system,
+                          symbol: item.symmetry.symbol,
+                          number: item.symmetry.number,
+                          point_group: item.symmetry.point_group,
+                      }
+                    : null,
                 // Structure (lattice + sites)
-                lattice: structure ? {
-                    matrix: structure.lattice.matrix,
-                    a: structure.lattice.a,
-                    b: structure.lattice.b,
-                    c: structure.lattice.c,
-                    alpha: structure.lattice.alpha,
-                    beta: structure.lattice.beta,
-                    gamma: structure.lattice.gamma,
-                    volume: structure.lattice.volume,
-                } : null,
-                sites: structure ? structure.sites.map((site) => ({
-                    element: site.label,
-                    xyz: site.xyz,
-                    abc: site.abc,
-                })) : [],
+                lattice: structure
+                    ? {
+                          matrix: structure.lattice.matrix,
+                          a: structure.lattice.a,
+                          b: structure.lattice.b,
+                          c: structure.lattice.c,
+                          alpha: structure.lattice.alpha,
+                          beta: structure.lattice.beta,
+                          gamma: structure.lattice.gamma,
+                          volume: structure.lattice.volume,
+                      }
+                    : null,
+                sites: structure
+                    ? structure.sites.map((site) => ({
+                          element: site.label,
+                          xyz: site.xyz,
+                          abc: site.abc,
+                      }))
+                    : [],
             };
 
             return res.json({ data: result });
@@ -273,8 +307,13 @@ router.get('/structure/:materialId', async (req, res) => {
             return res.json({ error: 'Material not found', data: null });
         }
     } catch (error) {
-        console.error('[Materials API] Structure fetch error:', error.response?.data || error.message);
-        return res.status(500).json({ error: error.response?.data?.message || 'Failed to fetch structure' });
+        console.error(
+            '[Materials API] Structure fetch error:',
+            error.response?.data || error.message
+        );
+        return res.status(500).json({
+            error: error.response?.data?.message || 'Failed to fetch structure',
+        });
     }
 });
 

@@ -37,26 +37,30 @@ export const getOrphans = async (req, res) => {
     try {
         // 1. Gather all referenced paths from DB
         const references = new Set();
-        
+
         // Whitelist specific folders
         references.add('profile_pictures'); // Always keep, or rely on usage
-        
+
         // Models
-        const [models] = await pool.query('SELECT modelUrl, thumbnailUrl FROM models');
-        models.forEach(m => {
+        const [models] = await pool.query(
+            'SELECT modelUrl, thumbnailUrl FROM models'
+        );
+        models.forEach((m) => {
             if (m.modelUrl) references.add(m.modelUrl);
             if (m.thumbnailUrl) references.add(m.thumbnailUrl);
         });
 
         // Lessons
         const [lessons] = await pool.query('SELECT image_url FROM lessons');
-        lessons.forEach(l => {
+        lessons.forEach((l) => {
             if (l.image_url) references.add(l.image_url);
         });
 
         // Lesson Steps
-        const [steps] = await pool.query('SELECT image_url, content FROM lesson_steps');
-        steps.forEach(s => {
+        const [steps] = await pool.query(
+            'SELECT image_url, content FROM lesson_steps'
+        );
+        steps.forEach((s) => {
             if (s.image_url) references.add(s.image_url);
             if (s.content) {
                 const regex = /src="(\/api\/uploads\/[^"]+)"/g;
@@ -69,7 +73,7 @@ export const getOrphans = async (req, res) => {
 
         // Users
         const [users] = await pool.query('SELECT profilePicUrl FROM users');
-        users.forEach(u => {
+        users.forEach((u) => {
             if (u.profilePicUrl) references.add(u.profilePicUrl);
         });
 
@@ -78,7 +82,7 @@ export const getOrphans = async (req, res) => {
         const keptItems = new Set();
         keptItems.add('profile_pictures'); // Explicit keep
 
-        references.forEach(ref => {
+        references.forEach((ref) => {
             if (typeof ref === 'string' && ref.startsWith('/api/uploads/')) {
                 const relative = ref.replace('/api/uploads/', '');
                 const parts = relative.split('/'); // ['folder', 'file'] or ['file']
@@ -94,26 +98,25 @@ export const getOrphans = async (req, res) => {
         const items = fs.readdirSync(uploadDir);
 
         for (const item of items) {
-             if (keptItems.has(item)) continue;
-             
-             // Check if it's a hidden file or system file (optional)
-             if (item.startsWith('.')) continue;
+            if (keptItems.has(item)) continue;
 
-             const fullPath = path.join(uploadDir, item);
-             const stats = fs.statSync(fullPath);
-             const isDir = stats.isDirectory();
-             
-             orphans.push({
-                 name: item,
-                 path: item, // relative to uploads
-                 type: isDir ? 'folder' : 'file',
-                 size: isDir ? getDirSize(fullPath) : stats.size,
-                 updatedAt: stats.mtime
-             });
+            // Check if it's a hidden file or system file (optional)
+            if (item.startsWith('.')) continue;
+
+            const fullPath = path.join(uploadDir, item);
+            const stats = fs.statSync(fullPath);
+            const isDir = stats.isDirectory();
+
+            orphans.push({
+                name: item,
+                path: item, // relative to uploads
+                type: isDir ? 'folder' : 'file',
+                size: isDir ? getDirSize(fullPath) : stats.size,
+                updatedAt: stats.mtime,
+            });
         }
 
         res.json(orphans);
-
     } catch (err) {
         console.error('Failed to scan for orphans:', err);
         res.status(500).json({ error: 'Failed to scan for orphans' });
@@ -154,30 +157,48 @@ export const deleteAllOrphans = async (req, res) => {
         const references = new Set();
         references.add('profile_pictures');
 
-        const [models] = await pool.query('SELECT modelUrl, thumbnailUrl FROM models');
-        models.forEach(m => { if (m.modelUrl) references.add(m.modelUrl); if (m.thumbnailUrl) references.add(m.thumbnailUrl); });
+        const [models] = await pool.query(
+            'SELECT modelUrl, thumbnailUrl FROM models'
+        );
+        models.forEach((m) => {
+            if (m.modelUrl) references.add(m.modelUrl);
+            if (m.thumbnailUrl) references.add(m.thumbnailUrl);
+        });
 
         const [lessons] = await pool.query('SELECT image_url FROM lessons');
-        lessons.forEach(l => { if (l.image_url) references.add(l.image_url); });
+        lessons.forEach((l) => {
+            if (l.image_url) references.add(l.image_url);
+        });
 
-        const [steps] = await pool.query('SELECT image_url, content FROM lesson_steps');
-        steps.forEach(s => {
+        const [steps] = await pool.query(
+            'SELECT image_url, content FROM lesson_steps'
+        );
+        steps.forEach((s) => {
             if (s.image_url) references.add(s.image_url);
             if (s.content) {
                 const regex = /src="(\/api\/uploads\/[^"]+)"/g;
                 let match;
-                while ((match = regex.exec(s.content)) !== null) references.add(match[1]);
+                while ((match = regex.exec(s.content)) !== null)
+                    references.add(match[1]);
             }
         });
 
         const [users] = await pool.query('SELECT profilePicUrl FROM users');
-        users.forEach(u => { if (u.profilePicUrl) references.add(u.profilePicUrl); });
+        users.forEach((u) => {
+            if (u.profilePicUrl) references.add(u.profilePicUrl);
+        });
 
         const keptItems = new Set();
         keptItems.add('profile_pictures');
-        references.forEach(ref => {
+        references.forEach((ref) => {
             if (typeof ref === 'string' && ref.startsWith('/api/uploads/')) {
-                const cleanTop = decodeURIComponent(ref.replace('/api/uploads/', '').split('/')[0].split('#')[0].split('?')[0]);
+                const cleanTop = decodeURIComponent(
+                    ref
+                        .replace('/api/uploads/', '')
+                        .split('/')[0]
+                        .split('#')[0]
+                        .split('?')[0]
+                );
                 keptItems.add(cleanTop);
             }
         });
@@ -187,11 +208,11 @@ export const deleteAllOrphans = async (req, res) => {
         let deletedCount = 0;
 
         for (const item of items) {
-             if (keptItems.has(item)) continue;
-             if (item.startsWith('.')) continue;
+            if (keptItems.has(item)) continue;
+            if (item.startsWith('.')) continue;
 
-             const fullPath = path.join(uploadDir, item);
-             try {
+            const fullPath = path.join(uploadDir, item);
+            try {
                 const stats = fs.statSync(fullPath);
                 if (stats.isDirectory()) {
                     fs.rmSync(fullPath, { recursive: true, force: true });
@@ -199,13 +220,12 @@ export const deleteAllOrphans = async (req, res) => {
                     fs.unlinkSync(fullPath);
                 }
                 deletedCount++;
-             } catch(e) {
-                 console.error(`Failed to delete ${item}`, e);
-             }
+            } catch (e) {
+                console.error(`Failed to delete ${item}`, e);
+            }
         }
 
         res.json({ success: true, count: deletedCount });
-
     } catch (err) {
         console.error('Failed to delete all orphans:', err);
         res.status(500).json({ error: 'Failed to delete orphans' });

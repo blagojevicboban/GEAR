@@ -474,5 +474,34 @@
                 "link_model_first": "Link a 3D model first!"
             }
         }
+    },
+    "materials": {
+        "title": "Μηχανή Υλικών",
+        "desc_title": "Βιβλιοθήκη Υλικών PBR",
+        "desc": "Εφαρμόστε υψηλής ποιότητας PBR υλικά στα 3D μοντέλα σας. Ρυθμίστε τραχύτητα, μεταλλικότητα και άλλες φυσικές ιδιότητες.",
+        "usage": "Επιλέξτε ένα μέρος στην 3D προβολή, στη συνέχεια επιλέξτε ένα υλικό από τον πίνακα για να το εφαρμόσετε.",
+        "crystal_structure": "Κρυσταλλική Δομή",
+        "loading_structure": "Φόρτωση Δομής...",
+        "summary": "Σύνοψη",
+        "energy_above_hull": "Ενέργεια Πάνω από το Hull",
+        "band_gap": "Ενεργειακό Χάσμα",
+        "formation_energy": "Ενέργεια Σχηματισμού",
+        "density": "Πυκνότητα",
+        "magnetic_ordering": "Μαγνητική Διάταξη",
+        "total_magnetization": "Συνολική Μαγνήτιση",
+        "experimentally_observed": "Πειραματικά Παρατηρημένο",
+        "stable": "Σταθερό",
+        "symmetry": "Συμμετρία",
+        "crystal_system": "Κρυσταλλικό Σύστημα",
+        "space_group": "Ομάδα Χώρου",
+        "point_group": "Ομάδα Σημείου",
+        "lattice": "Πλέγμα",
+        "volume": "Όγκος",
+        "atomic_positions": "Ατομικές Θέσεις",
+        "element": "Στοιχείο",
+        "non_magnetic": "Μη μαγνητικό",
+        "ferromagnetic": "Σιδηρομαγνητικό",
+        "antiferromagnetic": "Αντισιδηρομαγνητικό",
+        "ferrimagnetic": "Φερριμαγνητικό"
     }
 }

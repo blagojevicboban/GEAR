@@ -3,6 +3,7 @@ import { PhysicsEngine, MaterialProperties } from '../utils/PhysicsEngine';
 import { EvidenceManager, EvidenceReceipt } from '../utils/EvidenceManager';
 import { FileCheck, ShieldCheck, Search, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import CrystalStructureViewer from './CrystalStructureViewer';
 
 interface Material {
     id: string;
@@ -158,6 +159,16 @@ const MaterialSelector: React.FC = () => {
                             ))}
                         </select>
                     </div>
+
+                    {/* Crystal Structure Viewer */}
+                    {selectedMaterial && selectedMaterial.id.startsWith('mp-') && (
+                        <div className="mb-4">
+                            <CrystalStructureViewer
+                                materialId={selectedMaterial.id}
+                                formula={selectedMaterial.formula}
+                            />
+                        </div>
+                    )}
 
                     <div className="grid grid-cols-2 gap-4 mb-4">
                         <div>

@@ -474,5 +474,34 @@
                 "link_model_first": "Link a 3D model first!"
             }
         }
+    },
+    "materials": {
+        "title": "Motor de Materiais",
+        "desc_title": "Biblioteca de Materiais PBR",
+        "desc": "Aplique materiais PBR de alta qualidade aos seus modelos 3D. Ajuste rugosidade, metalicidade e outras propriedades físicas.",
+        "usage": "Selecione uma peça na visualização 3D, depois escolha um material do painel para aplicá-lo.",
+        "crystal_structure": "Estrutura Cristalina",
+        "loading_structure": "Carregando Estrutura...",
+        "summary": "Resumo",
+        "energy_above_hull": "Energia Acima do Hull",
+        "band_gap": "Banda Proibida",
+        "formation_energy": "Energia de Formação",
+        "density": "Densidade",
+        "magnetic_ordering": "Ordenamento Magnético",
+        "total_magnetization": "Magnetização Total",
+        "experimentally_observed": "Observado Experimentalmente",
+        "stable": "Estável",
+        "symmetry": "Simetria",
+        "crystal_system": "Sistema Cristalino",
+        "space_group": "Grupo Espacial",
+        "point_group": "Grupo Pontual",
+        "lattice": "Rede Cristalina",
+        "volume": "Volume",
+        "atomic_positions": "Posições Atômicas",
+        "element": "Elemento",
+        "non_magnetic": "Não magnético",
+        "ferromagnetic": "Ferromagnético",
+        "antiferromagnetic": "Antiferromagnético",
+        "ferrimagnetic": "Ferrimagnético"
     }
 }

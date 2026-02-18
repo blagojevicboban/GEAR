@@ -474,5 +474,34 @@
                 "link_model_first": "Link a 3D model first!"
             }
         }
+    },
+    "materials": {
+        "title": "Malzeme Motoru",
+        "desc_title": "PBR Malzeme Kütüphanesi",
+        "desc": "3D modellerinize yüksek kaliteli PBR malzemeler uygulayın. Pürüzlülük, metaliklik ve diğer fiziksel özellikleri ayarlayın.",
+        "usage": "3D görünümde bir parça seçin, ardından panelden bir malzeme seçerek uygulayın.",
+        "crystal_structure": "Kristal Yapı",
+        "loading_structure": "Yapı Yükleniyor...",
+        "summary": "Özet",
+        "energy_above_hull": "Hull Üstü Enerji",
+        "band_gap": "Bant Aralığı",
+        "formation_energy": "Oluşum Enerjisi",
+        "density": "Yoğunluk",
+        "magnetic_ordering": "Manyetik Düzen",
+        "total_magnetization": "Toplam Manyetizasyon",
+        "experimentally_observed": "Deneysel Olarak Gözlemlendi",
+        "stable": "Kararlı",
+        "symmetry": "Simetri",
+        "crystal_system": "Kristal Sistemi",
+        "space_group": "Uzay Grubu",
+        "point_group": "Nokta Grubu",
+        "lattice": "Örgü",
+        "volume": "Hacim",
+        "atomic_positions": "Atom Pozisyonları",
+        "element": "Element",
+        "non_magnetic": "Manyetik değil",
+        "ferromagnetic": "Ferromanyetik",
+        "antiferromagnetic": "Antiferromanyetik",
+        "ferrimagnetic": "Ferrimanyetik"
     }
 }

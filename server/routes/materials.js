@@ -182,4 +182,100 @@ router.get('/search', async (req, res) => {
     }
 });
 
+// GET /api/materials/structure/:materialId - Detailed material info
+router.get('/structure/:materialId', async (req, res) => {
+    const { materialId } = req.params;
+
+    if (!materialId) {
+        return res.status(400).json({ error: 'Material ID required' });
+    }
+
+    // Fetch API Key (same logic as search)
+    let API_KEY = process.env.MP_API_KEY;
+    try {
+        const [rows] = await pool.query(
+            "SELECT setting_value FROM system_settings WHERE setting_key = 'material_project_api_key'"
+        );
+        if (rows.length > 0 && rows[0].setting_value) {
+            API_KEY = rows[0].setting_value;
+        }
+    } catch (e) {
+        console.warn('Failed to fetch config from DB for structure endpoint');
+    }
+
+    if (!API_KEY || API_KEY.trim() === '') {
+        return res.status(400).json({ error: 'No API Key configured' });
+    }
+
+    API_KEY = API_KEY.trim();
+
+    try {
+        const response = await axios.get(
+            'https://api.materialsproject.org/materials/summary/',
+            {
+                headers: {
+                    'X-API-KEY': API_KEY,
+                    'User-Agent': 'GEAR-App/1.0',
+                },
+                params: {
+                    material_ids: materialId,
+                    _fields: 'material_id,formula_pretty,structure,symmetry,energy_above_hull,band_gap,formation_energy_per_atom,ordering,total_magnetization,is_stable,density,nsites,volume,theoretical',
+                },
+            }
+        );
+
+        if (response.data && response.data.data && response.data.data.length > 0) {
+            const item = response.data.data[0];
+            const structure = item.structure;
+
+            // Build complete result
+            const result = {
+                materialId: item.material_id,
+                formula: item.formula_pretty,
+                // Summary properties
+                energy_above_hull: item.energy_above_hull,
+                band_gap: item.band_gap,
+                formation_energy_per_atom: item.formation_energy_per_atom,
+                ordering: item.ordering,
+                total_magnetization: item.total_magnetization,
+                is_stable: item.is_stable,
+                density: item.density,
+                nsites: item.nsites,
+                volume: item.volume,
+                theoretical: item.theoretical,
+                // Symmetry
+                symmetry: item.symmetry ? {
+                    crystal_system: item.symmetry.crystal_system,
+                    symbol: item.symmetry.symbol,
+                    number: item.symmetry.number,
+                    point_group: item.symmetry.point_group,
+                } : null,
+                // Structure (lattice + sites)
+                lattice: structure ? {
+                    matrix: structure.lattice.matrix,
+                    a: structure.lattice.a,
+                    b: structure.lattice.b,
+                    c: structure.lattice.c,
+                    alpha: structure.lattice.alpha,
+                    beta: structure.lattice.beta,
+                    gamma: structure.lattice.gamma,
+                    volume: structure.lattice.volume,
+                } : null,
+                sites: structure ? structure.sites.map((site) => ({
+                    element: site.label,
+                    xyz: site.xyz,
+                    abc: site.abc,
+                })) : [],
+            };
+
+            return res.json({ data: result });
+        } else {
+            return res.json({ error: 'Material not found', data: null });
+        }
+    } catch (error) {
+        console.error('[Materials API] Structure fetch error:', error.response?.data || error.message);
+        return res.status(500).json({ error: error.response?.data?.message || 'Failed to fetch structure' });
+    }
+});
+
 export default router;

@@ -697,7 +697,7 @@ const App: React.FC = () => {
                 )}
 
                 {currentView === 'materials' && (
-                    <div className="flex justify-center items-center h-[calc(100vh-64px)]">
+                    <div className="flex justify-center items-start h-[calc(100vh-64px)] overflow-y-auto pt-4 pb-4">
                         <MaterialSelector />
                     </div>
                 )}

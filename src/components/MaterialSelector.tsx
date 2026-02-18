@@ -160,54 +160,51 @@ const MaterialSelector: React.FC = () => {
                         </select>
                     </div>
 
-                    {/* Crystal Structure Viewer */}
+                    {/* Crystal Structure Viewer & Integrated Calculator */}
                     {selectedMaterial && selectedMaterial.id.startsWith('mp-') && (
                         <div className="mb-4">
                             <CrystalStructureViewer
                                 materialId={selectedMaterial.id}
                                 formula={selectedMaterial.formula}
+                                onSpeedChange={(speed) => setCuttingSpeed(speed)}
                             />
                         </div>
                     )}
 
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label className="block text-gray-400 text-sm mb-2">Thickness (mm)</label>
-                            <input 
-                                type="number" 
-                                min="1" max="20"
-                                className="w-full bg-gray-800 text-white rounded p-2 border border-gray-700"
-                                value={thickness}
-                                onChange={(e) => setThickness(Number(e.target.value))}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-gray-400 text-sm mb-2">Laser Power (W)</label>
-                            <input 
-                                type="range" 
-                                min="10" max="150"
-                                className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-teal-500 mt-3"
-                                value={power}
-                                onChange={(e) => setPower(Number(e.target.value))}
-                            />
-                            <div className="text-right text-xs text-teal-400 mt-1">{power} W</div>
-                        </div>
-                    </div>
-
-                    <div className="bg-black/50 rounded p-4 mt-6 border-l-4 border-teal-500 mb-6">
-                        <div className="text-gray-400 text-xs uppercase tracking-widest mb-1">Calculated Cutting Speed</div>
-                        <div className="text-3xl font-mono text-white">
-                            {cuttingSpeed} <span className="text-sm text-gray-500">mm/s</span>
-                        </div>
-                        
-                        {selectedMaterial && selectedMaterial.properties && (
-                            <div className="mt-2 text-xs text-gray-500 font-mono">
-                                Density: {selectedMaterial.properties.density.toFixed(2)} g/cm³ <br/>
-                                Formula: {selectedMaterial.formula} <br/>
-                                <span className="text-teal-600">Source: Materials Project API (v2)</span>
+                    {!selectedMaterial?.id.startsWith('mp-') && (
+                        <>
+                            <div className="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label className="block text-gray-400 text-sm mb-2">Thickness (mm)</label>
+                                    <input 
+                                        type="number" 
+                                        min="1" max="20"
+                                        className="w-full bg-gray-800 text-white rounded p-2 border border-gray-700"
+                                        value={thickness}
+                                        onChange={(e) => setThickness(Number(e.target.value))}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-gray-400 text-sm mb-2">Laser Power (W)</label>
+                                    <input 
+                                        type="range" 
+                                        min="10" max="150"
+                                        className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-teal-500 mt-3"
+                                        value={power}
+                                        onChange={(e) => setPower(Number(e.target.value))}
+                                    />
+                                    <div className="text-right text-xs text-teal-400 mt-1">{power} W</div>
+                                </div>
                             </div>
-                        )}
-                    </div>
+
+                            <div className="bg-black/50 rounded p-4 mt-6 border-l-4 border-teal-500 mb-6 text-center">
+                                <div className="text-gray-400 text-xs uppercase tracking-widest mb-1">Calculated Cutting Speed</div>
+                                <div className="text-3xl font-mono text-white">
+                                    {cuttingSpeed ? cuttingSpeed.toFixed(2) : '---'} <span className="text-sm text-gray-500">mm/s</span>
+                                </div>
+                            </div>
+                        </>
+                    )}
 
                     {!receipt ? (
                         <button

@@ -714,6 +714,8 @@
         "desc_title": "Biblioteka PBR Materijala",
         "desc": "Primenite visokokvalitetne PBR (Physically Based Rendering) materijale na vaše 3D modele. Podesite hrapavost, metalnost i druga fizička svojstva.",
         "usage": "Izaberite deo u 3D prikazu, zatim izaberite materijal iz panela da biste ga primenili.",
+        "calculator_desc": "Izračunajte optimalne brzine laserskog sečenja na osnovu gustine materijala i energetskog procepa.",
+        "ar_desc": "Pregledajte kristalne strukture u proširenoj stvarnosti (AR) koristeći WebXR.",
         "crystal_structure": "Kristalna Struktura",
         "loading_structure": "Učitavanje Strukture...",
         "summary": "Pregled",
@@ -745,7 +747,9 @@
         "metal": "Metal",
         "semiconductor": "Poluprovodnik",
         "insulator": "Izolator/Keramika",
-        "calculator_disclaimer": "* Ovaj proračun koristi empirijsku formulu zasnovanu na gustini i energetskom procepu materijala. Stvarni rezultati mogu varirati."
+        "calculator_disclaimer": "* Ovaj proračun koristi empirijsku formulu zasnovanu na gustini i energetskom procepu materijala. Stvarni rezultati mogu varirati.",
+        "explore": "Istraži",
+        "ar_vr": "AR/VR"
     },
     "evidence": {
         "title": "Erasmus+ Dokazi",

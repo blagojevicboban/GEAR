@@ -640,6 +640,8 @@
         "metal": "Metallo",
         "semiconductor": "Semiconduttore",
         "insulator": "Isolante/Ceramica",
-        "calculator_disclaimer": "* Questo calcolo utilizza una formula empirica basata sulla densità e sulla banda proibita del materiale. I risultati effettivi possono variare."
+        "calculator_disclaimer": "* Questo calcolo utilizza una formula empirica basata sulla densità e sulla banda proibita del materiale. I risultati effettivi possono variare.",
+        "explore": "Esplora",
+        "ar_vr": "AR/VR"
     }
 }

@@ -714,6 +714,8 @@
         "desc_title": "PBR Material Library",
         "desc": "Apply high-quality PBR (Physically Based Rendering) materials to your 3D models. Adjust roughness, metalness, and other physical properties.",
         "usage": "Select a part in the 3D view, then choose a material from the panel to apply it.",
+        "calculator_desc": "Calculate optimal laser cutting speeds based on material density and band gap.",
+        "ar_desc": "View crystal structures in Augmented Reality using WebXR.",
         "crystal_structure": "Crystal Structure",
         "loading_structure": "Loading Structure...",
         "summary": "Summary",
@@ -745,7 +747,9 @@
         "metal": "Metal",
         "semiconductor": "Semiconductor",
         "insulator": "Insulator/Ceramic",
-        "calculator_disclaimer": "* This calculation uses an empirical formula based on material density and band gap. Actual results may vary based on laser wavelength, focal length, and material purity."
+        "calculator_disclaimer": "* This calculation uses an empirical formula based on material density and band gap. Actual results may vary based on laser wavelength, focal length, and material purity.",
+        "explore": "Explore",
+        "ar_vr": "AR/VR"
     },
     "evidence": {
         "title": "Erasmus+ Evidence",

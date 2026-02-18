@@ -8,7 +8,7 @@ interface HelpPageProps {
 const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
     const { t } = useTranslation();
     const [xrSupported, setXrSupported] = useState<boolean | null>(null);
-    const [isSecure, setIsSecure] = useState<boolean>(() => {
+    const [isSecure] = useState<boolean>(() => {
         const isHttps = window.location.protocol === 'https:';
         const isLocal =
             window.location.hostname === 'localhost' ||
@@ -412,6 +412,18 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                                 {t('materials.desc_title')}
                             </strong>
                             {t('materials.desc')}
+                        </div>
+                        <div>
+                            <strong className="text-white block mb-1 uppercase text-xs tracking-wider text-orange-400">
+                                {t('materials.calculator_title')}
+                            </strong>
+                            {t('materials.calculator_desc')}
+                        </div>
+                        <div>
+                            <strong className="text-white block mb-1 uppercase text-xs tracking-wider text-purple-400">
+                                {t('materials.ar_vr')}
+                            </strong>
+                            {t('materials.ar_desc')}
                         </div>
                         <p className="text-sm bg-slate-950/50 p-3 rounded-lg border-l-4 border-orange-500">
                             <strong>Tip:</strong> {t('materials.usage')}

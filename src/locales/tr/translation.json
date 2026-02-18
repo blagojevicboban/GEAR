@@ -511,6 +511,8 @@
         "metal": "Metal",
         "semiconductor": "Yarı İletken",
         "insulator": "Yalıtkan/Seramik",
-        "calculator_disclaimer": "* Bu hesaplama, malzeme yoğunluğu ve bant aralığına dayalı ampirik bir formül kullanır. Gerçek sonuçlar değişebilir."
+        "calculator_disclaimer": "* Bu hesaplama, malzeme yoğunluğu ve bant aralığına dayalı ampirik bir formül kullanır. Gerçek sonuçlar değişebilir.",
+        "explore": "Keşfet",
+        "ar_vr": "AR/VR"
     }
 }

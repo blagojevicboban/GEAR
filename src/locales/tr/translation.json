@@ -502,6 +502,15 @@
         "non_magnetic": "Manyetik değil",
         "ferromagnetic": "Ferromanyetik",
         "antiferromagnetic": "Antiferromanyetik",
-        "ferrimagnetic": "Ferrimanyetik"
+        "ferrimagnetic": "Ferrimanyetik",
+        "calculator_title": "Lazer Kesim Hızı Hesaplayıcı",
+        "thickness": "Kalınlık",
+        "laser_power": "Lazer Gücü",
+        "estimated_speed": "Tahmini Kesim Hızı",
+        "material_type": "Malzeme Türü",
+        "metal": "Metal",
+        "semiconductor": "Yarı İletken",
+        "insulator": "Yalıtkan/Seramik",
+        "calculator_disclaimer": "* Bu hesaplama, malzeme yoğunluğu ve bant aralığına dayalı ampirik bir formül kullanır. Gerçek sonuçlar değişebilir."
     }
 }

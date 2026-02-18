@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type * as THREE_TYPES from 'three';
 const THREE = (window as any).THREE as typeof THREE_TYPES;
 
@@ -103,6 +104,7 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
     materialId,
     formula,
 }) => {
+    const { t } = useTranslation();
     const containerRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -110,6 +112,8 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
     const rendererRef = useRef<any>(null);
     const animFrameRef = useRef<number>(0);
     const [showAtomicPositions, setShowAtomicPositions] = useState(false);
+    const [thickness, setThickness] = useState(3.0);
+    const [laserPower, setLaserPower] = useState(80);
 
     // Fetch structure data
     useEffect(() => {
@@ -536,6 +540,87 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
                         <PropRow label="Volume" value={structureData.lattice.volume.toFixed(2)} unit="ų" />
                     </InfoCard>
                 )}
+            </div>
+
+            {/* Laser Cutting Speed Calculator */}
+            <div className="bg-gray-800/50 rounded-lg border border-teal-500/30 p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                    <h4 className="text-teal-400 text-xs font-semibold uppercase tracking-wider">
+                        {t('materials.calculator_title')}
+                    </h4>
+                    <span className="bg-teal-500/10 text-teal-300 text-[10px] px-2 py-0.5 rounded border border-teal-500/20">
+                        BETA
+                    </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <label className="text-gray-400 text-[10px] uppercase font-medium">{t('materials.thickness')} (mm)</label>
+                        <input
+                            type="number"
+                            min="0.1"
+                            max="20"
+                            step="0.1"
+                            value={thickness}
+                            onChange={(e) => setThickness(parseFloat(e.target.value) || 0)}
+                            className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-sm text-white focus:outline-none focus:border-teal-500/50 transition-colors"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <div className="flex justify-between">
+                            <label className="text-gray-400 text-[10px] uppercase font-medium">{t('materials.laser_power')} (W)</label>
+                            <span className="text-teal-400 text-[10px] font-mono">{laserPower} W</span>
+                        </div>
+                        <input
+                            type="range"
+                            min="10"
+                            max="200"
+                            step="5"
+                            value={laserPower}
+                            onChange={(e) => setLaserPower(parseInt(e.target.value))}
+                            className="w-full accent-teal-500 h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer mt-2"
+                        />
+                    </div>
+                </div>
+
+                <div className="pt-2">
+                    <div className="bg-gray-900/80 rounded-lg border border-gray-700 p-3 flex flex-col items-center justify-center space-y-1 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-1 h-full bg-teal-500"></div>
+                        <span className="text-gray-400 text-[10px] uppercase tracking-widest font-bold">{t('materials.estimated_speed')}</span>
+                        <div className="flex items-baseline space-x-2">
+                            <span className="text-3xl font-black text-white">
+                                {(() => {
+                                    if (!structureData || !structureData.density || thickness <= 0) return 'NaN';
+                                    const bg = structureData.band_gap || 0;
+                                    let k = 5.0; // Default Ceramic/Insulator
+                                    if (bg === 0) k = 10.0; // Metal
+                                    else if (bg < 2.0) k = 7.5; // Semiconductor
+                                    
+                                    const speed = laserPower / (k * thickness * structureData.density);
+                                    return speed.toFixed(2);
+                                })()}
+                            </span>
+                            <span className="text-teal-400 font-medium">mm/s</span>
+                        </div>
+                        <div className="flex space-x-4 mt-2">
+                            <div className="flex flex-col items-center">
+                                <span className="text-[9px] text-gray-500 uppercase">{t('materials.density')}</span>
+                                <span className="text-[11px] text-gray-300 font-mono">{structureData?.density?.toFixed(2)} g/cm³</span>
+                            </div>
+                            <div className="flex flex-col items-center border-l border-gray-800 pl-4">
+                                <span className="text-[9px] text-gray-500 uppercase">{t('materials.material_type')}</span>
+                                <span className="text-[11px] text-gray-300">
+                                    {structureData?.band_gap === 0 ? t('materials.metal') : 
+                                     (structureData?.band_gap && structureData.band_gap < 2 ? t('materials.semiconductor') : t('materials.insulator'))}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="text-[9px] text-gray-500 italic leading-relaxed">
+                    {t('materials.calculator_disclaimer')}
+                </div>
             </div>
 
             {/* Atomic Positions (collapsible) */}

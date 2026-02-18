@@ -631,6 +631,15 @@
         "non_magnetic": "Non magnetico",
         "ferromagnetic": "Ferromagnetico",
         "antiferromagnetic": "Antiferromagnetico",
-        "ferrimagnetic": "Ferrimagnetico"
+        "ferrimagnetic": "Ferrimagnetico",
+        "calculator_title": "Calcolatore Velocità Taglio Laser",
+        "thickness": "Spessore",
+        "laser_power": "Potenza Laser",
+        "estimated_speed": "Velocità di Taglio Stimata",
+        "material_type": "Tipo di Materiale",
+        "metal": "Metallo",
+        "semiconductor": "Semiconduttore",
+        "insulator": "Isolante/Ceramica",
+        "calculator_disclaimer": "* Questo calcolo utilizza una formula empirica basata sulla densità e sulla banda proibita del materiale. I risultati effettivi possono variare."
     }
 }

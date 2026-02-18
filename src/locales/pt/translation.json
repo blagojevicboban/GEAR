@@ -502,6 +502,15 @@
         "non_magnetic": "Não magnético",
         "ferromagnetic": "Ferromagnético",
         "antiferromagnetic": "Antiferromagnético",
-        "ferrimagnetic": "Ferrimagnético"
+        "ferrimagnetic": "Ferrimagnético",
+        "calculator_title": "Calculadora de Velocidade de Corte a Laser",
+        "thickness": "Espessura",
+        "laser_power": "Potência do Laser",
+        "estimated_speed": "Velocidade de Corte Estimada",
+        "material_type": "Tipo de Material",
+        "metal": "Metal",
+        "semiconductor": "Semicondutor",
+        "insulator": "Isolante/Cerâmica",
+        "calculator_disclaimer": "* Este cálculo utiliza uma fórmula empírica baseada na densidade e no hiato de banda do material. Os resultados reais podem variar."
     }
 }

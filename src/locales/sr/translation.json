@@ -736,7 +736,16 @@
         "non_magnetic": "Nemagnetno",
         "ferromagnetic": "Feromagnetno",
         "antiferromagnetic": "Antiferomagnetno",
-        "ferrimagnetic": "Ferimagnetno"
+        "ferrimagnetic": "Ferimagnetno",
+        "calculator_title": "Kalkulator Brzine Laserskog Sečenja",
+        "thickness": "Debljina",
+        "laser_power": "Snaga Lasera",
+        "estimated_speed": "Procenjena Brzina Sečenja",
+        "material_type": "Tip Materijala",
+        "metal": "Metal",
+        "semiconductor": "Poluprovodnik",
+        "insulator": "Izolator/Keramika",
+        "calculator_disclaimer": "* Ovaj proračun koristi empirijsku formulu zasnovanu na gustini i energetskom procepu materijala. Stvarni rezultati mogu varirati."
     },
     "evidence": {
         "title": "Erasmus+ Dokazi",

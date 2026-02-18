@@ -736,7 +736,16 @@
         "non_magnetic": "Non-magnetic",
         "ferromagnetic": "Ferromagnetic",
         "antiferromagnetic": "Antiferromagnetic",
-        "ferrimagnetic": "Ferrimagnetic"
+        "ferrimagnetic": "Ferrimagnetic",
+        "calculator_title": "Laser Cutting Speed Calculator",
+        "thickness": "Thickness",
+        "laser_power": "Laser Power",
+        "estimated_speed": "Estimated Cutting Speed",
+        "material_type": "Material Type",
+        "metal": "Metal",
+        "semiconductor": "Semiconductor",
+        "insulator": "Insulator/Ceramic",
+        "calculator_disclaimer": "* This calculation uses an empirical formula based on material density and band gap. Actual results may vary based on laser wavelength, focal length, and material purity."
     },
     "evidence": {
         "title": "Erasmus+ Evidence",

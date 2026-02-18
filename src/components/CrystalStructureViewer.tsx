@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Maximize2, Rotate3d, Box, Radius, Activity } from 'lucide-react';
+import { X, Maximize2, Rotate3d, Box, Radius, Activity, Settings } from 'lucide-react';
 import type * as THREE_TYPES from 'three';
 const THREE = (window as any).THREE as typeof THREE_TYPES;
 import { ARButton } from '../lib/three-examples/webxr/ARButton.js';
@@ -595,6 +595,7 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
     const [drawOutside, setDrawOutside] = useState(true);
     const [visualStyle, setVisualStyle] = useState<'bs' | 'space' | 'bone'>('bs');
     const [interactionMode, setInteractionMode] = useState<'manipulate' | 'inspect'>('manipulate');
+    const [showControls, setShowControls] = useState(false);
 
     // Calculate speed logic
     useEffect(() => {
@@ -693,12 +694,50 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
                     )}
                 </div>
 
-                <div className="h-[250px] overflow-hidden relative">
+                {/* Inline 3D Viewer container */}
+                <div className="flex-grow min-h-[300px] relative group overflow-hidden bg-gray-900/40 rounded-xl border border-gray-800 shadow-inner">
                     <CrystalViewer3D 
                         structureData={structureData} 
                         drawRepeats={drawRepeats}
                         drawOutside={drawOutside}
                     />
+                    
+                    {/* Settings Toggle Button */}
+                    <button 
+                        onClick={() => setShowControls(!showControls)}
+                        className="absolute top-4 right-4 p-2.5 bg-[#0f111a]/80 backdrop-blur-md rounded-xl border border-white/10 text-teal-400 hover:text-white transition-all active:scale-95 shadow-lg group-hover:translate-x-0 translate-x-[120%] duration-300"
+                    >
+                        <Settings className={`w-5 h-5 ${showControls ? 'rotate-90' : ''} transition-transform duration-500`} />
+                    </button>
+
+                    {/* Minimizable Controls Overlay for Inline View */}
+                    {showControls && (
+                        <div className="absolute top-16 right-4 w-60 animate-in slide-in-from-right-4 duration-300">
+                             <div className="bg-[#0f111a]/95 backdrop-blur-xl rounded-xl border border-white/10 p-4 shadow-2xl space-y-4">
+                                <h4 className="text-teal-400 text-[10px] font-bold uppercase tracking-widest">Rendering</h4>
+                                <div className="space-y-2">
+                                    <button 
+                                        onClick={() => setDrawRepeats(!drawRepeats)}
+                                        className={`w-full py-2 px-3 rounded-lg border transition-all flex items-center gap-2 text-[10px] font-bold ${
+                                            drawRepeats ? 'bg-teal-500/10 border-teal-500/30 text-teal-300' : 'bg-white/5 border-white/5 text-gray-500'
+                                        }`}
+                                    >
+                                        <div className={`w-1.5 h-1.5 rounded-full ${drawRepeats ? 'bg-teal-400' : 'bg-gray-600'}`}></div>
+                                        Repeats
+                                    </button>
+                                    <button 
+                                        onClick={() => setDrawOutside(!drawOutside)}
+                                        className={`w-full py-2 px-3 rounded-lg border transition-all flex items-center gap-2 text-[10px] font-bold ${
+                                            drawOutside ? 'bg-teal-500/10 border-teal-500/30 text-teal-300' : 'bg-white/5 border-white/5 text-gray-500'
+                                        }`}
+                                    >
+                                        <div className={`w-1.5 h-1.5 rounded-full ${drawOutside ? 'bg-teal-400' : 'bg-gray-600'}`}></div>
+                                        External
+                                    </button>
+                                </div>
+                             </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Viewer Footer */}
@@ -747,19 +786,29 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
                             visualStyle={visualStyle}
                         />
 
-                        {/* Premium Controls Panel */}
-                        <div className="absolute top-6 right-6 w-64">
-                            <ArVrControls 
-                                visualStyle={visualStyle}
-                                setVisualStyle={setVisualStyle}
-                                interactionMode={interactionMode}
-                                setInteractionMode={setInteractionMode}
-                                drawRepeats={drawRepeats}
-                                setDrawRepeats={setDrawRepeats}
-                                drawOutside={drawOutside}
-                                setDrawOutside={setDrawOutside}
-                            />
-                        </div>
+                        {/* Floating Gear Toggle in Full Screen */}
+                        <button 
+                            onClick={() => setShowControls(!showControls)}
+                            className="absolute top-4 right-4 p-2.5 bg-[#0f111a]/80 backdrop-blur-md rounded-xl border border-white/10 text-teal-400 hover:text-white transition-all active:scale-95 shadow-lg z-50"
+                        >
+                            <Settings className={`w-5 h-5 ${showControls ? 'rotate-90' : ''} transition-transform duration-500`} />
+                        </button>
+
+                        {/* Premium Controls Panel (Visible when toggled) */}
+                        {showControls && (
+                            <div className="absolute top-16 right-4 w-64 z-40">
+                                <ArVrControls 
+                                    visualStyle={visualStyle}
+                                    setVisualStyle={setVisualStyle}
+                                    interactionMode={interactionMode}
+                                    setInteractionMode={setInteractionMode}
+                                    drawRepeats={drawRepeats}
+                                    setDrawRepeats={setDrawRepeats}
+                                    drawOutside={drawOutside}
+                                    setDrawOutside={setDrawOutside}
+                                />
+                            </div>
+                        )}
 
                         {/* Control Legend */}
                         <div className="absolute bottom-6 left-6 text-white/50 text-[10px] space-y-1 bg-black/40 p-3 rounded-lg backdrop-blur-sm border border-white/10 pointer-events-none">
@@ -815,9 +864,12 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
                 )}
             </div>
 
-            {/* Draw Options */}
-            <InfoCard title="Draw Options">
-                <div className="space-y-2 py-1">
+            {/* Material Properties & Options */}
+            <div className="flex flex-col gap-6 lg:w-96 overflow-y-auto max-h-[calc(100vh-120px)] pr-2 scrollbar-hide">
+                {/* Desktop-only static controls, hidden on mobile in favor of gear toggle */}
+                <div className="hidden lg:block">
+                    <InfoCard title={t('materials.draw_options')}>
+                        <div className="space-y-2 py-1">
                     <label className="flex items-center gap-3 cursor-pointer group">
                         <input 
                             type="checkbox" 
@@ -839,9 +891,10 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
                         <span className="text-gray-300 text-xs group-hover:text-white transition-colors">
                             {t('materials.draw_outside')}
                         </span>
-                    </label>
+                        </label>
+                    </div>
+                </InfoCard>
                 </div>
-            </InfoCard>
 
             {/* Atomic Positions (collapsible) */}
             {uniqueSites.length > 0 && (
@@ -961,6 +1014,7 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
 
                 <div className="text-[9px] text-gray-500 italic leading-relaxed">
                     {t('materials.calculator_disclaimer')}
+                </div>
                 </div>
             </div>
         </div>

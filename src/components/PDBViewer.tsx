@@ -14,6 +14,7 @@ import { XRHandModelFactory } from '../lib/three-examples/webxr/XRHandModelFacto
 import { InteractiveGroup } from '../lib/three-examples/interactive/InteractiveGroup.js';
 import { HTMLMesh } from '../lib/three-examples/interactive/HTMLMesh.js';
 import { io, Socket } from 'socket.io-client';
+import { Settings } from 'lucide-react';
 
 interface PDBViewerProps {
     pdbUrl?: string; // Optional URL, defaults to caffeine
@@ -43,6 +44,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
     const [interactionMode, setInteractionMode] = useState<
         'manipulate' | 'annotate'
     >('manipulate');
+    const [showControls, setShowControls] = useState(false);
     const [voiceStatus, setVoiceStatus] = useState<string>(''); // Voice feedback text
     const pdbDataRef = useRef<any>(null); // Store parsed PDB data for style switching
     const socketRef = useRef<Socket | null>(null); // Socket Logic
@@ -882,6 +884,16 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
                 <div className="absolute inset-0 bg-slate-900 -z-20" />
             )}
 
+            {/* Settings Toggle Button */}
+            {!arSessionActive && (
+                <button 
+                    onClick={() => setShowControls(!showControls)}
+                    className="fixed top-4 right-4 z-[50] p-2.5 bg-slate-800/80 backdrop-blur-md rounded-xl border border-white/10 text-blue-400 hover:text-white transition-all active:scale-95 shadow-lg"
+                >
+                    <Settings className={`w-5 h-5 ${showControls ? 'rotate-90' : ''} transition-transform duration-500`} />
+                </button>
+            )}
+
             <div ref={containerRef} className="absolute inset-0 z-0" />
 
             <div className="absolute top-4 left-4 z-10">
@@ -894,14 +906,15 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
             </div>
 
             {/* Spatial UI Container - Now a 2D Glass Overlay on Desktop, source for 3D Mesh in AR */}
-            <div
-                id="ar-menu"
-                className={`fixed top-4 right-4 z-40 transition-all duration-500 transform ${
-                    arSessionActive
-                        ? 'opacity-0 scale-90 pointer-events-none'
-                        : 'opacity-100 scale-100'
-                }`}
-            >
+            {showControls && (
+                <div
+                    id="ar-menu"
+                    className={`fixed top-16 right-4 z-40 transition-all duration-500 transform ${
+                        arSessionActive
+                            ? 'opacity-0 scale-90 pointer-events-none'
+                            : 'opacity-100 scale-100'
+                    }`}
+                >
                 <div className="w-64 p-5 bg-slate-900/40 backdrop-blur-xl text-white rounded-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)] flex flex-col gap-3 group transition-all hover:bg-slate-900/50 hover:border-blue-500/30">
                     <div className="flex items-center justify-between border-b border-white/5 pb-3">
                         <h3 className="text-lg font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
@@ -985,6 +998,7 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
                     </div>
                 </div>
             </div>
+        )}
 
             {loading && (
                 <div className="absolute inset-0 z-20 flex items-center justify-center text-white bg-black/50">
@@ -1018,23 +1032,25 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
                 </div>
             )}
 
-            <div className="absolute bottom-4 left-4 z-10 text-slate-400 text-sm pointer-events-none bg-slate-900/50 p-2 rounded">
-                <p>Model: {pdbUrl.split('/').pop()}</p>
-                <p>Atoms: {atomCount}</p>
-                <p>
-                    Style:{' '}
-                    {visualStyle === 'ball-stick'
-                        ? 'Ball & Stick'
-                        : visualStyle === 'spacefill'
-                          ? 'Spacefill'
-                          : 'Backbone'}
-                </p>
-                <p>
-                    Controls: Desktop (Mouse) | AR (Grab/Pinch & Move, Stick
-                    Up/Down to Scale)
-                </p>
-                <p>Renderer: WebGL + WebXR (AR) + Hand Tracking</p>
-            </div>
+            {showControls && (
+                <div className="absolute bottom-4 left-4 z-10 text-slate-400 text-sm pointer-events-none bg-slate-900/50 p-2 rounded">
+                    <p>Model: {pdbUrl.split('/').pop()}</p>
+                    <p>Atoms: {atomCount}</p>
+                    <p>
+                        Style:{' '}
+                        {visualStyle === 'ball-stick'
+                            ? 'Ball & Stick'
+                            : visualStyle === 'spacefill'
+                              ? 'Spacefill'
+                              : 'Backbone'}
+                    </p>
+                    <p>
+                        Controls: Desktop (Mouse) | AR (Grab/Pinch & Move, Stick
+                        Up/Down to Scale)
+                    </p>
+                    <p>Renderer: WebGL + WebXR (AR) + Hand Tracking</p>
+                </div>
+            )}
         </div>
     );
 };

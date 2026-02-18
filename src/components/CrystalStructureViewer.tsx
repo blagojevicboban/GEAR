@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Maximize2 } from 'lucide-react';
+import { X, Maximize2, Rotate3d, Box, Radius, Activity } from 'lucide-react';
 import type * as THREE_TYPES from 'three';
 const THREE = (window as any).THREE as typeof THREE_TYPES;
 import { ARButton } from '../lib/three-examples/webxr/ARButton.js';
@@ -107,9 +107,18 @@ const InfoCard: React.FC<{ title: string; children: React.ReactNode }> = ({ titl
 interface CrystalViewer3DProps {
     structureData: StructureData;
     isFullScreen?: boolean;
+    drawRepeats?: boolean;
+    drawOutside?: boolean;
+    visualStyle?: 'bs' | 'space' | 'bone';
 }
 
-const CrystalViewer3D: React.FC<CrystalViewer3DProps> = ({ structureData, isFullScreen }) => {
+const CrystalViewer3D: React.FC<CrystalViewer3DProps> = ({ 
+    structureData, 
+    isFullScreen,
+    drawRepeats = true,
+    drawOutside = true,
+    visualStyle = 'bs'
+}) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const rendererRef = useRef<any>(null);
     const animFrameRef = useRef<number>(0);
@@ -137,6 +146,8 @@ const CrystalViewer3D: React.FC<CrystalViewer3DProps> = ({ structureData, isFull
         renderer.setSize(width, height);
         
         let arButton: HTMLElement | null = null;
+        let onXRSessionEnd: (() => void) | null = null;
+        
         if (isFullScreen) {
             renderer.xr.enabled = true;
             arButton = ARButton.createButton(renderer, {
@@ -179,8 +190,10 @@ const CrystalViewer3D: React.FC<CrystalViewer3DProps> = ({ structureData, isFull
         centerY /= sites.length;
         centerZ /= sites.length;
 
-        // Atoms
+        // Atoms rendering with periodic repeats
         const sphereGeometry = new THREE.SphereGeometry(1, 24, 24);
+        const renderedAtoms: any[] = [];
+
         sites.forEach((site) => {
             const element = site.element;
             const color = ELEMENT_COLORS[element] || 0x888888;
@@ -192,10 +205,59 @@ const CrystalViewer3D: React.FC<CrystalViewer3DProps> = ({ structureData, isFull
                 metalness: 0.6,
             });
 
-            const mesh = new THREE.Mesh(sphereGeometry, material);
-            mesh.position.set(site.xyz[0] - centerX, site.xyz[1] - centerY, site.xyz[2] - centerZ);
-            mesh.scale.setScalar(radius);
-            structureGroup.add(mesh);
+            // Base position
+            const basePos = new THREE.Vector3(site.xyz[0] - centerX, site.xyz[1] - centerY, site.xyz[2] - centerZ);
+            
+            // Adjust radius based on style
+            let styledRadius = radius;
+            if (visualStyle === 'space') styledRadius = (ELEMENT_RADII[element] || 1.0) * 0.8;
+            else if (visualStyle === 'bone') styledRadius = radius * 0.5;
+
+            // Function to add a mesh
+            const addAtomMesh = (pos: THREE_TYPES.Vector3, abc: number[]) => {
+                const mesh = new THREE.Mesh(sphereGeometry, material);
+                mesh.position.copy(pos);
+                mesh.scale.setScalar(styledRadius);
+                structureGroup.add(mesh);
+                renderedAtoms.push({ element, pos: pos.clone(), abc });
+            };
+
+            addAtomMesh(basePos, site.abc);
+
+            // Periodic repeats if enabled
+            if (drawRepeats) {
+                const ep = 0.05; // epsilon for boundary check
+                const dirs = [];
+                if (site.abc[0] < ep) dirs.push([1, 0, 0]);
+                if (site.abc[0] > 1 - ep) dirs.push([-1, 0, 0]);
+                if (site.abc[1] < ep) dirs.push([0, 1, 0]);
+                if (site.abc[1] > 1 - ep) dirs.push([0, -1, 0]);
+                if (site.abc[2] < ep) dirs.push([0, 0, 1]);
+                if (site.abc[2] > 1 - ep) dirs.push([0, 0, -1]);
+
+                // Generate combinations (edges and corners)
+                const combinations: number[][][] = [[]];
+                dirs.forEach(d => {
+                    const len = combinations.length;
+                    for(let i=0; i<len; i++) {
+                        combinations.push([...combinations[i], d]);
+                    }
+                });
+
+                combinations.shift(); // Remove empty
+                combinations.forEach(combo => {
+                    const offset = new THREE.Vector3(0, 0, 0);
+                    const newABC = [site.abc[0], site.abc[1], site.abc[2]];
+                    combo.forEach(d => {
+                        const vec = new THREE.Vector3(latticeMatrix[0][0], latticeMatrix[0][1], latticeMatrix[0][2]).multiplyScalar(d[0])
+                            .add(new THREE.Vector3(latticeMatrix[1][0], latticeMatrix[1][1], latticeMatrix[1][2]).multiplyScalar(d[1]))
+                            .add(new THREE.Vector3(latticeMatrix[2][0], latticeMatrix[2][1], latticeMatrix[2][2]).multiplyScalar(d[2]));
+                        offset.add(vec);
+                        newABC[0] += d[0]; newABC[1] += d[1]; newABC[2] += d[2];
+                    });
+                    addAtomMesh(basePos.clone().add(offset), newABC);
+                });
+            }
         });
 
         // Unit Cell Edges
@@ -219,29 +281,78 @@ const CrystalViewer3D: React.FC<CrystalViewer3DProps> = ({ structureData, isFull
             structureGroup.add(new THREE.Line(geo, lineMaterial));
         });
 
-        // Bonds
+        // Bonds rendering
         const bondMaterial = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.5, metalness: 0.3 });
-        const bondGeometry = new THREE.CylinderGeometry(0.06, 0.06, 1, 8);
+        
+        let bondRadius = 0.06;
+        if (visualStyle === 'bone') bondRadius = 0.03;
+        else if (visualStyle === 'space') bondRadius = 0.01; // Almost invisible
+
+        const bondGeometry = new THREE.CylinderGeometry(bondRadius, bondRadius, 1, 8);
         bondGeometry.rotateX(Math.PI / 2);
 
+        const latticeVectors = [
+            new THREE.Vector3(latticeMatrix[0][0], latticeMatrix[0][1], latticeMatrix[0][2]),
+            new THREE.Vector3(latticeMatrix[1][0], latticeMatrix[1][1], latticeMatrix[1][2]),
+            new THREE.Vector3(latticeMatrix[2][0], latticeMatrix[2][1], latticeMatrix[2][2])
+        ];
+
+        // Search for bonds
         for (let i = 0; i < sites.length; i++) {
-            for (let j = i + 1; j < sites.length; j++) {
-                const dist = Math.sqrt(
-                    Math.pow(sites[i].xyz[0] - sites[j].xyz[0], 2) + 
-                    Math.pow(sites[i].xyz[1] - sites[j].xyz[1], 2) + 
-                    Math.pow(sites[i].xyz[2] - sites[j].xyz[2], 2)
-                );
-                const r1 = ELEMENT_RADII[sites[i].element] || 1.5;
-                const r2 = ELEMENT_RADII[sites[j].element] || 1.5;
-                if (dist < (r1 + r2) * 1.3 && dist > 0.1) {
-                    const start = new THREE.Vector3(sites[i].xyz[0]-centerX, sites[i].xyz[1]-centerY, sites[i].xyz[2]-centerZ);
-                    const end = new THREE.Vector3(sites[j].xyz[0]-centerX, sites[j].xyz[1]-centerY, sites[j].xyz[2]-centerZ);
-                    const bond = new THREE.Mesh(bondGeometry.clone(), bondMaterial);
-                    bond.position.copy(start.clone().add(end).multiplyScalar(0.5));
-                    bond.scale.set(1, 1, start.distanceTo(end));
-                    bond.lookAt(end);
-                    structureGroup.add(bond);
-                }
+            const siteA = sites[i];
+            const r1 = ELEMENT_RADII[siteA.element] || 1.5;
+            const posA = new THREE.Vector3(siteA.xyz[0] - centerX, siteA.xyz[1] - centerY, siteA.xyz[2] - centerZ);
+
+            // Check against other internal sites and their periodic images
+            for (let j = i; j < sites.length; j++) {
+                const siteB = sites[j];
+                const r2 = ELEMENT_RADII[siteB.element] || 1.5;
+                const maxBondDist = (r1 + r2) * 1.3;
+
+                // Search in 3x3x3 unit cells if drawOutside is enabled, otherwise only 1
+                const range = drawOutside ? [-1, 0, 1] : [0];
+                
+                range.forEach(da => {
+                    range.forEach(db => {
+                        range.forEach(dc => {
+                            if (i === j && da === 0 && db === 0 && dc === 0) return;
+
+                            const offset = latticeVectors[0].clone().multiplyScalar(da)
+                                .add(latticeVectors[1].clone().multiplyScalar(db))
+                                .add(latticeVectors[2].clone().multiplyScalar(dc));
+                            
+                            const posB = new THREE.Vector3(siteB.xyz[0] - centerX, siteB.xyz[1] - centerY, siteB.xyz[2] - centerZ).add(offset);
+                            const dist = posA.distanceTo(posB);
+
+                            if (dist < maxBondDist && dist > 0.1) {
+                                // Add bond
+                                const bond = new THREE.Mesh(bondGeometry.clone(), bondMaterial);
+                                bond.position.copy(posA.clone().add(posB).multiplyScalar(0.5));
+                                bond.scale.set(1, 1, dist);
+                                bond.lookAt(posB);
+                                structureGroup.add(bond);
+
+                                // If drawOutside is enabled and B is an image, render the image atom too
+                                if (drawOutside && (da !== 0 || db !== 0 || dc !== 0)) {
+                                    const atomMat = new THREE.MeshStandardMaterial({
+                                        color: ELEMENT_COLORS[siteB.element] || 0x888888,
+                                        roughness: 0.3,
+                                        metalness: 0.6,
+                                    });
+                                    const atomMesh = new THREE.Mesh(sphereGeometry, atomMat);
+                                    atomMesh.position.copy(posB);
+                                    
+                                    let styledRadiusB = (ELEMENT_RADII[siteB.element] || 1.0) * 0.35;
+                                    if (visualStyle === 'space') styledRadiusB = (ELEMENT_RADII[siteB.element] || 1.0) * 0.8;
+                                    else if (visualStyle === 'bone') styledRadiusB = styledRadiusB * 0.5;
+                                    
+                                    atomMesh.scale.setScalar(styledRadiusB);
+                                    structureGroup.add(atomMesh);
+                                }
+                            }
+                        });
+                    });
+                });
             }
         }
 
@@ -293,7 +404,7 @@ const CrystalViewer3D: React.FC<CrystalViewer3DProps> = ({ structureData, isFull
             });
             
             // Add AR Button if on full screen
-            const onXRSessionEnd = () => {
+            onXRSessionEnd = () => {
                 camera.position.set(maxDim * 1.5, maxDim * 1.0, maxDim * 1.5);
                 camera.lookAt(0, 0, 0);
             };
@@ -311,20 +422,158 @@ const CrystalViewer3D: React.FC<CrystalViewer3DProps> = ({ structureData, isFull
         };
         window.addEventListener('resize', onResize);
 
+        const handleResetView = () => {
+            camera.position.set(maxDim * 1.5, maxDim * 1.0, maxDim * 1.5);
+            camera.lookAt(0, 0, 0);
+            rotX = 0;
+            rotY = 0;
+        };
+        window.addEventListener('gear-reset-view', handleResetView);
+
         return () => {
             cancelAnimationFrame(animFrameRef.current);
             window.removeEventListener('resize', onResize);
+            window.removeEventListener('gear-reset-view', handleResetView);
             window.removeEventListener('mousemove', onMove);
             window.removeEventListener('mouseup', onUp);
             window.removeEventListener('touchmove', onMove);
             window.removeEventListener('touchend', onUp);
             if (arButton && document.body.contains(arButton)) document.body.removeChild(arButton);
             if (container.contains(renderer.domElement)) container.removeChild(renderer.domElement);
+            if (onXRSessionEnd) renderer.xr.removeEventListener('sessionend', onXRSessionEnd);
             renderer.dispose();
         };
-    }, [structureData, isFullScreen]);
+    }, [structureData, isFullScreen, drawRepeats, drawOutside, visualStyle]);
 
     return <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing" />;
+};
+
+// --- Sub-component: AR/VR Premium Controls ---
+interface ArVrControlsProps {
+    visualStyle: 'bs' | 'space' | 'bone';
+    setVisualStyle: (s: 'bs' | 'space' | 'bone') => void;
+    interactionMode: 'manipulate' | 'inspect';
+    setInteractionMode: (m: 'manipulate' | 'inspect') => void;
+    drawRepeats: boolean;
+    setDrawRepeats: (b: boolean) => void;
+    drawOutside: boolean;
+    setDrawOutside: (b: boolean) => void;
+}
+
+const ArVrControls: React.FC<ArVrControlsProps> = ({
+    visualStyle,
+    setVisualStyle,
+    interactionMode,
+    setInteractionMode,
+    drawRepeats,
+    setDrawRepeats,
+    drawOutside,
+    setDrawOutside
+}) => {
+    const { t } = useTranslation();
+
+    const handleReset = () => {
+        window.dispatchEvent(new CustomEvent('gear-reset-view'));
+    };
+
+    return (
+        <div className="bg-[#0f111a]/90 backdrop-blur-xl rounded-2xl border border-white/10 p-5 shadow-2xl space-y-5 select-none animate-in slide-in-from-right duration-500">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <h3 className="text-teal-400 font-bold text-xl tracking-tight leading-none flex items-center gap-2">
+                    Controls
+                </h3>
+                <div className="flex gap-1">
+                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-teal-500"></div>
+                </div>
+            </div>
+
+            <div className="w-full h-px bg-white/5"></div>
+
+            {/* Reset View */}
+            <button 
+                onClick={handleReset}
+                className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all active:scale-95 shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2"
+            >
+                <Rotate3d className="w-5 h-5" />
+                Reset View
+            </button>
+
+            {/* Styles Button Group */}
+            <div className="grid grid-cols-3 gap-2">
+                <button 
+                    onClick={() => setVisualStyle('bs')}
+                    className={`py-3 rounded-xl border transition-all flex flex-col items-center justify-center gap-1 ${
+                        visualStyle === 'bs' 
+                        ? 'bg-blue-500/20 border-blue-500/50 text-white shadow-inner' 
+                        : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10'
+                    }`}
+                >
+                    <Box className="w-4 h-4" />
+                    <span className="text-[10px] font-bold uppercase tracking-tighter">B&S</span>
+                </button>
+                <button 
+                    onClick={() => setVisualStyle('space')}
+                    className={`py-3 rounded-xl border transition-all flex flex-col items-center justify-center gap-1 ${
+                        visualStyle === 'space' 
+                        ? 'bg-blue-500/20 border-blue-500/50 text-white shadow-inner' 
+                        : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10'
+                    }`}
+                >
+                    <Radius className="w-4 h-4" />
+                    <span className="text-[10px] font-bold uppercase tracking-tighter">Space</span>
+                </button>
+                <button 
+                    onClick={() => setVisualStyle('bone')}
+                    className={`py-3 rounded-xl border transition-all flex flex-col items-center justify-center gap-1 ${
+                        visualStyle === 'bone' 
+                        ? 'bg-blue-500/20 border-blue-500/50 text-white shadow-inner' 
+                        : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10'
+                    }`}
+                >
+                    <Activity className="w-4 h-4" />
+                    <span className="text-[10px] font-bold uppercase tracking-tighter">Bone</span>
+                </button>
+            </div>
+
+            {/* Toggle Options (Repeats/Outside) */}
+            <div className="space-y-2">
+                <button 
+                    onClick={() => setDrawRepeats(!drawRepeats)}
+                    className={`w-full py-2.5 px-4 rounded-xl border transition-all flex items-center gap-3 text-xs font-medium ${
+                        drawRepeats ? 'bg-teal-500/10 border-teal-500/50 text-teal-300' : 'bg-white/5 border-white/5 text-gray-500'
+                    }`}
+                >
+                    <div className={`w-2 h-2 rounded-full ${drawRepeats ? 'bg-teal-400 animate-pulse' : 'bg-gray-600'}`}></div>
+                    {t('materials.draw_repeats')}
+                </button>
+                <button 
+                    onClick={() => setDrawOutside(!drawOutside)}
+                    className={`w-full py-2.5 px-4 rounded-xl border transition-all flex items-center gap-3 text-xs font-medium ${
+                        drawOutside ? 'bg-teal-500/10 border-teal-500/50 text-teal-300' : 'bg-white/5 border-white/5 text-gray-500'
+                    }`}
+                >
+                    <div className={`w-2 h-2 rounded-full ${drawOutside ? 'bg-teal-400 animate-pulse' : 'bg-gray-600'}`}></div>
+                    {t('materials.draw_outside')}
+                </button>
+            </div>
+
+            {/* Mode Button */}
+            <button 
+                onClick={() => setInteractionMode(interactionMode === 'manipulate' ? 'inspect' : 'manipulate')}
+                className="w-full py-4 bg-teal-700 hover:bg-teal-600 text-white font-bold rounded-2xl transition-all active:scale-95 shadow-lg shadow-teal-900/20 text-lg"
+            >
+                Mode: {interactionMode === 'manipulate' ? 'Manipulate' : 'Inspect'}
+            </button>
+
+            {/* Footer Text */}
+            <div className="text-center space-y-1 py-1">
+                <p className="text-gray-500 text-[10px] italic">Grab/Pinch to Move</p>
+                <p className="text-gray-500 text-[10px] italic">Stick to Zoom</p>
+            </div>
+        </div>
+    );
 };
 
 
@@ -342,6 +591,10 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
     const [laserPower, setLaserPower] = useState(80);
     const [calculatedSpeed, setCalculatedSpeed] = useState<number | null>(null);
     const [isExploring, setIsExploring] = useState(false);
+    const [drawRepeats, setDrawRepeats] = useState(true);
+    const [drawOutside, setDrawOutside] = useState(true);
+    const [visualStyle, setVisualStyle] = useState<'bs' | 'space' | 'bone'>('bs');
+    const [interactionMode, setInteractionMode] = useState<'manipulate' | 'inspect'>('manipulate');
 
     // Calculate speed logic
     useEffect(() => {
@@ -441,7 +694,11 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
                 </div>
 
                 <div className="h-[250px] overflow-hidden relative">
-                    <CrystalViewer3D structureData={structureData} />
+                    <CrystalViewer3D 
+                        structureData={structureData} 
+                        drawRepeats={drawRepeats}
+                        drawOutside={drawOutside}
+                    />
                 </div>
 
                 {/* Viewer Footer */}
@@ -485,7 +742,24 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
                         <CrystalViewer3D 
                             structureData={structureData} 
                             isFullScreen={true}
+                            drawRepeats={drawRepeats}
+                            drawOutside={drawOutside}
+                            visualStyle={visualStyle}
                         />
+
+                        {/* Premium Controls Panel */}
+                        <div className="absolute top-6 right-6 w-64">
+                            <ArVrControls 
+                                visualStyle={visualStyle}
+                                setVisualStyle={setVisualStyle}
+                                interactionMode={interactionMode}
+                                setInteractionMode={setInteractionMode}
+                                drawRepeats={drawRepeats}
+                                setDrawRepeats={setDrawRepeats}
+                                drawOutside={drawOutside}
+                                setDrawOutside={setDrawOutside}
+                            />
+                        </div>
 
                         {/* Control Legend */}
                         <div className="absolute bottom-6 left-6 text-white/50 text-[10px] space-y-1 bg-black/40 p-3 rounded-lg backdrop-blur-sm border border-white/10 pointer-events-none">
@@ -540,6 +814,34 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
                     </InfoCard>
                 )}
             </div>
+
+            {/* Draw Options */}
+            <InfoCard title="Draw Options">
+                <div className="space-y-2 py-1">
+                    <label className="flex items-center gap-3 cursor-pointer group">
+                        <input 
+                            type="checkbox" 
+                            checked={drawRepeats}
+                            onChange={(e) => setDrawRepeats(e.target.checked)}
+                            className="w-4 h-4 rounded border-gray-700 bg-gray-900/50 text-teal-500 focus:ring-teal-500/20"
+                        />
+                        <span className="text-gray-300 text-xs group-hover:text-white transition-colors">
+                            {t('materials.draw_repeats')}
+                        </span>
+                    </label>
+                    <label className="flex items-center gap-3 cursor-pointer group">
+                        <input 
+                            type="checkbox" 
+                            checked={drawOutside}
+                            onChange={(e) => setDrawOutside(e.target.checked)}
+                            className="w-4 h-4 rounded border-gray-700 bg-gray-900/50 text-teal-500 focus:ring-teal-500/20"
+                        />
+                        <span className="text-gray-300 text-xs group-hover:text-white transition-colors">
+                            {t('materials.draw_outside')}
+                        </span>
+                    </label>
+                </div>
+            </InfoCard>
 
             {/* Atomic Positions (collapsible) */}
             {uniqueSites.length > 0 && (

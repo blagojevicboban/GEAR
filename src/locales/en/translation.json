@@ -749,7 +749,9 @@
         "insulator": "Insulator/Ceramic",
         "calculator_disclaimer": "* This calculation uses an empirical formula based on material density and band gap. Actual results may vary based on laser wavelength, focal length, and material purity.",
         "explore": "Explore",
-        "ar_vr": "AR/VR"
+        "ar_vr": "AR/VR",
+        "draw_repeats": "Draw repeats of atoms on periodic boundaries",
+        "draw_outside": "Draw atoms outside unit cell bonded to internal atoms"
     },
     "evidence": {
         "title": "Erasmus+ Evidence",

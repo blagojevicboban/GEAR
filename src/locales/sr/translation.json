@@ -749,7 +749,9 @@
         "insulator": "Izolator/Keramika",
         "calculator_disclaimer": "* Ovaj proračun koristi empirijsku formulu zasnovanu na gustini i energetskom procepu materijala. Stvarni rezultati mogu varirati.",
         "explore": "Istraži",
-        "ar_vr": "AR/VR"
+        "ar_vr": "AR/VR",
+        "draw_repeats": "Prikaži ponavljanja atoma na periodičnim granicama",
+        "draw_outside": "Prikaži atome van jedinične ćelije povezane sa unutrašnjim"
     },
     "evidence": {
         "title": "Erasmus+ Dokazi",

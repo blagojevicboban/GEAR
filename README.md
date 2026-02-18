@@ -1,4 +1,4 @@
-# THE GEAR - VET WebXR Hub (v2.0.0)
+# THE GEAR - VET WebXR Hub (v2.2.0)
 
 **THE GEAR** is an open-source WebXR platform designed for Vocational Education and Training (VET). It allows schools and students to upload, manage, and interact with 3D digital twins of industrial equipment directly in the browser, with support for VR headsets (Meta Quest), mobile devices, and desktops.
 

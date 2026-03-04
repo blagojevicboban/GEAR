@@ -684,6 +684,10 @@
         "pointer_active": "SCENE POINTER ON",
         "pointer_inactive": "Laser Pointer"
     },
+    "viewer": {
+        "set_initial_view": "Set Initial View",
+        "view_saved_success": "Initial view saved successfully!"
+    },
     "assembly": {
         "explode": "💥 Explode View",
         "collapse": "🧩 Collapse",

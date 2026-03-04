@@ -684,6 +684,10 @@
         "pointer_active": "LASER POKAZIVAČ UKLJUČEN",
         "pointer_inactive": "Laser Pokazivač"
     },
+    "viewer": {
+        "set_initial_view": "Postavi početni prikaz",
+        "view_saved_success": "Početni prikaz je uspešno sačuvan!"
+    },
     "assembly": {
         "explode": "💥 Rasklopi Prikaz",
         "collapse": "🧩 Sklopi",

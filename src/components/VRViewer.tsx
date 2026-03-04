@@ -6,7 +6,6 @@ import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
 import { STLLoader } from '../lib/three-examples/loaders/STLLoader.js';
 import { io, Socket } from 'socket.io-client';
 import './AssemblyManager'; // Register Assembly Mode components
-import './AssemblyManager'; // Register Assembly Mode components
 import Avatar from './Avatar';
 import { LODManager, PerformanceTier } from '../utils/LODManager';
 
@@ -52,111 +51,386 @@ if (typeof window !== 'undefined' && (window as any).AFRAME) {
         });
     }
 
-    if (!AFRAME.components['mouse-wheel-zoom']) {
-        AFRAME.registerComponent('mouse-wheel-zoom', {
+    // -----------------------------------------------------------------------
+    // orbit-controls — glTF Sample Viewer style:
+    //   Left drag           → Rotate (orbit)
+    //   Right drag / Shift  → Pan
+    //   Scroll              → Zoom
+    //   1-finger touch      → Rotate
+    //   2-finger pinch      → Zoom
+    //   2-finger drag       → Pan
+    // -----------------------------------------------------------------------
+    // --- Component: Orbit Controls (GlTF Sample Viewer style) ---
+    if (!AFRAME.components['orbit-controls']) {
+        AFRAME.registerComponent('orbit-controls', {
             schema: {
-                min: { default: 0.5 },
-                max: { default: 15 },
-                step: { default: 0.2 },
+                rotateSpeed: { default: 0.4 },
+                panSpeed: { default: 0.004 },
+                zoomSpeed: { default: 0.1 },
+                minDistance: { default: 0.3 },
+                maxDistance: { default: 50 },
+                dampingFactor: { default: 0.12 },
+                initialTheta: { type: 'number', default: NaN },
+                initialPhi: { type: 'number', default: NaN },
+                initialRadius: { type: 'number', default: NaN },
+                initialPanX: { type: 'number', default: 0 },
+                initialPanY: { type: 'number', default: 0 },
             },
-            init: function () {
-                this.onWheel = (e: WheelEvent) => {
-                    if (this.el.sceneEl.is('vr-mode')) return;
-                    const pos = this.el.getAttribute('position');
-                    let newZ =
-                        pos.z +
-                        (e.deltaY > 0 ? this.data.step : -this.data.step);
-                    newZ = Math.min(
-                        Math.max(newZ, this.data.min),
-                        this.data.max
-                    );
-                    this.el.setAttribute('position', {
-                        x: pos.x,
-                        y: pos.y,
-                        z: newZ,
-                    });
-                };
-                window.addEventListener('wheel', this.onWheel, {
-                    passive: true,
-                });
-            },
-            remove: function () {
-                window.removeEventListener('wheel', this.onWheel);
-            },
-        });
-    }
 
-    if (!AFRAME.components['drag-rotate']) {
-        AFRAME.registerComponent('drag-rotate', {
-            schema: { speed: { default: 1 } },
             init: function () {
-                this.ifMouseDown = false;
-                this.onMouseDown = (e: any) => {
-                    if (this.el.sceneEl.is('vr-mode')) return;
-                    const isTouch = !!(e.touches || e.changedTouches);
-                    if (!isTouch && !e.ctrlKey) return;
-                    this.ifMouseDown = true;
-                    this.x_cord = e.clientX || e.touches?.[0].clientX;
-                };
-                this.onMouseUp = () => {
-                    this.ifMouseDown = false;
-                };
-                this.onMouseMove = (e: any) => {
-                    if (this.ifMouseDown) {
-                        const x = e.clientX || e.touches?.[0].clientX;
-                        const rot = this.el.getAttribute('rotation');
-                        this.el.setAttribute('rotation', {
-                            x: rot.x,
-                            y:
-                                rot.y +
-                                (x - this.x_cord) * this.data.speed * 0.5,
-                            z: rot.z,
-                        });
-                        this.x_cord = x;
+                // State
+                this._rotating = false;
+                this._panning = false;
+                this._lastX = 0;
+                this._lastY = 0;
+
+                // Spherical coords for orbit (in radians)
+                this._theta = 0;   // Facing along -Z
+                this._phi = Math.PI / 2; // Horizontal (eye level)
+                this._radius = 0;   // set on first update from entity position
+                this._radiusTarget = 0;
+
+                // Pan offset
+                this._panX = 0;
+                this._panY = 0;
+                this._panXTarget = 0;
+                this._panYTarget = 0;
+
+                // Touch tracking
+                this._touches = {};
+                this._prevPinchDist = null;
+
+                // Bind handlers
+                this._onMouseDown = this._onMouseDown.bind(this);
+                this._onMouseMove = this._onMouseMove.bind(this);
+                this._onMouseUp = this._onMouseUp.bind(this);
+                this._onWheel = this._onWheel.bind(this);
+                this._onCtxMenu = (e: any) => e.preventDefault();
+                this._onTouchStart = this._onTouchStart.bind(this);
+                this._onTouchMove = this._onTouchMove.bind(this);
+                this._onTouchEnd = this._onTouchEnd.bind(this);
+
+                const el = this.el.sceneEl.canvas || window;
+                el.addEventListener('mousedown', this._onMouseDown);
+                el.addEventListener('mousemove', this._onMouseMove);
+                el.addEventListener('mouseup', this._onMouseUp);
+                el.addEventListener('mouseleave', this._onMouseUp);
+                el.addEventListener('contextmenu', this._onCtxMenu);
+                el.addEventListener('wheel', this._onWheel, { passive: true } as any);
+                el.addEventListener('touchstart', this._onTouchStart, { passive: true } as any);
+                el.addEventListener('touchmove', this._onTouchMove, { passive: false } as any);
+                el.addEventListener('touchend', this._onTouchEnd);
+            },
+
+            play: function () {
+                this.applyState();
+            },
+
+            update: function (oldData: any) {
+                if (
+                    oldData.initialTheta !== this.data.initialTheta ||
+                    oldData.initialPhi !== this.data.initialPhi ||
+                    oldData.initialRadius !== this.data.initialRadius
+                ) {
+                    this.applyState();
+                }
+            },
+
+            applyState: function () {
+                if (!isNaN(this.data.initialTheta)) {
+                    this._theta = this.data.initialTheta;
+                    if (!isNaN(this.data.initialPhi)) this._phi = this.data.initialPhi;
+                    if (!isNaN(this.data.initialRadius))
+                        this._radius = this._radiusTarget = this.data.initialRadius;
+                    this._panX = this._panXTarget = this.data.initialPanX || 0;
+                    this._panY = this._panYTarget = this.data.initialPanY || 0;
+                    return;
+                }
+                const pos = this.el.getAttribute('position');
+                const relY = pos?.y || 0;
+                const dx = pos?.x || 0;
+                const dz = pos?.z || -5;
+                this._radius = this._radiusTarget =
+                    Math.sqrt(dx * dx + relY * relY + dz * dz) || 4;
+                this._theta = Math.atan2(dx, dz);
+                this._phi =
+                    this._radius > 0
+                        ? Math.acos(Math.max(-1, Math.min(1, relY / this._radius)))
+                        : Math.PI / 2;
+            },
+
+            // ---- Mouse handlers ----
+            _onMouseDown: function (e: any) {
+                if ((this.el.sceneEl as any).is('vr-mode')) return;
+                if (e.button === 0 && !e.shiftKey) {
+                    this._rotating = true;
+                } else if (e.button === 2 || (e.button === 0 && e.shiftKey) || e.button === 1) {
+                    this._panning = true;
+                }
+                this._lastX = e.clientX;
+                this._lastY = e.clientY;
+            },
+
+            _onMouseMove: function (e: any) {
+                if ((this.el.sceneEl as any).is('vr-mode')) return;
+                const dx = e.clientX - this._lastX;
+                const dy = e.clientY - this._lastY;
+                this._lastX = e.clientX;
+                this._lastY = e.clientY;
+
+                if (this._rotating) {
+                    this._theta -= dx * this.data.rotateSpeed * 0.01;
+                    // clamp phi so model doesn't flip over the poles
+                    this._phi = Math.max(0.05, Math.min(Math.PI - 0.05,
+                        this._phi + dy * this.data.rotateSpeed * 0.01
+                    ));
+                } else if (this._panning) {
+                    this._panXTarget -= dx * this.data.panSpeed * this._radius;
+                    this._panYTarget += dy * this.data.panSpeed * this._radius;
+                }
+            },
+
+            _onMouseUp: function () {
+                this._rotating = false;
+                this._panning = false;
+            },
+
+            _onWheel: function (e: any) {
+                if ((this.el.sceneEl as any).is('vr-mode')) return;
+                const delta = e.deltaY > 0 ? 1 : -1;
+                this._radiusTarget = Math.max(
+                    this.data.minDistance,
+                    Math.min(this.data.maxDistance,
+                        this._radiusTarget * (1 + delta * this.data.zoomSpeed)
+                    )
+                );
+            },
+
+            // ---- Touch handlers ----
+            _onTouchStart: function (e: any) {
+                for (const t of e.changedTouches) {
+                    this._touches[t.identifier] = { x: t.clientX, y: t.clientY };
+                }
+                this._prevPinchDist = null;
+            },
+
+            _onTouchMove: function (e: any) {
+                e.preventDefault();
+
+                // Update stored positions
+                for (const t of e.changedTouches) {
+                    if (this._touches[t.identifier]) {
+                        this._touches[t.identifier] = { x: t.clientX, y: t.clientY };
                     }
-                };
-                window.addEventListener('mousedown', this.onMouseDown);
-                window.addEventListener('touchstart', this.onMouseDown);
-                window.addEventListener('mouseup', this.onMouseUp);
-                window.addEventListener('touchend', this.onMouseUp);
-                window.addEventListener('mousemove', this.onMouseMove);
-                window.addEventListener('touchmove', this.onMouseMove);
+                }
+
+                const activeTouches = e.touches;
+
+                if (activeTouches.length === 1) {
+                    // 1 finger → Rotate
+                    const t = activeTouches[0];
+                    const stored = this._touches[t.identifier];
+                    if (stored) {
+                        const dx = t.clientX - stored.x;
+                        const dy = t.clientY - stored.y;
+                        this._theta -= dx * this.data.rotateSpeed * 0.012;
+                        this._phi = Math.max(0.05, Math.min(Math.PI - 0.05,
+                            this._phi + dy * this.data.rotateSpeed * 0.012
+                        ));
+                    }
+                } else if (activeTouches.length === 2) {
+                    const t0 = activeTouches[0];
+                    const t1 = activeTouches[1];
+
+                    // Pinch → Zoom
+                    const dist = Math.hypot(t0.clientX - t1.clientX, t0.clientY - t1.clientY);
+                    if (this._prevPinchDist !== null) {
+                        const pinchDelta = this._prevPinchDist - dist;
+                        this._radiusTarget = Math.max(
+                            this.data.minDistance,
+                            Math.min(this.data.maxDistance,
+                                this._radiusTarget * (1 + pinchDelta * 0.005)
+                            )
+                        );
+                    }
+                    this._prevPinchDist = dist;
+
+                    // 2-finger centre drag → Pan
+                    const midX = (t0.clientX + t1.clientX) / 2;
+                    const midY = (t0.clientY + t1.clientY) / 2;
+                    const s0 = this._touches[t0.identifier];
+                    const s1 = this._touches[t1.identifier];
+                    if (s0 && s1) {
+                        const prevMidX = (s0.x + s1.x) / 2;
+                        const prevMidY = (s0.y + s1.y) / 2;
+                        this._panXTarget -= (midX - prevMidX) * this.data.panSpeed * this._radius;
+                        this._panYTarget += (midY - prevMidY) * this.data.panSpeed * this._radius;
+                    }
+                }
+
+                // Update stored positions after delta calculation
+                for (const t of activeTouches) {
+                    this._touches[t.identifier] = { x: t.clientX, y: t.clientY };
+                }
             },
+
+            _onTouchEnd: function (e: any) {
+                for (const t of e.changedTouches) {
+                    delete this._touches[t.identifier];
+                }
+                this._prevPinchDist = null;
+            },
+
+            // ---- Per-frame update with damping ----
+            tick: function () {
+                const d = this.data.dampingFactor;
+
+                // Smooth radius
+                this._radius += (this._radiusTarget - this._radius) * d;
+
+                // Smooth pan
+                this._panX += (this._panXTarget - this._panX) * d;
+                this._panY += (this._panYTarget - this._panY) * d;
+
+                // Convert spherical → Cartesian
+                const THREE = (window as any).AFRAME.THREE;
+                const sinPhi = Math.sin(this._phi);
+                const pos = {
+                    x: this._radius * sinPhi * Math.sin(this._theta) + this._panX,
+                    y: this._radius * Math.cos(this._phi) + this._panY,
+                    z: this._radius * sinPhi * Math.cos(this._theta)
+                };
+                this.el.setAttribute('position', pos);
+                
+                // Point at current pan target (at Y=0 by default)
+                this.el.object3D.lookAt(new THREE.Vector3(this._panX, this._panY, 0));
+                // Flip 180 degrees because cameras look down local -Z
+                this.el.object3D.rotateY(Math.PI);
+            },
+
             remove: function () {
-                window.removeEventListener('mousedown', this.onMouseDown);
-                window.removeEventListener('touchstart', this.onMouseDown);
-                window.removeEventListener('mouseup', this.onMouseUp);
-                window.removeEventListener('touchend', this.onMouseUp);
-                window.removeEventListener('mousemove', this.onMouseMove);
-                window.removeEventListener('touchmove', this.onMouseMove);
+                const el = this.el.sceneEl?.canvas || window;
+                el.removeEventListener('mousedown', this._onMouseDown);
+                el.removeEventListener('mousemove', this._onMouseMove);
+                el.removeEventListener('mouseup', this._onMouseUp);
+                el.removeEventListener('mouseleave', this._onMouseUp);
+                el.removeEventListener('contextmenu', this._onCtxMenu);
+                el.removeEventListener('wheel', this._onWheel);
+                el.removeEventListener('touchstart', this._onTouchStart);
+                el.removeEventListener('touchmove', this._onTouchMove);
+                el.removeEventListener('touchend', this._onTouchEnd);
             },
         });
     }
 
+    // -----------------------------------------------------------------------
+    // model-fitter — auto-centers and scales the model to ~2m on load.
+    // Works independently of the Assembly system.
+    // -----------------------------------------------------------------------
+    // --- Component: model-fitter ---
+    if (!AFRAME.components['model-fitter']) {
+        AFRAME.registerComponent('model-fitter', {
+            schema: { targetSize: { default: 3.0 } },
+
+            init: function () {
+                this._fit = this._fit.bind(this);
+                this.el.addEventListener('model-loaded', this._fit);
+                this.el.addEventListener('object3dset', (e: any) => {
+                    if (e.detail.type === 'mesh') this._fit();
+                });
+                // Fallback polling
+                this._poll = setInterval(() => {
+                    if (this.el.getObject3D('mesh') || this.el.getObject3D('model')) {
+                        this._fit();
+                        clearInterval(this._poll);
+                    }
+                }, 500);
+            },
+
+            _fit: function () {
+                const THREE = (window as any).AFRAME.THREE;
+                const obj = (this.el.components['gltf-model'] && (this.el.components['gltf-model'] as any).model) ||
+                    this.el.getObject3D('mesh');
+
+                if (!obj) return;
+
+                // Reset position and parent scale for accurate measurement
+                obj.position.set(0, 0, 0);
+                this.el.object3D.scale.set(1, 1, 1);
+                this.el.object3D.updateMatrixWorld(true);
+
+                const box = new THREE.Box3().setFromObject(obj);
+                const size = new THREE.Vector3();
+                box.getSize(size);
+                const maxDim = Math.max(size.x, size.y, size.z);
+
+                if (maxDim <= 0 || isNaN(maxDim)) return;
+
+                const targetSize = this.data.targetSize;
+                const targetScale = targetSize / maxDim;
+                const center = new THREE.Vector3();
+                box.getCenter(center);
+
+                // Apply new fit scale
+                this.el.setAttribute('scale', { x: targetScale, y: targetScale, z: targetScale });
+
+                // Centering X/Z, Aligning Bottom Y to 0 (the purple circle level)
+                const localBottom = this.el.object3D.worldToLocal(
+                    new THREE.Vector3(center.x, box.min.y, center.z)
+                );
+                obj.position.x -= localBottom.x;
+                obj.position.y -= localBottom.y;
+                obj.position.z -= localBottom.z;
+
+                // Disable frustum culling
+                obj.traverse((node: any) => {
+                    if (node.isMesh) node.frustumCulled = false;
+                });
+
+                // Compute Fit Distance like glTF-Sample-Viewer
+                // S = Visual size (targetSize), 
+                // D = Distance
+                // S = 2 * D * tan(FOV/2)  => D = S / (2 * tan(FOV/2))
+                // For model to occupy HALF the vertical screen, S_visual = 2 * targetSize
+                const fov = 80;
+                const fovInRad = fov * (Math.PI / 180);
+                const fitDistance = targetSize / (2 * Math.tan(fovInRad / 2));
+                
+                // Set camera distance with padding (1.5x fitDistance for a nice fill)
+                const rig = this.el.sceneEl.querySelector('#rig');
+                if (rig && (rig as any).components['orbit-controls']) {
+                    const oc = (rig as any).components['orbit-controls'];
+                    oc._radius = oc._radiusTarget = fitDistance * 1.5;
+                    // Aim at center of the visual target (height = targetSize / 2)
+                    oc._panY = oc._panYTarget = targetSize / 2;
+                }
+                clearInterval(this._poll);
+            },
+        });
+    }
+
+    // --- Component: stl-model ---
     if (!AFRAME.components['stl-model']) {
         AFRAME.registerComponent('stl-model', {
             schema: { src: { type: 'string' } },
             init: function () {
-                const loader = new STLLoader();
+                const THREE = (window as any).AFRAME.THREE;
                 const el = this.el;
+                const loader = new STLLoader();
                 loader.load(this.data.src, (geometry: any) => {
-                    const material = new (
-                        window as any
-                    ).THREE.MeshStandardMaterial({
+                    const material = new THREE.MeshStandardMaterial({
                         color: 0xcccccc,
                         metalness: 0.5,
                         roughness: 0.5,
                     });
-                    const mesh = new (window as any).THREE.Mesh(
-                        geometry,
-                        material
-                    );
+                    const mesh = new THREE.Mesh(geometry, material);
                     el.setObject3D('mesh', mesh);
                 });
             },
         });
     }
 
+    // --- Component: wireframe-toggle ---
     if (!AFRAME.components['wireframe-toggle']) {
         AFRAME.registerComponent('wireframe-toggle', {
             schema: { enabled: { default: false } },
@@ -250,6 +524,7 @@ interface VRViewerProps {
         position: { x: number; y: number; z: number },
         normal: { x: number; y: number; z: number }
     ) => void;
+    onUpdateModel?: (model: VETModel) => void;
 }
 
 // --- Audio Utils ---
@@ -303,6 +578,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
     onObjectClick,
     isEditMode,
     onHotspotPlace,
+    onUpdateModel,
 }) => {
     const [activeHotspot, setActiveHotspot] = useState<Hotspot | null>(null);
     const [trainingTasks, setTrainingTasks] = useState<any[]>([]);
@@ -316,6 +592,33 @@ const VRViewer: React.FC<VRViewerProps> = ({
         msg: string;
         type: 'success' | 'error' | 'info';
     } | null>(null);
+
+    const handleSaveDefaultView = () => {
+        const rig = document.querySelector('#rig');
+        if (rig && (rig as any).components['orbit-controls']) {
+            const oc = (rig as any).components['orbit-controls'];
+            const viewState = {
+                theta: oc._theta,
+                phi: oc._phi,
+                radius: oc._radiusTarget,
+                panX: oc._panXTarget,
+                panY: oc._panYTarget,
+            };
+
+            if (onUpdateModel) {
+                const updatedModel = {
+                    ...model,
+                    initialCamera: JSON.stringify(viewState),
+                };
+                onUpdateModel(updatedModel);
+                setChallengeFeedback({
+                    msg: t('viewer.view_saved_success'),
+                    type: 'success',
+                });
+                setTimeout(() => setChallengeFeedback(null), 3000);
+            }
+        }
+    };
 
     // Assembly Mode State
     const [isAssemblyMode, setIsAssemblyMode] = useState(false);
@@ -414,6 +717,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
         meshes: 0,
         materials: 0,
     });
+    const [isLoadingModel, setIsLoadingModel] = useState(true);
 
     const assemblySystem = (window as any).AFRAME?.systems[
         'assembly-mode-system'
@@ -604,69 +908,38 @@ const VRViewer: React.FC<VRViewerProps> = ({
 
         // Assembly Mode: Register parts on load
         const loadHandler = (evt: any) => {
-            const model = evt.detail.model; // THREE.Group
-            if (!model) return;
+            if (evt.type === 'object3dset' && evt.detail.type !== 'mesh') return;
+            
+            const THREE = (window as any).AFRAME.THREE;
+            const model = evt.detail.model || evt.detail.object;
+            console.log(`[loadHandler] Model event: ${evt.type}`, { url: activeModelUrl });
+            
+            setIsLoadingModel(false);
 
-            // Get system if not yet available (it should be valid by now)
             const system = bgSceneRef.current?.systems['assembly-mode-system'];
             if (system) {
-                console.log('Assembly System Found');
-
                 let vertices = 0;
                 let triangles = 0;
                 let meshes = 0;
                 const materials = new Set();
 
-                // --- Auto-centering and Scaling Logic ---
-                const THREE = (window as any).THREE;
-                const box = new THREE.Box3().setFromObject(model);
-                const size = new THREE.Vector3();
-                box.getSize(size);
-                const center = new THREE.Vector3();
-                box.getCenter(center);
-
-                const maxDim = Math.max(size.x, size.y, size.z);
-                console.log('Model dimensions:', size, 'Max dim:', maxDim);
-
-                if (maxDim > 0) {
-                    // We want the model to be roughly 1.5 - 2 meters in size for comfortable viewing
-                    const targetSize = 2.0;
-                    const scaleFactor = targetSize / maxDim;
-
-                    // Apply scale to the GLTF model instance
-                    evt.target.setAttribute(
-                        'scale',
-                        `${scaleFactor} ${scaleFactor} ${scaleFactor}`
-                    );
-
-                    // Center the model relative to its entity origin
-                    // We compensate for the offset
-                    const offset = center.multiplyScalar(-scaleFactor);
-                    model.position.set(offset.x, offset.y, offset.z);
-                    console.log(
-                        `Auto-scaled by ${scaleFactor.toFixed(4)}, centered at offset:`,
-                        offset
-                    );
-                }
-
                 model.traverse((node: any) => {
                     if (node.isMesh) {
-                        system.registerPart(node);
+                        if (system && typeof system.registerPart === 'function') {
+                            system.registerPart(node);
+                        }
                         meshes++;
                         if (node.geometry) {
                             vertices += node.geometry.attributes.position.count;
                             if (node.geometry.index) {
                                 triangles += node.geometry.index.count / 3;
                             } else {
-                                triangles +=
-                                    node.geometry.attributes.position.count / 3;
+                                triangles += node.geometry.attributes.position.count / 3;
                             }
                         }
                         if (node.material) {
                             if (Array.isArray(node.material)) {
-                                node.material.forEach((m: any) =>
-                                    materials.add(m.uuid)
-                                );
+                                node.material.forEach((m: any) => materials.add(m.uuid));
                             } else {
                                 materials.add(node.material.uuid);
                             }
@@ -680,18 +953,20 @@ const VRViewer: React.FC<VRViewerProps> = ({
                     meshes,
                     materials: materials.size,
                 });
-
-                console.log('Assembly Mode: Parts Registered');
             }
         };
 
         el.addEventListener('model-loaded', loadHandler);
-        // Also try to register if already loaded?
-        // A-Frame might have loaded it already if we are hot-reloading
+        el.addEventListener('object3dset',  loadHandler);
+
+        // Fallback: hide spinner after 10s no matter what to prevent locking
+        const timer = setTimeout(() => setIsLoadingModel(false), 10000);
 
         return () => {
             el.removeEventListener('click', clickHandler);
             el.removeEventListener('model-loaded', loadHandler);
+            el.removeEventListener('object3dset',  loadHandler);
+            clearTimeout(timer);
         };
     }, [
         onObjectClick,
@@ -1029,9 +1304,8 @@ const VRViewer: React.FC<VRViewerProps> = ({
         socket.on('teacher-sync-update', ({ socketId, camera }) => {
             // Apply camera transform to local camera rig if NOT the teacher
             // We only sync if we are a student? Or generally if not the sender?
+            // For now, FORCE sync if feature is active
             if (user?.role !== 'teacher' || socketId !== socket.id) {
-                // Determine if we should follow (maybe a toggle for students "Follow Teacher"?)
-                // For now, FORCE sync if feature is active
                 const rig = document.querySelector('#rig');
                 const cam = document.querySelector('[camera]');
 
@@ -1609,6 +1883,17 @@ const VRViewer: React.FC<VRViewerProps> = ({
                                 </div>
                             )}
 
+                            {/* Author/Teacher Tools */}
+                            {(user?.role === 'teacher' ||
+                                user?.username === model.uploadedBy) && (
+                                <button
+                                    onClick={handleSaveDefaultView}
+                                    className="w-full py-2 mb-4 bg-indigo-600/80 hover:bg-indigo-500 border border-indigo-400 rounded-lg text-xs font-bold text-white transition-all backdrop-blur-md flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20"
+                                >
+                                    <span>📍</span> {t('viewer.set_initial_view')}
+                                </button>
+                            )}
+
                             {/* Challenge Mode Toggle */}
                             <button
                                 onClick={() => {
@@ -2075,28 +2360,12 @@ const VRViewer: React.FC<VRViewerProps> = ({
                 embedded
                 renderer-settings={`exposure: ${studioConfig.exposure}; toneMapping: ${studioConfig.toneMapping};`}
                 xr-mode-ui="enabled: true"
+                renderer="colorManagement: true; physicallyCorrectLights: true;"
                 className="w-full h-full"
             >
                 <a-assets>
                     {/* We don't use a-asset-item for dynamic URLs as easily, let's just pass src to model */}
                 </a-assets>
-
-                {/* User Presence (Self - though locally invisible) */}
-                {!workshopMode && (
-                    <a-entity id="rig">
-                        <a-camera
-                            position="0 1.6 0"
-                            look-controls
-                            mouse-wheel-zoom="min: 0.5; max: 20"
-                        >
-                            <a-cursor
-                                color="indigo"
-                                fuse="false"
-                                raycaster="objects: .interactable"
-                            ></a-cursor>
-                        </a-camera>
-                    </a-entity>
-                )}
 
                 {/* Mentor / Assistant Avatar (Virtual position) */}
                 {isVoiceActive && (
@@ -2146,83 +2415,118 @@ const VRViewer: React.FC<VRViewerProps> = ({
                     />
                 ))}
 
-                {/* Model and Environment */}
-                {studioConfig.environment !== 'none' ? (
+                {/* Static Environment Container */}
+                <a-entity id="static-env">
+                    {/* Model and Environment */}
+                    {studioConfig.environment !== 'none' ? (
+                        <a-entity
+                            environment={`preset: ${studioConfig.environment}; lighting: true; shadow: true; fog: 0; intensity: 0.8`}
+                        ></a-entity>
+                    ) : (
+                        <a-sky color="#050505"></a-sky>
+                    )}
+
+                    <a-grid-helper
+                        size="20"
+                        divisions="20"
+                        position="0 0 0"
+                    ></a-grid-helper>
+
+                    <a-entity light="type: ambient; intensity: 1.5; color: #ffffff"></a-entity>
+                    <a-entity light="type: directional; intensity: 1.5; castShadow: true; position: 1 4 3"></a-entity>
+                    <a-entity light="type: directional; intensity: 1.0; position: -1 -2 -3"></a-entity>
+
+                    {/* Model Group (The Target) */}
                     <a-entity
-                        environment={`preset: ${studioConfig.environment}; lighting: true; shadow: true; fog: 0; intensity: 0.8`}
-                    ></a-entity>
-                ) : (
-                    <a-sky color="#050505"></a-sky>
-                )}
+                        id="model-target"
+                        position="0 0 0"
+                        className="interactable-model"
+                        assembly-mode-system={`enabled: ${isAssemblyMode}`}
+                    >
+                        <a-entity
+                            ref={modelEntityRef}
+                            class="interactable"
+                            stl-model={
+                                activeModelUrl.toLowerCase().endsWith('.stl')
+                                    ? `src: ${activeModelUrl}`
+                                    : undefined
+                            }
+                            gltf-model={
+                                !activeModelUrl.toLowerCase().endsWith('.stl')
+                                    ? activeModelUrl
+                                    : undefined
+                            }
+                            scale="1 1 1"
+                            rotation="0 0 0"
+                            interactive-part
+                            model-fitter
+                            wireframe-toggle={`enabled: ${studioConfig.wireframe}`}
+                        ></a-entity>
 
-                <a-grid-helper
-                    size="20"
-                    divisions="20"
-                    color="#1e293b"
-                    opacity="0.2"
-                ></a-grid-helper>
+                        {/* Hotspots rendered in 3D space */}
+                        {model.hotspots.map((hs) => (
+                            <a-entity
+                                key={hs.id}
+                                position={`${hs.position.x} ${hs.position.y} ${hs.position.z}`}
+                                hotspot-trigger
+                                data-id={hs.id}
+                                class="interactable"
+                            >
+                                <a-sphere
+                                    radius="0.05"
+                                    color={
+                                        hs.type === 'video' ? '#f43f5e' : '#6366f1'
+                                    }
+                                    opacity="0.8"
+                                >
+                                    <a-text
+                                        value={hs.title}
+                                        align="center"
+                                        position="0 0.15 0"
+                                        scale="0.3"
+                                        color="white"
+                                    ></a-text>
+                                </a-sphere>
+                            </a-entity>
+                        ))}
+                    </a-entity>
+                </a-entity>
 
+                {/* Orbit Rig (The Camera) */}
                 <a-entity
-                    position="0 0 -3"
-                    drag-rotate
+                    id="rig"
+                    position="0 1 -4"
+                    orbit-controls={
+                        (() => {
+                            if (!model.initialCamera) return '';
+                            try {
+                                const s = JSON.parse(model.initialCamera);
+                                return `initialTheta: ${s.theta}; initialPhi: ${s.phi}; initialRadius: ${s.radius}; initialPanX: ${s.panX}; initialPanY: ${s.panY}`;
+                            } catch (e) {
+                                return '';
+                            }
+                        })()
+                    }
                     auto-rotate={
                         studioConfig.autoRotate
                             ? 'enabled: true; speed: 20'
                             : 'enabled: false'
                     }
-                    animation__rotate="enabled: false"
-                    className="interactable-model"
-                    assembly-mode-system={`enabled: ${isAssemblyMode}`}
                 >
-                    <a-entity
-                        ref={modelEntityRef}
-                        class="interactable"
-                        stl-model={
-                            activeModelUrl.toLowerCase().endsWith('.stl')
-                                ? `src: ${activeModelUrl}`
-                                : undefined
-                        }
-                        gltf-model={
-                            !activeModelUrl.toLowerCase().endsWith('.stl')
-                                ? activeModelUrl
-                                : undefined
-                        }
-                        scale="1 1 1"
-                        rotation="0 0 0"
-                        interactive-part
-                        wireframe-toggle={`enabled: ${studioConfig.wireframe}`}
-                    ></a-entity>
-
-                    {/* Hotspots rendered in 3D space */}
-                    {model.hotspots.map((hs) => (
-                        <a-entity
-                            key={hs.id}
-                            position={`${hs.position.x} ${hs.position.y} ${hs.position.z}`}
-                            hotspot-trigger
-                            data-id={hs.id}
-                            class="interactable"
-                        >
-                            <a-sphere
-                                radius="0.05"
-                                color={
-                                    hs.type === 'video' ? '#f43f5e' : '#6366f1'
-                                }
-                                opacity="0.8"
-                            >
-                                <a-text
-                                    value={hs.title}
-                                    align="center"
-                                    position="0 0.15 0"
-                                    scale="0.3"
-                                    color="white"
-                                ></a-text>
-                            </a-sphere>
-                        </a-entity>
-                    ))}
+                    <a-camera
+                        position="0 0 0"
+                        look-controls="enabled: false"
+                        wasd-controls="enabled: true; acceleration: 20"
+                    >
+                        <a-cursor
+                            color="indigo"
+                            fuse="false"
+                            raycaster="objects: .interactable"
+                        ></a-cursor>
+                    </a-camera>
                 </a-entity>
 
-                <a-entity light="type: ambient; intensity: 0.5; color: #ffffff"></a-entity>
-                <a-entity light="type: directional; intensity: 0.8; castShadow: true; position: -1 4 2"></a-entity>
+
 
                 {/* Teacher Visual Pointer */}
                 {teacherPointer && (
@@ -2327,6 +2631,33 @@ const VRViewer: React.FC<VRViewerProps> = ({
                         >
                             Close
                         </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Loading Spinner Overlay */}
+            {isLoadingModel && (
+                <div className="absolute inset-0 z-[100] flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-500">
+                    <div className="relative w-24 h-24 mb-6">
+                        {/* Outer Glow */}
+                        <div className="absolute inset-0 rounded-full bg-indigo-500/20 blur-xl animate-pulse"></div>
+                        {/* Spinner Rings */}
+                        <div className="absolute inset-0 border-4 border-slate-800 rounded-full"></div>
+                        <div className="absolute inset-0 border-t-4 border-indigo-500 rounded-full animate-spin"></div>
+                        <div className="absolute inset-4 border-t-4 border-rose-500 rounded-full animate-spin [animation-duration:1.5s] [animation-direction:reverse]"></div>
+                    </div>
+                    <div className="flex flex-col items-center gap-2">
+                        <h3 className="text-xl font-bold text-white tracking-widest uppercase italic">
+                            GEAR <span className="text-indigo-400 not-italic">VET</span>
+                        </h3>
+                        <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                            <span className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                            <span className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.3em] mt-4">
+                            Initializing 3D Environment
+                        </p>
                     </div>
                 </div>
             )}

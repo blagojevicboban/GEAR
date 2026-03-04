@@ -46,6 +46,7 @@ export interface VETModel {
     missingFile?: boolean;
     lodUrl_mobile?: string;
     lodUrl_low?: string;
+    initialCamera?: string; // JSON string: {theta, phi, radius, panX, panY}
 }
 
 export interface User {

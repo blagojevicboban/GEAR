@@ -189,6 +189,19 @@ export const runMigrations = async () => {
                     "ALTER TABLE users ADD COLUMN language VARCHAR(10) DEFAULT 'en'"
                 );
             });
+
+        await pool
+            .query('SELECT initialCamera FROM models LIMIT 1')
+            .catch(async () => {
+                console.log('Migrating DB: Adding initialCamera and isFeatured to models...');
+                await pool.query(
+                    'ALTER TABLE models ADD COLUMN initialCamera TEXT'
+                );
+                // Also ensures isFeatured exists if not yet added by other means
+                await pool.query(
+                    'ALTER TABLE models ADD COLUMN isFeatured BOOLEAN DEFAULT 0'
+                ).catch(() => {}); // Ignore if already exists
+            });
     } catch (e) {
         console.error('Migration check failed:', e);
     }

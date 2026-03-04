@@ -664,6 +664,7 @@ const App: React.FC = () => {
                             workshopId={activeWorkshopId}
                             user={currentUser}
                             onExit={handleExitViewer}
+                            onUpdateModel={handleUpdate}
                         />
                     ) : (
                         <VRViewer
@@ -672,6 +673,7 @@ const App: React.FC = () => {
                             workshopId={activeWorkshopId}
                             user={currentUser}
                             onExit={handleExitViewer}
+                            onUpdateModel={handleUpdate}
                         />
                     ))}
 

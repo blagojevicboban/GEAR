@@ -96,7 +96,7 @@ export const createModel = async (req, res) => {
         }
 
         await pool.query(
-            'INSERT INTO models (id, name, description, sector, equipmentType, level, modelUrl, thumbnailUrl, optimized, fileSize, uploadedBy, createdAt, isFeatured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            'INSERT INTO models (id, name, description, sector, equipmentType, level, modelUrl, thumbnailUrl, optimized, fileSize, uploadedBy, createdAt, isFeatured, initialCamera) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [
                 model.id,
                 model.name,
@@ -111,6 +111,7 @@ export const createModel = async (req, res) => {
                 model.uploadedBy,
                 model.createdAt,
                 model.isFeatured || false,
+                model.initialCamera || null,
             ]
         );
 
@@ -190,7 +191,7 @@ export const updateModel = async (req, res) => {
         }
 
         await pool.query(
-            'UPDATE models SET name=?, description=?, sector=?, equipmentType=?, level=?, modelUrl=?, thumbnailUrl=?, uploadedBy=?, isFeatured=? WHERE id=?',
+            'UPDATE models SET name=?, description=?, sector=?, equipmentType=?, level=?, modelUrl=?, thumbnailUrl=?, uploadedBy=?, isFeatured=?, initialCamera=? WHERE id=?',
             [
                 model.name,
                 model.description,
@@ -201,6 +202,7 @@ export const updateModel = async (req, res) => {
                 model.thumbnailUrl,
                 model.uploadedBy,
                 model.isFeatured || false,
+                model.initialCamera || null,
                 id,
             ]
         );
@@ -380,7 +382,7 @@ export const duplicateModel = async (req, res) => {
         const newName = `${original.name} (Copy)`;
 
         await pool.query(
-            'INSERT INTO models (id, name, description, sector, equipmentType, level, modelUrl, thumbnailUrl, optimized, fileSize, uploadedBy, createdAt, isFeatured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            'INSERT INTO models (id, name, description, sector, equipmentType, level, modelUrl, thumbnailUrl, optimized, fileSize, uploadedBy, createdAt, isFeatured, initialCamera) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [
                 newId,
                 newName,
@@ -395,6 +397,7 @@ export const duplicateModel = async (req, res) => {
                 requestor,
                 new Date().toISOString().split('T')[0],
                 false,
+                original.initialCamera || null,
             ]
         );
 

@@ -654,7 +654,8 @@ const VRViewer: React.FC<VRViewerProps> = ({
 
     const socketRef = useRef<Socket | null>(null);
 
-    const sceneRef = useRef<any>(null);
+    const bgSceneRef = useRef<any>(null);
+    const sceneRef = bgSceneRef; // Alias for backward compatibility in this component
     const audioCtxRef = useRef<AudioContext | null>(null);
     const mentorPosRef = useRef({ x: 1.5, y: 1.6, z: -1 });
 
@@ -727,9 +728,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
     });
     const [isLoadingModel, setIsLoadingModel] = useState(true);
 
-    const assemblySystem = (window as any).AFRAME?.systems[
-        'assembly-mode-system'
-    ];
+    const getAssemblySystem = () => (bgSceneRef.current as any)?.systems['assembly-mode-system'];
 
     // Load leaderboard
     const fetchLeaderboard = useCallback(async () => {
@@ -934,7 +933,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
                 model.traverse((node: any) => {
                     if (node.isMesh) {
                         if (system && typeof system.registerPart === 'function') {
-                            system.registerPart(node);
+                            system.registerPart(node, model);
                         }
                         meshes++;
                         if (node.geometry) {
@@ -986,8 +985,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
         trainingTasks,
     ]);
 
-    // Ref for the scene to access systems
-    const bgSceneRef = useRef<any>(null);
+
 
     const updateAudioListener = useCallback(() => {
         if (!outputAudioContextRef.current || !sceneRef.current) return;
@@ -1860,13 +1858,14 @@ const VRViewer: React.FC<VRViewerProps> = ({
                                 <div className="flex gap-2 mb-4 animate-in fade-in slide-in-from-top-2">
                                     <button
                                         onClick={() => {
+                                            const system = getAssemblySystem();
                                             if (isExploded) {
-                                                assemblySystem?.collapse();
+                                                system?.collapse();
                                                 setIsExploded(false);
                                             } else {
                                                 // Ensure parts are registered before exploding
-                                                assemblySystem?.registerAllParts();
-                                                assemblySystem?.explode();
+                                                system?.registerAllParts();
+                                                system?.explode();
                                                 setIsExploded(true);
                                             }
                                         }}
@@ -1882,7 +1881,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
                                     </button>
                                     <button
                                         onClick={() =>
-                                            assemblySystem?.resetAll()
+                                            getAssemblySystem()?.resetAll()
                                         }
                                         className="flex-1 py-1.5 px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-bold text-slate-300 transition-colors"
                                     >

@@ -95,14 +95,25 @@ if (AFRAME && THREE) {
                 }
             },
 
-            registerPart: function (mesh: any, modelRoot: any) {
+            registerPart: function (mesh: any, modelRoot?: any) {
                 if (!this.originalTransforms.has(mesh.uuid)) {
-                    // Calculate visual center relative to modelRoot
+                    // If modelRoot not provided, try to find it
+                    if (!modelRoot) {
+                        const modelEl = this.el.sceneEl.querySelector(
+                            '.interactable-model'
+                        );
+                        if (modelEl) modelRoot = modelEl.object3D;
+                    }
+
+                    // Fallback to mesh parent if still no modelRoot
+                    const root = modelRoot || mesh.parent || mesh;
+
+                    // Calculate visual center relative to root
                     const box = new THREE.Box3().setFromObject(mesh);
                     const visualCenterWorld = new THREE.Vector3();
                     box.getCenter(visualCenterWorld);
 
-                    const visualCenterModelSpace = modelRoot.worldToLocal(
+                    const visualCenterModelSpace = root.worldToLocal(
                         visualCenterWorld.clone()
                     );
 

@@ -504,9 +504,17 @@ if (typeof window !== 'undefined' && (window as any).AFRAME) {
             schema: { enabled: { default: false }, speed: { default: 20 } },
             tick: function (_t: any, dt: number) {
                 if (!this.data.enabled) return;
-                // Use Object3D rotation directly for performance and to avoid sync issues
-                this.el.object3D.rotation.y +=
-                    (dt / 1000) * (this.data.speed * (Math.PI / 180));
+                
+                // If the entity has orbit-controls, update its theta instead of direct rotation
+                const oc = this.el.components['orbit-controls'] as any;
+                if (oc) {
+                    oc._theta += (dt / 1000) * (this.data.speed * (Math.PI / 180));
+                } else {
+                    // Fallback for simple rotation (e.g. rotating the model directly)
+                    // Use Object3D rotation directly for performance and to avoid sync issues
+                    this.el.object3D.rotation.y +=
+                        (dt / 1000) * (this.data.speed * (Math.PI / 180));
+                }
             },
         });
     }

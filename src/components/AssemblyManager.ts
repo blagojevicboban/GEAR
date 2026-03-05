@@ -65,8 +65,8 @@ if (AFRAME && THREE) {
                     (event: any) => {
                         // Disable orbit controls while dragging
                         const orbitControls =
-                            this.el.sceneEl.querySelector('[look-controls]')
-                                ?.components['look-controls'];
+                            this.el.sceneEl.querySelector('#rig')
+                                ?.components['orbit-controls'];
                         if (orbitControls) orbitControls.enabled = !event.value;
 
                         if (!event.value) {
@@ -95,18 +95,22 @@ if (AFRAME && THREE) {
                 }
             },
 
-            registerPart: function (mesh: any) {
+            registerPart: function (mesh: any, modelRoot: any) {
                 if (!this.originalTransforms.has(mesh.uuid)) {
-                    // Store WORLD transform because parts might be nested in complex ways
-                    // But for simple translation/rotation restoration, local might be safer if hierarchy is stable.
-                    // Let's store LOCAL for now, assuming parts are direct children of the model entity or their parents don't move.
-                    // Actually, glTF parts are often deeply nested.
-                    // If we move the part securely, we are modifying its local matrix.
+                    // Calculate visual center relative to modelRoot
+                    const box = new THREE.Box3().setFromObject(mesh);
+                    const visualCenterWorld = new THREE.Vector3();
+                    box.getCenter(visualCenterWorld);
+
+                    const visualCenterModelSpace = modelRoot.worldToLocal(
+                        visualCenterWorld.clone()
+                    );
 
                     this.originalTransforms.set(mesh.uuid, {
                         position: mesh.position.clone(),
                         quaternion: mesh.quaternion.clone(),
                         scale: mesh.scale.clone(),
+                        visualCenter: visualCenterModelSpace,
                     });
 
                     // Mark as interactable for raycaster
@@ -115,11 +119,14 @@ if (AFRAME && THREE) {
             },
 
             registerAllParts: function () {
-                const modelEl = document.querySelector('.interactable-model');
+                const modelEl = this.el.sceneEl.querySelector(
+                    '.interactable-model'
+                );
                 if (modelEl) {
-                    (modelEl as any).object3D.traverse((node: any) => {
+                    const modelRoot = modelEl.object3D;
+                    modelRoot.traverse((node: any) => {
                         if (node.isMesh) {
-                            this.registerPart(node);
+                            this.registerPart(node, modelRoot);
                         }
                     });
                 }
@@ -253,77 +260,96 @@ if (AFRAME && THREE) {
 
             resetAll: function () {
                 this.deselect();
+                const modelEl = this.el.sceneEl.querySelector(
+                    '.interactable-model'
+                );
+                if (!modelEl) return;
+
                 this.originalTransforms.forEach((data: any, uuid: string) => {
-                    const modelEl = document.querySelector(
-                        '.interactable-model'
-                    );
-                    if (modelEl) {
-                        (modelEl as any).object3D.traverse((node: any) => {
-                            if (node.isMesh && node.uuid === uuid) {
-                                node.position.copy(data.position);
-                                node.quaternion.copy(data.quaternion);
-                                node.scale.copy(data.scale);
-                            }
-                        });
-                    }
+                    modelEl.object3D.traverse((node: any) => {
+                        if (node.isMesh && node.uuid === uuid) {
+                            node.position.copy(data.position);
+                            node.quaternion.copy(data.quaternion);
+                            node.scale.copy(data.scale);
+                        }
+                    });
                 });
             },
 
-            explode: function (scale: number = 1.5) {
+            explode: function (scale: number = 1.2) {
                 this.deselect();
-                // 1. Calculate Center of Mass (of original positions)
+                const modelEl = this.el.sceneEl.querySelector(
+                    '.interactable-model'
+                );
+                if (!modelEl) return;
+
+                const modelRoot = modelEl.object3D;
+
+                // 1. Calculate Center of Mass (using visual centers)
                 const center = new THREE.Vector3();
                 let count = 0;
                 this.originalTransforms.forEach((data: any) => {
-                    center.add(data.position);
+                    center.add(data.visualCenter);
                     count++;
                 });
                 if (count > 0) center.divideScalar(count);
 
                 // 2. Animate parts
-                const modelEl = document.querySelector('.interactable-model');
-                if (!modelEl) return;
-
-                const duration = 1000; // ms
+                const duration = 800; // ms
                 const startTime = Date.now();
 
-                // Store target positions
+                // Store target and start positions
                 const targets = new Map();
+                const startPositions = new Map();
+
                 this.originalTransforms.forEach((data: any, uuid: string) => {
                     const direction = new THREE.Vector3().subVectors(
-                        data.position,
+                        data.visualCenter,
                         center
                     );
-                    // If direction is near zero (part is at center), push it up or random
-                    if (direction.lengthSq() < 0.001) direction.set(0, 1, 0);
+                    // If direction is near zero, push it out randomly
+                    if (direction.lengthSq() < 0.0001) {
+                        direction.set(
+                            Math.random() - 0.5,
+                            Math.random() - 0.5,
+                            Math.random() - 0.5
+                        ).normalize();
+                    }
 
-                    const targetPos = new THREE.Vector3()
-                        .copy(data.position)
-                        .add(direction.multiplyScalar(scale));
+                    // Displacement is in model root space
+                    const displacement = direction.multiplyScalar(scale);
+
+                    // To calculate target local position:
+                    // newWorldPos = originalWorldPos + displacement (in world space)
+                    // We can just add displacement to original local position IF there's no nested rotation.
+                    // For better robustness, we treat displacement as a vector in modelRoot space.
+                    const targetPos = data.position.clone().add(displacement);
                     targets.set(uuid, targetPos);
+                });
+
+                // Capture current positions to lerp from
+                modelRoot.traverse((node: any) => {
+                    if (node.isMesh && this.originalTransforms.has(node.uuid)) {
+                        startPositions.set(node.uuid, node.position.clone());
+                    }
                 });
 
                 const animate = () => {
                     const now = Date.now();
                     const progress = Math.min((now - startTime) / duration, 1);
-                    // Ease out quadratic
-                    const ease = progress * (2 - progress);
+                    // Ease out cubic
+                    const ease =
+                        1 - Math.pow(1 - progress, 3);
 
-                    (modelEl as any).object3D.traverse((node: any) => {
+                    modelRoot.traverse((node: any) => {
                         if (
                             node.isMesh &&
                             this.originalTransforms.has(node.uuid)
                         ) {
-                            const original = this.originalTransforms.get(
-                                node.uuid
-                            );
+                            const start = startPositions.get(node.uuid);
                             const target = targets.get(node.uuid);
-                            if (target) {
-                                node.position.lerpVectors(
-                                    original.position,
-                                    target,
-                                    ease
-                                );
+                            if (start && target) {
+                                node.position.lerpVectors(start, target, ease);
                             }
                         }
                     });
@@ -337,10 +363,12 @@ if (AFRAME && THREE) {
 
             collapse: function () {
                 this.deselect();
-                const modelEl = document.querySelector('.interactable-model');
+                const modelEl = this.el.sceneEl.querySelector(
+                    '.interactable-model'
+                );
                 if (!modelEl) return;
 
-                const duration = 1000;
+                const duration = 800;
                 const startTime = Date.now();
 
                 // Current positions are start, originals are target
@@ -357,7 +385,8 @@ if (AFRAME && THREE) {
                 const animate = () => {
                     const now = Date.now();
                     const progress = Math.min((now - startTime) / duration, 1);
-                    const ease = progress * (2 - progress);
+                    // Ease out cubic
+                    const ease = 1 - Math.pow(1 - progress, 3);
 
                     (modelEl as any).object3D.traverse((node: any) => {
                         if (

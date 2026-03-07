@@ -722,7 +722,7 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
 
                     <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800">
                         <a 
-                            href="https://github.com/the-gear/vet-webxr-hub/blob/main/CHANGELOG.md" 
+                            href="https://github.com/blagojevicboban/GEAR/blob/main/CHANGELOG.md" 
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="text-xs text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium flex items-center gap-2 transition-colors"

@@ -229,6 +229,18 @@
                 "find_part_desc": "Εντοπισμός συγκεκριμένου εξαρτήματος στο 3D",
                 "quiz_desc": "Απάντηση σε ερωτήσεις πολλαπλής επιλογής",
                 "image_tip": "Συμβουλή: Μπορείτε να ανεβάσετε σχήματα και εικόνες για να βοηθήσετε την κατανόηση."
+            },
+            "translations": {
+                "title": "Localization & Translations (v2.5)",
+                "subtitle": "Global Reach",
+                "desc": "THE GEAR is now fully customizable for any language. Administrators can manage all platform text and add new languages with a single click.",
+                "features": [
+                    "Dynamic Language Engine: No code changes required to add new locales.",
+                    "English Reference: Built-in side-by-side comparison for accurate translations.",
+                    "Live Search: Find and edit any term, button, or alert instantly.",
+                    "Add Language: Select from 100+ languages to auto-initialize new translations.",
+                    "Fallback Protection: Automatic English fallback ensures no broken UI text."
+                ]
             }
         },
         "footer": {

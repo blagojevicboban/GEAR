@@ -229,6 +229,18 @@
                 "find_part_desc": "Učenici moraju da kliknu na određeni 3D deo da bi nastavili.",
                 "quiz_desc": "Klasičan kviz sa jednim ili više tačnih odgovora, ili novi 'Identifikacija na modelu' (gamifikovan klik na deo) i 'Tačno/Netačno' provere.",
                 "image_tip": "Savet: Koristite Ctrl+V da brzo nalepite screenshot-ove ili dijagrame u svoje korake."
+            },
+            "translations": {
+                "title": "Localization & Translations (v2.5)",
+                "subtitle": "Global Reach",
+                "desc": "THE GEAR is now fully customizable for any language. Administrators can manage all platform text and add new languages with a single click.",
+                "features": [
+                    "Dynamic Language Engine: No code changes required to add new locales.",
+                    "English Reference: Built-in side-by-side comparison for accurate translations.",
+                    "Live Search: Find and edit any term, button, or alert instantly.",
+                    "Add Language: Select from 100+ languages to auto-initialize new translations.",
+                    "Fallback Protection: Automatic English fallback ensures no broken UI text."
+                ]
             }
         },
         "footer": {

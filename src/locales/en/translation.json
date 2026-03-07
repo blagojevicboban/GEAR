@@ -229,7 +229,20 @@
                 "find_part_desc": "Students must click on a specific 3D part to proceed.",
                 "quiz_desc": "Classic single/multiple choice or the new 'Model Identification' (Gamified click-on-part) and 'True/False' checks.",
                 "image_tip": "Pro Tip: Use Ctrl+V to quickly paste screenshots or diagrams into your steps."
+            },
+            "translations": {
+                "title": "Localization & Translations (v2.5)",
+                "subtitle": "Global Reach",
+                "desc": "THE GEAR is now fully customizable for any language. Administrators can manage all platform text and add new languages with a single click.",
+                "features": [
+                    "Dynamic Language Engine: No code changes required to add new locales.",
+                    "English Reference: Built-in side-by-side comparison for accurate translations.",
+                    "Live Search: Find and edit any term, button, or alert instantly.",
+                    "Add Language: Select from 100+ languages to auto-initialize new translations.",
+                    "Fallback Protection: Automatic English fallback ensures no broken UI text."
+                ]
             }
+
         },
         "footer": {
             "questions": "Still have questions?",

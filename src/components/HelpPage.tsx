@@ -602,8 +602,8 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                             <ul className="grid gap-4">
                                 {(
                                     t('help.sections.admin.features', {
-                                        returnObjects: true,
-                                    }) as string[]
+                                         returnObjects: true,
+                                     }) as string[]
                                 ).map((feature, i) => (
                                     <li
                                         key={i}
@@ -617,6 +617,44 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                         </div>
                     </div>
                 </div>
+
+                {/* Section 8: Localization (v2.5) */}
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl transition-colors">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-8 flex items-center gap-3">
+                        <span className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-xl shadow-lg shadow-indigo-600/20">
+                            🌍
+                        </span>
+                        {t('help.sections.translations.title')}
+                    </h2>
+                    <div className="grid md:grid-cols-2 gap-10">
+                        <div>
+                            <h3 className="font-bold text-indigo-600 dark:text-indigo-400 text-lg mb-4">
+                                {t('help.sections.translations.subtitle')}
+                            </h3>
+                            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">
+                                {t('help.sections.translations.desc')}
+                            </p>
+                        </div>
+                        <div className="bg-slate-50 dark:bg-slate-800/30 p-6 rounded-2xl border border-slate-100 dark:border-slate-700/50">
+                            <ul className="grid gap-4">
+                                {(
+                                    t('help.sections.translations.features', {
+                                         returnObjects: true,
+                                     }) as string[]
+                                ).map((feature, i) => (
+                                    <li
+                                        key={i}
+                                        className="flex items-center gap-4 text-slate-600 dark:text-slate-300 text-sm font-medium group"
+                                    >
+                                        <div className="w-2 h-2 rounded-full bg-indigo-500 group-hover:scale-150 transition-transform"></div>
+                                        {feature}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
 
                 <div className="text-center pt-8">
                     <p className="text-slate-500 mb-4">

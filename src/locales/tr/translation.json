@@ -229,6 +229,18 @@
                 "find_part_desc": "3D içinde belirli bir parçayı bulma",
                 "quiz_desc": "Çoktan seçmeli soruları yanıtlama",
                 "image_tip": "İpucu: Anlamaya yardımcı olması için şema ve resim yükleyebilirsiniz."
+            },
+            "translations": {
+                "title": "Localization & Translations (v2.5)",
+                "subtitle": "Global Reach",
+                "desc": "THE GEAR is now fully customizable for any language. Administrators can manage all platform text and add new languages with a single click.",
+                "features": [
+                    "Dynamic Language Engine: No code changes required to add new locales.",
+                    "English Reference: Built-in side-by-side comparison for accurate translations.",
+                    "Live Search: Find and edit any term, button, or alert instantly.",
+                    "Add Language: Select from 100+ languages to auto-initialize new translations.",
+                    "Fallback Protection: Automatic English fallback ensures no broken UI text."
+                ]
             }
         },
         "footer": {

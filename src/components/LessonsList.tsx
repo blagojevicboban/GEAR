@@ -78,7 +78,7 @@ const LessonsList: React.FC<LessonsListProps> = ({
                     <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
                         {t('lessons.list_title')}
                     </h1>
-                    <p className="text-slate-400 mt-2">
+                    <p className="text-slate-500 dark:text-slate-400 mt-2">
                         {t('lessons.list_subtitle')}
                     </p>
                 </div>
@@ -100,8 +100,8 @@ const LessonsList: React.FC<LessonsListProps> = ({
                     onClick={() => setFilterSector('All')}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                         filterSector === 'All'
-                            ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/50'
-                            : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                            ? 'bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border border-indigo-500/50'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                     }`}
                 >
                     {t('lessons.all_sectors')}
@@ -111,9 +111,9 @@ const LessonsList: React.FC<LessonsListProps> = ({
                         key={sector}
                         onClick={() => setFilterSector(sector)}
                         className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
-                            filterSector === sector
-                                ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/50'
-                                : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                        filterSector === sector
+                                ? 'bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border border-indigo-500/50'
+                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                         }`}
                     >
                         {sector}
@@ -125,7 +125,7 @@ const LessonsList: React.FC<LessonsListProps> = ({
                 {filteredLessons.map((lesson) => (
                     <div
                         key={lesson.id}
-                        className="group bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-indigo-500/50 transition-all hover:shadow-lg hover:shadow-indigo-900/20 flex flex-col"
+                        className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden hover:border-indigo-500/50 transition-all hover:shadow-lg hover:shadow-indigo-500/10 dark:hover:shadow-indigo-900/20 flex flex-col"
                     >
                         <div className="h-40 w-full overflow-hidden relative group-hover:opacity-100">
                             {lesson.image_url ? (
@@ -135,14 +135,14 @@ const LessonsList: React.FC<LessonsListProps> = ({
                                     className="w-full h-full object-cover transition-transform group-hover:scale-110"
                                 />
                             ) : (
-                                <div className="w-full h-full bg-slate-800 flex items-center justify-center">
+                                <div className="w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                                     <BookOpen
                                         size={48}
-                                        className="text-slate-700"
+                                        className="text-slate-300 dark:text-slate-700"
                                     />
                                 </div>
                             )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+                            <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-slate-900 to-transparent"></div>
 
                             {/* Edit Button */}
                             {currentUser &&
@@ -238,19 +238,19 @@ const LessonsList: React.FC<LessonsListProps> = ({
                         </div>
                         <div className="p-6 flex-1 flex flex-col">
                             <div className="flex justify-between items-start mb-4">
-                                <span className="px-2 py-1 bg-slate-800 text-indigo-300 text-xs rounded uppercase tracking-wider font-semibold">
+                                <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-indigo-600 dark:text-indigo-300 text-xs rounded uppercase tracking-wider font-semibold">
                                     {lesson.sectorName || t('lessons.general')}
                                 </span>
                             </div>
 
-                            <h3 className="text-xl font-bold text-slate-100 mb-2 group-hover:text-indigo-400 transition-colors">
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                                 {lesson.title}
                             </h3>
-                            <p className="text-slate-400 text-sm line-clamp-3 mb-6 flex-1">
+                            <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-3 mb-6 flex-1">
                                 {lesson.description}
                             </p>
 
-                            <div className="flex items-center justify-between text-xs text-slate-500 pt-4 border-t border-slate-800">
+                            <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 pt-4 border-t border-slate-100 dark:border-slate-800">
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -263,7 +263,7 @@ const LessonsList: React.FC<LessonsListProps> = ({
                                         <img
                                             src={fixAssetUrl(lesson.authorPic)}
                                             alt={lesson.authorName}
-                                            className="w-5 h-5 rounded-full object-cover border border-slate-700 group-hover/author:border-indigo-500"
+                                            className="w-5 h-5 rounded-full object-cover border border-slate-200 dark:border-slate-700 group-hover/author:border-indigo-500"
                                         />
                                     ) : (
                                         <UserIcon size={14} />
@@ -286,7 +286,7 @@ const LessonsList: React.FC<LessonsListProps> = ({
 
                         <button
                             onClick={() => onViewLesson(lesson)}
-                            className="w-full bg-slate-800 hover:bg-indigo-600 text-slate-300 hover:text-white py-3 transition-colors flex items-center justify-center gap-2 font-medium"
+                            className="w-full bg-slate-50 dark:bg-slate-800 hover:bg-indigo-600 text-slate-600 dark:text-slate-300 hover:text-white py-3 transition-colors flex items-center justify-center gap-2 font-medium"
                         >
                             <BookOpen size={18} />
                             {t('lessons.start_btn')}

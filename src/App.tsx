@@ -513,7 +513,7 @@ const App: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col min-h-screen bg-slate-950 font-sans text-slate-200">
+        <div className="flex flex-col min-h-screen bg-white dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-200 transition-colors duration-300">
             {currentView !== 'viewer' && (
                 <Navbar
                     currentView={currentView}
@@ -535,7 +535,7 @@ const App: React.FC = () => {
                 </div>
             )}
 
-            <main className="flex-1">
+            <main className="flex-1 bg-white dark:bg-slate-950 transition-colors duration-300">
                 {currentView === 'home' && (
                     <Dashboard
                         modelsCount={models.length}
@@ -742,7 +742,7 @@ const App: React.FC = () => {
             )}
 
             {currentView !== 'viewer' && (
-                <footer className="bg-slate-900 border-t border-slate-800 py-6 text-center text-slate-500 text-sm">
+                <footer className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-6 text-center text-slate-500 dark:text-slate-500 text-sm transition-colors">
                     <p id="footer-brand-name">
                         &copy; 2026 {config.brand_name} - Open Source VET WebXR
                         Platform. Optimized for Meta Quest.

@@ -6,6 +6,7 @@ import './i18n'; // Initialize i18n
 import App from './App';
 
 import { ConfigProvider } from './context/ConfigContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -16,7 +17,9 @@ const root = createRoot(rootElement);
 root.render(
     <React.StrictMode>
         <ConfigProvider>
-            <App />
+            <ThemeProvider>
+                <App />
+            </ThemeProvider>
         </ConfigProvider>
     </React.StrictMode>
 );

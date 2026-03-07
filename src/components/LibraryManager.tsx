@@ -214,13 +214,13 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
     };
 
     return (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-xl">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                 <div>
-                    <h2 className="text-2xl font-bold text-white mb-2">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
                         {t('admin.library.title')}
                     </h2>
-                    <p className="text-slate-400">{t('admin.library.desc')}</p>
+                    <p className="text-slate-600 dark:text-slate-400">{t('admin.library.desc')}</p>
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
@@ -229,7 +229,7 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                         <select
                             value={selectedSector}
                             onChange={(e) => setSelectedSector(e.target.value)}
-                            className="bg-slate-950 border border-slate-700 text-slate-300 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block w-full md:w-48 p-2.5 outline-none appearance-none"
+                            className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block w-full md:w-48 p-2.5 outline-none appearance-none"
                         >
                             <option value="All">
                                 {t('admin.library.filters.all_sectors')}
@@ -258,7 +258,7 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                             onChange={(e) =>
                                 setSelectedUploader(e.target.value)
                             }
-                            className="bg-slate-950 border border-slate-700 text-slate-300 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block w-full md:w-48 p-2.5 outline-none appearance-none"
+                            className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block w-full md:w-48 p-2.5 outline-none appearance-none"
                         >
                             <option value="All">
                                 {t('admin.library.filters.all_uploaders')}
@@ -287,17 +287,17 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                             placeholder={t('admin.library.search_placeholder')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                         />
                         <Search className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
                     </div>
                 </div>
             </div>
 
-            <div className="overflow-x-auto rounded-xl border border-slate-800">
+            <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
                 <table className="w-full text-left border-collapse">
                     <thead>
-                        <tr className="bg-slate-950/50 text-slate-400 text-sm uppercase tracking-wider border-b border-slate-800">
+                        <tr className="bg-slate-50 dark:bg-slate-950/50 text-slate-500 dark:text-slate-400 text-sm uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
                             <th className="p-4 font-medium">
                                 {t('admin.library.table.thumb')}
                             </th>
@@ -321,15 +321,15 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                             </th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800">
+                    <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                         {filteredModels.length > 0 ? (
                             filteredModels.map((model) => (
                                 <tr
                                     key={model.id}
-                                    className="hover:bg-slate-800/30 transition-colors group"
+                                    className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors group text-slate-700 dark:text-slate-300"
                                 >
                                     <td className="p-4">
-                                        <div className="w-12 h-12 rounded-lg bg-slate-800 overflow-hidden flex items-center justify-center border border-slate-700">
+                                        <div className="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 overflow-hidden flex items-center justify-center border border-slate-200 dark:border-slate-700">
                                             {model.thumbnailUrl ? (
                                                 <img
                                                     src={fixAssetUrl(
@@ -344,7 +344,7 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                                         </div>
                                     </td>
                                     <td className="p-4">
-                                        <div className="font-bold text-white">
+                                        <div className="font-bold text-slate-900 dark:text-white">
                                             {model.name}
                                         </div>
                                         <div
@@ -363,14 +363,14 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                                         </div>
                                     </td>
                                     <td className="p-4">
-                                        <span className="px-2 py-1 rounded bg-slate-800 text-slate-300 text-xs text-nowrap">
+                                        <span className="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs text-nowrap">
                                             {model.sector}
                                         </span>
                                     </td>
-                                    <td className="p-4 text-slate-300">
+                                    <td className="p-4 text-slate-600 dark:text-slate-300">
                                         {model.uploadedBy}
                                     </td>
-                                    <td className="p-4 text-right text-slate-400 font-mono text-sm">
+                                    <td className="p-4 text-right text-slate-500 dark:text-slate-400 font-mono text-sm">
                                         {formatFileSize(model.fileSize)}
                                     </td>
                                     <td className="p-4 text-center">
@@ -380,8 +380,8 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                                             }
                                             className={`p-2 rounded-full transition-all ${
                                                 model.isFeatured
-                                                    ? 'bg-amber-500/10 text-amber-400 hover:bg-amber-500/20'
-                                                    : 'text-slate-600 hover:bg-slate-700 hover:text-slate-400'
+                                                    ? 'bg-amber-500/10 text-amber-500 dark:text-amber-400 hover:bg-amber-500/20'
+                                                    : 'text-slate-400 dark:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-400'
                                             }`}
                                             title="Toggle Featured Status"
                                         >
@@ -395,7 +395,7 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                                             <a
                                                 href={model.modelUrl}
                                                 download
-                                                className="p-2 text-slate-400 hover:text-indigo-400 hover:bg-slate-800 rounded-lg transition-colors"
+                                                className="p-2 text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
                                                 title="Download Model"
                                             >
                                                 <Download className="w-4 h-4" />
@@ -404,7 +404,7 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                                                 href={`/?modelId=${model.id}`}
                                                 target="_blank"
                                                 rel="noreferrer"
-                                                className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+                                                className="p-2 text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
                                                 title="View in New Tab"
                                             >
                                                 <ExternalLink className="w-4 h-4" />
@@ -424,7 +424,7 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                                                         onCloneModel(model.id);
                                                     }
                                                 }}
-                                                className="p-2 text-slate-400 hover:text-green-400 hover:bg-green-900/20 rounded-lg transition-colors"
+                                                className="p-2 text-slate-400 dark:text-slate-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/20 rounded-lg transition-colors"
                                                 title={t(
                                                     'admin.library.actions.clone'
                                                 )}
@@ -435,7 +435,7 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                                                 onClick={() =>
                                                     onEditModel(model)
                                                 }
-                                                className="p-2 text-slate-400 hover:text-indigo-400 hover:bg-indigo-900/20 rounded-lg transition-colors"
+                                                className="p-2 text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/20 rounded-lg transition-colors"
                                                 title={t(
                                                     'admin.library.actions.edit'
                                                 )}
@@ -446,7 +446,7 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                                                 onClick={() =>
                                                     handleDelete(model)
                                                 }
-                                                className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
+                                                className="p-2 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                                                 title="Delete Model"
                                             >
                                                 <Trash2 className="w-4 h-4" />

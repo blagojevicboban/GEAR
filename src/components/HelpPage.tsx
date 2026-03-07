@@ -51,23 +51,23 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                 <h1 className="text-4xl lg:text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">
                     {t('help.title')}
                 </h1>
-                <p className="text-xl text-slate-400 mb-8">
+                <p className="text-xl text-slate-600 dark:text-slate-400 mb-8">
                     {t('help.subtitle')}
                 </p>
                 {onStartTour && (
-                    <button
-                        onClick={onStartTour}
-                        className="px-8 py-3 bg-slate-800 hover:bg-slate-700 border border-indigo-500/30 text-indigo-400 font-bold rounded-xl transition-all shadow-lg hover:shadow-indigo-500/10 flex items-center gap-2 mx-auto"
-                    >
-                        <span>🎬</span> {t('help.start_tour')}
-                    </button>
+                        <button
+                            onClick={onStartTour}
+                            className="px-8 py-3 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-400 font-bold rounded-xl transition-all shadow-lg hover:shadow-indigo-500/10 flex items-center gap-2 mx-auto"
+                        >
+                            <span>🎬</span> {t('help.start_tour')}
+                        </button>
                 )}
             </div>
 
             <div className="space-y-12">
                 {/* Section 0: System Diagnostics */}
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
-                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-xl">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
                             🩺
                         </span>
@@ -113,16 +113,16 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                             </p>
                         </div>
 
-                        <div className="p-4 rounded-xl border bg-slate-800/50 border-slate-700">
+                        <div className="p-4 rounded-xl border bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
                             <div className="flex items-center justify-between mb-2">
-                                <span className="font-bold text-slate-300">
+                                <span className="font-bold text-slate-700 dark:text-slate-300">
                                     {t('help.diagnostics.browser')}
                                 </span>
-                                <span className="text-xs bg-slate-700 px-2 py-0.5 rounded text-slate-300">
+                                <span className="text-xs bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300">
                                     {browserName}
                                 </span>
                             </div>
-                            <p className="text-xs text-slate-400">
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
                                 {browserName === 'Meta Quest Browser'
                                     ? t('help.diagnostics.optimized')
                                     : t('help.diagnostics.meta_quest_tip')}
@@ -132,8 +132,8 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                 </div>
 
                 {/* Section 1: Quick Start (VR) */}
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
-                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-xl">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
                             🥽
                         </span>
@@ -185,8 +185,8 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                 </div>
 
                 {/* Section 1a: Text-to-Speech */}
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl mt-8">
-                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-xl mt-8">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
                             🔊
                         </span>
@@ -203,8 +203,8 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                 </div>
 
                 {/* Section 2: Controls */}
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
-                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-xl">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
                             🎮
                         </span>
@@ -234,7 +234,7 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                             </ul>
                         </div>
                         <div>
-                            <h3 className="font-bold text-white mb-4">
+                            <h3 className="font-bold text-slate-900 dark:text-white mb-4">
                                 {t('help.sections.controls.vr_title')}
                             </h3>
                             <ul className="space-y-3 text-slate-400">
@@ -255,8 +255,8 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                 </div>
 
                 {/* Section 3: User Roles & Features */}
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
-                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-xl">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
                             👥
                         </span>
@@ -303,8 +303,8 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                 </div>
 
                 {/* Section 4: Gamified Learning */}
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
-                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-xl">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
                             🎓
                         </span>
@@ -333,8 +333,8 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                 </div>
 
                 {/* Section 5: Workbook Builder & Interactive Quizzes */}
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
-                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-xl">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
                             🏗️
                         </span>
@@ -368,8 +368,8 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                 </div>
 
                 {/* Section 5: AI & Optimization */}
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
-                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-xl">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-purple-600 flex items-center justify-center">
                             ✨
                         </span>
@@ -392,8 +392,8 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                 </div>
 
                 {/* Section: Materials Engine */}
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
-                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-xl">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center">
                             🎨
                         </span>
@@ -418,23 +418,23 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                             </strong>
                             {t('materials.ar_desc')}
                         </div>
-                        <p className="text-sm bg-slate-950/50 p-3 rounded-lg border-l-4 border-orange-500">
-                            <strong>Tip:</strong> {t('materials.usage')}
+                        <p className="text-sm bg-slate-50 dark:bg-slate-950/50 p-3 rounded-lg border-l-4 border-orange-500">
+                            <strong className="text-slate-900 dark:text-white">Tip:</strong> {t('materials.usage')}
                         </p>
                     </div>
                 </div>
 
                 {/* Section 6: 3D Analytics & Heatmaps */}
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
-                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-xl">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-rose-600 flex items-center justify-center">
                             📊
                         </span>
                         {t('help.sections.analytics.title')}
                     </h2>
                     <div className="space-y-6 text-slate-400">
-                        <p className="text-sm border-l-4 border-rose-500 pl-4 bg-slate-950/50 p-3 rounded-r-lg">
-                            <strong className="text-white">
+                        <p className="text-sm border-l-4 border-rose-500 pl-4 bg-slate-50 dark:bg-slate-950/50 p-3 rounded-r-lg">
+                            <strong className="text-slate-900 dark:text-white">
                                 {t('help.sections.analytics.note_teacher')}
                             </strong>{' '}
                             {t('help.sections.analytics.note_desc')}
@@ -455,8 +455,8 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                 </div>
 
                 {/* Section 7: LMS Integration (LTI 1.3) */}
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
-                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-xl">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center">
                             🏫
                         </span>
@@ -514,8 +514,8 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                 </div>
 
                 {/* Section: Erasmus+ Evidence */}
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
-                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-xl">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
                             📜
                         </span>
@@ -531,10 +531,10 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                             </p>
                         </div>
                         <div className="flex flex-col gap-3 justify-center">
-                            <button className="px-4 py-2 bg-slate-800 text-slate-400 rounded-lg border border-slate-700 cursor-not-allowed opacity-75">
+                            <button className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 rounded-lg border border-slate-200 dark:border-slate-700 cursor-not-allowed opacity-75">
                                 🔒 {t('evidence.generate_btn')}
                             </button>
-                            <button className="px-4 py-2 bg-slate-800 text-slate-400 rounded-lg border border-slate-700 cursor-not-allowed opacity-75">
+                            <button className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 rounded-lg border border-slate-200 dark:border-slate-700 cursor-not-allowed opacity-75">
                                 🔒 {t('evidence.download_btn')}
                             </button>
                         </div>
@@ -542,8 +542,8 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                 </div>
 
                 {/* Section 6: Offline & Installation */}
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
-                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-xl">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-cyan-600 flex items-center justify-center">
                             📱
                         </span>
@@ -587,8 +587,8 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                 </div>
 
                 {/* Section 7: Platform Administration (v2.2) */}
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
-                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-xl">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
                         <span className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
                             ⚙️
                         </span>

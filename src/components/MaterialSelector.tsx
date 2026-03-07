@@ -107,8 +107,8 @@ const MaterialSelector: React.FC = () => {
     };
 
     return (
-        <div className="bg-gray-900 border border-teal-500 rounded-lg p-6 max-w-md shadow-[0_0_15px_rgba(20,184,166,0.5)]">
-            <h2 className="text-2xl font-bold text-teal-400 mb-4 tracking-wider flex items-center gap-2">
+        <div className="bg-white dark:bg-gray-900 border border-teal-200 dark:border-teal-500 rounded-lg p-6 max-w-md shadow-lg dark:shadow-[0_0_15px_rgba(20,184,166,0.5)]">
+            <h2 className="text-2xl font-bold text-teal-600 dark:text-teal-400 mb-4 tracking-wider flex items-center gap-2">
                 {t('materials.title')}
             </h2>
 
@@ -119,7 +119,7 @@ const MaterialSelector: React.FC = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search Formula (e.g. SiO2, Au)"
-                    className="w-full bg-gray-800 text-white rounded p-2 pl-9 border border-gray-700 focus:border-teal-500 outline-none uppercase"
+                    className="w-full bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white rounded p-2 pl-9 border border-gray-200 dark:border-gray-700 focus:border-teal-500 outline-none uppercase"
                 />
                 <Search className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
                 <button
@@ -151,11 +151,11 @@ const MaterialSelector: React.FC = () => {
             ) : (
                 <>
                     <div className="mb-4">
-                        <label className="block text-gray-400 text-sm mb-2">
+                        <label className="block text-gray-500 dark:text-gray-400 text-sm mb-2">
                             {t('materials.usage')}
                         </label>
                         <select
-                            className="w-full bg-gray-800 text-white rounded p-2 border border-gray-700 focus:border-teal-500 outline-none"
+                            className="w-full bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white rounded p-2 border border-gray-200 dark:border-gray-700 focus:border-teal-500 outline-none"
                             value={selectedMaterial?.id || ''}
                             onChange={(e) =>
                                 setSelectedMaterial(
@@ -191,14 +191,14 @@ const MaterialSelector: React.FC = () => {
                         <>
                             <div className="grid grid-cols-2 gap-4 mb-4">
                                 <div>
-                                    <label className="block text-gray-400 text-sm mb-2">
+                                    <label className="block text-gray-500 dark:text-gray-400 text-sm mb-2">
                                         Thickness (mm)
                                     </label>
                                     <input
                                         type="number"
                                         min="1"
                                         max="20"
-                                        className="w-full bg-gray-800 text-white rounded p-2 border border-gray-700"
+                                        className="w-full bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white rounded p-2 border border-gray-200 dark:border-gray-700 focus:border-teal-500 outline-none"
                                         value={thickness}
                                         onChange={(e) =>
                                             setThickness(Number(e.target.value))
@@ -206,14 +206,14 @@ const MaterialSelector: React.FC = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-gray-400 text-sm mb-2">
+                                    <label className="block text-gray-500 dark:text-gray-400 text-sm mb-2">
                                         Laser Power (W)
                                     </label>
                                     <input
                                         type="range"
                                         min="10"
                                         max="150"
-                                        className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-teal-500 mt-3"
+                                        className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-teal-500 mt-3"
                                         value={power}
                                         onChange={(e) =>
                                             setPower(Number(e.target.value))
@@ -225,15 +225,15 @@ const MaterialSelector: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="bg-black/50 rounded p-4 mt-6 border-l-4 border-teal-500 mb-6 text-center">
-                                <div className="text-gray-400 text-xs uppercase tracking-widest mb-1">
+                            <div className="bg-gray-50 dark:bg-black/50 rounded p-4 mt-6 border-l-4 border-teal-500 mb-6 text-center">
+                                <div className="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-widest mb-1">
                                     Calculated Cutting Speed
                                 </div>
-                                <div className="text-3xl font-mono text-white">
+                                <div className="text-3xl font-mono text-gray-900 dark:text-white">
                                     {cuttingSpeed
                                         ? cuttingSpeed.toFixed(2)
                                         : '---'}{' '}
-                                    <span className="text-sm text-gray-500">
+                                    <span className="text-sm text-gray-400 dark:text-gray-500">
                                         mm/s
                                     </span>
                                 </div>

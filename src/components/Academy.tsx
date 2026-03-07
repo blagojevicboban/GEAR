@@ -134,13 +134,13 @@ const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
     return (
         <div className="max-w-7xl mx-auto px-6 py-12">
             <div className="mb-12 text-center">
-                <h1 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">
+                <h1 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500 dark:from-indigo-400 dark:to-purple-400">
                     {t('academy.title')}{' '}
                     <span className="text-white text-sm bg-indigo-600 px-2 py-1 rounded ml-2 shadow-lg">
                         BETA
                     </span>
                 </h1>
-                <p className="text-slate-400 max-w-2xl mx-auto">
+                <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
                     {t('academy.subtitle')}
                 </p>
             </div>
@@ -154,7 +154,7 @@ const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
                         className={`px-6 py-2 rounded-full font-bold capitalize transition-all ${
                             activeCategory === cat
                                 ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/25 scale-105'
-                                : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
+                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-indigo-600 dark:hover:text-white'
                         }`}
                     >
                         {cat === 'basics'
@@ -179,7 +179,7 @@ const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
 
             {/* Admin Add/Edit Form */}
             {isAdmin && isAdding && (
-                <div className="mb-8 bg-slate-900 border border-slate-700 p-6 rounded-xl animate-in fade-in slide-in-from-top-4">
+                <div className="mb-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-xl animate-in fade-in slide-in-from-top-4 shadow-xl">
                     <h3 className="font-bold text-white mb-4">
                         {editingId
                             ? t('academy.edit_video')
@@ -192,25 +192,25 @@ const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
                             placeholder={t('academy.form.title')}
                             value={newTitle}
                             onChange={(e) => setNewTitle(e.target.value)}
-                            className="bg-slate-950 border border-slate-700 p-2 rounded text-white"
+                            className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-2 rounded text-slate-900 dark:text-white"
                         />
                         <input
                             placeholder={t('academy.form.duration')}
                             value={newDuration}
                             onChange={(e) => setNewDuration(e.target.value)}
-                            className="bg-slate-950 border border-slate-700 p-2 rounded text-white"
+                            className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-2 rounded text-slate-900 dark:text-white"
                         />
                         <input
                             placeholder={t('academy.form.url')}
                             value={newUrl}
                             onChange={(e) => setNewUrl(e.target.value)}
-                            className="bg-slate-950 border border-slate-700 p-2 rounded text-white col-span-2"
+                            className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-2 rounded text-slate-900 dark:text-white col-span-2"
                         />
                         <textarea
                             placeholder={t('academy.form.description')}
                             value={newDesc}
                             onChange={(e) => setNewDesc(e.target.value)}
-                            className="bg-slate-950 border border-slate-700 p-2 rounded text-white col-span-2"
+                            className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-2 rounded text-slate-900 dark:text-white col-span-2"
                             rows={2}
                         />
                     </div>
@@ -239,7 +239,7 @@ const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
                     videos[activeCategory].map((video: any) => (
                         <div
                             key={video.id}
-                            className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-indigo-500/50 transition-colors group relative"
+                            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden hover:border-indigo-500/50 transition-colors group relative shadow-md hover:shadow-xl transition-all"
                         >
                             {isAdmin && (
                                 <div className="absolute top-2 right-2 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -271,18 +271,18 @@ const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
                             </div>
                             <div className="p-6">
                                 <div className="flex justify-between items-start mb-2">
-                                    <h3 className="font-bold text-lg group-hover:text-indigo-400 transition-colors">
+                                    <h3 className="font-bold text-lg text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                                         {video.title}
                                     </h3>
-                                    <span className="text-xs font-mono bg-slate-800 px-2 py-1 rounded text-slate-400">
+                                    <span className="text-xs font-mono bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-500 dark:text-slate-400">
                                         {video.duration}
                                     </span>
                                 </div>
-                                <p className="text-sm text-slate-500">
+                                <p className="text-sm text-slate-600 dark:text-slate-500">
                                     {video.desc}
                                 </p>
 
-                                <button className="mt-4 w-full py-2 bg-slate-800/50 hover:bg-indigo-600 text-indigo-400 hover:text-white rounded-lg text-sm font-bold transition-all border border-slate-700 hover:border-indigo-500">
+                                <button className="mt-4 w-full py-2 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-600 text-indigo-600 dark:text-indigo-400 hover:text-white rounded-lg text-sm font-bold transition-all border border-slate-200 dark:border-slate-700 hover:border-indigo-500">
                                     {t('academy.mark_completed')}
                                 </button>
                             </div>

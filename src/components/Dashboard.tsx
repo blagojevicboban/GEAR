@@ -94,10 +94,10 @@ const Dashboard: React.FC<DashboardProps> = ({
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16 relative z-10">
                 <div>
-                    <h1 className="text-5xl lg:text-7xl font-extrabold mb-6 leading-tight">
+                    <h1 className="text-5xl lg:text-7xl font-extrabold mb-6 leading-tight text-slate-900 dark:text-white">
                         {t('home.welcome_title')} <br />
                     </h1>
-                    <p className="text-xl text-slate-400 mb-8 max-w-xl">
+                    <p className="text-xl text-slate-600 dark:text-slate-400 mb-8 max-w-xl">
                         {t('home.welcome_subtitle')}
                     </p>
                     <div className="flex gap-4">
@@ -108,10 +108,10 @@ const Dashboard: React.FC<DashboardProps> = ({
                             {t('home.get_started')}
                         </button>
                         <div className="flex flex-col justify-center">
-                            <span className="text-2xl font-bold text-white">
+                            <span className="text-2xl font-bold text-slate-900 dark:text-white">
                                 {modelsCount}
                             </span>
-                            <span className="text-xs uppercase tracking-widest text-slate-500 font-bold">
+                            <span className="text-xs uppercase tracking-widest text-slate-400 dark:text-slate-500 font-bold">
                                 Active Models
                             </span>
                         </div>
@@ -120,7 +120,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 
                 <div
                     id="dashboard-workshop"
-                    className="relative aspect-video rounded-3xl overflow-hidden bg-slate-800 border border-slate-700 shadow-2xl group cursor-pointer"
+                    className="relative aspect-video rounded-3xl overflow-hidden bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-2xl group cursor-pointer"
                     onClick={() =>
                         activeWorkshops.length > 0 &&
                         onJoinWorkshop(activeWorkshops[0])
@@ -133,7 +133,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                         alt="VET VR Training"
                         className="object-cover w-full h-full opacity-60 group-hover:scale-110 transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-slate-950 to-transparent"></div>
                     <div className="absolute bottom-6 left-6 right-6">
                         <div
                             className={`inline-block px-3 py-1 ${activeWorkshops.length > 0 ? 'bg-rose-500 animate-pulse' : 'bg-green-500/20'} border border-rose-500/50 text-white text-xs font-bold rounded-full mb-3 uppercase`}
@@ -142,12 +142,12 @@ const Dashboard: React.FC<DashboardProps> = ({
                                 ? `${activeWorkshops.length} ${t('home.active_workshops').toUpperCase()}`
                                 : t('home.active_workshops').toUpperCase()}
                         </div>
-                        <h3 className="text-2xl font-bold text-white mb-2">
+                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2 shadow-sm">
                             {activeWorkshops.length > 0
                                 ? `${t('home.join')} ${activeWorkshops[0].creatorName}'s Lab`
                                 : t('home.active_workshops')}
                         </h3>
-                        <p className="text-slate-400 text-sm">
+                        <p className="text-slate-600 dark:text-slate-400 text-sm shadow-sm">
                             {activeWorkshops.length > 0
                                 ? `${t('home.join')} ${activeWorkshops[0].modelName}`
                                 : t('home.no_workshops')}
@@ -157,7 +157,7 @@ const Dashboard: React.FC<DashboardProps> = ({
             </div>
 
             <div className="mb-12" id="dashboard-featured">
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center justify-between mb-8 text-slate-900 dark:text-white">
                     <h2 className="text-3xl font-bold">
                         {t('home.featured_models')}
                     </h2>
@@ -172,7 +172,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     {featuredModels.map((model) => (
                         <div
                             key={model.id}
-                            className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden hover:border-indigo-500/50 transition-all cursor-pointer group"
+                            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden hover:border-indigo-500/50 shadow-lg hover:shadow-xl dark:shadow-none transition-all cursor-pointer group"
                             onClick={() => onViewModel(model)}
                             onMouseEnter={handleMouseEnter}
                             onMouseLeave={handleMouseLeave}
@@ -183,7 +183,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                                     alt={model.name}
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                                 />
-                                <div className="absolute top-4 right-4 bg-slate-900/80 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold border border-slate-700">
+                                <div className="absolute top-4 right-4 bg-white/90 dark:bg-slate-900/80 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white">
                                     {model.level}
                                 </div>
                             </div>
@@ -191,10 +191,10 @@ const Dashboard: React.FC<DashboardProps> = ({
                                 <span className="text-indigo-400 text-xs font-bold uppercase tracking-wider">
                                     {model.sector}
                                 </span>
-                                <h3 className="text-xl font-bold text-white mt-1 mb-2">
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-1 mb-2">
                                     {model.name}
                                 </h3>
-                                <p className="text-slate-400 text-sm line-clamp-2 mb-4">
+                                <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-2 mb-4">
                                     {model.description}
                                 </p>
                                 <div className="flex items-center justify-between">

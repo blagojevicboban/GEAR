@@ -28,11 +28,11 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({
     >('library');
 
     return (
-        <div className="min-h-screen bg-slate-950 pb-20">
+        <div className="min-h-screen bg-white dark:bg-slate-950 pb-20">
             {/* Header / Tabs */}
-            <div className="bg-slate-900 border-b border-slate-800 pt-8 pb-0 px-6 sticky top-0 z-30">
+            <div className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 pt-8 pb-0 px-6 sticky top-0 z-30">
                 <div className="max-w-7xl mx-auto">
-                    <h1 className="text-3xl font-bold text-white mb-6">
+                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">
                         {t('admin.settings.title')}
                     </h1>
                     <div className="flex gap-8 overflow-x-auto">
@@ -41,8 +41,8 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({
                             onClick={() => setActiveTab('library')}
                             className={`pb-4 px-2 font-medium text-sm transition-all border-b-2 ${
                                 activeTab === 'library'
-                                    ? 'border-indigo-500 text-indigo-400'
-                                    : 'border-transparent text-slate-400 hover:text-white hover:border-slate-700'
+                                    ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700'
                             }`}
                         >
                             {t('admin.settings.tabs.library')}
@@ -52,8 +52,8 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({
                             onClick={() => setActiveTab('users')}
                             className={`pb-4 px-2 font-medium text-sm transition-all border-b-2 ${
                                 activeTab === 'users'
-                                    ? 'border-indigo-500 text-indigo-400'
-                                    : 'border-transparent text-slate-400 hover:text-white hover:border-slate-700'
+                                    ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700'
                             }`}
                         >
                             {t('admin.settings.tabs.users')}
@@ -63,8 +63,8 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({
                             onClick={() => setActiveTab('sectors')}
                             className={`pb-4 px-2 font-medium text-sm transition-all border-b-2 ${
                                 activeTab === 'sectors'
-                                    ? 'border-indigo-500 text-indigo-400'
-                                    : 'border-transparent text-slate-400 hover:text-white hover:border-slate-700'
+                                    ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700'
                             }`}
                         >
                             {t('admin.settings.tabs.sectors')}
@@ -74,8 +74,8 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({
                             onClick={() => setActiveTab('config')}
                             className={`pb-4 px-2 font-medium text-sm transition-all border-b-2 ${
                                 activeTab === 'config'
-                                    ? 'border-indigo-500 text-indigo-400'
-                                    : 'border-transparent text-slate-400 hover:text-white hover:border-slate-700'
+                                    ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700'
                             }`}
                         >
                             {t('admin.settings.tabs.config')}
@@ -84,8 +84,8 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({
                             onClick={() => setActiveTab('logs')}
                             className={`pb-4 px-2 font-medium text-sm transition-all border-b-2 ${
                                 activeTab === 'logs'
-                                    ? 'border-indigo-500 text-indigo-400'
-                                    : 'border-transparent text-slate-400 hover:text-white hover:border-slate-700'
+                                    ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700'
                             }`}
                         >
                             {t('admin.settings.tabs.logs')}
@@ -223,7 +223,7 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
 
     if (loading)
         return (
-            <div className="text-slate-400">{t('admin.config.loading')}</div>
+            <div className="text-slate-500 dark:text-slate-400">{t('admin.config.loading')}</div>
         );
 
     const renderOverlay = () => {

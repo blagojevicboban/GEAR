@@ -49,14 +49,14 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
     return (
         <div className="max-w-md mx-auto mt-10 mb-20 px-6 py-12">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-2xl dark:shadow-none relative overflow-hidden transition-colors">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-indigo-500"></div>
 
                 <div className="text-center mb-8">
-                    <h2 className="text-3xl font-bold text-white mb-2">
+                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
                         {t('auth.register_title')}
                     </h2>
-                    <p className="text-slate-500 text-sm">
+                    <p className="text-slate-600 dark:text-slate-500 text-sm">
                         {t('auth.register_subtitle')}
                     </p>
                 </div>
@@ -69,7 +69,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                         <input
                             required
                             type="text"
-                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:border-indigo-500 outline-none transition-all text-white"
+                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 focus:border-indigo-500 outline-none transition-all text-slate-900 dark:text-white"
                             value={formData.username}
                             onChange={(e) =>
                                 setFormData({
@@ -87,7 +87,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                         <input
                             required
                             type="email"
-                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:border-indigo-500 outline-none transition-all text-white"
+                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 focus:border-indigo-500 outline-none transition-all text-slate-900 dark:text-white"
                             value={formData.email}
                             onChange={(e) =>
                                 setFormData({
@@ -105,7 +105,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                         <input
                             required
                             type="text"
-                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:border-indigo-500 outline-none transition-all text-white"
+                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 focus:border-indigo-500 outline-none transition-all text-slate-900 dark:text-white"
                             value={formData.institution}
                             onChange={(e) =>
                                 setFormData({
@@ -121,7 +121,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                             {t('auth.account_type')}
                         </label>
                         <select
-                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:border-indigo-500 outline-none transition-all text-white appearance-none"
+                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 focus:border-indigo-500 outline-none transition-all text-slate-900 dark:text-white appearance-none"
                             value={formData.role}
                             onChange={(e) =>
                                 setFormData({
@@ -144,7 +144,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                         <input
                             required
                             type="password"
-                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 focus:border-indigo-500 outline-none transition-all text-white"
+                            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 focus:border-indigo-500 outline-none transition-all text-slate-900 dark:text-white"
                             value={formData.password}
                             onChange={(e) =>
                                 setFormData({
@@ -169,8 +169,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                     </button>
                 </form>
 
-                <div className="mt-8 text-center border-t border-slate-800 pt-6">
-                    <p className="text-slate-500 text-sm">
+                <div className="mt-8 text-center border-t border-slate-100 dark:border-slate-800 pt-6">
+                    <p className="text-slate-600 dark:text-slate-500 text-sm">
                         {t('auth.have_account')}{' '}
                         <button
                             onClick={onSwitchToLogin}

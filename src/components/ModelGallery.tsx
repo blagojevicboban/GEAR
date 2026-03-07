@@ -80,10 +80,10 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({
             </div>
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
                 <div>
-                    <h1 className="text-4xl font-bold mb-2">
+                    <h1 className="text-4xl font-bold mb-2 text-slate-900 dark:text-white">
                         {t('gallery.title')}
                     </h1>
-                    <p className="text-slate-400">{t('gallery.subtitle')}</p>
+                    <p className="text-slate-600 dark:text-slate-400">{t('gallery.subtitle')}</p>
                 </div>
 
                 <div className="flex flex-wrap gap-3 items-center">
@@ -103,12 +103,12 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({
                     <input
                         type="text"
                         placeholder={t('gallery.search_placeholder')}
-                        className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500 w-full md:w-64"
+                        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500 w-full md:w-64 text-slate-900 dark:text-white"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
                     <select
-                        className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500"
+                        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500 text-slate-900 dark:text-white"
                         value={filter}
                         onChange={(e) => setFilter(e.target.value)}
                     >
@@ -126,7 +126,7 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({
                               ))}
                     </select>
                     <select
-                        className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500"
+                        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500 text-slate-900 dark:text-white"
                         value={userFilter}
                         onChange={(e) => setUserFilter(e.target.value)}
                     >
@@ -144,7 +144,7 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({
                 {filteredModels.map((model) => (
                     <div
                         key={model.id}
-                        className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col hover:border-slate-700 transition-colors group"
+                        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden flex flex-col hover:border-slate-300 dark:hover:border-slate-700 shadow-sm hover:shadow-md transition-all group"
                         onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}
                     >
@@ -254,7 +254,7 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({
                         </div>
                         <div className="p-5 flex-1 flex flex-col">
                             <div className="flex justify-between items-start mb-2">
-                                <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-800 text-slate-400 rounded uppercase tracking-widest">
+                                <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded uppercase tracking-widest">
                                     {model.sector}
                                 </span>
                                 <span
@@ -272,7 +272,7 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({
                             </div>
 
                             <div className="flex items-center justify-between mb-1">
-                                <h3 className="font-bold text-lg">
+                                <h3 className="font-bold text-lg text-slate-900 dark:text-white">
                                     {model.name}
                                 </h3>
                                 {model.optimized && (
@@ -287,7 +287,7 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({
                                     </div>
                                 )}
                             </div>
-                            <p className="text-slate-500 text-xs mb-3 flex-1 line-clamp-2">
+                            <p className="text-slate-600 dark:text-slate-500 text-xs mb-3 flex-1 line-clamp-2">
                                 {model.description}
                             </p>
 
@@ -330,7 +330,7 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({
                                     <a
                                         href={fixAssetUrl(model.modelUrl)}
                                         download
-                                        className="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2"
+                                        className="flex-1 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2"
                                         title="Download 3D Model"
                                     >
                                         <svg
@@ -350,7 +350,7 @@ const ModelGallery: React.FC<ModelGalleryProps> = ({
                                     </a>
                                     <button
                                         onClick={() => onEnterWorkshop(model)}
-                                        className="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2"
+                                        className="flex-1 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2"
                                         title="Join Workshop"
                                     >
                                         <svg

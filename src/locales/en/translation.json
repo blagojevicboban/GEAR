@@ -85,6 +85,9 @@
         "title": "How to use THE GEAR",
         "subtitle": "Your guide to the ultimate WebXR VET experience.",
         "start_tour": "Start Interactive Tour",
+        "version": "Version {{version}}",
+        "changelog": "Release Notes",
+        "view_changelog_btn": "Full Changelog",
         "diagnostics": {
             "title": "System Diagnostics",
             "connection": "Connection",

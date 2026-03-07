@@ -55,14 +55,19 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                 <p className="text-xl text-slate-600 dark:text-slate-400 mb-8">
                     {t('help.subtitle')}
                 </p>
-                {onStartTour && (
+                <div className="flex flex-col items-center gap-4">
+                    <div className="px-4 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-indigo-400 text-sm font-mono shadow-sm">
+                        {t('help.version', { version: '2.5.0' })}
+                    </div>
+                    {onStartTour && (
                         <button
                             onClick={onStartTour}
-                            className="px-8 py-3 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-400 font-bold rounded-xl transition-all shadow-lg hover:shadow-indigo-500/10 flex items-center gap-2 mx-auto"
+                            className="px-8 py-3 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-indigo-500/30 text-indigo-600 dark:text-indigo-400 font-bold rounded-xl transition-all shadow-lg hover:shadow-indigo-500/10 flex items-center gap-2"
                         >
                             <span>🎬</span> {t('help.start_tour')}
                         </button>
-                )}
+                    )}
+                </div>
             </div>
 
             <div className="space-y-12">
@@ -666,6 +671,65 @@ const HelpPage: React.FC<HelpPageProps> = ({ onStartTour }) => {
                     >
                         {t('help.footer.contact')}
                     </a>
+                </div>
+
+                {/* Changelog Section */}
+                <div className="mt-16 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl overflow-hidden relative group transition-colors">
+                    <div className="absolute top-0 right-0 p-8 opacity-5 dark:opacity-5 group-hover:opacity-10 transition-opacity">
+                        <Settings size={120} className="animate-spin-slow text-slate-900 dark:text-white" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-8 flex items-center gap-3">
+                        <span className="w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-xl shadow-sm dark:shadow-lg">
+                            📋
+                        </span>
+                        {t('help.changelog')}
+                    </h2>
+                    
+                    <div className="space-y-8 relative z-10">
+                        {/* v2.5.0 */}
+                        <div className="border-l-2 border-indigo-500 pl-6 pb-2">
+                            <div className="flex items-center gap-3 mb-2">
+                                <span className="px-2 py-0.5 bg-indigo-500 text-white text-[10px] font-bold rounded uppercase">Latest</span>
+                                <h3 className="text-lg font-bold text-slate-900 dark:text-white">v2.5.0 <span className="text-slate-500 dark:text-slate-500 text-sm font-normal ml-2">2026-03-07</span></h3>
+                            </div>
+                            <ul className="text-sm text-slate-600 dark:text-slate-400 space-y-2 list-disc list-inside">
+                                <li>Global Localization Engine (Dynamic i18n)</li>
+                                <li>Admin Translation Manager with Live Search</li>
+                                <li>Support for 100+ languages with automated installation</li>
+                            </ul>
+                        </div>
+
+                        {/* v2.4.0 */}
+                        <div className="border-l-2 border-slate-300 dark:border-slate-700 pl-6 pb-2">
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">v2.4.0 <span className="text-slate-500 dark:text-slate-500 text-sm font-normal ml-2">2026-03-01</span></h3>
+                            <ul className="text-sm text-slate-600 dark:text-slate-400 space-y-2 list-disc list-inside">
+                                <li>Materials Engine & PBR Library integration</li>
+                                <li>System-wide Dark/Light Mode with persistent storage</li>
+                                <li>Crystal Structure visualization enhancements</li>
+                            </ul>
+                        </div>
+
+                        {/* v2.3.0 */}
+                        <div className="border-l-2 border-slate-300 dark:border-slate-700 pl-6 pb-2">
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">v2.3.0 <span className="text-slate-500 dark:text-slate-500 text-sm font-normal ml-2">2026-02-25</span></h3>
+                            <ul className="text-sm text-slate-600 dark:text-slate-400 space-y-2 list-disc list-inside">
+                                <li>AI Lesson Generator powered by Google Gemini</li>
+                                <li>3D Analytics & Engagement Heatmaps</li>
+                                <li>GEAR Academy for educator training</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800">
+                        <a 
+                            href="https://github.com/the-gear/vet-webxr-hub/blob/main/CHANGELOG.md" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-xs text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium flex items-center gap-2 transition-colors"
+                        >
+                            {t('help.view_changelog_btn')} →
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

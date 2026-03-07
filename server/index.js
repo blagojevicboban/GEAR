@@ -199,7 +199,20 @@ app.get('/api/config/public', async (req, res) => {
     }
 });
 
+// Translation fallbacks for i18next-http-backend
+app.get('/api/translations/public/:lng', (req, res) => {
+    const { lng } = req.params;
+    const langPath = path.join(process.cwd(), 'src/locales', lng, 'translation.json');
+    if (fs.existsSync(langPath)) {
+        res.sendFile(langPath);
+    } else {
+        // Fallback to English if language folder doesn't exist
+        res.sendFile(path.join(process.cwd(), 'src/locales/en/translation.json'));
+    }
+});
+
 // Health Check
+
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok' });
 });

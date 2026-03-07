@@ -265,6 +265,23 @@ Restore system from backup file.
 **Body:** Form-Data with `file`.
 - Supports `.json` (Data merge), `.sql` (Full Database Restore), or `.zip` (Full System Restore - **Danger: Overwrites DB & Files**).
 
+### GET /admin/languages
+
+Get list of supported language codes (folder names in `src/locales`).
+**Response:** `["en", "sr", "el", "pt", "tr", "it"]`
+
+### GET /admin/translations/:lang
+
+Get the complete translation JSON for a specific language.
+**Headers:** `X-User-Name: <admin_username>`
+
+### PUT /admin/translations/:lang
+
+Update the translation JSON for a specific language.
+**Headers:** `X-User-Name: <admin_username>`
+**Body:** Complete JSON object of translations.
+
+
 ## WebSockets (Socket.io)
 
 Real-time communication is handled via Socket.io at the root URL (proxied via `/socket.io`).

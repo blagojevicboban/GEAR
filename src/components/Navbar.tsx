@@ -142,7 +142,7 @@ const Navbar: React.FC<NavbarProps> = ({
         languages.find((l) => l.code === currentLangCode) || languages[0];
 
     return (
-        <nav className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50 transition-colors">
+        <nav className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-[60] transition-colors">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     <div className="flex items-center gap-8">
@@ -263,7 +263,7 @@ const Navbar: React.FC<NavbarProps> = ({
                                 <button
                                     onClick={onLogout}
                                     className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 p-2 rounded-lg border border-slate-200 dark:border-slate-700 transition-all group"
-                                    title={t('nav.logout')}
+                                    title={t('nav.user_menu.logout')}
                                 >
                                     <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
                                 </button>
@@ -382,7 +382,7 @@ const Navbar: React.FC<NavbarProps> = ({
                                     className="flex w-full items-center gap-3 px-3 py-3 rounded-md text-base font-medium text-red-400 hover:bg-red-900/20"
                                 >
                                     <LogOut className="w-5 h-5" />
-                                    {t('nav.logout')}
+                                    {t('nav.user_menu.logout')}
                                 </button>
                             </>
                         ) : (
@@ -394,7 +394,7 @@ const Navbar: React.FC<NavbarProps> = ({
                                     }}
                                     className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white bg-slate-800 rounded-lg transition-colors border border-slate-700"
                                 >
-                                    {t('auth.login')}
+                                    {t('nav.login')}
                                 </button>
                                 <button
                                     onClick={() => {
@@ -403,7 +403,7 @@ const Navbar: React.FC<NavbarProps> = ({
                                     }}
                                     className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors"
                                 >
-                                    {t('auth.register')}
+                                    {t('nav.register')}
                                 </button>
                             </div>
                         )}

@@ -419,3 +419,94 @@ export const restoreBackup = async (req, res) => {
         res.status(500).json({ error: 'Restore failed: ' + err.message });
     }
 };
+
+export const getTranslations = async (req, res) => {
+    const requestor = req.headers['x-user-name'];
+    const { lang } = req.params;
+
+    try {
+        const role = await getUserRole(requestor);
+        if (role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
+
+        const translationPath = path.join(process.cwd(), 'src/locales', lang, 'translation.json');
+        if (!fs.existsSync(translationPath)) {
+            return res.status(404).json({ error: 'Language not found' });
+        }
+
+        const content = fs.readFileSync(translationPath, 'utf8');
+        res.json(JSON.parse(content));
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch translations' });
+    }
+};
+
+export const updateTranslations = async (req, res) => {
+    const requestor = req.headers['x-user-name'];
+    const { lang } = req.params;
+    const translations = req.body;
+
+    try {
+        const role = await getUserRole(requestor);
+        if (role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
+
+        const translationPath = path.join(process.cwd(), 'src/locales', lang, 'translation.json');
+        
+        // Ensure indentation and structure
+        const content = JSON.stringify(translations, null, 4);
+        fs.writeFileSync(translationPath, content, 'utf8');
+        
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to update translations' });
+    }
+};
+
+export const getLanguages = async (req, res) => {
+    const requestor = req.headers['x-user-name'];
+    try {
+        const role = await getUserRole(requestor);
+        if (role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
+
+        const localesPath = path.join(process.cwd(), 'src/locales');
+        const langs = fs.readdirSync(localesPath).filter(f => fs.statSync(path.join(localesPath, f)).isDirectory());
+        res.json(langs);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch languages' });
+    }
+};
+
+export const createLanguage = async (req, res) => {
+    const requestor = req.headers['x-user-name'];
+    const { lang } = req.body; // e.g. 'fr'
+
+    if (!lang || lang.length !== 2) {
+        return res.status(400).json({ error: 'Invalid language code (must be 2 characters, e.g. "fr")' });
+    }
+
+    try {
+        const role = await getUserRole(requestor);
+        if (role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
+
+        const localesPath = path.join(process.cwd(), 'src/locales');
+        const newLangPath = path.join(localesPath, lang.toLowerCase());
+        const enPath = path.join(localesPath, 'en', 'translation.json');
+
+        if (fs.existsSync(newLangPath)) {
+            return res.status(400).json({ error: 'Language already exists' });
+        }
+
+        // Create directory and copy EN reference
+        fs.mkdirSync(newLangPath, { recursive: true });
+        fs.copyFileSync(enPath, path.join(newLangPath, 'translation.json'));
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to create language' });
+    }
+};
+
+

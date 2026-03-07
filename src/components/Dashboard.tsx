@@ -86,7 +86,7 @@ const Dashboard: React.FC<DashboardProps> = ({
             )}
 
             {/* 3D Hero Overlay - Independent, Rotating, Non-interactive */}
-            <div className="fixed inset-0 z-50 pointer-events-none opacity-100">
+            <div className="fixed inset-0 z-10 pointer-events-none opacity-100">
                 <Suspense fallback={null}>
                     <Hero3D targetPosition={targetPos} />
                 </Suspense>

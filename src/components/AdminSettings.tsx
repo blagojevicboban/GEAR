@@ -24,7 +24,7 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({
 }) => {
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<
-        'users' | 'sectors' | 'logs' | 'config' | 'library'
+        'users' | 'sectors' | 'logs' | 'config' | 'library' | 'translations'
     >('library');
 
     return (
@@ -90,6 +90,16 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({
                         >
                             {t('admin.settings.tabs.logs')}
                         </button>
+                        <button
+                            onClick={() => setActiveTab('translations')}
+                            className={`pb-4 px-2 font-medium text-sm transition-all border-b-2 ${
+                                activeTab === 'translations'
+                                    ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700'
+                            }`}
+                        >
+                            {t('admin.settings.tabs.translations') || 'Translations'}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -133,6 +143,11 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({
                             onCloneModel={onCloneModel}
                             onEditModel={onEditModel}
                         />
+                    </div>
+                )}
+                {activeTab === 'translations' && (
+                    <div className="animate-in fade-in slide-in-from-bottom-4">
+                        <TranslationManager currentUser={currentUser} />
                     </div>
                 )}
             </div>
@@ -1193,6 +1208,374 @@ const SystemLogs: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                     ? t('admin.logs.loading')
                     : logs || t('admin.logs.no_logs')}
             </div>
+        </div>
+    );
+};
+
+const ALL_LANGUAGES = [
+    { code: 'af', name: 'Afrikaans' },
+    { code: 'sq', name: 'Albanian' },
+    { code: 'am', name: 'Amharic' },
+    { code: 'ar', name: 'Arabic' },
+    { code: 'hy', name: 'Armenian' },
+    { code: 'az', name: 'Azerbaijani' },
+    { code: 'eu', name: 'Basque' },
+    { code: 'be', name: 'Belarusian' },
+    { code: 'bn', name: 'Bengali' },
+    { code: 'bs', name: 'Bosnian' },
+    { code: 'bg', name: 'Bulgarian' },
+    { code: 'ca', name: 'Catalan' },
+    { code: 'ceb', name: 'Cebuano' },
+    { code: 'ny', name: 'Chichewa' },
+    { code: 'zh', name: 'Chinese (Simplified)' },
+    { code: 'zt', name: 'Chinese (Traditional)' },
+    { code: 'co', name: 'Corsican' },
+    { code: 'hr', name: 'Croatian' },
+    { code: 'cs', name: 'Czech' },
+    { code: 'da', name: 'Danish' },
+    { code: 'nl', name: 'Dutch' },
+    { code: 'en', name: 'English' },
+    { code: 'eo', name: 'Esperanto' },
+    { code: 'et', name: 'Estonian' },
+    { code: 'tl', name: 'Filipino' },
+    { code: 'fi', name: 'Finnish' },
+    { code: 'fr', name: 'French' },
+    { code: 'fy', name: 'Frisian' },
+    { code: 'gl', name: 'Galician' },
+    { code: 'ka', name: 'Georgian' },
+    { code: 'de', name: 'German' },
+    { code: 'el', name: 'Greek' },
+    { code: 'gu', name: 'Gujarati' },
+    { code: 'ht', name: 'Haitian Creole' },
+    { code: 'ha', name: 'Hausa' },
+    { code: 'haw', name: 'Hawaiian' },
+    { code: 'he', name: 'Hebrew' },
+    { code: 'hi', name: 'Hindi' },
+    { code: 'hmn', name: 'Hmong' },
+    { code: 'hu', name: 'Hungarian' },
+    { code: 'is', name: 'Icelandic' },
+    { code: 'ig', name: 'Igbo' },
+    { code: 'id', name: 'Indonesian' },
+    { code: 'ga', name: 'Irish' },
+    { code: 'it', name: 'Italian' },
+    { code: 'ja', name: 'Japanese' },
+    { code: 'jw', name: 'Javanese' },
+    { code: 'kn', name: 'Kannada' },
+    { code: 'kk', name: 'Kazakh' },
+    { code: 'km', name: 'Khmer' },
+    { code: 'rw', name: 'Kinyarwanda' },
+    { code: 'ko', name: 'Korean' },
+    { code: 'ku', name: 'Kurdish (Kurmanji)' },
+    { code: 'ky', name: 'Kyrgyz' },
+    { code: 'lo', name: 'Lao' },
+    { code: 'la', name: 'Latin' },
+    { code: 'lv', name: 'Latvian' },
+    { code: 'lt', name: 'Lithuanian' },
+    { code: 'lb', name: 'Luxembourgish' },
+    { code: 'mk', name: 'Macedonian' },
+    { code: 'mg', name: 'Malagasy' },
+    { code: 'ms', name: 'Malay' },
+    { code: 'ml', name: 'Malayalam' },
+    { code: 'mt', name: 'Maltese' },
+    { code: 'mi', name: 'Maori' },
+    { code: 'mr', name: 'Marathi' },
+    { code: 'mn', name: 'Mongolian' },
+    { code: 'my', name: 'Myanmar (Burmese)' },
+    { code: 'ne', name: 'Nepali' },
+    { code: 'no', name: 'Norwegian' },
+    { code: 'or', name: 'Odia (Oriya)' },
+    { code: 'ps', name: 'Pashto' },
+    { code: 'fa', name: 'Persian' },
+    { code: 'pl', name: 'Polish' },
+    { code: 'pt', name: 'Portuguese' },
+    { code: 'pa', name: 'Punjabi' },
+    { code: 'ro', name: 'Romanian' },
+    { code: 'ru', name: 'Russian' },
+    { code: 'sm', name: 'Samoan' },
+    { code: 'gd', name: 'Scots Gaelic' },
+    { code: 'sr', name: 'Serbian' },
+    { code: 'st', name: 'Sesotho' },
+    { code: 'sn', name: 'Shona' },
+    { code: 'sd', name: 'Sindhi' },
+    { code: 'si', name: 'Sinhala' },
+    { code: 'sk', name: 'Slovak' },
+    { code: 'sl', name: 'Slovenian' },
+    { code: 'so', name: 'Somali' },
+    { code: 'es', name: 'Spanish' },
+    { code: 'su', name: 'Sundanese' },
+    { code: 'sw', name: 'Swahili' },
+    { code: 'sv', name: 'Swedish' },
+    { code: 'tg', name: 'Tajik' },
+    { code: 'ta', name: 'Tamil' },
+    { code: 'tt', name: 'Tatar' },
+    { code: 'te', name: 'Telugu' },
+    { code: 'th', name: 'Thai' },
+    { code: 'tr', name: 'Turkish' },
+    { code: 'tk', name: 'Turkmen' },
+    { code: 'uk', name: 'Ukrainian' },
+    { code: 'ur', name: 'Urdu' },
+    { code: 'ug', name: 'Uyghur' },
+    { code: 'uz', name: 'Uzbek' },
+    { code: 'vi', name: 'Vietnamese' },
+    { code: 'cy', name: 'Welsh' },
+    { code: 'xh', name: 'Xhosa' },
+    { code: 'yi', name: 'Yiddish' },
+    { code: 'yo', name: 'Yoruba' },
+    { code: 'zu', name: 'Zulu' },
+];
+
+
+const TranslationManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
+    const { t } = useTranslation();
+    const [languages, setLanguages] = useState<string[]>([]);
+    const [selectedLang, setSelectedLang] = useState('en');
+    const [enRef, setEnRef] = useState<any>({});
+    const [modifiedStrings, setModifiedStrings] = useState<any>({});
+    const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [saving, setSaving] = useState(false);
+    const [isAdding, setIsAdding] = useState(false);
+
+    // Deep flatten helper
+    const flatten = (obj: any, prefix = '') => {
+        let result: any = {};
+        for (const key in obj) {
+            const fullKey = prefix ? `${prefix}.${key}` : key;
+            if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
+                Object.assign(result, flatten(obj[key], fullKey));
+            } else {
+                result[fullKey] = obj[key];
+            }
+        }
+        return result;
+    };
+
+    // Deep unflatten helper
+    const unflatten = (data: any) => {
+        const result: any = {};
+        for (const key in data) {
+            const parts = key.split('.');
+            let current = result;
+            for (let i = 0; i < parts.length; i++) {
+                const part = parts[i];
+                if (i === parts.length - 1) {
+                    current[part] = data[key];
+                } else {
+                    current[part] = current[part] || {};
+                    current = current[part];
+                }
+            }
+        }
+        return result;
+    };
+
+    useEffect(() => {
+        const init = async () => {
+            try {
+                const [langsRes, enRes] = await Promise.all([
+                    fetch('/api/admin/languages', { headers: { 'X-User-Name': currentUser.username } }),
+                    fetch('/api/admin/translations/en', { headers: { 'X-User-Name': currentUser.username } })
+                ]);
+                const languages = await langsRes.json();
+                const enData = await enRes.json();
+                setLanguages(languages);
+                setEnRef(flatten(enData));
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        init();
+    }, []);
+
+    useEffect(() => {
+        const loadTarget = async () => {
+            setLoading(true);
+            try {
+                const res = await fetch(`/api/admin/translations/${selectedLang}`, {
+                    headers: { 'X-User-Name': currentUser.username }
+                });
+                const data = await res.json();
+                const flatTarget = flatten(data);
+                setModifiedStrings(flatTarget);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadTarget();
+    }, [selectedLang]);
+
+    const handleSave = async () => {
+        setSaving(true);
+        try {
+            const nested = unflatten(modifiedStrings);
+            const res = await fetch(`/api/admin/translations/${selectedLang}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-Name': currentUser.username
+                },
+                body: JSON.stringify(nested)
+            });
+            if (res.ok) {
+                alert('Translations saved successfully!');
+            }
+        } catch (err) {
+            alert('Failed to save translations');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleAddLanguage = async (code: string) => {
+        if (!code || code.length !== 2) return;
+
+        try {
+            const res = await fetch('/api/admin/languages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-Name': currentUser.username
+                },
+                body: JSON.stringify({ lang: code.toLowerCase() })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                alert('Language added successfully!');
+                setLanguages([...languages, code.toLowerCase()]);
+                setSelectedLang(code.toLowerCase());
+                setIsAdding(false);
+            } else {
+                alert(data.error || 'Failed to add language');
+            }
+        } catch (err) {
+            alert('Network error');
+        }
+    };
+
+    const uninstalledLanguages = ALL_LANGUAGES.filter(l => !languages.includes(l.code));
+
+    const keys = Object.keys(enRef).filter(k => 
+        k.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        String(enRef[k]).toLowerCase().includes(searchQuery.toLowerCase()) ||
+        String(modifiedStrings[k] || '').toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    return (
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl transition-colors">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                <div>
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">
+                        Translation Management
+                    </h2>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">
+                        Edit strings for all supported languages. English is the reference.
+                    </p>
+                </div>
+                <div className="flex gap-4 w-full md:w-auto">
+                    {isAdding ? (
+                        <div className="flex gap-2 animate-in fade-in slide-in-from-right-4">
+                            <select
+                                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500"
+                                onChange={(e) => {
+                                    if (e.target.value) handleAddLanguage(e.target.value);
+                                }}
+                                defaultValue=""
+                            >
+                                <option value="" disabled>Choose language...</option>
+                                {uninstalledLanguages.map(l => (
+                                    <option key={l.code} value={l.code}>{l.name} ({l.code})</option>
+                                ))}
+                            </select>
+                            <button
+                                onClick={() => setIsAdding(false)}
+                                className="px-4 py-2 text-slate-500 hover:text-slate-900 dark:hover:text-white text-sm font-bold"
+                            >
+                                {t('common.cancel')}
+                            </button>
+                        </div>
+                    ) : (
+                        <button
+                            onClick={() => setIsAdding(true)}
+                            className="p-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl text-slate-600 dark:text-slate-300 transition-colors border border-slate-200 dark:border-slate-700 flex items-center gap-2 text-sm font-medium"
+                            title="Add New Language"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            Add
+                        </button>
+                    )}
+                    <select
+                        className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                        value={selectedLang}
+                        onChange={(e) => setSelectedLang(e.target.value)}
+                    >
+                        {languages.map(lang => (
+                            <option key={lang} value={lang}>{lang.toUpperCase()}</option>
+                        ))}
+                    </select>
+                    <button
+                        onClick={handleSave}
+                        disabled={saving}
+                        className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-6 rounded-xl shadow-lg shadow-indigo-500/20 transition-all disabled:opacity-50"
+                    >
+                        {saving ? 'Saving...' : t('common.save')}
+                    </button>
+                </div>
+            </div>
+
+            <div className="mb-6">
+                <div className="relative">
+                    <input
+                        type="text"
+                        placeholder="Search keys or text..."
+                        className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl pl-12 pr-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    <svg className="w-5 h-5 absolute left-4 top-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+            </div>
+
+            {loading ? (
+                <div className="py-20 text-center text-slate-500">{t('common.loading')}</div>
+            ) : (
+                <div className="space-y-4 max-h-[1000px] overflow-auto pr-2">
+                    {keys.map(key => (
+                        <div key={key} className="bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800 rounded-2xl p-6 transition-all hover:border-slate-300 dark:hover:border-slate-700">
+                            <div className="flex justify-between items-center mb-3">
+                                <span className="text-[10px] font-mono font-bold text-indigo-500 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded uppercase tracking-wider">
+                                    {key}
+                                </span>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">English (Reference)</label>
+                                    <div className="text-sm text-slate-600 dark:text-slate-300 italic">
+                                        {enRef[key]}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">{selectedLang.toUpperCase()} Translation</label>
+                                    <textarea
+                                        className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
+                                        rows={2}
+                                        value={modifiedStrings[key] || ''}
+                                        onChange={(e) => setModifiedStrings({...modifiedStrings, [key]: e.target.value})}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                    {keys.length === 0 && (
+                        <div className="py-20 text-center text-slate-500">No strings found matching your search.</div>
+                    )}
+                </div>
+            )}
         </div>
     );
 };

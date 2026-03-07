@@ -18,4 +18,12 @@ router.get('/orphans', maintenanceController.getOrphans);
 router.delete('/orphans/all', maintenanceController.deleteAllOrphans);
 router.delete('/orphans/:name', maintenanceController.deleteOrphan);
 
+// Translations
+router.get('/languages', adminController.getLanguages);
+router.post('/languages', adminController.createLanguage);
+router.get('/translations/:lang', adminController.getTranslations);
+router.put('/translations/:lang', adminController.updateTranslations);
+
+
+
 export default router;

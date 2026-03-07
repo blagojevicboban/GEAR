@@ -139,20 +139,20 @@ const UserManagement: React.FC<UserManagementProps> = ({
 
     if (loading)
         return (
-            <div className="text-white text-center py-10">
+            <div className="text-slate-600 dark:text-white text-center py-10">
                 {t('admin.users.loading')}
             </div>
         );
 
     return (
         <div className="max-w-6xl mx-auto px-6 py-12">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-2xl transition-colors">
                 <div className="flex justify-between items-center mb-6">
                     <div>
-                        <h2 className="text-3xl font-bold text-white mb-2">
+                        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
                             {t('admin.users.title')}
                         </h2>
-                        <p className="text-slate-400">
+                        <p className="text-slate-500 dark:text-slate-400">
                             {t('admin.users.subtitle')}
                         </p>
                     </div>
@@ -165,8 +165,8 @@ const UserManagement: React.FC<UserManagementProps> = ({
                 </div>
 
                 {showCreateForm && (
-                    <div className="mb-8 bg-slate-800/50 p-6 rounded-2xl border border-slate-700 animate-in fade-in slide-in-from-top-4">
-                        <h3 className="text-xl font-bold text-white mb-4">
+                    <div className="mb-8 bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 animate-in fade-in slide-in-from-top-4">
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">
                             {t('admin.users.create_form.title')}
                         </h3>
                         <form
@@ -179,7 +179,7 @@ const UserManagement: React.FC<UserManagementProps> = ({
                                 placeholder={t(
                                     'admin.users.create_form.username'
                                 )}
-                                className="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white"
+                                className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-slate-900 dark:text-white"
                                 value={newUser.username}
                                 onChange={(e) =>
                                     setNewUser({
@@ -192,7 +192,7 @@ const UserManagement: React.FC<UserManagementProps> = ({
                                 required
                                 type="email"
                                 placeholder={t('admin.users.create_form.email')}
-                                className="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white"
+                                className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-slate-900 dark:text-white"
                                 value={newUser.email}
                                 onChange={(e) =>
                                     setNewUser({
@@ -207,7 +207,7 @@ const UserManagement: React.FC<UserManagementProps> = ({
                                 placeholder={t(
                                     'admin.users.create_form.password'
                                 )}
-                                className="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white"
+                                className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-slate-900 dark:text-white"
                                 value={newUser.password}
                                 onChange={(e) =>
                                     setNewUser({
@@ -221,7 +221,7 @@ const UserManagement: React.FC<UserManagementProps> = ({
                                 placeholder={t(
                                     'admin.users.create_form.institution'
                                 )}
-                                className="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white"
+                                className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-slate-900 dark:text-white"
                                 value={newUser.institution}
                                 onChange={(e) =>
                                     setNewUser({
@@ -231,7 +231,7 @@ const UserManagement: React.FC<UserManagementProps> = ({
                                 }
                             />
                             <select
-                                className="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white"
+                                className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-slate-900 dark:text-white"
                                 value={newUser.role}
                                 onChange={(e) =>
                                     setNewUser({
@@ -260,7 +260,7 @@ const UserManagement: React.FC<UserManagementProps> = ({
                                 <button
                                     type="button"
                                     onClick={() => setShowCreateForm(false)}
-                                    className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-xl"
+                                    className="flex-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-white font-bold py-2 rounded-xl transition-colors"
                                 >
                                     {t('common.cancel')}
                                 </button>
@@ -270,8 +270,8 @@ const UserManagement: React.FC<UserManagementProps> = ({
                 )}
 
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left text-slate-300">
-                        <thead className="text-xs uppercase bg-slate-800 text-slate-400">
+                    <table className="w-full text-left text-slate-600 dark:text-slate-300">
+                        <thead className="text-xs uppercase bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
                             <tr>
                                 <th className="px-6 py-3">
                                     {t('admin.users.table.username')}
@@ -294,9 +294,9 @@ const UserManagement: React.FC<UserManagementProps> = ({
                             {users.map((user) => (
                                 <tr
                                     key={user.id}
-                                    className="border-b border-slate-800 hover:bg-slate-800/50"
+                                    className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                                 >
-                                    <td className="px-6 py-4 font-medium text-white">
+                                    <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">
                                         <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold text-white uppercase overflow-hidden shrink-0">
                                                 {user.profilePicUrl ? (
@@ -318,7 +318,7 @@ const UserManagement: React.FC<UserManagementProps> = ({
                                     <td className="px-6 py-4">
                                         {editingUser?.id === user.id ? (
                                             <input
-                                                className="bg-slate-950 border border-slate-700 rounded px-2 py-1 w-full"
+                                                className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 w-full text-slate-900 dark:text-white"
                                                 value={
                                                     editingUser.institution ||
                                                     ''
@@ -338,7 +338,7 @@ const UserManagement: React.FC<UserManagementProps> = ({
                                     <td className="px-6 py-4">
                                         {editingUser?.id === user.id ? (
                                             <select
-                                                className="bg-slate-950 border border-slate-700 rounded px-2 py-1"
+                                                className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-slate-900 dark:text-white"
                                                 value={editingUser.role}
                                                 onChange={(e) =>
                                                     setEditingUser({
@@ -436,9 +436,9 @@ const UserManagement: React.FC<UserManagementProps> = ({
             {/* Profile View Modal */}
             {viewingUser && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
-                    <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95">
-                        <div className="sticky top-0 bg-slate-900/95 backdrop-blur z-10 border-b border-slate-800 p-6 flex justify-between items-center">
-                            <h3 className="text-2xl font-bold text-white">
+                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 transition-colors">
+                        <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur z-10 border-b border-slate-200 dark:border-slate-800 p-6 flex justify-between items-center">
+                            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
                                 {t('profile.modal.title')}
                             </h3>
                             <button
@@ -480,7 +480,7 @@ const UserManagement: React.FC<UserManagementProps> = ({
                                 </div>
                                 <div className="space-y-4 flex-1">
                                     <div>
-                                        <h4 className="text-3xl font-bold text-white mb-1">
+                                        <h4 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">
                                             {viewingUser.username}
                                         </h4>
                                         <span
@@ -497,29 +497,29 @@ const UserManagement: React.FC<UserManagementProps> = ({
                                         </span>
                                     </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-300">
-                                        <div className="bg-slate-800/50 p-3 rounded-lg">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-600 dark:text-slate-300">
+                                        <div className="bg-slate-100 dark:bg-slate-800/50 p-3 rounded-lg">
                                             <p className="text-xs text-slate-500 uppercase font-bold mb-1">
                                                 {t('profile.modal.email')}
                                             </p>
-                                            <p>{viewingUser.email}</p>
+                                            <p className="text-slate-900 dark:text-slate-300">{viewingUser.email}</p>
                                         </div>
-                                        <div className="bg-slate-800/50 p-3 rounded-lg">
+                                        <div className="bg-slate-100 dark:bg-slate-800/50 p-3 rounded-lg">
                                             <p className="text-xs text-slate-500 uppercase font-bold mb-1">
                                                 {t('profile.modal.institution')}
                                             </p>
-                                            <p>
+                                            <p className="text-slate-900 dark:text-slate-300">
                                                 {viewingUser.institution ||
                                                     t(
                                                         'profile.modal.not_specified'
                                                     )}
                                             </p>
                                         </div>
-                                        <div className="bg-slate-800/50 p-3 rounded-lg col-span-1 md:col-span-2">
+                                        <div className="bg-slate-100 dark:bg-slate-800/50 p-3 rounded-lg col-span-1 md:col-span-2">
                                             <p className="text-xs text-slate-500 uppercase font-bold mb-1">
                                                 {t('profile.modal.bio')}
                                             </p>
-                                            <p>
+                                            <p className="text-slate-900 dark:text-slate-300">
                                                 {viewingUser.bio ||
                                                     t('profile.modal.no_bio')}
                                             </p>
@@ -529,9 +529,9 @@ const UserManagement: React.FC<UserManagementProps> = ({
                             </div>
 
                             <div>
-                                <h4 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                                <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
                                     {t('profile.modal.uploaded_models')}
-                                    <span className="bg-slate-800 text-slate-400 text-xs px-2 py-1 rounded-full">
+                                    <span className="bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs px-2 py-1 rounded-full border border-slate-200 dark:border-slate-700">
                                         {
                                             getUserModels(viewingUser.username)
                                                 .length
@@ -547,7 +547,7 @@ const UserManagement: React.FC<UserManagementProps> = ({
                                         ).map((model) => (
                                             <div
                                                 key={model.id}
-                                                className="group bg-slate-800 border border-slate-700 rounded-xl overflow-hidden hover:border-indigo-500/50 transition-all"
+                                                className="group bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden hover:border-indigo-500/50 transition-all shadow-sm"
                                             >
                                                 <div className="aspect-video bg-slate-900 relative">
                                                     <img
@@ -573,8 +573,8 @@ const UserManagement: React.FC<UserManagementProps> = ({
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="text-center py-12 bg-slate-800/30 rounded-2xl border border-slate-800 border-dashed">
-                                        <p className="text-slate-500">
+                                    <div className="text-center py-12 bg-slate-50 dark:bg-slate-800/30 rounded-2xl border border-slate-200 dark:border-slate-800 border-dashed">
+                                        <p className="text-slate-400 dark:text-slate-500">
                                             {t('profile.modal.no_models')}
                                         </p>
                                     </div>

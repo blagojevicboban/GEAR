@@ -6,7 +6,7 @@ const {
     InstancedMesh,
     Matrix4,
     Vector3,
-} = window.THREE;
+} = (window.AFRAME ? window.AFRAME.THREE : window.THREE);
 
 const _matrix = new Matrix4();
 const _vector = new Vector3();

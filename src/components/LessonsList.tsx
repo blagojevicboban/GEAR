@@ -86,7 +86,7 @@ const LessonsList: React.FC<LessonsListProps> = ({
                 {canCreate && (
                     <button
                         onClick={onCreateLesson}
-                        className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors"
+                        className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-indigo-600/20 active:scale-95"
                     >
                         <Plus size={20} />
                         {t('lessons.create_btn')}
@@ -127,22 +127,22 @@ const LessonsList: React.FC<LessonsListProps> = ({
                         key={lesson.id}
                         className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden hover:border-indigo-500/50 transition-all hover:shadow-lg hover:shadow-indigo-500/10 dark:hover:shadow-indigo-900/20 flex flex-col"
                     >
-                        <div className="h-40 w-full overflow-hidden relative group-hover:opacity-100">
+                        <div className="h-48 w-full overflow-hidden relative group-hover:opacity-100">
                             {lesson.image_url ? (
                                 <img
                                     src={fixAssetUrl(lesson.image_url)}
                                     alt={lesson.title}
-                                    className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                 />
                             ) : (
                                 <div className="w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                                     <BookOpen
                                         size={48}
-                                        className="text-slate-300 dark:text-slate-700"
+                                        className="text-slate-300 dark:text-slate-700 group-hover:scale-110 transition-transform duration-500"
                                     />
                                 </div>
                             )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-slate-900 to-transparent"></div>
+                            <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-slate-900 via-transparent to-transparent opacity-60"></div>
 
                             {/* Edit Button */}
                             {currentUser &&
@@ -243,10 +243,10 @@ const LessonsList: React.FC<LessonsListProps> = ({
                                 </span>
                             </div>
 
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">
                                 {lesson.title}
                             </h3>
-                            <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-3 mb-6 flex-1">
+                            <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-3 mb-6 flex-1 leading-relaxed">
                                 {lesson.description}
                             </p>
 
@@ -286,9 +286,9 @@ const LessonsList: React.FC<LessonsListProps> = ({
 
                         <button
                             onClick={() => onViewLesson(lesson)}
-                            className="w-full bg-slate-50 dark:bg-slate-800 hover:bg-indigo-600 text-slate-600 dark:text-slate-300 hover:text-white py-3 transition-colors flex items-center justify-center gap-2 font-medium"
+                            className="w-full bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-600 text-indigo-600 dark:text-indigo-400 hover:text-white py-4 transition-all flex items-center justify-center gap-2 font-bold border-t border-slate-100 dark:border-slate-800 group-hover:border-indigo-500"
                         >
-                            <BookOpen size={18} />
+                            <BookOpen size={20} />
                             {t('lessons.start_btn')}
                         </button>
                     </div>

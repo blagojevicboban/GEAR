@@ -17,9 +17,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
         const savedTheme = localStorage.getItem('gear-theme') as Theme;
         if (savedTheme) return savedTheme;
         
-        return window.matchMedia('(prefers-color-scheme: dark)').matches
-            ? 'dark'
-            : 'light';
+        return 'dark';
     });
 
     useEffect(() => {

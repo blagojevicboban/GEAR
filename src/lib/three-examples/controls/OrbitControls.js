@@ -9,7 +9,7 @@ const {
     Plane,
     Ray,
     MathUtils,
-} = window.THREE;
+} = (window.AFRAME ? window.AFRAME.THREE : window.THREE);
 
 // OrbitControls performs orbiting, dollying (zooming), and panning.
 // Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).

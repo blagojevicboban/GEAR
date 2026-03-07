@@ -9,7 +9,7 @@ const {
     TriangleStripDrawMode,
     TrianglesDrawMode,
     Vector3,
-} = window.THREE;
+} = (window.AFRAME ? window.AFRAME.THREE : window.THREE);
 
 function computeMikkTSpaceTangents(geometry, MikkTSpace, negateSign = true) {
     if (!MikkTSpace || !MikkTSpace.isReady) {

@@ -57,9 +57,9 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     };
 
     return (
-        <div className="flex flex-col bg-slate-950/50 border border-slate-700 rounded-lg overflow-hidden focus-within:ring-1 focus-within:ring-indigo-500 transition-all">
+        <div className="flex flex-col bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden focus-within:ring-1 focus-within:ring-indigo-500 transition-all">
             {/* Toolbar */}
-            <div className="flex items-center gap-1 p-2 bg-slate-900 border-b border-slate-700">
+            <div className="flex items-center gap-1 p-2 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
                 <ToolbarButton
                     onClick={() => execCmd('undo')}
                     icon={<Undo size={16} />}
@@ -70,7 +70,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                     icon={<Redo size={16} />}
                     title="Redo"
                 />
-                <div className="w-px h-4 bg-slate-700 mx-1" />
+                <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-1" />
                 <ToolbarButton
                     onClick={() => execCmd('bold')}
                     icon={<Bold size={16} />}
@@ -81,7 +81,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                     icon={<Italic size={16} />}
                     title="Italic"
                 />
-                <div className="w-px h-4 bg-slate-700 mx-1" />
+                <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-1" />
                 <ToolbarButton
                     onClick={() => execCmd('formatBlock', 'H2')}
                     icon={<Heading1 size={16} />}
@@ -92,7 +92,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                     icon={<Heading2 size={16} />}
                     title="Header 2"
                 />
-                <div className="w-px h-4 bg-slate-700 mx-1" />
+                <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-1" />
                 <ToolbarButton
                     onClick={() => execCmd('insertUnorderedList')}
                     icon={<List size={16} />}
@@ -103,7 +103,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                     icon={<ListOrdered size={16} />}
                     title="Numbered List"
                 />
-                <div className="w-px h-4 bg-slate-700 mx-1" />
+                <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-1" />
                 <ToolbarButton
                     onClick={() => execCmd('formatBlock', 'BLOCKQUOTE')}
                     icon={<Quote size={16} />}
@@ -120,7 +120,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                     className={`flex items-center gap-2 px-2 py-1 rounded text-xs font-bold transition-colors ${
                         isPreview
                             ? 'bg-indigo-600 text-white'
-                            : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                     }`}
                 >
                     {isPreview ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -131,7 +131,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             {/* Editable Area */}
             {isPreview ? (
                 <div
-                    className="flex-1 p-4 min-h-[200px] text-slate-300 prose prose-invert max-w-none text-sm overflow-y-auto"
+                    className="flex-1 p-4 min-h-[200px] text-slate-900 dark:text-slate-300 prose dark:prose-invert max-w-none text-sm overflow-y-auto"
                     dangerouslySetInnerHTML={{
                         __html: renderLatexInHtml(value),
                     }}
@@ -139,7 +139,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             ) : (
                 <div
                     ref={editorRef}
-                    className="flex-1 p-4 min-h-[200px] outline-none text-slate-300 prose prose-invert max-w-none text-sm overflow-y-auto"
+                    className="flex-1 p-4 min-h-[200px] outline-none text-slate-900 dark:text-slate-300 prose dark:prose-invert max-w-none text-sm overflow-y-auto"
                     contentEditable
                     onInput={handleInput}
                     onPaste={onPaste}
@@ -170,7 +170,7 @@ const ToolbarButton: React.FC<{
             onClick();
         }}
         title={title}
-        className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors"
+        className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors"
         type="button"
     >
         {icon}

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type * as THREE_TYPES from 'three';
-const THREE = (window as any).THREE as typeof THREE_TYPES;
+const THREE = (window as any).AFRAME.THREE as typeof THREE_TYPES;
 
 import { OrbitControls } from '../lib/three-examples/controls/OrbitControls.js';
 // @ts-expect-error opencascade.js has no type declarations
@@ -304,9 +304,36 @@ const CADViewer: React.FC<CADViewerProps> = ({ fileUrl, onExit, fileName }) => {
         window.addEventListener('resize', handleResize);
 
         return () => {
-            cancelAnimationFrame(frameId);
+            if (frameId) cancelAnimationFrame(frameId);
             window.removeEventListener('resize', handleResize);
-            if (renderer) renderer.dispose();
+            
+            if (renderer) {
+                if (containerRef.current && containerRef.current.contains(renderer.domElement)) {
+                    containerRef.current.removeChild(renderer.domElement);
+                }
+
+                // Dispose scene resources
+                if (scene) {
+                    scene.traverse((object: any) => {
+                        if (object.geometry) object.geometry.dispose();
+                        if (object.material) {
+                            if (Array.isArray(object.material)) {
+                                object.material.forEach((mat: any) => mat.dispose());
+                            } else {
+                                object.material.dispose();
+                            }
+                        }
+                    });
+                }
+
+                renderer.dispose();
+                renderer.forceContextLoss();
+                const gl = renderer.getContext();
+                if (gl) {
+                    const ext = gl.getExtension('WEBGL_lose_context');
+                    if (ext) ext.loseContext();
+                }
+            }
         };
     }, [fileUrl]);
 

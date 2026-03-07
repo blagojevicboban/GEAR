@@ -1,4 +1,4 @@
-const { Mesh, MeshBasicMaterial, Object3D, SphereGeometry } = window.THREE;
+const { Mesh, MeshBasicMaterial, Object3D, SphereGeometry } = (window.AFRAME ? window.AFRAME.THREE : window.THREE);
 
 import { GLTFLoader } from '../loaders/GLTFLoader.js';
 

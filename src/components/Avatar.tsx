@@ -34,8 +34,7 @@ const Avatar: React.FC<AvatarProps> = ({ username, role, transforms }) => {
             >
                 <a-sphere
                     radius="0.12"
-                    color={color}
-                    material="opacity: 0.9; roughness: 0.8"
+                    material={`color: ${color}; opacity: 0.9; roughness: 0.8`}
                 ></a-sphere>
                 {/* Eyes/Direction Indicator */}
                 <a-entity
@@ -62,8 +61,7 @@ const Avatar: React.FC<AvatarProps> = ({ username, role, transforms }) => {
                 >
                     <a-sphere
                         radius="0.06"
-                        color={color}
-                        material="opacity: 0.8"
+                        material={`color: ${color}; opacity: 0.8`}
                     ></a-sphere>
                 </a-entity>
             )}
@@ -76,8 +74,7 @@ const Avatar: React.FC<AvatarProps> = ({ username, role, transforms }) => {
                 >
                     <a-sphere
                         radius="0.06"
-                        color={color}
-                        material="opacity: 0.8"
+                        material={`color: ${color}; opacity: 0.8`}
                     ></a-sphere>
                 </a-entity>
             )}

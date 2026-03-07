@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type * as THREE_TYPES from 'three';
-const THREE = (window as any).THREE as typeof THREE_TYPES;
+const THREE = (window as any).AFRAME.THREE as typeof THREE_TYPES;
 
 import { TrackballControls } from '../lib/three-examples/controls/TrackballControls.js';
 import { PDBLoader } from '../lib/three-examples/loaders/PDBLoader.js';
@@ -688,23 +688,39 @@ const PDBViewer: React.FC<PDBViewerProps> = ({
         window.addEventListener('gear-reset-view', handleResetView);
 
         return () => {
+            if (renderer.setAnimationLoop) renderer.setAnimationLoop(null);
+            
             window.removeEventListener('gear-reset-view', handleResetView);
-            window.removeEventListener(
-                'gear-remote-update',
-                handleRemoteUpdate
-            );
-            window.removeEventListener(
-                'gear-voice-command',
-                handleVoiceCommand
-            );
+            window.removeEventListener('gear-remote-update', handleRemoteUpdate);
+            window.removeEventListener('gear-voice-command', handleVoiceCommand);
             window.removeEventListener('resize', onWindowResize);
+            
             if (container.contains(renderer.domElement))
                 container.removeChild(renderer.domElement);
             if (container.contains(labelRenderer.domElement))
                 container.removeChild(labelRenderer.domElement);
             if (document.body.contains(arButton))
-                document.body.removeChild(arButton); // Remove AR Button
+                document.body.removeChild(arButton);
+
+            // Dispose Three.js resources
+            scene.traverse((object: any) => {
+                if (object.geometry) object.geometry.dispose();
+                if (object.material) {
+                    if (Array.isArray(object.material)) {
+                        object.material.forEach((mat: any) => mat.dispose());
+                    } else {
+                        object.material.dispose();
+                    }
+                }
+            });
+
             renderer.dispose();
+            renderer.forceContextLoss();
+            const gl = renderer.getContext();
+            if (gl) {
+                const ext = gl.getExtension('WEBGL_lose_context');
+                if (ext) ext.loseContext();
+            }
 
             // Disconnect Socket
             if (socketRef.current) {

@@ -145,16 +145,16 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({
 
     return (
         <div className="max-w-4xl mx-auto px-6 py-12">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-2xl transition-all">
                 <div className="flex items-center justify-between mb-2">
-                    <h2 className="text-3xl font-bold text-white">
+                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
                         Upload VET Asset
                     </h2>
                     <div className="text-[10px] font-bold bg-indigo-500/10 text-indigo-400 px-3 py-1 rounded-full border border-indigo-500/20 uppercase tracking-widest">
                         Uploader Session: {user?.username || 'Guest'}
                     </div>
                 </div>
-                <p className="text-slate-400 mb-8">
+                <p className="text-slate-500 dark:text-slate-400 mb-8">
                     Contribute to the repository. Assets are auto-optimized for
                     Meta Quest performance.
                 </p>
@@ -166,7 +166,7 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({
                                 <div className="absolute inset-0 border-4 border-indigo-600/20 rounded-full"></div>
                                 <div className="absolute inset-0 border-4 border-t-indigo-600 rounded-full animate-spin"></div>
                             </div>
-                            <h3 className="text-xl font-bold text-white mb-2">
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
                                 {uploadStep === 2
                                     ? 'Analyzing Asset...'
                                     : 'Finalizing Digital Twin...'}
@@ -178,11 +178,11 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({
                         </div>
 
                         {optSuggestions && (
-                            <div className="mt-8 p-6 bg-indigo-500/5 border border-indigo-500/20 rounded-2xl text-left animate-in fade-in slide-in-from-bottom-4">
+                            <div className="mt-8 p-6 bg-indigo-50 dark:bg-indigo-500/5 border border-indigo-100 dark:border-indigo-500/20 rounded-2xl text-left animate-in fade-in slide-in-from-bottom-4">
                                 <h4 className="text-indigo-400 text-xs font-bold uppercase mb-3 tracking-widest">
                                     AI Performance Tuning:
                                 </h4>
-                                <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-line font-mono">
+                                <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed whitespace-pre-line font-mono">
                                     {optSuggestions}
                                 </p>
                             </div>
@@ -197,7 +197,7 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({
                                     1. 3D Model Source (.glb / .gltf)
                                     <InfoTooltip content="We support .glb (binary) and .gltf formats. For CAD files (.stp, .stl, .pdb), optimization will be limited." />
                                 </label>
-                                <div className="border-2 border-dashed border-slate-700 rounded-2xl p-6 text-center hover:border-indigo-500/50 transition-all cursor-pointer bg-slate-950/50 group h-40 flex flex-col items-center justify-center">
+                                <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl p-6 text-center hover:border-indigo-500/50 transition-all cursor-pointer bg-slate-50 dark:bg-slate-950/50 group h-40 flex flex-col items-center justify-center">
                                     <input
                                         type="file"
                                         accept=".glb,.gltf,.pdb,.stp,.step,.stl,.zip"
@@ -228,7 +228,7 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({
                                                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                                             />
                                         </svg>
-                                        <p className="text-sm text-slate-300 font-semibold truncate max-w-[200px]">
+                                        <p className="text-sm text-slate-700 dark:text-slate-300 font-semibold truncate max-w-[200px]">
                                             {formData.modelFile
                                                 ? formData.modelFile.name
                                                 : 'Select 3D Mesh (Auto-Unzip supported)'}
@@ -241,7 +241,7 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({
                                 <label className="text-xs font-bold uppercase text-slate-500 tracking-wider">
                                     2. Gallery Thumbnail
                                 </label>
-                                <div className="border-2 border-dashed border-slate-700 rounded-2xl p-2 text-center hover:border-indigo-500/50 transition-all cursor-pointer bg-slate-950/50 group h-40 flex items-center justify-center relative overflow-hidden">
+                                <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl p-2 text-center hover:border-indigo-500/50 transition-all cursor-pointer bg-slate-50 dark:bg-slate-950/50 group h-40 flex items-center justify-center relative overflow-hidden">
                                     <input
                                         type="file"
                                         accept="image/*"
@@ -273,7 +273,7 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({
                                                 d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                                             />
                                         </svg>
-                                        <p className="text-sm text-slate-300 font-semibold">
+                                        <p className="text-sm text-slate-700 dark:text-slate-300 font-semibold">
                                             {formData.thumbnailFile
                                                 ? 'Image Loaded'
                                                 : 'Select Image'}
@@ -285,7 +285,7 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({
 
                         {/* Core Info Section */}
                         <div className="space-y-6">
-                            <h3 className="text-lg font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-2">
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-2">
                                 <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
                                 Technical Metadata
                             </h3>
@@ -298,7 +298,7 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({
                                     <input
                                         required
                                         type="text"
-                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-white transition-all"
+                                        className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-slate-900 dark:text-white transition-all shadow-sm focus:shadow-indigo-500/10"
                                         value={formData.name}
                                         onChange={(e) =>
                                             setFormData({
@@ -316,7 +316,7 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({
                                     <input
                                         required
                                         type="text"
-                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-white transition-all"
+                                        className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-slate-900 dark:text-white transition-all shadow-sm focus:shadow-indigo-500/10"
                                         value={formData.equipmentType}
                                         onChange={(e) =>
                                             setFormData({
@@ -336,7 +336,7 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({
                                         <InfoTooltip content="Choose the industrial sector this equipment belongs to. Used for filtering in the repository." />
                                     </label>
                                     <select
-                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-white transition-all"
+                                        className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-slate-900 dark:text-white transition-all shadow-sm focus:shadow-indigo-500/10"
                                         value={
                                             showCustomSector
                                                 ? 'CUSTOM'
@@ -367,7 +367,7 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({
                                             required
                                             type="text"
                                             placeholder="Enter custom sector name..."
-                                            className="w-full mt-2 bg-indigo-500/5 border border-indigo-500/30 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-white animate-in slide-in-from-top-2 transition-all"
+                                            className="w-full mt-2 bg-indigo-50 dark:bg-indigo-500/5 border border-indigo-100 dark:border-indigo-500/30 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-slate-900 dark:text-white animate-in slide-in-from-top-2 transition-all"
                                             value={formData.customSector}
                                             onChange={(e) =>
                                                 setFormData({
@@ -385,7 +385,7 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({
                                         <InfoTooltip content="Basic: Safe for beginners. Advanced: Contains complex internal parts or safety hazards." />
                                     </label>
                                     <select
-                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-white transition-all"
+                                        className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-slate-900 dark:text-white transition-all shadow-sm focus:shadow-indigo-500/10"
                                         value={formData.level}
                                         onChange={(e) =>
                                             setFormData({
@@ -414,7 +414,7 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({
                                     <input
                                         required
                                         type="text"
-                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-white transition-all"
+                                        className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none text-slate-900 dark:text-white transition-all shadow-sm focus:shadow-indigo-500/10"
                                         value={formData.uploadedBy}
                                         onChange={(e) =>
                                             setFormData({
@@ -435,7 +435,7 @@ const ModelUploadForm: React.FC<ModelUploadFormProps> = ({
                                 <textarea
                                     required
                                     rows={4}
-                                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none resize-none text-white transition-all"
+                                    className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none resize-none text-slate-900 dark:text-white transition-all shadow-sm focus:shadow-indigo-500/10"
                                     value={formData.description}
                                     onChange={(e) =>
                                         setFormData({

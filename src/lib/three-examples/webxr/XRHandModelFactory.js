@@ -1,4 +1,4 @@
-const { Object3D } = window.THREE;
+const { Object3D } = (window.AFRAME ? window.AFRAME.THREE : window.THREE);
 
 import { XRHandPrimitiveModel } from './XRHandPrimitiveModel.js';
 

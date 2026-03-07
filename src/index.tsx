@@ -1,4 +1,4 @@
-import React from 'react';
+
 import './index.css';
 import 'katex/dist/katex.min.css';
 import { createRoot } from 'react-dom/client';
@@ -15,11 +15,9 @@ if (!rootElement) {
 
 const root = createRoot(rootElement);
 root.render(
-    <React.StrictMode>
-        <ConfigProvider>
-            <ThemeProvider>
-                <App />
-            </ThemeProvider>
-        </ConfigProvider>
-    </React.StrictMode>
+    <ConfigProvider>
+        <ThemeProvider>
+            <App />
+        </ThemeProvider>
+    </ConfigProvider>
 );

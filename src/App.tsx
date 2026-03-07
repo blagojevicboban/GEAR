@@ -535,7 +535,7 @@ const App: React.FC = () => {
                 </div>
             )}
 
-            <main className="flex-1 bg-white dark:bg-slate-950 transition-colors duration-300">
+            <main className="flex-1 bg-white dark:bg-slate-950 transition-colors duration-300 flex flex-col relative">
                 {currentView === 'home' && (
                     <Dashboard
                         modelsCount={models.length}
@@ -700,46 +700,48 @@ const App: React.FC = () => {
                 )}
 
                 {currentView === 'materials' && (
-                    <div className="flex justify-center items-start h-[calc(100vh-64px)] overflow-y-auto pt-4 pb-4">
-                        <MaterialSelector />
+                    <div className="flex justify-center items-start pt-4 pb-4">
+                        <div className="max-w-7xl mx-auto px-4 w-full">
+                            <MaterialSelector />
+                        </div>
                     </div>
                 )}
+
+                {(currentView === 'lessons' ||
+                    (currentView === 'my-lessons' && currentUser)) && (
+                    <LessonsList
+                        currentUser={currentUser}
+                        onViewLesson={handleViewLesson}
+                        onEditLesson={handeEditLesson}
+                        onCreateLesson={handleCreateLesson}
+                        onViewUser={setViewingProfileUser}
+                        initialAuthorFilter={
+                            currentView === 'my-lessons'
+                                ? currentUser?.username
+                                : undefined
+                        }
+                    />
+                )}
+
+                {currentView === 'lesson-view' && selectedLesson && (
+                    <LessonViewer
+                        lessonId={selectedLesson.id}
+                        onExit={() => setCurrentView('lessons')}
+                        currentUser={currentUser}
+                    />
+                )}
+
+                {currentView === 'lesson-edit' && (
+                    <WorkbookBuilder
+                        lessonToEdit={selectedLesson}
+                        currentUser={currentUser}
+                        onSaveSuccess={() => setCurrentView('lessons')}
+                        onCancel={() => setCurrentView('lessons')}
+                        availableModels={models}
+                        availableSectors={sectors}
+                    />
+                )}
             </main>
-
-            {(currentView === 'lessons' ||
-                (currentView === 'my-lessons' && currentUser)) && (
-                <LessonsList
-                    currentUser={currentUser}
-                    onViewLesson={handleViewLesson}
-                    onEditLesson={handeEditLesson}
-                    onCreateLesson={handleCreateLesson}
-                    onViewUser={setViewingProfileUser}
-                    initialAuthorFilter={
-                        currentView === 'my-lessons'
-                            ? currentUser?.username
-                            : undefined
-                    }
-                />
-            )}
-
-            {currentView === 'lesson-view' && selectedLesson && (
-                <LessonViewer
-                    lessonId={selectedLesson.id}
-                    onExit={() => setCurrentView('lessons')}
-                    currentUser={currentUser}
-                />
-            )}
-
-            {currentView === 'lesson-edit' && (
-                <WorkbookBuilder
-                    lessonToEdit={selectedLesson}
-                    currentUser={currentUser}
-                    onSaveSuccess={() => setCurrentView('lessons')}
-                    onCancel={() => setCurrentView('lessons')}
-                    availableModels={models}
-                    availableSectors={sectors}
-                />
-            )}
 
             {currentView !== 'viewer' && (
                 <footer className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-6 text-center text-slate-500 dark:text-slate-500 text-sm transition-colors">

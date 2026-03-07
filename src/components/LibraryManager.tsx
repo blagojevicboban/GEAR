@@ -474,24 +474,24 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
             </div>
 
             {/* Orphans Section */}
-            <div className="mt-12 pt-8 border-t border-slate-800">
+            <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 transition-colors">
                 <button
                     onClick={() => setShowOrphans(!showOrphans)}
-                    className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-4"
+                    className="flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors mb-4"
                 >
                     <AlertTriangle className="w-5 h-5" />
                     <span className="font-bold text-lg">
                         {t('admin.library.orphans.button')}
                     </span>
-                    <span className="text-xs bg-slate-800 px-2 py-0.5 rounded text-slate-500">
+                    <span className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-500 border border-slate-200 dark:border-slate-700">
                         {t('admin.library.orphans.label')}
                     </span>
                 </button>
 
                 {showOrphans && (
-                    <div className="bg-slate-950/30 rounded-xl border border-slate-800/50 p-6">
+                    <div className="bg-slate-50 dark:bg-slate-950/30 rounded-2xl border border-slate-200 dark:border-slate-800/50 p-6 transition-colors">
                         <div className="flex justify-between items-center mb-4">
-                            <p className="text-sm text-slate-400 max-w-2xl">
+                            <p className="text-sm text-slate-600 dark:text-slate-400 max-w-2xl">
                                 <span
                                     dangerouslySetInnerHTML={{
                                         __html: t(
@@ -508,7 +508,7 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                                 <button
                                     onClick={loadOrphans}
                                     disabled={loadingOrphans}
-                                    className="p-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors mr-2"
+                                    className="p-2 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors mr-2 border border-slate-200 dark:border-slate-700 shadow-sm"
                                     title={t(
                                         'admin.library.orphans.refresh_tooltip'
                                     )}
@@ -521,7 +521,7 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                                     <button
                                         onClick={handleDeleteAllOrphans}
                                         disabled={loadingOrphans}
-                                        className="px-3 py-2 bg-red-900/20 text-red-400 border border-red-900/50 rounded-lg hover:bg-red-900/40 transition-colors flex items-center gap-2 text-sm"
+                                        className="px-3 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors flex items-center gap-2 text-sm shadow-sm"
                                         title={t(
                                             'admin.library.orphans.delete_all'
                                         )}
@@ -543,9 +543,9 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                                 <span>{t('admin.library.orphans.empty')}</span>
                             </div>
                         ) : (
-                            <div className="overflow-x-auto rounded-lg border border-slate-800">
+                            <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
                                 <table className="w-full text-left text-sm">
-                                    <thead className="bg-slate-900 text-slate-400">
+                                    <thead className="bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400">
                                         <tr>
                                             <th className="p-3 font-medium">
                                                 {t(
@@ -569,11 +569,11 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-800">
+                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                         {orphans.map((orphan) => (
                                             <tr
                                                 key={orphan.name}
-                                                className="hover:bg-slate-800/20"
+                                                className="hover:bg-slate-100 dark:hover:bg-slate-800/20 transition-colors"
                                             >
                                                 <td className="p-3 text-slate-500 w-12 text-center">
                                                     {orphan.type ===
@@ -583,10 +583,10 @@ const LibraryManager: React.FC<LibraryManagerProps> = ({
                                                         <File className="w-4 h-4" />
                                                     )}
                                                 </td>
-                                                <td className="p-3 text-slate-300 font-mono">
+                                                <td className="p-3 text-slate-900 dark:text-slate-300 font-mono">
                                                     {orphan.name}
                                                 </td>
-                                                <td className="p-3 text-slate-400 text-right font-mono">
+                                                <td className="p-3 text-slate-600 dark:text-slate-400 text-right font-mono">
                                                     {formatFileSize(
                                                         orphan.size
                                                     )}

@@ -1,4 +1,4 @@
-const { Group, Matrix4, Raycaster, Vector2 } = window.THREE;
+const { Group, Matrix4, Raycaster, Vector2 } = (window.AFRAME ? window.AFRAME.THREE : window.THREE);
 
 const _pointer = new Vector2();
 const _event = { type: '', data: _pointer };

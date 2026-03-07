@@ -1,5 +1,5 @@
 const { BufferGeometry, FileLoader, Float32BufferAttribute, Loader, Color } =
-    window.THREE;
+    (window.AFRAME ? window.AFRAME.THREE : window.THREE);
 
 class PDBLoader extends Loader {
     constructor(manager) {

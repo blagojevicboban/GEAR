@@ -257,19 +257,19 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
             {renderOverlay()}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-xl">
-                <h2 className="text-2xl font-bold text-white mb-6">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl transition-colors">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
                     {t('admin.config.title')}
                 </h2>
 
                 <div className="space-y-6">
                     <div>
-                        <label className="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl border border-slate-700 cursor-pointer hover:bg-slate-800 transition-colors">
+                        <label className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                             <div>
-                                <span className="block font-bold text-white">
+                                <span className="block font-bold text-slate-900 dark:text-white">
                                     {t('admin.config.maintenance.label')}
                                 </span>
-                                <span className="text-xs text-slate-400">
+                                <span className="text-xs text-slate-500 dark:text-slate-400">
                                     {t('admin.config.maintenance.desc')}
                                 </span>
                             </div>
@@ -293,12 +293,12 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                     </div>
 
                     <div>
-                        <label className="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl border border-slate-700 cursor-pointer hover:bg-slate-800 transition-colors">
+                        <label className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                             <div>
-                                <span className="block font-bold text-white">
+                                <span className="block font-bold text-slate-900 dark:text-white">
                                     {t('admin.config.registration.label')}
                                 </span>
-                                <span className="text-xs text-slate-400">
+                                <span className="text-xs text-slate-500 dark:text-slate-400">
                                     {t('admin.config.registration.desc')}
                                 </span>
                             </div>
@@ -323,13 +323,13 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-slate-300 mb-2">
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                             {t('admin.config.max_size.label')}
                         </label>
                         <div className="flex items-center gap-3">
                             <input
                                 type="number"
-                                className="w-1/3 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="w-1/3 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                                 placeholder="50"
                                 value={config.max_file_size_mb || '50'}
                                 onChange={(e) =>
@@ -346,22 +346,22 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                         </p>
                     </div>
 
-                    <div className="bg-indigo-900/20 border border-indigo-500/30 rounded-2xl p-6 space-y-4">
+                    <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-500/30 rounded-2xl p-6 space-y-4">
                         <div className="flex items-center gap-2 mb-2">
                             <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
                                 <Terminal className="w-4 h-4 text-white" />
                             </div>
-                            <h3 className="text-lg font-bold text-white">
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                                 {t('admin.config.ai_tweaks.label')}
                             </h3>
                         </div>
 
                         <div>
-                            <label className="block text-xs font-bold text-indigo-300 uppercase mb-2">
+                            <label className="block text-xs font-bold text-indigo-600 dark:text-indigo-300 uppercase mb-2">
                                 {t('admin.config.ai_tweaks.model_label')}
                             </label>
                             <select
-                                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                                 value={config.ai_model || 'gemini-2.0-flash'}
                                 onChange={(e) =>
                                     setConfig({
@@ -384,11 +384,11 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-xs font-bold text-indigo-300 uppercase mb-2">
+                                <label className="block text-xs font-bold text-indigo-600 dark:text-indigo-300 uppercase mb-2">
                                     {t('admin.config.ai_tweaks.language_label')}
                                 </label>
                                 <select
-                                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                                     value={config.ai_language || 'Auto'}
                                     onChange={(e) =>
                                         setConfig({
@@ -436,19 +436,19 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                             </div>
                         </div>
 
-                        <p className="text-xs text-slate-500">
-                            {t('admin.config.ai_tweaks.desc')}
-                        </p>
-                    </div>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                        {t('admin.config.ai_tweaks.desc')}
+                                    </p>
+                                </div>
 
-                    <div>
-                        <label className="block text-sm font-bold text-slate-300 mb-2">
+                                <div>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                             Google Gemini API Key
                         </label>
                         <div className="relative">
                             <input
                                 type="password"
-                                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                                 placeholder="AIzaSy..."
                                 value={config.gemini_api_key || ''}
                                 onChange={(e) =>
@@ -479,13 +479,13 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-slate-300 mb-2">
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                             Materials Project API Key
                         </label>
                         <div className="relative">
                             <input
                                 type="password"
-                                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                                 placeholder="..."
                                 value={config.material_project_api_key || ''}
                                 onChange={(e) =>
@@ -517,13 +517,13 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-slate-300 mb-2">
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                             {t('admin.config.branding.label')}
                         </label>
                         <div className="space-y-3">
                             <input
                                 type="text"
-                                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                                 placeholder={t(
                                     'admin.config.branding.name_label'
                                 )}
@@ -551,7 +551,7 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                                 />
                                 <input
                                     type="text"
-                                    className="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none font-mono"
+                                    className="flex-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none font-mono"
                                     placeholder="#4f46e5"
                                     value={config.brand_color || ''}
                                     onChange={(e) =>
@@ -568,24 +568,24 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                         </p>
                     </div>
 
-                    <div className="bg-amber-900/20 border border-amber-500/30 rounded-2xl p-6 space-y-4">
+                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-500/30 rounded-2xl p-6 space-y-4">
                         <div className="flex items-center gap-2 mb-2">
                             <div className="w-8 h-8 bg-amber-600 rounded-lg flex items-center justify-center text-lg">
                                 🏆
                             </div>
-                            <h3 className="text-lg font-bold text-white">
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                                 {t('admin.config.gamification.label')}
                             </h3>
                         </div>
 
                         <div>
-                            <label className="block text-xs font-bold text-amber-300 uppercase mb-2">
+                            <label className="block text-xs font-bold text-amber-600 dark:text-amber-300 uppercase mb-2">
                                 {t('admin.config.gamification.challenge_label')}
                             </label>
                             <div className="flex items-center gap-3">
                                 <input
                                     type="number"
-                                    className="w-1/3 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-amber-500 outline-none"
+                                    className="w-1/3 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 outline-none"
                                     id="config-challenge-days"
                                     placeholder="7"
                                     value={
@@ -606,9 +606,9 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                         </div>
 
                         <div>
-                            <label className="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl border border-slate-700 cursor-pointer hover:bg-slate-800 transition-colors">
+                            <label className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                                 <div>
-                                    <span className="block font-bold text-white">
+                                    <span className="block font-bold text-slate-900 dark:text-white">
                                         {t(
                                             'admin.config.gamification.leaderboard_label'
                                         )}
@@ -641,13 +641,13 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-slate-300 mb-2">
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                             {t('admin.config.moodle.label')}
                         </label>
                         <div className="space-y-3">
                             <input
                                 type="text"
-                                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                                 placeholder={t('admin.config.moodle.url_label')}
                                 value={config.moodle_url || ''}
                                 onChange={(e) =>
@@ -659,7 +659,7 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                             />
                             <input
                                 type="text"
-                                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                                 placeholder={t(
                                     'admin.config.moodle.client_id_label'
                                 )}
@@ -678,12 +678,12 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-slate-300 mb-2">
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                             {t('admin.config.cors.label')}
                         </label>
                         <input
                             type="text"
-                            className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                             placeholder="https://example.com, https://app.example.com"
                             value={config.allowed_origins || ''}
                             onChange={(e) =>
@@ -699,11 +699,11 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-slate-300 mb-2">
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                             {t('admin.config.announcement.label')}
                         </label>
                         <textarea
-                            className="w-full bg-slate-950 border border-slate-700 rounded-xl padding-4 text-white p-3 h-24 focus:ring-2 focus:ring-indigo-500 outline-none"
+                            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl padding-4 text-slate-900 dark:text-white p-3 h-24 focus:ring-2 focus:ring-indigo-500 outline-none"
                             placeholder={t(
                                 'admin.config.announcement.placeholder'
                             )}
@@ -727,16 +727,16 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                 </div>
             </div>
 
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-xl h-fit">
-                <h2 className="text-2xl font-bold text-white mb-2">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl h-fit transition-colors">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
                     {t('admin.config.data_mgmt.title')}
                 </h2>
-                <p className="text-slate-400 mb-6">
+                <p className="text-slate-500 dark:text-slate-400 mb-6">
                     {t('admin.config.data_mgmt.desc')}
                 </p>
 
-                <div className="bg-slate-800/30 border border-slate-800 rounded-xl p-6 flex flex-col items-center text-center">
-                    <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4 text-slate-400">
+                <div className="bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800 rounded-xl p-6 flex flex-col items-center text-center">
+                    <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 text-slate-400 border border-slate-100 dark:border-slate-700">
                         <svg
                             className="w-8 h-8"
                             fill="none"
@@ -751,7 +751,7 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                             />
                         </svg>
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-1">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
                         {t('admin.config.data_mgmt.export_title')}
                     </h3>
                     <p className="text-sm text-slate-500 mb-6">
@@ -760,7 +760,7 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                     <div className="flex flex-wrap gap-4 items-center justify-center">
                         <button
                             onClick={() => handleBackup('json')}
-                            className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg transition-colors border border-slate-600 flex items-center gap-2 text-sm"
+                            className="bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-white font-bold py-2 px-4 rounded-lg transition-colors border border-slate-200 dark:border-slate-600 flex items-center gap-2 text-sm shadow-sm"
                         >
                             <span className="text-[10px] uppercase bg-slate-800 px-1.5 py-0.5 rounded text-amber-400">
                                 JSON
@@ -769,7 +769,7 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                         </button>
                         <button
                             onClick={() => handleBackup('sql')}
-                            className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg transition-colors border border-slate-600 flex items-center gap-2 text-sm"
+                            className="bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-white font-bold py-2 px-4 rounded-lg transition-colors border border-slate-200 dark:border-slate-600 flex items-center gap-2 text-sm shadow-sm"
                         >
                             <span className="text-[10px] uppercase bg-slate-800 px-1.5 py-0.5 rounded text-blue-400">
                                 SQL
@@ -778,7 +778,7 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                         </button>
                         <button
                             onClick={() => handleBackup('full')}
-                            className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg transition-colors border border-slate-600 flex items-center gap-2 text-sm"
+                            className="bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-white font-bold py-2 px-4 rounded-lg transition-colors border border-slate-200 dark:border-slate-600 flex items-center gap-2 text-sm shadow-sm"
                         >
                             <span className="text-[10px] uppercase bg-slate-800 px-1.5 py-0.5 rounded text-indigo-400">
                                 ZIP
@@ -788,8 +788,8 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                     </div>
                 </div>
 
-                <div className="bg-slate-800/30 border border-slate-800 rounded-xl p-6 mt-6 flex flex-col items-center text-center">
-                    <div className="w-16 h-16 bg-red-900/30 rounded-full flex items-center justify-center mb-4 text-red-500">
+                <div className="bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800 rounded-xl p-6 mt-6 flex flex-col items-center text-center">
+                    <div className="w-16 h-16 bg-red-50 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-4 text-red-500 border border-red-100 dark:border-red-900/50">
                         <svg
                             className="w-8 h-8"
                             fill="none"
@@ -804,7 +804,7 @@ const SystemConfig: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                             />
                         </svg>
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-1">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
                         {t('admin.config.data_mgmt.restore_title')}
                     </h3>
                     <p className="text-sm text-slate-500 mb-6 max-w-xs">
@@ -997,21 +997,21 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
 
     if (loading)
         return (
-            <div className="text-slate-400">{t('admin.sectors.loading')}</div>
+            <div className="text-slate-500 dark:text-slate-400">{t('admin.sectors.loading')}</div>
         );
 
     return (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-xl">
-            <h2 className="text-2xl font-bold text-white mb-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl transition-colors">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
                 {t('admin.sectors.title')}
             </h2>
-            <p className="text-slate-400 mb-6">{t('admin.sectors.desc')}</p>
+            <p className="text-slate-500 dark:text-slate-400 mb-6">{t('admin.sectors.desc')}</p>
 
             <div className="flex gap-4 mb-6">
                 <input
                     type="text"
                     placeholder={t('admin.sectors.add_placeholder')}
-                    className="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-white outline-none focus:ring-2 focus:ring-indigo-500 w-full max-w-md"
+                    className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500 w-full max-w-md"
                     value={addSectorName}
                     onChange={(e) => setAddSectorName(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
@@ -1025,9 +1025,9 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                 </button>
             </div>
 
-            <div className="overflow-hidden rounded-xl border border-slate-700">
-                <table className="w-full text-left text-slate-300">
-                    <thead className="bg-slate-800 text-slate-400 text-xs uppercase">
+            <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700">
+                <table className="w-full text-left text-slate-600 dark:text-slate-300">
+                    <thead className="bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs uppercase">
                         <tr>
                             <th className="px-6 py-4">
                                 {t('admin.sectors.table.header_name')}
@@ -1037,19 +1037,19 @@ const SectorManager: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                             </th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800">
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         {sectors.map((sector, index) => (
                             <tr
                                 key={`${sector}-${index}`}
-                                className="hover:bg-slate-800/50 transition-colors"
+                                className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                             >
-                                <td className="px-6 py-4 font-medium text-white">
+                                <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">
                                     {editingSector === sector ? (
                                         <div className="flex gap-2">
                                             <input
                                                 autoFocus
                                                 type="text"
-                                                className="bg-slate-950 border border-slate-600 rounded px-2 py-1 text-white text-sm w-full max-w-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                                className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-600 rounded px-2 py-1 text-slate-900 dark:text-white text-sm w-full max-w-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                                                 value={newSectorName}
                                                 onChange={(e) =>
                                                     setNewSectorName(
@@ -1159,17 +1159,17 @@ const SystemLogs: React.FC<{ currentUser: User }> = ({ currentUser }) => {
     }, []);
 
     return (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-xl">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl transition-colors">
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h2 className="text-2xl font-bold text-white mb-1">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">
                         {t('admin.logs.title')}
                     </h2>
-                    <p className="text-slate-400">{t('admin.logs.desc')}</p>
+                    <p className="text-slate-500 dark:text-slate-400">{t('admin.logs.desc')}</p>
                 </div>
                 <button
                     onClick={fetchLogs}
-                    className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 transition-colors"
+                    className="p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-300 transition-colors border border-slate-200 dark:border-slate-700"
                     title={t('admin.logs.refresh_tooltip')}
                 >
                     <svg
@@ -1188,7 +1188,7 @@ const SystemLogs: React.FC<{ currentUser: User }> = ({ currentUser }) => {
                 </button>
             </div>
 
-            <div className="bg-black/50 rounded-xl border border-slate-800 p-4 font-mono text-xs text-green-400 h-[600px] overflow-auto whitespace-pre-wrap">
+            <div className="bg-slate-50 dark:bg-black/50 rounded-xl border border-slate-200 dark:border-slate-800 p-4 font-mono text-xs text-green-700 dark:text-green-400 h-[600px] overflow-auto whitespace-pre-wrap transition-colors">
                 {loading
                     ? t('admin.logs.loading')
                     : logs || t('admin.logs.no_logs')}

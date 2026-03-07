@@ -9,8 +9,9 @@ import {
     Activity,
     Settings,
 } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 import type * as THREE_TYPES from 'three';
-const THREE = (window as any).THREE as typeof THREE_TYPES;
+const THREE = (window as any).AFRAME.THREE as typeof THREE_TYPES;
 import { ARButton } from '../lib/three-examples/webxr/ARButton.js';
 
 // Element color map (CPK coloring)
@@ -182,11 +183,11 @@ const PropRow: React.FC<{
     value: string | number | React.ReactNode;
     unit?: string;
 }> = ({ label, value, unit }) => (
-    <div className="flex justify-between items-center py-1.5 border-b border-gray-700/50 last:border-0">
-        <span className="text-gray-400 text-xs">{label}</span>
-        <span className="text-white text-xs font-medium">
+    <div className="flex justify-between items-center py-2.5 border-b border-slate-100 dark:border-slate-800/50 last:border-0 transition-colors">
+        <span className="text-slate-500 dark:text-slate-400 text-xs font-medium">{label}</span>
+        <span className="text-slate-900 dark:text-white text-xs font-bold">
             {value}
-            {unit && <span className="text-gray-500 ml-1">{unit}</span>}
+            {unit && <span className="text-slate-400 dark:text-slate-500 ml-1 font-normal">{unit}</span>}
         </span>
     </div>
 );
@@ -196,8 +197,8 @@ const InfoCard: React.FC<{ title: string; children: React.ReactNode }> = ({
     title,
     children,
 }) => (
-    <div className="bg-gray-800/50 rounded-lg border border-gray-700/50 p-3">
-        <h4 className="text-teal-400 text-xs font-semibold uppercase tracking-wider mb-2">
+    <div className="bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 transition-colors">
+        <h4 className="text-teal-600 dark:text-teal-400 text-[10px] font-bold uppercase tracking-widest mb-3 opacity-80">
             {title}
         </h4>
         {children}
@@ -220,6 +221,7 @@ const CrystalViewer3D: React.FC<CrystalViewer3DProps> = ({
     drawOutside = true,
     visualStyle = 'bs',
 }) => {
+    const { theme } = useTheme();
     const containerRef = useRef<HTMLDivElement>(null);
     const rendererRef = useRef<any>(null);
     const animFrameRef = useRef<number>(0);
@@ -243,7 +245,7 @@ const CrystalViewer3D: React.FC<CrystalViewer3DProps> = ({
         const scene = new THREE.Scene();
         scene.background = isFullScreen
             ? new THREE.Color(0x000000)
-            : new THREE.Color(0x0a0a0f);
+            : new THREE.Color(theme === 'dark' ? 0x0f172a : 0xffffff);
 
         // Camera
         const camera = new THREE.PerspectiveCamera(
@@ -667,22 +669,53 @@ const CrystalViewer3D: React.FC<CrystalViewer3DProps> = ({
         window.addEventListener('gear-reset-view', handleResetView);
 
         return () => {
-            cancelAnimationFrame(animFrameRef.current);
+            if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+            if (renderer.setAnimationLoop) renderer.setAnimationLoop(null);
+
             window.removeEventListener('resize', onResize);
             window.removeEventListener('gear-reset-view', handleResetView);
             window.removeEventListener('mousemove', onMove);
             window.removeEventListener('mouseup', onUp);
             window.removeEventListener('touchmove', onMove);
             window.removeEventListener('touchend', onUp);
+            container.removeEventListener('wheel', onWheel);
+
             if (arButton && document.body.contains(arButton))
                 document.body.removeChild(arButton);
             if (container.contains(renderer.domElement))
                 container.removeChild(renderer.domElement);
+            
             if (onXRSessionEnd)
                 renderer.xr.removeEventListener('sessionend', onXRSessionEnd);
+
+            // Dispose Three.js resources
+            scene.traverse((object: any) => {
+                if (object.geometry) object.geometry.dispose();
+                if (object.material) {
+                    if (Array.isArray(object.material)) {
+                        object.material.forEach((mat: any) => mat.dispose());
+                    } else {
+                        object.material.dispose();
+                    }
+                }
+            });
+
             renderer.dispose();
+            renderer.forceContextLoss();
+            const gl = renderer.getContext();
+            if (gl) {
+                const extension = gl.getExtension('WEBGL_lose_context');
+                if (extension) extension.loseContext();
+            }
         };
-    }, [structureData, isFullScreen, drawRepeats, drawOutside, visualStyle]);
+    }, [
+        structureData,
+        isFullScreen,
+        drawRepeats,
+        drawOutside,
+        visualStyle,
+        theme,
+    ]);
 
     return (
         <div
@@ -721,10 +754,10 @@ const ArVrControls: React.FC<ArVrControlsProps> = ({
     };
 
     return (
-        <div className="bg-[#0f111a]/90 backdrop-blur-xl rounded-2xl border border-white/10 p-5 shadow-2xl space-y-5 select-none animate-in slide-in-from-right duration-500">
+        <div className="bg-white/80 dark:bg-[#0f111a]/90 backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-white/10 p-5 shadow-2xl space-y-5 select-none animate-in slide-in-from-right duration-500">
             {/* Header */}
             <div className="flex items-center justify-between">
-                <h3 className="text-teal-400 font-bold text-xl tracking-tight leading-none flex items-center gap-2">
+                <h3 className="text-teal-600 dark:text-teal-400 font-bold text-xl tracking-tight leading-none flex items-center gap-2">
                     Controls
                 </h3>
                 <div className="flex gap-1">
@@ -733,7 +766,7 @@ const ArVrControls: React.FC<ArVrControlsProps> = ({
                 </div>
             </div>
 
-            <div className="w-full h-px bg-white/5"></div>
+            <div className="w-full h-px bg-slate-200 dark:bg-white/5"></div>
 
             {/* Reset View */}
             <button
@@ -750,8 +783,8 @@ const ArVrControls: React.FC<ArVrControlsProps> = ({
                     onClick={() => setVisualStyle('bs')}
                     className={`py-3 rounded-xl border transition-all flex flex-col items-center justify-center gap-1 ${
                         visualStyle === 'bs'
-                            ? 'bg-blue-500/20 border-blue-500/50 text-white shadow-inner'
-                            : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10'
+                            ? 'bg-blue-500/20 border-blue-500/50 text-blue-600 dark:text-white shadow-inner'
+                            : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-400 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-white/10'
                     }`}
                 >
                     <Box className="w-4 h-4" />
@@ -763,8 +796,8 @@ const ArVrControls: React.FC<ArVrControlsProps> = ({
                     onClick={() => setVisualStyle('space')}
                     className={`py-3 rounded-xl border transition-all flex flex-col items-center justify-center gap-1 ${
                         visualStyle === 'space'
-                            ? 'bg-blue-500/20 border-blue-500/50 text-white shadow-inner'
-                            : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10'
+                            ? 'bg-blue-500/20 border-blue-500/50 text-blue-600 dark:text-white shadow-inner'
+                            : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-400 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-white/10'
                     }`}
                 >
                     <Radius className="w-4 h-4" />
@@ -776,8 +809,8 @@ const ArVrControls: React.FC<ArVrControlsProps> = ({
                     onClick={() => setVisualStyle('bone')}
                     className={`py-3 rounded-xl border transition-all flex flex-col items-center justify-center gap-1 ${
                         visualStyle === 'bone'
-                            ? 'bg-blue-500/20 border-blue-500/50 text-white shadow-inner'
-                            : 'bg-white/5 border-white/5 text-gray-400 hover:bg-white/10'
+                            ? 'bg-blue-500/20 border-blue-500/50 text-blue-600 dark:text-white shadow-inner'
+                            : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-400 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-white/10'
                     }`}
                 >
                     <Activity className="w-4 h-4" />
@@ -793,8 +826,8 @@ const ArVrControls: React.FC<ArVrControlsProps> = ({
                     onClick={() => setDrawRepeats(!drawRepeats)}
                     className={`w-full py-2.5 px-4 rounded-xl border transition-all flex items-center gap-3 text-xs font-medium ${
                         drawRepeats
-                            ? 'bg-teal-500/10 border-teal-500/50 text-teal-300'
-                            : 'bg-white/5 border-white/5 text-gray-500'
+                            ? 'bg-teal-500/10 border-teal-500/50 text-teal-600 dark:text-teal-300'
+                            : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-400 dark:text-gray-500'
                     }`}
                 >
                     <div
@@ -958,22 +991,22 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
         <div className="space-y-3">
             {/* 3D Structure Viewer */}
             <div
-                className="rounded-lg border border-gray-700 bg-gray-900"
+                className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm"
                 style={{ overflow: 'hidden', position: 'relative', zIndex: 0 }}
             >
                 {/* Header */}
-                <div className="flex items-center justify-between px-3 py-2 bg-gray-800/80 border-b border-gray-700">
+                <div className="flex items-center justify-between px-3 py-2 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700">
                     <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></div>
-                        <span className="text-white text-sm font-bold">
+                        <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></div>
+                        <span className="text-slate-900 dark:text-white text-sm font-bold">
                             {formula}
                         </span>
-                        <span className="text-gray-500 text-xs">
+                        <span className="text-slate-400 dark:text-gray-500 text-xs">
                             {materialId}
                         </span>
                     </div>
                     {structureData.lattice && (
-                        <div className="flex items-center gap-3 text-xs text-gray-400">
+                        <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-gray-400">
                             <span>a={structureData.lattice.a.toFixed(2)}Å</span>
                             <span>b={structureData.lattice.b.toFixed(2)}Å</span>
                             <span>c={structureData.lattice.c.toFixed(2)}Å</span>
@@ -982,7 +1015,7 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
                 </div>
 
                 {/* Inline 3D Viewer container */}
-                <div className="flex-grow min-h-[300px] relative group overflow-hidden bg-gray-900/40 rounded-xl border border-gray-800 shadow-inner">
+                <div className="flex-grow min-h-[300px] relative group overflow-hidden bg-slate-50/50 dark:bg-gray-900/40 rounded-xl border border-slate-100 dark:border-gray-800 shadow-inner">
                     <CrystalViewer3D
                         structureData={structureData}
                         drawRepeats={drawRepeats}
@@ -992,7 +1025,7 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
                     {/* Settings Toggle Button */}
                     <button
                         onClick={() => setShowControls(!showControls)}
-                        className="absolute top-4 right-4 p-2.5 bg-[#0f111a]/80 backdrop-blur-md rounded-xl border border-white/10 text-teal-400 hover:text-white transition-all active:scale-95 shadow-lg group-hover:translate-x-0 translate-x-[120%] duration-300"
+                        className="absolute top-4 right-4 p-2.5 bg-white/80 dark:bg-[#0f111a]/80 backdrop-blur-md rounded-xl border border-slate-200 dark:border-white/10 text-indigo-600 dark:text-teal-400 hover:bg-slate-50 dark:hover:text-white transition-all active:scale-95 shadow-lg group-hover:translate-x-0 translate-x-[120%] duration-300"
                     >
                         <Settings
                             className={`w-5 h-5 ${showControls ? 'rotate-90' : ''} transition-transform duration-500`}
@@ -1002,9 +1035,9 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
                     {/* Minimizable Controls Overlay for Inline View */}
                     {showControls && (
                         <div className="absolute top-16 right-4 w-60 animate-in slide-in-from-right-4 duration-300">
-                            <div className="bg-[#0f111a]/95 backdrop-blur-xl rounded-xl border border-white/10 p-4 shadow-2xl space-y-4">
-                                <h4 className="text-teal-400 text-[10px] font-bold uppercase tracking-widest">
-                                    Rendering
+                            <div className="bg-white/95 dark:bg-[#0f111a]/95 backdrop-blur-xl rounded-xl border border-slate-200 dark:border-white/10 p-4 shadow-2xl space-y-4">
+                                <h4 className="text-indigo-600 dark:text-teal-400 text-[10px] font-bold uppercase tracking-widest">
+                                    {t('studio.rendering')}
                                 </h4>
                                 <div className="space-y-2">
                                     <button
@@ -1013,12 +1046,12 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
                                         }
                                         className={`w-full py-2 px-3 rounded-lg border transition-all flex items-center gap-2 text-[10px] font-bold ${
                                             drawRepeats
-                                                ? 'bg-teal-500/10 border-teal-500/30 text-teal-300'
-                                                : 'bg-white/5 border-white/5 text-gray-500'
+                                                ? 'bg-indigo-50 dark:bg-teal-500/10 border-indigo-200 dark:border-teal-500/30 text-indigo-700 dark:text-teal-300'
+                                                : 'bg-slate-50/50 dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-500'
                                         }`}
                                     >
                                         <div
-                                            className={`w-1.5 h-1.5 rounded-full ${drawRepeats ? 'bg-teal-400' : 'bg-gray-600'}`}
+                                            className={`w-1.5 h-1.5 rounded-full ${drawRepeats ? 'bg-indigo-500 dark:bg-teal-400' : 'bg-slate-300 dark:bg-gray-600'}`}
                                         ></div>
                                         Repeats
                                     </button>
@@ -1028,12 +1061,12 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
                                         }
                                         className={`w-full py-2 px-3 rounded-lg border transition-all flex items-center gap-2 text-[10px] font-bold ${
                                             drawOutside
-                                                ? 'bg-teal-500/10 border-teal-500/30 text-teal-300'
-                                                : 'bg-white/5 border-white/5 text-gray-500'
+                                                ? 'bg-indigo-50 dark:bg-teal-500/10 border-indigo-200 dark:border-teal-500/30 text-indigo-700 dark:text-teal-300'
+                                                : 'bg-slate-50/50 dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-500'
                                         }`}
                                     >
                                         <div
-                                            className={`w-1.5 h-1.5 rounded-full ${drawOutside ? 'bg-teal-400' : 'bg-gray-600'}`}
+                                            className={`w-1.5 h-1.5 rounded-full ${drawOutside ? 'bg-indigo-500 dark:bg-teal-400' : 'bg-slate-300 dark:bg-gray-600'}`}
                                         ></div>
                                         External
                                     </button>
@@ -1044,7 +1077,7 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
                 </div>
 
                 {/* Viewer Footer */}
-                <div className="flex items-center justify-between px-3 py-1.5 bg-gray-800/50 border-t border-gray-700 text-xs text-gray-500">
+                <div className="flex items-center justify-between px-3 py-1.5 bg-slate-100 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400">
                     <span>
                         {structureData.nsites} atoms • V=
                         {structureData.volume?.toFixed(1)} ų
@@ -1066,16 +1099,16 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
 
             {/* Explore Mode Modal / Full Screen Overlay */}
             {isExploring && (
-                <div className="fixed inset-0 z-[9999] bg-[#0a0a0f] flex flex-col animate-in fade-in duration-300">
+                <div className="fixed inset-0 z-[9999] bg-white dark:bg-[#0a0a0f] flex flex-col animate-in fade-in duration-300">
                     {/* Header */}
-                    <div className="flex items-center justify-between p-4 bg-gray-900 border-b border-gray-800">
+                    <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
                         <div className="flex items-center gap-3">
                             <Maximize2 className="w-5 h-5 text-purple-400" />
                             <div>
                                 <h2 className="text-white font-bold leading-none">
                                     {formula} - {t('materials.ar_vr')}
                                 </h2>
-                                <p className="text-gray-400 text-xs mt-1">
+                                <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">
                                     {materialId} •{' '}
                                     {structureData.symmetry?.symbol}
                                 </p>
@@ -1083,7 +1116,7 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
                         </div>
                         <button
                             onClick={() => setIsExploring(false)}
-                            className="p-2 hover:bg-gray-800 rounded-full text-gray-400 transition-colors cursor-pointer"
+                            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-400 transition-colors cursor-pointer"
                         >
                             <X className="w-6 h-6" />
                         </button>
@@ -1297,7 +1330,7 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
 
                 {/* Atomic Positions (collapsible) */}
                 {uniqueSites.length > 0 && (
-                    <div className="bg-gray-800/50 rounded-lg border border-gray-700/50 p-3">
+                    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700/50 p-3">
                         <button
                             onClick={() =>
                                 setShowAtomicPositions(!showAtomicPositions)
@@ -1366,7 +1399,7 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
                 )}
 
                 {/* Laser Cutting Speed Calculator */}
-                <div className="bg-gray-800/50 rounded-lg border border-teal-500/30 p-4 space-y-4">
+                <div className="bg-white dark:bg-slate-800/50 shadow-sm rounded-lg border border-slate-200 dark:border-teal-500/30 p-4 space-y-4">
                     <div className="flex items-center justify-between">
                         <h4 className="text-teal-400 text-xs font-semibold uppercase tracking-wider">
                             {t('materials.calculator_title')}
@@ -1378,7 +1411,7 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <label className="text-gray-400 text-[10px] uppercase font-medium">
+                            <label className="text-slate-500 dark:text-slate-400 text-[10px] uppercase font-bold tracking-tight">
                                 {t('materials.thickness')} (mm)
                             </label>
                             <input
@@ -1392,12 +1425,12 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
                                         parseFloat(e.target.value) || 0
                                     )
                                 }
-                                className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1.5 text-sm text-white focus:outline-none focus:border-teal-500/50 transition-colors"
+                                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-teal-500/50 transition-all shadow-inner"
                             />
                         </div>
                         <div className="space-y-2">
                             <div className="flex justify-between">
-                                <label className="text-gray-400 text-[10px] uppercase font-medium">
+                                <label className="text-slate-500 dark:text-slate-400 text-[10px] uppercase font-bold tracking-tight">
                                     {t('materials.laser_power')} (W)
                                 </label>
                                 <span className="text-teal-400 text-[10px] font-mono">
@@ -1419,13 +1452,13 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
                     </div>
 
                     <div className="pt-2">
-                        <div className="bg-gray-900/80 rounded-lg border border-gray-700 p-3 flex flex-col items-center justify-center space-y-1 relative overflow-hidden">
+                        <div className="bg-slate-50 dark:bg-slate-900/80 rounded-lg border border-slate-200 dark:border-slate-700 p-3 flex flex-col items-center justify-center space-y-1 relative overflow-hidden shadow-inner">
                             <div className="absolute top-0 left-0 w-1 h-full bg-teal-500"></div>
-                            <span className="text-gray-400 text-[10px] uppercase tracking-widest font-bold">
+                            <span className="text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-widest font-bold">
                                 {t('materials.estimated_speed')}
                             </span>
                             <div className="flex items-baseline space-x-2">
-                                <span className="text-3xl font-black text-white">
+                                <span className="text-3xl font-black text-slate-900 dark:text-white">
                                     {calculatedSpeed !== null
                                         ? calculatedSpeed.toFixed(2)
                                         : 'NaN'}
@@ -1434,12 +1467,12 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
                                     mm/s
                                 </span>
                             </div>
-                            <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-3 pt-3 border-t border-gray-800 w-full">
+                            <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 w-full">
                                 <div className="flex flex-col items-center">
                                     <span className="text-[9px] text-gray-500 uppercase">
                                         {t('materials.density')}
                                     </span>
-                                    <span className="text-[11px] text-gray-300 font-mono">
+                                    <span className="text-[11px] text-slate-700 dark:text-slate-300 font-mono">
                                         {structureData?.density?.toFixed(2)}{' '}
                                         g/cm³
                                     </span>
@@ -1461,7 +1494,7 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
                                     <span className="text-[9px] text-gray-500 uppercase">
                                         Formula
                                     </span>
-                                    <span className="text-[11px] text-gray-300 font-mono">
+                                    <span className="text-[11px] text-slate-700 dark:text-slate-300 font-mono">
                                         {formula}
                                     </span>
                                 </div>
@@ -1477,7 +1510,7 @@ const CrystalStructureViewer: React.FC<CrystalStructureViewerProps> = ({
                         </div>
                     </div>
 
-                    <div className="text-[9px] text-gray-500 italic leading-relaxed">
+                    <div className="text-[9px] text-slate-500 dark:text-slate-500 italic leading-relaxed">
                         {t('materials.calculator_disclaimer')}
                     </div>
                 </div>

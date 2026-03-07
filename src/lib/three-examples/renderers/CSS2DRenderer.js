@@ -1,4 +1,4 @@
-const { Matrix4, Object3D, Vector2, Vector3 } = window.THREE;
+const { Matrix4, Object3D, Vector2, Vector3 } = (window.AFRAME ? window.AFRAME.THREE : window.THREE);
 
 class CSS2DObject extends Object3D {
     constructor(element = document.createElement('div')) {

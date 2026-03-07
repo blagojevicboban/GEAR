@@ -328,14 +328,14 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
     };
 
     return (
-        <div className="flex w-full h-screen bg-slate-900 text-slate-200 overflow-hidden">
+        <div className="flex w-full h-screen bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 overflow-hidden transition-colors">
             {/* --- LEFT PANEL: Settings & Step Editor (35%) --- */}
-            <div className="w-[400px] flex flex-col border-r border-slate-800 bg-slate-950 shadow-2xl z-10">
+            <div className="w-[400px] flex flex-col border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 shadow-2xl z-10 transition-colors">
                 {/* Header */}
-                <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900">
+                <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 transition-colors">
                     <button
                         onClick={onCancel}
-                        className="p-2 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white"
+                        className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                     >
                         <ArrowLeft size={20} />
                     </button>
@@ -359,18 +359,18 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                 {/* Content Scroll Area */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
                     {/* Lesson Meta */}
-                    <div className="space-y-3 p-4 bg-slate-900/50 rounded-xl border border-slate-800/50">
+                    <div className="space-y-3 p-4 bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800/50 shadow-sm transition-colors">
                         <input
                             type="text"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            className="bg-transparent text-xl font-bold w-full outline-none placeholder:text-slate-600"
+                            className="bg-transparent text-xl font-bold w-full outline-none placeholder:text-slate-300 dark:placeholder:text-slate-600 text-slate-900 dark:text-white"
                             placeholder={t('builder.lesson_title')}
                         />
                         <textarea
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            className="w-full bg-slate-900 rounded p-2 text-xs text-slate-400 resize-none outline-none focus:ring-1 focus:ring-slate-700"
+                            className="w-full bg-slate-50 dark:bg-slate-900 rounded p-2 text-xs text-slate-600 dark:text-slate-400 resize-none outline-none focus:ring-1 focus:ring-slate-300 dark:focus:ring-slate-700 transition-colors"
                             rows={2}
                             placeholder={t('builder.short_description')}
                         />
@@ -380,7 +380,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                             <select
                                 value={sector}
                                 onChange={(e) => setSector(e.target.value)}
-                                className="w-full bg-slate-900 rounded p-2 text-xs text-slate-400 outline-none focus:ring-1 focus:ring-slate-700 cursor-pointer"
+                                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded p-2 text-xs text-slate-600 dark:text-slate-400 outline-none focus:ring-1 focus:ring-slate-300 dark:focus:ring-slate-700 cursor-pointer transition-colors"
                             >
                                 {availableSectors.map((s) => (
                                     <option key={s} value={s}>
@@ -396,7 +396,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                             .getElementById('lesson-meta-img')
                                             ?.click()
                                     }
-                                    className="w-full bg-slate-900 rounded p-2 text-xs text-slate-400 hover:text-white flex items-center justify-center gap-2 border border-transparent hover:border-slate-700 transition-all truncate"
+                                    className="w-full bg-slate-100 dark:bg-slate-900 rounded p-2 text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center gap-2 border border-slate-200 dark:border-transparent hover:border-slate-300 dark:hover:border-slate-700 transition-all truncate shadow-sm"
                                     title={
                                         imageUrl
                                             ? 'Change Cover Image'
@@ -426,7 +426,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                         </div>
 
                         {/* Pedagogical Tip (Result 4) */}
-                        <div className="mt-2 p-2 bg-indigo-900/20 border border-indigo-500/20 rounded-lg flex gap-2">
+                        <div className="mt-2 p-2 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-500/20 rounded-lg flex gap-2 shadow-sm">
                             <Info
                                 size={14}
                                 className="text-indigo-400 flex-shrink-0 mt-0.5"
@@ -435,7 +435,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                 <span className="text-[10px] font-bold text-indigo-400 uppercase block mb-0.5">
                                     {t('builder.pedagogical_tip')}
                                 </span>
-                                <p className="text-[10px] text-slate-400 italic">
+                                <p className="text-[10px] text-slate-600 dark:text-slate-400 italic">
                                     {t('builder.bloom_tip')}
                                 </p>
                             </div>
@@ -449,8 +449,8 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                 onClick={() => setActiveStepIndex(i)}
                                 className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                                     activeStepIndex === i
-                                        ? 'bg-indigo-600 text-white ring-2 ring-indigo-400 ring-offset-2 ring-offset-slate-950'
-                                        : 'bg-slate-800 text-slate-500 hover:bg-slate-700'
+                                        ? 'bg-indigo-600 text-white ring-2 ring-indigo-400 ring-offset-2 ring-offset-white dark:ring-offset-slate-950 shadow-lg shadow-indigo-500/30'
+                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700'
                                 }`}
                             >
                                 {i + 1}
@@ -458,7 +458,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                         ))}
                         <button
                             onClick={handleAddStep}
-                            className="flex-shrink-0 w-8 h-8 rounded-full border border-dashed border-slate-600 flex items-center justify-center text-slate-500 hover:text-white hover:border-slate-400 transition-colors"
+                            className="flex-shrink-0 w-8 h-8 rounded-full border border-dashed border-slate-300 dark:border-slate-600 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white hover:border-slate-400 transition-colors"
                         >
                             <Plus size={14} />
                         </button>
@@ -468,7 +468,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                     {currentStep && (
                         <div className="space-y-4 animate-in fade-in slide-in-from-left-4">
                             <div className="flex items-center justify-between">
-                                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                     <span className="bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded text-[10px] uppercase">
                                         {t('builder.step_editor').split(' ')[0]}{' '}
                                         {activeStepIndex + 1}
@@ -479,7 +479,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                     onClick={() =>
                                         handleRemoveStep(activeStepIndex)
                                     }
-                                    className="text-rose-500 hover:bg-rose-900/20 p-1.5 rounded transition-colors"
+                                    className="text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 p-1.5 rounded transition-colors"
                                     title={t('common.delete')}
                                 >
                                     <Trash2 size={14} />
@@ -492,14 +492,14 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                 onChange={(e) =>
                                     handleStepChange('title', e.target.value)
                                 }
-                                className="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-3 py-2 text-sm font-bold focus:border-indigo-500 outline-none transition-colors"
+                                className="w-full bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-bold focus:border-indigo-500 text-slate-900 dark:text-white outline-none transition-colors"
                                 placeholder={t('builder.step_headline')}
                             />
 
                             {/* Model Selection */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-[10px] font-bold uppercase text-slate-600 mb-1">
+                                    <label className="block text-[10px] font-bold uppercase text-slate-400 dark:text-slate-600 mb-1">
                                         {t('builder.attached_model')}
                                     </label>
                                     <div className="relative">
@@ -511,7 +511,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                                     e.target.value
                                                 )
                                             }
-                                            className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-xs appearance-none focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-white appearance-none focus:ring-1 focus:ring-indigo-500 outline-none transition-colors"
                                         >
                                             <option value="">
                                                 {t('builder.no_model')}
@@ -529,17 +529,17 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="block text-[10px] font-bold uppercase text-slate-600 mb-1">
+                                    <label className="block text-[10px] font-bold uppercase text-slate-400 dark:text-slate-600 mb-1">
                                         {t('builder.step_image')}
                                     </label>
                                     <div
-                                        className="bg-slate-900 border border-slate-700 rounded-lg p-2 focus-within:ring-1 focus-within:ring-indigo-500 outline-none transition-all"
+                                        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-2 focus-within:ring-1 focus-within:ring-indigo-500 outline-none transition-all"
                                         onPaste={(e) => handlePaste(e, 'image')}
                                         tabIndex={0}
                                     >
                                         <div className="flex items-center gap-3">
                                             {currentStep.image_url ? (
-                                                <div className="relative w-10 h-10 rounded overflow-hidden group/img shrink-0 border border-slate-700">
+                                                <div className="relative w-10 h-10 rounded overflow-hidden group/img shrink-0 border border-slate-200 dark:border-slate-700">
                                                     <img
                                                         src={
                                                             currentStep.image_url
@@ -560,7 +560,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                                     </button>
                                                 </div>
                                             ) : (
-                                                <div className="w-10 h-10 bg-slate-950 rounded flex items-center justify-center text-slate-700 shrink-0 border border-dashed border-slate-800">
+                                                <div className="w-10 h-10 bg-slate-100 dark:bg-slate-950 rounded flex items-center justify-center text-slate-400 dark:text-slate-700 shrink-0 border border-dashed border-slate-300 dark:border-slate-800">
                                                     <span className="text-[8px] font-bold">
                                                         {t('builder.no_img')}
                                                     </span>
@@ -579,7 +579,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                                             e.target.value
                                                         )
                                                     }
-                                                    className="w-full bg-transparent text-[10px] text-slate-300 outline-none placeholder:text-slate-700"
+                                                    className="w-full bg-transparent text-[10px] text-slate-600 dark:text-slate-300 outline-none placeholder:text-slate-300 dark:placeholder:text-slate-700"
                                                     placeholder={t(
                                                         'builder.image_placeholder'
                                                     )}
@@ -624,9 +624,9 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                             </div>
 
                             {/* INTERACTION CONFIG */}
-                            <div className="p-4 bg-indigo-900/10 border border-indigo-500/20 rounded-xl space-y-3">
+                            <div className="p-4 bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-500/20 rounded-xl space-y-3 transition-colors">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-2">
+                                    <span className="text-xs font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider flex items-center gap-2">
                                         <MousePointer size={12} />{' '}
                                         {t('builder.interaction')}
                                     </span>
@@ -640,7 +640,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                                 'read'
                                             )
                                         }
-                                        className={`flex-1 py-1.5 rounded text-[10px] font-bold border transition-all ${currentStep.interaction_type === 'read' ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-500'}`}
+                                        className={`flex-1 py-1.5 rounded text-[10px] font-bold border transition-all ${currentStep.interaction_type === 'read' ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:border-slate-300 dark:hover:border-slate-600'}`}
                                     >
                                         {t('builder.read')}
                                     </button>
@@ -652,7 +652,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                             )
                                         }
                                         disabled={!currentModel}
-                                        className={`flex-1 py-1.5 rounded text-[10px] font-bold border transition-all ${currentStep.interaction_type === 'find_part' ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-500'} disabled:opacity-30 disabled:cursor-not-allowed`}
+                                        className={`flex-1 py-1.5 rounded text-[10px] font-bold border transition-all ${currentStep.interaction_type === 'find_part' ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:border-slate-300 dark:hover:border-slate-600'} disabled:opacity-30 disabled:cursor-not-allowed`}
                                         title={
                                             !currentModel
                                                 ? "Attach a model to use 'Find Part'"
@@ -668,7 +668,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                                 'quiz'
                                             )
                                         }
-                                        className={`flex-1 py-1.5 rounded text-[10px] font-bold border transition-all ${currentStep.interaction_type === 'quiz' ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-500'}`}
+                                        className={`flex-1 py-1.5 rounded text-[10px] font-bold border transition-all ${currentStep.interaction_type === 'quiz' ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:border-slate-300 dark:hover:border-slate-600'}`}
                                     >
                                         {t('builder.quiz')}
                                     </button>
@@ -701,7 +701,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                         };
 
                                         return (
-                                            <div className="space-y-3 bg-slate-950/50 p-3 rounded-lg border border-indigo-500/10 transition-all">
+                                            <div className="space-y-3 bg-white dark:bg-slate-950/50 p-3 rounded-lg border border-indigo-100 dark:border-indigo-500/10 transition-all">
                                                 <div className="flex gap-1 mb-2">
                                                     {(
                                                         [
@@ -718,7 +718,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                                                     type: qt,
                                                                 })
                                                             }
-                                                            className={`flex-1 py-1 rounded text-[7px] font-bold uppercase transition-all ${quizData.type === qt ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-500'}`}
+                                                            className={`flex-1 py-1 rounded text-[7px] font-bold uppercase transition-all ${quizData.type === qt ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-900 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400'}`}
                                                         >
                                                             {t(
                                                                 `builder.quiz_types.${qt}`
@@ -730,7 +730,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                                 {quizData.type ===
                                                 'model_click' ? (
                                                     <div className="space-y-2">
-                                                        <label className="block text-[9px] font-bold uppercase text-slate-500">
+                                                        <label className="block text-[9px] font-bold uppercase text-slate-400 dark:text-slate-500">
                                                             Correct Part (Mesh
                                                             Name)
                                                         </label>
@@ -746,7 +746,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                                                 })
                                                             }
                                                             placeholder="Enter mesh name (e.g. Engine)..."
-                                                            className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white"
+                                                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-xs text-slate-900 dark:text-white outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
                                                         />
                                                     </div>
                                                 ) : quizData.type ===
@@ -764,7 +764,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                                                             }
                                                                         )
                                                                     }
-                                                                    className={`flex-1 py-2 rounded border text-[10px] font-bold transition-all ${quizData.correctIndex === i ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-500'}`}
+                                                                    className={`flex-1 py-2 rounded border text-[10px] font-bold transition-all ${quizData.correctIndex === i ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500'}`}
                                                                 >
                                                                     {t(
                                                                         `builder.true_false.${val}`
@@ -774,8 +774,8 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                                         )}
                                                     </div>
                                                 ) : (
-                                                    <>
-                                                        <label className="block text-[9px] font-bold uppercase text-slate-500">
+                                                    <div className="space-y-2">
+                                                        <label className="block text-[9px] font-bold uppercase text-slate-400 dark:text-slate-500">
                                                             Question Options
                                                         </label>
                                                         {quizData.options.map(
@@ -878,7 +878,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                                                             );
                                                                         }}
                                                                         placeholder={`Option ${i + 1}`}
-                                                                        className="flex-1 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white"
+                                                                        className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-xs text-slate-900 dark:text-white outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
                                                                     />
                                                                     {quizData
                                                                         .options
@@ -925,7 +925,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                                                                     }
                                                                                 );
                                                                             }}
-                                                                            className="text-slate-600 hover:text-rose-500"
+                                                                            className="text-slate-400 hover:text-rose-500 transition-colors"
                                                                         >
                                                                             <Trash2
                                                                                 size={
@@ -946,11 +946,11 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                                                     ],
                                                                 })
                                                             }
-                                                            className="w-full py-1 border border-dashed border-slate-700 rounded text-[10px] text-slate-500 hover:text-indigo-400 hover:border-indigo-500/50"
+                                                            className="w-full py-1 border border-dashed border-slate-300 dark:border-slate-700 rounded text-[10px] text-slate-400 dark:text-slate-500 hover:text-indigo-400 dark:hover:text-indigo-400 hover:border-indigo-500/50 transition-colors"
                                                         >
                                                             + Add Option
                                                         </button>
-                                                    </>
+                                                    </div>
                                                 )}
                                             </div>
                                         );
@@ -967,8 +967,8 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                                   )
                                                 : { targetMesh: '' };
                                         return (
-                                            <div className="space-y-2 bg-slate-950/50 p-3 rounded-lg border border-indigo-500/10">
-                                                <label className="block text-[9px] font-bold uppercase text-slate-500">
+                                            <div className="space-y-2 bg-white dark:bg-slate-950/50 p-3 rounded-lg border border-indigo-100 dark:border-indigo-500/10 transition-all">
+                                                <label className="block text-[9px] font-bold uppercase text-slate-400 dark:text-slate-500">
                                                     Target Mesh Name
                                                 </label>
                                                 <input
@@ -985,12 +985,12 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                                         )
                                                     }
                                                     placeholder="Enter exact part name..."
-                                                    className="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white"
+                                                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-xs text-slate-900 dark:text-white outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
                                                 />
-                                                <p className="text-[9px] text-slate-500 italic leading-tight">
+                                                <p className="text-[9px] text-slate-400 dark:text-slate-500 italic leading-tight">
                                                     Must match the mesh ID in
                                                     the 3D model (e.g.
-                                                    {"'Engine_Block'"}.
+                                                    {"'Engine_Block'"}).
                                                 </p>
                                             </div>
                                         );
@@ -1017,7 +1017,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                         </button>
 
                                         {currentStep.hotspot_id && (
-                                            <div className="flex items-center gap-2 p-2 bg-green-900/20 border border-green-500/30 rounded text-xs text-green-400">
+                                            <div className="flex items-center gap-2 p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-500/30 rounded text-xs text-green-600 dark:text-green-400 transition-colors">
                                                 <span className="font-bold">
                                                     ✓{' '}
                                                     {t(
@@ -1031,7 +1031,7 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                                             ''
                                                         )
                                                     }
-                                                    className="ml-auto hover:text-white"
+                                                    className="ml-auto text-slate-400 hover:text-rose-500 transition-colors"
                                                 >
                                                     <Trash2 size={12} />
                                                 </button>
@@ -1063,38 +1063,38 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                         />
                     </>
                 ) : currentStep?.image_url ? (
-                    <div className="absolute inset-0 flex items-center justify-center p-8 bg-slate-950">
+                    <div className="absolute inset-0 flex items-center justify-center p-8 bg-slate-50 dark:bg-slate-950 transition-colors">
                         <img
                             src={currentStep.image_url}
                             alt="Step Preview"
-                            className="max-w-full max-h-full object-contain rounded-xl shadow-2xl border border-slate-800 animate-in fade-in zoom-in-95 duration-500"
+                            className="max-w-full max-h-full object-contain rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-500"
                         />
-                        <div className="absolute top-4 right-4 bg-slate-900/80 backdrop-blur px-3 py-1 rounded-full border border-slate-700 text-[10px] font-bold text-slate-400">
+                        <div className="absolute top-4 right-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-500 dark:text-slate-400">
                             2D IMAGE PREVIEW
                         </div>
                     </div>
                 ) : (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-600">
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-300 dark:text-slate-600 bg-white dark:bg-black transition-colors">
                         <Layout size={48} className="mb-4 opacity-50" />
-                        <p className="font-bold">
+                        <p className="font-bold text-slate-400 dark:text-slate-600">
                             {t('builder.no_model_selected')}
                         </p>
-                        <p className="text-sm">{t('builder.no_model_tip')}</p>
+                        <p className="text-sm text-slate-400 dark:text-slate-700">{t('builder.no_model_tip')}</p>
                     </div>
                 )}
             </div>
 
             {/* --- MODAL: New Hotspot Details --- */}
             {showHotspotModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-                    <div className="bg-slate-900 border border-indigo-500/30 p-6 rounded-2xl w-96 shadow-2xl">
-                        <h3 className="text-lg font-bold text-white mb-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-3xl w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200">
+                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
                             {t('builder.define_hotspot')}
                         </h3>
 
                         <div className="space-y-4 mb-6">
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">
+                                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
                                     {t('builder.hotspot_title')}
                                 </label>
                                 <input
@@ -1103,12 +1103,13 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                     onChange={(e) =>
                                         setNewHotspotTitle(e.target.value)
                                     }
-                                    className="w-full bg-slate-950 border border-slate-700 rounded p-2 text-sm text-white focus:border-indigo-500 outline-none"
+                                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:border-indigo-500 outline-none transition-all"
                                     autoFocus
+                                    placeholder="e.g., Oil Inlet"
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">
+                                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
                                     {t('builder.hotspot_description')}
                                 </label>
                                 <textarea
@@ -1116,8 +1117,9 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                     onChange={(e) =>
                                         setNewHotspotDesc(e.target.value)
                                     }
-                                    className="w-full bg-slate-950 border border-slate-700 rounded p-2 text-sm text-white focus:border-indigo-500 outline-none"
+                                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:border-indigo-500 outline-none resize-none transition-all"
                                     rows={3}
+                                    placeholder="Enter hotspot context..."
                                 />
                             </div>
                         </div>
@@ -1128,13 +1130,13 @@ const WorkbookBuilder: React.FC<WorkbookBuilderProps> = ({
                                     setShowHotspotModal(false);
                                     setIsPlacingHotspot(false);
                                 }}
-                                className="px-4 py-2 text-slate-400 hover:text-white text-sm font-bold"
+                                className="px-6 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold transition-colors"
                             >
                                 {t('common.cancel')}
                             </button>
                             <button
                                 onClick={handleSaveHotspot}
-                                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-bold shadow-lg"
+                                className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold shadow-lg shadow-indigo-600/20 transition-all active:scale-95"
                             >
                                 {t('builder.create_link')}
                             </button>

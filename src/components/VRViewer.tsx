@@ -350,9 +350,14 @@ if (typeof window !== 'undefined' && (window as any).AFRAME) {
             _fit: function () {
                 const THREE = (window as any).AFRAME.THREE;
                 const obj = (this.el.components['gltf-model'] && (this.el.components['gltf-model'] as any).model) ||
-                    this.el.getObject3D('mesh');
+                    this.el.getObject3D('mesh') || this.el.getObject3D('model');
 
-                if (!obj) return;
+                if (!obj) {
+                    console.warn('[model-fitter] No object3D found to fit.');
+                    return;
+                }
+
+                console.log('[model-fitter] Fitting object:', obj.name || 'unnamed', { type: obj.type });
 
                 // Reset position and parent scale for accurate measurement
                 obj.position.set(0, 0, 0);
@@ -364,10 +369,17 @@ if (typeof window !== 'undefined' && (window as any).AFRAME) {
                 box.getSize(size);
                 const maxDim = Math.max(size.x, size.y, size.z);
 
-                if (maxDim <= 0 || isNaN(maxDim)) return;
+                console.log('[model-fitter] Model dimensions:', { x: size.x, y: size.y, z: size.z, maxDim });
+
+                if (maxDim <= 0 || isNaN(maxDim)) {
+                    console.warn('[model-fitter] Invalid dimensions, skipping fit.');
+                    return;
+                }
 
                 const targetSize = this.data.targetSize;
                 const targetScale = targetSize / maxDim;
+                console.log('[model-fitter] Applying scale:', targetScale);
+
                 const center = new THREE.Vector3();
                 box.getCenter(center);
 
@@ -413,11 +425,23 @@ if (typeof window !== 'undefined' && (window as any).AFRAME) {
     if (!AFRAME.components['stl-model']) {
         AFRAME.registerComponent('stl-model', {
             schema: { src: { type: 'string' } },
-            init: function () {
+            update: function (oldData: any) {
                 const THREE = (window as any).AFRAME.THREE;
                 const el = this.el;
+                const src = this.data.src;
+
+                if (!src || src === oldData.src) return;
+
                 const loader = new STLLoader();
-                loader.load(this.data.src, (geometry: any) => {
+                loader.load(src, (geometry: any) => {
+                    // Cleanup previous object
+                    const oldMesh = el.getObject3D('mesh');
+                    if (oldMesh) {
+                        el.removeObject3D('mesh');
+                        (oldMesh as any).geometry.dispose();
+                        (oldMesh as any).material.dispose();
+                    }
+
                     const material = new THREE.MeshStandardMaterial({
                         color: 0xcccccc,
                         metalness: 0.5,
@@ -425,8 +449,16 @@ if (typeof window !== 'undefined' && (window as any).AFRAME) {
                     });
                     const mesh = new THREE.Mesh(geometry, material);
                     el.setObject3D('mesh', mesh);
+                    el.emit('model-loaded', { format: 'stl', model: mesh });
                 });
             },
+            remove: function () {
+                const mesh = this.el.getObject3D('mesh');
+                if (mesh) {
+                    (mesh as any).geometry.dispose();
+                    (mesh as any).material.dispose();
+                }
+            }
         });
     }
 
@@ -477,7 +509,7 @@ if (typeof window !== 'undefined' && (window as any).AFRAME) {
 
                 renderer.toneMappingExposure = this.data.exposure;
 
-                const THREE = (window as any).THREE;
+                const THREE = (window as any).AFRAME.THREE;
                 const mapping: any = {
                     NoToneMapping: THREE.NoToneMapping,
                     LinearToneMapping: THREE.LinearToneMapping,
@@ -675,13 +707,8 @@ const VRViewer: React.FC<VRViewerProps> = ({
     const lastContextSentRef = useRef<string | null>(null);
 
     // --- LOD / Optimization State ---
-    const [performanceTier, setPerformanceTier] = useState<PerformanceTier>(
-        PerformanceTier.HIGH
-    );
-
     useEffect(() => {
         const tier = LODManager.getTier();
-        setPerformanceTier(tier);
         const config = LODManager.getConfig(tier);
 
         console.log(`[Antigravity] Device Tier: ${tier}`, config);
@@ -917,7 +944,6 @@ const VRViewer: React.FC<VRViewerProps> = ({
         const loadHandler = (evt: any) => {
             if (evt.type === 'object3dset' && evt.detail.type !== 'mesh') return;
             
-            const THREE = (window as any).AFRAME.THREE;
             const model = evt.detail.model || evt.detail.object;
             console.log(`[loadHandler] Model event: ${evt.type}`, { url: activeModelUrl });
             
@@ -994,18 +1020,18 @@ const VRViewer: React.FC<VRViewerProps> = ({
 
         const listener = outputAudioContextRef.current.listener;
         const position = camera.getWorldPosition(
-            new (window as any).THREE.Vector3()
+            new (window as any).AFRAME.THREE.Vector3()
         );
         const quaternion = camera.getWorldQuaternion(
-            new (window as any).THREE.Quaternion()
+            new (window as any).AFRAME.THREE.Quaternion()
         );
 
-        const forward = new (window as any).THREE.Vector3(
+        const forward = new (window as any).AFRAME.THREE.Vector3(
             0,
             0,
             -1
         ).applyQuaternion(quaternion);
-        const up = new (window as any).THREE.Vector3(0, 1, 0).applyQuaternion(
+        const up = new (window as any).AFRAME.THREE.Vector3(0, 1, 0).applyQuaternion(
             quaternion
         );
 
@@ -1363,14 +1389,14 @@ const VRViewer: React.FC<VRViewerProps> = ({
 
             if (camera) {
                 const pos = camera.getWorldPosition(
-                    new (window as any).THREE.Vector3()
+                    new (window as any).AFRAME.THREE.Vector3()
                 );
                 const rot = camera.getWorldQuaternion(
-                    new (window as any).THREE.Quaternion()
+                    new (window as any).AFRAME.THREE.Quaternion()
                 );
                 const euler = new (
                     window as any
-                ).THREE.Euler().setFromQuaternion(rot, 'YXZ');
+                ).AFRAME.THREE.Euler().setFromQuaternion(rot, 'YXZ');
 
                 transforms.head = {
                     pos: { x: pos.x, y: pos.y, z: pos.z },
@@ -1396,11 +1422,11 @@ const VRViewer: React.FC<VRViewerProps> = ({
                 if (isTeacherPointerActive) {
                     // Raycast from camera center
                     // We can reuse the cursor raycaster or create a math one
-                    const raycaster = new (window as any).THREE.Raycaster();
+                    const raycaster = new (window as any).AFRAME.THREE.Raycaster();
                     raycaster.setFromCamera({ x: 0, y: 0 }, camera); // Center of screen
 
                     // Ray length 10m
-                    const farPoint = new (window as any).THREE.Vector3();
+                    const farPoint = new (window as any).AFRAME.THREE.Vector3();
                     raycaster.ray.at(10, farPoint);
 
                     // Check intersection with model
@@ -1633,6 +1659,20 @@ const VRViewer: React.FC<VRViewerProps> = ({
             lastContextSentRef.current = activePartName;
         }
     }, [activePartName, isVoiceActive]);
+
+    // Force WebGL Context Loss on Unmount to prevent memory leaks
+    useEffect(() => {
+        return () => {
+            if (bgSceneRef.current) {
+                const renderer = (bgSceneRef.current as any).renderer;
+                if (renderer) {
+                    const extension = renderer.getContext().getExtension('WEBGL_lose_context');
+                    if (extension) extension.loseContext();
+                    renderer.dispose();
+                }
+            }
+        };
+    }, []);
 
     return (
         <div className="relative w-full h-full overflow-hidden bg-black text-slate-100">
@@ -2427,7 +2467,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
                     {/* Model and Environment */}
                     {studioConfig.environment !== 'none' ? (
                         <a-entity
-                            environment={`preset: ${studioConfig.environment}; lighting: true; shadow: true; fog: 0; intensity: 0.8`}
+                            environment={`preset: ${studioConfig.environment}; lighting: true; shadow: true; fog: 0`}
                         ></a-entity>
                     ) : (
                         <a-sky color="#050505"></a-sky>
@@ -2440,8 +2480,8 @@ const VRViewer: React.FC<VRViewerProps> = ({
                     ></a-grid-helper>
 
                     <a-entity light="type: ambient; intensity: 1.5; color: #ffffff"></a-entity>
-                    <a-entity light="type: directional; intensity: 1.5; castShadow: true; position: 1 4 3"></a-entity>
-                    <a-entity light="type: directional; intensity: 1.0; position: -1 -2 -3"></a-entity>
+                    <a-entity light="type: directional; intensity: 1.5; castShadow: true" position="1 4 3"></a-entity>
+                    <a-entity light="type: directional; intensity: 1.0" position="-1 -2 -3"></a-entity>
 
                     {/* Model Group (The Target) */}
                     <a-entity
@@ -2481,10 +2521,7 @@ const VRViewer: React.FC<VRViewerProps> = ({
                             >
                                 <a-sphere
                                     radius="0.05"
-                                    color={
-                                        hs.type === 'video' ? '#f43f5e' : '#6366f1'
-                                    }
-                                    opacity="0.8"
+                                    material={`color: ${hs.type === 'video' ? '#f43f5e' : '#6366f1'}; opacity: 0.8`}
                                 >
                                     <a-text
                                         value={hs.title}

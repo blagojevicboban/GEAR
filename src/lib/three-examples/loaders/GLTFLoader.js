@@ -64,7 +64,7 @@ const {
     VectorKeyframeTrack,
     SRGBColorSpace,
     InstancedBufferAttribute,
-} = window.THREE;
+} = (window.AFRAME ? window.AFRAME.THREE : window.THREE);
 import { toTrianglesDrawMode } from '../utils/BufferGeometryUtils.js';
 
 class GLTFLoader extends Loader {

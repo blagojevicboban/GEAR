@@ -136,7 +136,7 @@ const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
             <div className="mb-12 text-center">
                 <h1 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500 dark:from-indigo-400 dark:to-purple-400">
                     {t('academy.title')}{' '}
-                    <span className="text-white text-sm bg-indigo-600 px-2 py-1 rounded ml-2 shadow-lg">
+                    <span className="text-white text-xs font-bold bg-indigo-600 px-2 py-1 rounded-lg ml-2 shadow-lg vertical-middle">
                         BETA
                     </span>
                 </h1>
@@ -179,8 +179,8 @@ const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
 
             {/* Admin Add/Edit Form */}
             {isAdmin && isAdding && (
-                <div className="mb-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-xl animate-in fade-in slide-in-from-top-4 shadow-xl">
-                    <h3 className="font-bold text-white mb-4">
+                <div className="mb-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-8 rounded-3xl animate-in fade-in slide-in-from-top-4 shadow-xl">
+                    <h3 className="font-bold text-slate-900 dark:text-white text-xl mb-6">
                         {editingId
                             ? t('academy.edit_video')
                             : t('academy.form.add_new', {
@@ -210,14 +210,14 @@ const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
                             placeholder={t('academy.form.description')}
                             value={newDesc}
                             onChange={(e) => setNewDesc(e.target.value)}
-                            className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-2 rounded text-slate-900 dark:text-white col-span-2"
-                            rows={2}
+                            className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 p-4 rounded-xl text-slate-900 dark:text-white col-span-2 outline-none focus:ring-2 focus:ring-indigo-500/20"
+                            rows={3}
                         />
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-3 justify-end mt-4">
                         <button
                             onClick={handleSave}
-                            className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded font-bold"
+                            className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-indigo-600/20 transition-all active:scale-95"
                         >
                             {editingId
                                 ? t('academy.update_video')
@@ -225,7 +225,7 @@ const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
                         </button>
                         <button
                             onClick={handleCancel}
-                            className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded font-bold"
+                            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 px-6 py-3 rounded-xl font-bold transition-all hover:bg-slate-50 dark:hover:bg-slate-700"
                         >
                             {t('common.cancel')}
                         </button>
@@ -239,7 +239,7 @@ const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
                     videos[activeCategory].map((video: any) => (
                         <div
                             key={video.id}
-                            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden hover:border-indigo-500/50 transition-colors group relative shadow-md hover:shadow-xl transition-all"
+                            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden hover:border-indigo-500 transition-colors group relative shadow-md hover:shadow-2xl transition-all duration-300"
                         >
                             {isAdmin && (
                                 <div className="absolute top-2 right-2 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -296,14 +296,15 @@ const Academy: React.FC<AcademyProps> = ({ currentUser }) => {
             </div>
 
             {/* Certification Banner */}
-            <div className="mt-16 p-8 bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border border-indigo-500/30 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6">
-                <div>
-                    <h3 className="text-2xl font-bold mb-2">
+            <div className="mt-16 p-10 bg-gradient-to-r from-indigo-900 to-purple-900 border border-indigo-500/30 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden group">
+                <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                <div className="relative z-10">
+                    <h3 className="text-3xl font-bold mb-3 text-white">
                         {t('academy.get_certified')}
                     </h3>
-                    <p className="text-slate-400">{t('academy.cert_desc')}</p>
+                    <p className="text-indigo-100/70 max-w-lg">{t('academy.cert_desc')}</p>
                 </div>
-                <button className="px-8 py-3 bg-white text-indigo-900 font-bold rounded-xl hover:bg-indigo-50 transition-colors shadow-lg">
+                <button className="relative z-10 px-8 py-4 bg-white text-indigo-900 font-bold rounded-2xl hover:bg-indigo-50 transition-all shadow-xl hover:scale-105 active:scale-95 whitespace-nowrap">
                     {t('academy.check_progress')}
                 </button>
             </div>

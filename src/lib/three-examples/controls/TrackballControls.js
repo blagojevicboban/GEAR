@@ -1,5 +1,5 @@
 const { EventDispatcher, MathUtils, MOUSE, Quaternion, Vector2, Vector3 } =
-    window.THREE;
+    (window.AFRAME ? window.AFRAME.THREE : window.THREE);
 
 const _changeEvent = { type: 'change' };
 const _startEvent = { type: 'start' };

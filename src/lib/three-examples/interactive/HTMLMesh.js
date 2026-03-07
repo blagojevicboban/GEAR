@@ -6,7 +6,7 @@ const {
     PlaneGeometry,
     SRGBColorSpace,
     Color,
-} = window.THREE;
+} = (window.AFRAME ? window.AFRAME.THREE : window.THREE);
 
 class HTMLMesh extends Mesh {
     constructor(dom) {

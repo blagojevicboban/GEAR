@@ -130,15 +130,15 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 
     return (
         <div className="max-w-2xl mx-auto px-6 py-12">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden transition-colors">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
 
                 <div className="flex flex-col sm:flex-row items-center justify-between mb-10 gap-6">
                     <div className="text-center sm:text-left">
-                        <h2 className="text-3xl font-bold text-white">
+                        <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
                             {t('profile.form.title')}
                         </h2>
-                        <p className="text-slate-500 text-sm">
+                        <p className="text-slate-500 dark:text-slate-400 text-sm">
                             {t('profile.form.subtitle')}
                         </p>
                     </div>
@@ -190,7 +190,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                             className="hidden"
                             onChange={handleImageChange}
                         />
-                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest text-center mt-2">
+                        <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest text-center mt-2">
                             {t('profile.form.update_photo')}
                         </p>
                     </div>
@@ -199,7 +199,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                 {isUpdating ? (
                     <div className="py-20 text-center">
                         <div className="w-12 h-12 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
-                        <p className="text-slate-400 font-bold animate-pulse">
+                        <p className="text-slate-600 dark:text-slate-400 font-bold animate-pulse">
                             {t('profile.form.updating')}
                         </p>
                     </div>
@@ -207,13 +207,13 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">
+                                <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-widest">
                                     {t('profile.form.username')}
                                 </label>
                                 <input
                                     required
                                     type="text"
-                                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-white"
+                                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-slate-900 dark:text-white"
                                     value={formData.username}
                                     onChange={(e) =>
                                         setFormData({
@@ -227,14 +227,14 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">
+                                <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-widest">
                                     {t('profile.form.email')}
                                 </label>
                                 <input
                                     required
                                     type="email"
                                     disabled
-                                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-slate-500 cursor-not-allowed"
+                                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-slate-400 dark:text-slate-500 cursor-not-allowed"
                                     value={formData.email}
                                     placeholder={t(
                                         'profile.form.email_placeholder'
@@ -244,12 +244,12 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">
+                            <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-widest">
                                 {t('profile.form.institution')}
                             </label>
                             <input
                                 type="text"
-                                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-white"
+                                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-slate-900 dark:text-white"
                                 value={formData.institution}
                                 onChange={(e) =>
                                     setFormData({
@@ -264,11 +264,11 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">
+                            <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-widest">
                                 {t('nav.language')}
                             </label>
                             <select
-                                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-white"
+                                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-slate-900 dark:text-white"
                                 value={formData.language}
                                 onChange={(e) =>
                                     setFormData({
@@ -287,12 +287,12 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">
+                            <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-widest">
                                 {t('profile.form.bio')}
                             </label>
                             <textarea
                                 rows={3}
-                                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-white resize-none"
+                                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-slate-900 dark:text-white resize-none"
                                 value={formData.bio}
                                 onChange={(e) =>
                                     setFormData({
@@ -304,13 +304,13 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                             />
                         </div>
 
-                        <div className="border-t border-slate-800 pt-6">
+                        <div className="border-t border-slate-200 dark:border-slate-800 pt-6">
                             <button
                                 type="button"
                                 onClick={() =>
                                     setShowPasswordSection(!showPasswordSection)
                                 }
-                                className="text-indigo-400 text-sm font-bold hover:text-indigo-300 flex items-center gap-2"
+                                className="text-indigo-600 dark:text-indigo-400 text-sm font-bold hover:text-indigo-500 dark:hover:text-indigo-300 flex items-center gap-2"
                             >
                                 <svg
                                     className={`w-4 h-4 transition-transform ${showPasswordSection ? 'rotate-180' : ''}`}
@@ -329,14 +329,14 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                             </button>
 
                             {showPasswordSection && (
-                                <div className="mt-4 space-y-4 bg-slate-950/50 p-6 rounded-xl border border-slate-800">
+                                <div className="mt-4 space-y-4 bg-slate-50/50 dark:bg-slate-950/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800">
                                     <div className="space-y-2">
-                                        <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">
+                                        <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-widest">
                                             {t('profile.password.current')}
                                         </label>
                                         <input
                                             type="password"
-                                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-white"
+                                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-slate-900 dark:text-white"
                                             value={passwordData.currentPassword}
                                             onChange={(e) =>
                                                 setPasswordData({
@@ -349,12 +349,12 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">
+                                            <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-widest">
                                                 {t('profile.password.new')}
                                             </label>
                                             <input
                                                 type="password"
-                                                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-white"
+                                                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-slate-900 dark:text-white"
                                                 value={passwordData.newPassword}
                                                 onChange={(e) =>
                                                     setPasswordData({
@@ -366,12 +366,12 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-xs font-bold uppercase text-slate-500 tracking-widest">
+                                            <label className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-widest">
                                                 {t('profile.password.confirm')}
                                             </label>
                                             <input
                                                 type="password"
-                                                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-white"
+                                                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:border-indigo-500 outline-none transition-all text-slate-900 dark:text-white"
                                                 value={
                                                     passwordData.confirmPassword
                                                 }
@@ -389,11 +389,11 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                             )}
                         </div>
 
-                        <div className="flex gap-4 pt-4 border-t border-slate-800">
+                        <div className="flex gap-4 pt-4 border-t border-slate-200 dark:border-slate-800">
                             <button
                                 type="button"
                                 onClick={onCancel}
-                                className="flex-1 py-4 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-all"
+                                className="flex-1 py-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-white font-bold rounded-xl transition-all"
                             >
                                 {t('common.cancel')}
                             </button>

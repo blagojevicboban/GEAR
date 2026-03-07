@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { VETModel } from '../types';
 import { fixAssetUrl } from '../utils/urlUtils';
-import { STLLoader } from '../lib/three-examples/loaders/STLLoader.js';
+
 
 interface HeatmapViewerProps {
     model: VETModel;
@@ -36,11 +36,16 @@ const HeatmapViewer: React.FC<HeatmapViewerProps> = ({ model }) => {
         // but for a prototype <a-sphere> might crash browser if too many.
         // Let's use Three.js direct object creation for performance.
 
+        let geometry: any = null;
+        let material: any = null;
+        let wrapper: any = null;
+        let modelEntity: any = null;
+
         if (sceneEl.object3D) {
-            const geometry = new (window as any).THREE.BufferGeometry();
+            geometry = new (window as any).AFRAME.THREE.BufferGeometry();
             const positions = [];
             const colors = [];
-            const color = new (window as any).THREE.Color();
+            const color = new (window as any).AFRAME.THREE.Color();
 
             for (const p of points) {
                 positions.push(p.x, p.y, p.z);
@@ -51,14 +56,14 @@ const HeatmapViewer: React.FC<HeatmapViewerProps> = ({ model }) => {
 
             geometry.setAttribute(
                 'position',
-                new (window as any).THREE.Float32BufferAttribute(positions, 3)
+                new (window as any).AFRAME.THREE.Float32BufferAttribute(positions, 3)
             );
             geometry.setAttribute(
                 'color',
-                new (window as any).THREE.Float32BufferAttribute(colors, 3)
+                new (window as any).AFRAME.THREE.Float32BufferAttribute(colors, 3)
             );
 
-            const material = new (window as any).THREE.PointsMaterial({
+            material = new (window as any).AFRAME.THREE.PointsMaterial({
                 size: 0.05,
                 vertexColors: true,
                 transparent: true,
@@ -66,24 +71,31 @@ const HeatmapViewer: React.FC<HeatmapViewerProps> = ({ model }) => {
                 depthWrite: false,
             });
 
-            const pointCloud = new (window as any).THREE.Points(
+            const pointCloud = new (window as any).AFRAME.THREE.Points(
                 geometry,
                 material
             );
-            const wrapper = new (window as any).THREE.Group();
+            wrapper = new (window as any).AFRAME.THREE.Group();
             wrapper.add(pointCloud);
 
             // Attach to the MODEL entity so it rotates WITH the model
             // But we need to wait for the model entity?
             // Actually, we can just append this as a child of the interactable-model entity.
 
-            const modelEntity = document.getElementById(
+            modelEntity = document.getElementById(
                 'heatmap-model-root'
             ) as any;
             if (modelEntity && modelEntity.object3D) {
                 modelEntity.object3D.add(wrapper);
             }
         }
+        return () => {
+            if (modelEntity && modelEntity.object3D && wrapper) {
+                modelEntity.object3D.remove(wrapper);
+            }
+            if (geometry) geometry.dispose();
+            if (material) material.dispose();
+        };
     }, [points, loading]);
 
     const activeModelUrl =
@@ -102,7 +114,7 @@ const HeatmapViewer: React.FC<HeatmapViewerProps> = ({ model }) => {
             <a-scene embedded renderer="antialias: true; alpha: true">
                 <a-sky color="#0f172a"></a-sky>
                 <a-entity light="type: ambient; intensity: 0.7;"></a-entity>
-                <a-entity light="type: directional; intensity: 0.8; position: 2 4 3"></a-entity>
+                <a-entity light="type: directional; intensity: 0.8" position="2 4 3"></a-entity>
 
                 <a-camera
                     position="0 0 3"

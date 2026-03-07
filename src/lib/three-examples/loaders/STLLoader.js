@@ -6,7 +6,7 @@ const {
     Float32BufferAttribute,
     Loader,
     Vector3,
-} = window.THREE;
+} = (window.AFRAME ? window.AFRAME.THREE : window.THREE);
 
 /**
  * Description: A THREE loader for STL ASCII files, as created by Solidworks and other CAD programs.

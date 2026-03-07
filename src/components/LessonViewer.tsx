@@ -259,20 +259,20 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
     };
 
     return (
-        <div className="flex h-screen w-screen bg-slate-950 overflow-hidden relative">
+        <div className="flex h-screen w-screen bg-slate-100 dark:bg-slate-950 overflow-hidden relative transition-colors duration-300">
             {/* Sidebar (Content) */}
             <div
-                className={`absolute inset-y-0 left-0 z-20 w-full md:w-[400px] bg-slate-900 border-r border-slate-800 transform transition-transform duration-300 flex flex-col shadow-2xl ${
+                className={`absolute inset-y-0 left-0 z-20 w-full md:w-[400px] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transform transition-transform duration-300 flex flex-col shadow-2xl ${
                     isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
                 }`}
             >
                 {/* Header */}
-                <div className="p-6 border-b border-slate-800 flex justify-between items-start">
+                <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-start">
                     <div>
-                        <h2 className="text-sm font-bold text-indigo-400 uppercase tracking-widest mb-1">
+                        <h2 className="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-1">
                             {t('lessons.viewer.interactive_lesson')}
                         </h2>
-                        <h1 className="text-xl font-bold text-white leading-tight">
+                        <h1 className="text-xl font-bold text-slate-900 dark:text-white leading-tight">
                             {lesson.title}
                         </h1>
                     </div>
@@ -280,13 +280,13 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
                         {/* Toggle Sidebar (Mobile/Desktop) */}
                         <button
                             onClick={() => setIsSidebarOpen(false)}
-                            className="md:hidden p-2 text-slate-500 hover:text-white transition-colors bg-slate-800 rounded-lg"
+                            className="md:hidden p-2 text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors bg-slate-100 dark:bg-slate-800 rounded-lg"
                         >
                             <ChevronLeft size={20} />
                         </button>
                         <button
                             onClick={onExit}
-                            className="text-slate-500 hover:text-white transition-colors p-2"
+                            className="text-slate-400 dark:text-slate-500 hover:text-rose-500 transition-colors p-2"
                         >
                             <X size={24} />
                         </button>
@@ -294,7 +294,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
                 </div>
 
                 {/* Content Area */}
-                <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-slate-700">
+                <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
                     {currentStep ? (
                         <div className="animate-in fade-in slide-in-from-right-4 duration-300">
                             <div className="flex items-center gap-2 mb-4">
@@ -304,14 +304,14 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
                                         total: totalSteps,
                                     })}
                                 </span>
-                                <h3 className="text-lg font-semibold text-slate-200">
+                                <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
                                     {currentStep.title}
                                 </h3>
                             </div>
 
                             {/* Show image in sidebar if we have a model (since main view shows model) */}
                             {currentStep.model_id && currentStep.image_url && (
-                                <div className="mb-6 rounded-lg overflow-hidden border border-slate-700">
+                                <div className="mb-6 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm">
                                     <img
                                         src={currentStep.image_url}
                                         alt="Step Visual"
@@ -321,7 +321,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
                             )}
 
                             <div
-                                className="prose prose-invert prose-sm max-w-none text-slate-300"
+                                className="prose dark:prose-invert prose-sm max-w-none text-slate-600 dark:text-slate-300"
                                 dangerouslySetInnerHTML={{
                                     __html: renderLatexInHtml(
                                         currentStep.content
@@ -405,13 +405,13 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
                                                 </h4>
 
                                                 {data.type === 'model_click' ? (
-                                                    <div className="text-center py-4 bg-slate-950/50 rounded-lg border border-slate-700/50">
-                                                        <p className="text-xs text-slate-400 mb-2">
+                                                    <div className="text-center py-4 bg-slate-100 dark:bg-slate-950/50 rounded-lg border border-slate-200 dark:border-slate-700/50">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
                                                             {t(
                                                                 'lessons.viewer.click_instruction'
                                                             )}
                                                         </p>
-                                                        <p className="text-sm font-bold text-white italic">
+                                                        <p className="text-sm font-bold text-slate-700 dark:text-white italic">
                                                             {t(
                                                                 'lessons.viewer.target_prompt',
                                                                 {
@@ -460,14 +460,14 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
                                                                             disabled={
                                                                                 quizSubmitted
                                                                             }
-                                                                            className={`flex-1 py-4 rounded-xl border-2 font-bold transition-all ${
+                                                                            className={`flex-1 py-4 rounded-xl border-2 font-bold transition-all shadow-sm ${
                                                                                 quizSelected ===
                                                                                 i
                                                                                     ? i ===
                                                                                       data.correctIndex
-                                                                                        ? 'bg-emerald-600/20 border-emerald-500 text-emerald-400'
-                                                                                        : 'bg-rose-600/20 border-rose-500 text-rose-400'
-                                                                                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-600'
+                                                                                        ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-600 dark:text-emerald-400'
+                                                                                        : 'bg-rose-500/10 border-rose-500/50 text-rose-600 dark:text-rose-400'
+                                                                                    : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 hover:border-slate-300 dark:hover:border-slate-600'
                                                                             }`}
                                                                         >
                                                                             {i ===
@@ -559,12 +559,12 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
                                                                             disabled={
                                                                                 quizSubmitted
                                                                             }
-                                                                            className={`w-full text-left px-4 py-3 rounded-lg text-sm transition-all ${
+                                                                            className={`w-full text-left px-4 py-3 rounded-lg text-sm transition-all shadow-sm border ${
                                                                                 isSelected
-                                                                                    ? 'bg-indigo-600/20 border-indigo-500 text-white border'
-                                                                                    : 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-700'
-                                                                            } ${quizSubmitted && isIndividualCorrect ? '!bg-emerald-500/20 !border-emerald-500 !text-emerald-400' : ''}
-                                                                ${quizSubmitted && isSelected && !isIndividualCorrect ? '!bg-rose-500/20 !border-rose-500 !text-rose-400' : ''}
+                                                                                    ? 'bg-indigo-50 dark:bg-indigo-600/20 border-indigo-200 dark:border-indigo-500 text-indigo-700 dark:text-white'
+                                                                                    : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                                                                            } ${quizSubmitted && isIndividualCorrect ? '!bg-emerald-50 dark:!bg-emerald-500/20 !border-emerald-200 dark:!border-emerald-500 !text-emerald-700 dark:!text-emerald-400' : ''}
+                                                                ${quizSubmitted && isSelected && !isIndividualCorrect ? '!bg-rose-50 dark:!bg-rose-500/20 !border-rose-200 dark:!border-rose-500 !text-rose-700 dark:!text-rose-400' : ''}
                                                                 `}
                                                                         >
                                                                             <div className="flex items-center gap-3">
@@ -673,17 +673,17 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
                                                   )
                                                 : { targetMesh: '...' };
                                         return (
-                                            <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
-                                                <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                                            <div className="bg-slate-50 dark:bg-slate-800 shadow-inner p-4 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors">
+                                                <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
                                                     <CheckCircle
                                                         size={16}
-                                                        className="text-indigo-400"
+                                                        className="text-indigo-600 dark:text-indigo-400"
                                                     />
                                                     {t(
                                                         'lessons.viewer.find_task'
                                                     )}
                                                 </h4>
-                                                <p className="text-sm text-slate-300 mb-4">
+                                                <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
                                                     {t(
                                                         'lessons.viewer.find_instruction',
                                                         {
@@ -694,7 +694,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
 
                                                 {findPartFeedback && (
                                                     <div
-                                                        className={`p-3 rounded-lg flex items-center gap-2 text-xs font-bold animate-in fade-in slide-in-from-bottom-2 ${findPartFeedback.type === 'success' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}
+                                                        className={`p-3 rounded-lg flex items-center gap-2 text-xs font-bold animate-in fade-in slide-in-from-bottom-2 ${findPartFeedback.type === 'success' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400'}`}
                                                     >
                                                         {findPartFeedback.type ===
                                                         'success' ? (
@@ -715,14 +715,14 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
                             </div>
                         </div>
                     ) : (
-                        <div className="text-slate-400">
+                        <div className="text-slate-600 dark:text-slate-400">
                             <p className="mb-4">{lesson.description}</p>
                             <button
                                 onClick={() => {
                                     resetInteractionState();
                                     setCurrentStepIndex(0);
                                 }}
-                                className="text-indigo-400 underline"
+                                className="text-indigo-600 dark:text-indigo-400 font-bold underline underline-offset-4"
                             >
                                 {t('lessons.viewer.start_first')}
                             </button>
@@ -731,20 +731,20 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
                 </div>
 
                 {/* Footer Navigation */}
-                <div className="p-4 border-t border-slate-800 bg-slate-900 flex justify-between items-center">
+                <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-between items-center shadow-[0_-4px_20px_rgba(0,0,0,0.05)] transition-colors">
                     <button
                         onClick={handlePrev}
                         disabled={currentStepIndex === 0}
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-bold text-xs"
                     >
                         <ChevronLeft size={16} /> {t('lessons.viewer.previous')}
                     </button>
 
-                    <div className="flex gap-1">
+                    <div className="flex gap-1.5">
                         {steps.map((_, idx) => (
                             <div
                                 key={idx}
-                                className={`w-1.5 h-1.5 rounded-full ${idx === currentStepIndex ? 'bg-indigo-500' : 'bg-slate-700'}`}
+                                className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${idx === currentStepIndex ? 'bg-indigo-600 scale-125' : 'bg-slate-300 dark:bg-slate-700'}`}
                             />
                         ))}
                     </div>
@@ -777,7 +777,7 @@ const LessonViewer: React.FC<LessonViewerProps> = ({
                 {/* Toggle Sidebar Button */}
                 <button
                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                    className="absolute top-4 left-4 z-10 p-2 bg-slate-900/80 backdrop-blur text-white rounded-lg hover:bg-indigo-600 transition-colors"
+                    className="absolute top-4 left-4 z-10 p-2.5 bg-white/90 dark:bg-slate-900/80 backdrop-blur-md text-slate-600 dark:text-white rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-lg border border-slate-200 dark:border-white/10"
                 >
                     <Menu size={20} />
                 </button>

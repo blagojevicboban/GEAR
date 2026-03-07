@@ -65,11 +65,11 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
             onClick={onClose}
         >
             <div
-                className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95"
+                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 transition-colors"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="sticky top-0 bg-slate-900/95 backdrop-blur z-10 border-b border-slate-800 p-6 flex justify-between items-center">
-                    <h3 className="text-2xl font-bold text-white">
+                <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur z-10 border-b border-slate-200 dark:border-slate-800 p-6 flex justify-between items-center">
+                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
                         {t('profile.modal.title')}
                     </h3>
                     <button
@@ -107,7 +107,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                         </div>
                         <div className="space-y-4 flex-1">
                             <div>
-                                <h4 className="text-3xl font-bold text-white mb-1">
+                                <h4 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">
                                     {user.username}
                                 </h4>
                                 <span
@@ -123,27 +123,27 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                                 </span>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-300">
-                                <div className="bg-slate-800/50 p-3 rounded-lg">
-                                    <p className="text-xs text-slate-500 uppercase font-bold mb-1">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-slate-600 dark:text-slate-300">
+                                <div className="bg-slate-100 dark:bg-slate-800/50 p-3 rounded-lg">
+                                    <p className="text-xs text-slate-500 dark:text-slate-500 uppercase font-bold mb-1">
                                         {t('profile.modal.email')}
                                     </p>
-                                    <p>{user.email}</p>
+                                    <p className="text-slate-900 dark:text-slate-300">{user.email}</p>
                                 </div>
-                                <div className="bg-slate-800/50 p-3 rounded-lg">
-                                    <p className="text-xs text-slate-500 uppercase font-bold mb-1">
+                                <div className="bg-slate-100 dark:bg-slate-800/50 p-3 rounded-lg">
+                                    <p className="text-xs text-slate-500 dark:text-slate-500 uppercase font-bold mb-1">
                                         {t('profile.modal.institution')}
                                     </p>
-                                    <p>
+                                    <p className="text-slate-900 dark:text-slate-300">
                                         {user.institution ||
                                             t('profile.modal.not_specified')}
                                     </p>
                                 </div>
-                                <div className="bg-slate-800/50 p-3 rounded-lg col-span-1 md:col-span-2">
-                                    <p className="text-xs text-slate-500 uppercase font-bold mb-1">
+                                <div className="bg-slate-100 dark:bg-slate-800/50 p-3 rounded-lg col-span-1 md:col-span-2">
+                                    <p className="text-xs text-slate-500 dark:text-slate-500 uppercase font-bold mb-1">
                                         {t('profile.modal.bio')}
                                     </p>
-                                    <p>
+                                    <p className="text-slate-900 dark:text-slate-300">
                                         {user.bio || t('profile.modal.no_bio')}
                                     </p>
                                 </div>
@@ -152,9 +152,9 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     </div>
 
                     <div>
-                        <h4 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                        <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
                             {t('profile.modal.uploaded_models')}
-                            <span className="bg-slate-800 text-slate-400 text-xs px-2 py-1 rounded-full">
+                            <span className="bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs px-2 py-1 rounded-full border border-slate-200 dark:border-slate-700">
                                 {getUserModels().length}
                             </span>
                         </h4>
@@ -164,7 +164,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                                 {getUserModels().map((model) => (
                                     <div
                                         key={model.id}
-                                        className="group bg-slate-800 border border-slate-700 rounded-xl overflow-hidden hover:border-indigo-500/50 transition-all"
+                                        className="group bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden hover:border-indigo-500/50 transition-all shadow-sm hover:shadow-md"
                                     >
                                         <div className="aspect-video bg-slate-900 relative">
                                             <img
@@ -179,7 +179,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                                                 <h5 className="font-bold truncate">
                                                     {model.name}
                                                 </h5>
-                                                <p className="text-xs text-slate-400 truncate">
+                                                <p className="text-xs text-slate-300 truncate">
                                                     {model.equipmentType}
                                                 </p>
                                             </div>
@@ -188,8 +188,8 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-center py-12 bg-slate-800/30 rounded-2xl border border-slate-800 border-dashed mb-10">
-                                <p className="text-slate-500">
+                            <div className="text-center py-12 bg-slate-50 dark:bg-slate-800/30 rounded-2xl border border-slate-200 dark:border-slate-800 border-dashed mb-10">
+                                <p className="text-slate-400 dark:text-slate-500">
                                     {t('profile.modal.no_models')}
                                 </p>
                             </div>
@@ -198,10 +198,10 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
                     {/* Lessons Section */}
                     {lessons.length > 0 && (
-                        <div className="mt-10 pt-10 border-t border-slate-800">
-                            <h4 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                        <div className="mt-10 pt-10 border-t border-slate-200 dark:border-slate-800">
+                            <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3">
                                 {t('profile.modal.created_lessons')}
-                                <span className="bg-slate-800 text-slate-400 text-xs px-2 py-1 rounded-full">
+                                <span className="bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs px-2 py-1 rounded-full border border-slate-200 dark:border-slate-700">
                                     {lessons.length}
                                 </span>
                             </h4>
@@ -209,25 +209,25 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({
                                 {lessons.map((lesson) => (
                                     <div
                                         key={lesson.id}
-                                        className="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden p-4"
+                                        className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden p-4 shadow-sm"
                                     >
                                         <div className="flex justify-between items-start mb-2">
                                             <span className="text-[10px] uppercase font-bold text-indigo-400 bg-indigo-400/10 px-2 py-1 rounded">
                                                 {lesson.sectorName || 'General'}
                                             </span>
-                                            <span className="text-xs text-slate-500">
+                                            <span className="text-xs text-slate-400 dark:text-slate-500">
                                                 {new Date(
                                                     lesson.created_at
                                                 ).toLocaleDateString()}
                                             </span>
                                         </div>
-                                        <h5 className="font-bold text-white mb-2">
+                                        <h5 className="font-bold text-slate-900 dark:text-white mb-2">
                                             {lesson.title}
                                         </h5>
-                                        <p className="text-xs text-slate-400 line-clamp-2 mb-4">
+                                        <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 mb-4">
                                             {lesson.description}
                                         </p>
-                                        <div className="flex items-center gap-2 text-xs text-slate-500">
+                                        <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
                                             <BookOpen size={14} />
                                             <span>
                                                 {t('profile.modal.steps', {
